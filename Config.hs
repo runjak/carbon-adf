@@ -28,6 +28,6 @@ readConfig = liftM (liftM fst . listToMaybe . reads) . readFile
 writeConfig :: FilePath -> Config -> IO ()
 writeConfig path = writeFile path . show
 
-data BackendType = FileBackend
+data BackendType = RamBackend -- | All data is only kept in memory
                  | MissingBackend
                    deriving (Eq, Read, Show)

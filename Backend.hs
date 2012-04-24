@@ -15,7 +15,11 @@ class Backend b where
   foo :: b -> IO ()
 
 loadBackend :: Config -> IO (Maybe ProxyBackend)
-loadBackend = undefined
+loadBackend = loadBackend' . backendType
+
+loadBackend' :: BackendType -> IO (Maybe ProxyBackend)
+loadBackend' MissingBackend = return Nothing
+loadBackend' RamBackend     = return . Just $ mkProxy fakeBackend
 
 -- | To enable lists and stuff .)
 data ProxyBackend = forall b . Backend b => PB b
@@ -24,3 +28,7 @@ instance Backend ProxyBackend where
 
 mkProxy :: (Backend b) => b -> ProxyBackend
 mkProxy = PB
+
+-- FIXME remove this!
+fakeBackend :: ProxyBackend
+fakeBackend = undefined
