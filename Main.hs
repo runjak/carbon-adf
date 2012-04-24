@@ -1,9 +1,13 @@
+{-# LANGUAGE DoAndIfThenElse #-}
 module Main (main) where
 {-
   The Main module, which is supposed to link everything together.
 -}
-
+import Backend (Backend, loadBackend)
 import Config (Config, nullConfig, readConfig, writeConfig)
+import qualified Website.Main as Web (serve)
+
+import Control.Monad
 import Data.Maybe (isJust, fromJust)
 import System.Environment (getArgs)
 
@@ -21,7 +25,7 @@ main = do
       putStrLn $ "Loading config from '" ++ path ++ "'."
       mConf <- readConfig path
       if isJust mConf
-        then putStrLn . show $ fromJust mConf -- | change here to work with config
+        then startup $ fromJust mConf
         else putStrLn $ "Could not load config from '" ++ path ++ "'."
     _ -> help
 
@@ -33,3 +37,10 @@ help = mapM_ putStrLn [
   , "Create nullConfig:  $openBrain nullConfig <location>"
   , "Get this message:   $openBrain {--help,-help,help,}"
   ]
+
+startup :: Config -> IO ()
+startup config = do
+  mBackend <- loadBackend config
+  if isJust mBackend
+  then Web.serve (fromJust mBackend) config
+  else putStrLn "Could not load backend."
