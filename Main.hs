@@ -26,9 +26,10 @@ main = do
     _ -> help
 
 help :: IO ()
-help = do
-  putStrLn "Herthlokel Version 0.0"
-  putStrLn "----------------------"
-  putStrLn "Simple start:       $herthlokel <configFile>"
-  putStrLn "Create nullConfig:  $herthlokel nullConfig <location>"
-  putStrLn "Get this message:   $herthlokel {--help,-help,help,}"
+help = mapM_ putStrLn [
+    "openBrain Version 0.1"
+  , "---------------------"
+  , "Simple start:       $openBrain <configFile>"
+  , "Create nullConfig:  $openBrain nullConfig <location>"
+  , "Get this message:   $openBrain {--help,-help,help,}"
+  ]
