@@ -1,0 +1,13 @@
+Name:           openBrain
+Version:        0.1
+Synopsis:       A bachelorproject
+Description:    Interactive argumentationframeworks in a webapplication.
+License:        GPL
+License-file:   LICENSE
+Author:         Jakob Runge
+Maintainer:     Jakob Runge <mam09crm@studserv.uni-leipzig.de>
+Build-Type:     Simple
+Build-Depends:  base, SHA2
+
+Executable:	openBrain
+Main-is:    Main.hs
