@@ -4,9 +4,9 @@ module Website.Files (serve) where
   which are located in /files/.
   It uses the Config.File module for configuration.
 -}
-import Config hiding (nullConfig)
+import Config (Config(..))
 import Happstack.Server (Browsing(..), serveDirectory, dir)
-import qualified Happstack.Server as H
+import qualified Happstack.Server as S
 
 serve conf = do
   let b = browsing $ allowBrowsing conf
