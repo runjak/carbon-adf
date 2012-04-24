@@ -5,12 +5,13 @@ module Website.Files (serve) where
   It uses the Config.File module for configuration.
 -}
 import Config (Config(..))
-import Happstack.Server (Browsing(..), serveDirectory, dir)
+import Happstack.Server (Browsing(..), serveDirectory, Response)
 import qualified Happstack.Server as S
 
+serve :: Config -> S.ServerPartT IO Response
 serve conf = do
   let b = browsing $ allowBrowsing conf
-  dir "files" . serveDirectory b fallbackFiles $ fileStorage conf
+  serveDirectory b fallbackFiles $ fileStorage conf
 
 browsing :: Bool -> Browsing
 browsing True   = EnableBrowsing

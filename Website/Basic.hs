@@ -2,6 +2,7 @@
 module Website.Basic (
     template, template'
   , keywords, keywords'
+  , dummy
 ) where
 {-
   Basic functions that will help in different parts of the Website.
@@ -33,3 +34,6 @@ keywords k = [H.meta ! A.name (H.toValue ("keywords" :: String)) ! A.content (H.
 
 keywords' :: Meta -> Keywords -> Meta
 keywords' ms k = keywords k ++ ms
+
+-- | for test reasons
+dummy = template' "openBrain testpage" $ H.p "This is only a test."
