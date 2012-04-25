@@ -7,7 +7,7 @@ License-file:   LICENSE
 Author:         Jakob Runge
 Maintainer:     Jakob Runge <mam09crm@studserv.uni-leipzig.de>
 Build-Type:     Simple
-Build-Depends:  base, SHA2, happstack-server, blaze-html
+Build-Depends:  containers, base, blaze-html, happstack-server, SHA2, stm, utf8-string
 
 Executable:	openBrain
 Main-is:    Main.hs

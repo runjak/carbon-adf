@@ -3,7 +3,8 @@ module User.Data (
     UserId
   , toUserId
   , fromUserId
-  , Userdata(..)
+  , UserData(..)
+  , UserName
 ) where
 {-
   This module holds all the data concerning users.
@@ -19,9 +20,10 @@ toUserId = UserId
 fromUserId :: UserId -> Integer
 fromUserId (UserId i) = i
 
-data Userdata = Userdata {
+type UserName = String
+data UserData = Userdata {
     userid    :: UserId
-  , username  :: String
+  , username  :: UserName
   , password  :: Hash
   , karma     :: Karma
 } deriving (Eq)

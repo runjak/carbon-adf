@@ -3,7 +3,7 @@ module Main (main) where
 {-
   The Main module, which is supposed to link everything together.
 -}
-import Backend (Backend, loadBackend)
+import Backend.Load (loadBackend)
 import Config (Config, nullConfig, readConfig, writeConfig)
 import qualified Website.Main as Web (serve)
 
