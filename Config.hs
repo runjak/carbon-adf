@@ -18,9 +18,21 @@ data Config = Config {
   , allowBrowsing :: Bool     -- | Should users be able to browse the static files directory?
   , port          :: Int      -- | The port on which openBrain will listen
   , backendType   :: BackendType
+  , useTLS        :: Bool
+  , tlsKey        :: FilePath
+  , tlsCert       :: FilePath
 } deriving (Eq, Read, Show)
 
-nullConfig = Config "" False False 8000 MissingBackend
+nullConfig = Config {
+    fileStorage   = ""
+  , allowUploads  = False
+  , allowBrowsing = False
+  , port          = 8000
+  , backendType   = MissingBackend
+  , useTLS        = False
+  , tlsKey        = ""
+  , tlsCert       = ""
+}
 
 readConfig :: FilePath -> IO (Maybe Config)
 readConfig = liftM (liftM fst . listToMaybe . reads) . readFile
