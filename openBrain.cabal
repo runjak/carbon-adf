@@ -16,4 +16,4 @@ Build-Depends:  containers
               , stm
               , utf8-string
 Executable:     openBrain
-Main-is:        Main.hs
+Main-is:        OpenBrain/Main.hs

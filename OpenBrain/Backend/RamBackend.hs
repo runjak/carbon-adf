@@ -1,10 +1,10 @@
-module Backend.RamBackend (load) where
+module OpenBrain.Backend.RamBackend (load) where
 {-
   This module provides everything to load a working RamBackend.
   The RamBackend stores everything in ram and forgets when the application stops.
 -}
-import Backend
-import User.Data
+import OpenBrain.Backend
+import OpenBrain.User.Data
 
 import Control.Concurrent.STM as STM
 import Control.Monad

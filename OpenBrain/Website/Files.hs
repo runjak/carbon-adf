@@ -1,10 +1,10 @@
-module Website.Files (serve) where
+module OpenBrain.Website.Files (serve) where
 {-
   This module serves the static files on the website
   which are located in /files/.
   It uses the Config.File module for configuration.
 -}
-import Config (Config(..))
+import OpenBrain.Config (Config(..))
 import Happstack.Server (Browsing(..), serveDirectory, Response)
 import qualified Happstack.Server as S
 

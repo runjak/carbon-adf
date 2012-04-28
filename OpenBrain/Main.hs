@@ -3,9 +3,9 @@ module Main (main) where
 {-
   The Main module, which is supposed to link everything together.
 -}
-import Backend.Load (loadBackend)
-import Config (Config, nullConfig, readConfig, writeConfig)
-import qualified Website.Main as Web (serve)
+import OpenBrain.Backend.Load (loadBackend)
+import OpenBrain.Config (Config, nullConfig, readConfig, writeConfig)
+import qualified OpenBrain.Website.Main as Web (serve)
 
 import Control.Monad
 import Data.Maybe (isJust, fromJust)

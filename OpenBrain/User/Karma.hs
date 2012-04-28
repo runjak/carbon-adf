@@ -1,4 +1,4 @@
-module User.Karma (
+module OpenBrain.User.Karma (
   Karma, toKarma, fromKarma, hasKarma
 ) where
 {-

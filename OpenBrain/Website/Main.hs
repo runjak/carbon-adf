@@ -1,15 +1,15 @@
 {-# LANGUAGE OverloadedStrings, DoAndIfThenElse #-}
-module Website.Main (serve) where
+module OpenBrain.Website.Main (serve) where
 {-
   This module ties everything website focussed together.
   Therefore it has to do the routing for Website.Sitemap
   and to know everything to handle these requests.
 -}
-import Backend (Backend)
-import Config (Config(..))
-import qualified Website.Files as F (serve)
+import OpenBrain.Backend (Backend)
+import OpenBrain.Config (Config(..))
+import qualified OpenBrain.Website.Files as F (serve)
 
-import Website.Basic (dummy)
+import OpenBrain.Website.Basic (dummy)
 
 import Control.Monad
 import Happstack.Server (nullConf, simpleHTTP, dir)

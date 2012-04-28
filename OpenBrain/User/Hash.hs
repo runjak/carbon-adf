@@ -1,4 +1,4 @@
-module User.Hash (
+module OpenBrain.User.Hash (
   Hash, hash, fromString, toString
 ) where
 {-

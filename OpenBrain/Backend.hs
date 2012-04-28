@@ -1,5 +1,5 @@
 {-# LANGUAGE ExistentialQuantification #-}
-module Backend (
+module OpenBrain.Backend (
     Backend(..)
   , ProxyBackend
   , proxyBackend
@@ -10,9 +10,9 @@ module Backend (
   This module provides the Backend class that will be used to generate the website.
   The Backend will provide things like Userdata :P
 -}
-import Config
-import User.Hash (Hash)
-import User.Data (UserId, UserData(..), UserName)
+import OpenBrain.Config
+import OpenBrain.User.Hash (Hash)
+import OpenBrain.User.Data (UserId, UserData(..), UserName)
 
 class Backend b where
   getUsercontrol :: b -> IO ProxyUserControl

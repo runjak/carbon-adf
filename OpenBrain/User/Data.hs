@@ -1,5 +1,5 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-module User.Data (
+module OpenBrain.User.Data (
     UserId
   , toUserId
   , fromUserId
@@ -9,8 +9,8 @@ module User.Data (
 {-
   This module holds all the data concerning users.
 -}
-import User.Hash (Hash)
-import User.Karma (Karma)
+import OpenBrain.User.Hash (Hash)
+import OpenBrain.User.Karma (Karma)
 
 newtype UserId = UserId Integer deriving (Eq, Ord, Enum, Read, Show)
 

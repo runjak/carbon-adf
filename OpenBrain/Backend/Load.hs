@@ -1,10 +1,10 @@
-module Backend.Load (loadBackend) where
+module OpenBrain.Backend.Load (loadBackend) where
 {-
   Backend.Load provides the loading procedure to build a Backend from the Config.
 -}
-import Backend(ProxyBackend)
-import qualified Backend.RamBackend as RB
-import Config
+import OpenBrain.Backend(ProxyBackend)
+import qualified OpenBrain.Backend.RamBackend as RB
+import OpenBrain.Config
 
 import Control.Monad
 

@@ -1,7 +1,7 @@
-module User.TestHash (test) where
+module OpenBrain.User.TestHash (test) where
 
 import Test.QuickCheck as T
-import qualified User.Hash as H
+import qualified OpenBrain.User.Hash as H
 
 test = do
   putStrLn "Testing User.Hash"

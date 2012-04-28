@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Website.Basic (
+module OpenBrain.Website.Basic (
     template, template'
   , keywords, keywords'
   , dummy
