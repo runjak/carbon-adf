@@ -12,6 +12,8 @@ module OpenBrain.User.Data (
 import OpenBrain.User.Hash (Hash)
 import OpenBrain.User.Karma (Karma)
 
+import System.Time (ClockTime)
+
 newtype UserId = UserId Integer deriving (Eq, Ord, Enum, Read, Show)
 
 toUserId :: Integer -> UserId
@@ -21,9 +23,11 @@ fromUserId :: UserId -> Integer
 fromUserId (UserId i) = i
 
 type UserName = String
-data UserData = Userdata {
+data UserData = UserData {
     userid    :: UserId
   , username  :: UserName
   , password  :: Hash
   , karma     :: Karma
+  , creation  :: ClockTime
+  , lastLogin :: ClockTime
 } deriving (Eq)

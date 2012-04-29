@@ -1,5 +1,5 @@
 module OpenBrain.User.Karma (
-  Karma, toKarma, fromKarma, hasKarma
+  Karma, newKarma, toKarma, fromKarma, hasKarma
 ) where
 {-
   Karma is a system to map user experience and cooperation
@@ -9,6 +9,9 @@ module OpenBrain.User.Karma (
 -}
 
 newtype Karma = Karma Int
+
+newKarma :: Karma
+newKarma = toKarma 0
 
 toKarma :: Int -> Karma
 toKarma = Karma . max 0

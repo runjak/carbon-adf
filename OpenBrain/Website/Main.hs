@@ -17,7 +17,7 @@ import Happstack.Server.SimpleHTTPS (nullTLSConf, simpleHTTPS)
 import qualified Happstack.Server as S
 import qualified Happstack.Server.SimpleHTTPS as TLS
 
-serve :: (Backend b) => b -> Config -> IO ()
+serve :: Backend -> Config -> IO ()
 serve backend config = do
   if useTLS config
   then flip simpleHTTPS serverParts nullTLSConf{
