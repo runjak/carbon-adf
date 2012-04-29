@@ -1,3 +1,4 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module OpenBrain.User.Hash (
   Hash, hash, fromString, toString
 ) where
@@ -10,9 +11,7 @@ module OpenBrain.User.Hash (
 import qualified Codec.Digest.SHA as S
 import qualified Data.ByteString.UTF8 as BS (fromString, ByteString)
 
-newtype Hash = Hash String
-instance Eq Hash where
-  (Hash a) == (Hash b) = a == b
+newtype Hash = Hash String deriving (Eq, Ord, Show)
 
 hash :: String -> Hash
 hash = Hash . S.showBSasHex . S.hash S.SHA512 . BS.fromString
@@ -21,4 +20,4 @@ fromString :: String -> Hash
 fromString = Hash
 
 toString :: Hash -> String
-toString (Hash bs) = bs
+toString = show
