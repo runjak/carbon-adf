@@ -1,7 +1,7 @@
 {-# LANGUAGE DoAndIfThenElse, GeneralizedNewtypeDeriving #-}
 module OpenBrain.Website.Session (
-    SessionKey
-  , Session(actionKey, userId)
+    Session(actionKey, userId)
+  , actionKeyParameter
   , SessionManager(..)
   , newSessionManager
 ) where
@@ -11,14 +11,16 @@ module OpenBrain.Website.Session (
 
 import OpenBrain.Config
 import OpenBrain.User.Data (UserId)
-import OpenBrain.User.Hash (Hash, hash)
+import OpenBrain.User.Hash (Hash, hash, fromString)
 
 import Control.Concurrent.STM as STM
 import Control.Monad
+import Control.Monad.Trans (liftIO)
 import Data.Map (Map)
 import qualified Data.Map as M
 import Data.Maybe
-import qualified Data.Set as S
+import Happstack.Server as S hiding (Session, Cookie(..))
+import qualified Happstack.Server as Cookie (Cookie(..), CookieLife(..))
 import System.Random (StdGen, newStdGen, random)
 import System.Time (ClockTime, getClockTime, TimeDiff(..), addToClockTime)
 
@@ -34,25 +36,33 @@ data Session = Session {
 mkSessionKey :: Session -> SessionKey
 mkSessionKey s = SK . hash $ concat [(show $ sessionSecret s),(show $ userId s)]
 
+cookieName :: String
+cookieName = "SessionKey"
+
+{-| This is required for chkAction -}
+actionKeyParameter :: String
+actionKeyParameter = "ActionKey"
+
 data SessionManager = SessionManager {
-  {-| Initializes a new Sesison for a given UserId. -}
-    mkSession     :: UserId -> IO (SessionKey, Session)
-  {-| Returns a Session for a given Sessionkey if possible. -}
-  , getSession    :: SessionKey -> IO (Maybe Session)
-  {-|
-    Returns Nothing on invalid ActionKey.
-    If a Session is returned, it already has a new ActionKey.
-  -}
-  , performAction :: SessionKey -> ActionKey -> IO (Maybe Session)
+  {-| Initializes a new Session for a given UserId. -}
+    mkSession   :: UserId -> ServerPartT IO ()
+  {-| Fetches the UserId from a running session, fails with mzero -}
+  , getSession  :: ServerPartT IO Session
+  {-| Similar to getUserId, but also checks for a correct actionKeyParameter.
+      The returned Session will have a new ActionKey set. -}
+  , chkAction   :: ServerPartT IO Session
+  {-| Expires the cookie that maybe set. -}
+  , dropSession :: ServerPartT IO ()
 }
 
 newSessionManager :: Config -> IO SessionManager
 newSessionManager config = do
   ms <- newManagerState
   return $ SessionManager {
-      mkSession     = mkSession' ms
-    , getSession    = (\sk -> chkTimeouts config ms >> getSession' ms sk)
-    , performAction = performAction' ms
+      mkSession   = mkSession' ms
+    , getSession  = getSession' ms
+    , chkAction   = chkAction' ms
+    , dropSession = dropSession' ms
   }
 
 type LastAction = ClockTime
@@ -88,8 +98,14 @@ chkTimeouts conf ms = do
     s <- readTVar $ sessions ms
     writeTVar (sessions ms) $ foldl (flip M.delete) s $ M.elems kill
 
-mkSession' :: ManagerState -> UserId -> IO (SessionKey, Session)
+mkSession' :: ManagerState -> UserId -> ServerPartT IO ()
 mkSession' ms uid = do
+  sessionkey <- liftIO $ mkSession'' ms uid
+  let cookie = mkCookie cookieName $ show sessionkey
+  addCookie Cookie.Session cookie
+
+mkSession'' :: ManagerState -> UserId -> IO SessionKey
+mkSession'' ms uid = do
   t <- getClockTime
   atomically $ do
     aKey <- getRandom ms
@@ -104,10 +120,18 @@ mkSession' ms uid = do
     writeTVar (sessions ms) sessions'
     timeOuts' <- liftM (M.insert t sKey) . readTVar $ timeOuts ms
     writeTVar (timeOuts ms) timeOuts'
-    return (sKey, s)
+    return (sKey)
 
-getSession' :: ManagerState -> SessionKey -> IO (Maybe Session)
-getSession' ms sk = do
+getSession' :: ManagerState -> ServerPartT IO Session
+getSession' ms = do
+  sessionkey <- liftM (SK . fromString) $ lookCookieValue cookieName
+  mSession <- liftIO $ getSession'' ms sessionkey
+  case mSession of
+    (Just session) -> return session
+    Nothing -> mzero
+
+getSession'' :: ManagerState -> SessionKey -> IO (Maybe Session)
+getSession'' ms sk = do
   t <- getClockTime
   atomically $ do
     mS <- liftM (M.lookup sk) . readTVar $ sessions ms
@@ -118,8 +142,17 @@ getSession' ms sk = do
       return mS
     else return Nothing
 
-performAction' :: ManagerState -> SessionKey -> ActionKey -> IO (Maybe Session)
-performAction' ms sk ak = atomically $ do
+chkAction' :: ManagerState -> ServerPartT IO Session
+chkAction' ms = do
+  sessionkey  <- liftM (SK . fromString) $ lookCookieValue cookieName
+  actionkey   <- lookRead actionKeyParameter
+  mSession    <- liftIO $ chkAction'' ms sessionkey actionkey
+  case mSession of
+    (Just session) -> return session
+    Nothing -> mzero
+
+chkAction'' :: ManagerState -> SessionKey -> ActionKey -> IO (Maybe Session)
+chkAction'' ms sk ak = atomically $ do
   s <- readTVar $ sessions ms
   let mSes = M.lookup sk s
   if isJust mSes
@@ -133,3 +166,16 @@ performAction' ms sk ak = atomically $ do
       return $ Just ses'
     else return Nothing
   else return Nothing
+
+dropSession' :: ManagerState -> ServerPartT IO ()
+dropSession' ms = do
+  sessionkey  <- liftM (SK . fromString) $ lookCookieValue cookieName
+  liftIO $ dropSession'' ms sessionkey
+  expireCookie cookieName
+
+dropSession'' :: ManagerState -> SessionKey -> IO ()
+dropSession'' ms sk = atomically $ do
+  s <- readTVar $ sessions ms
+  t <- readTVar $ timeOuts ms
+  writeTVar (sessions ms) $ M.delete sk s
+  writeTVar (timeOuts ms) $ M.filter (/= sk) t
