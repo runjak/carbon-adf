@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings, DoAndIfThenElse #-}
-module OpenBrain.Website.Main (serve) where
+module OpenBrain.Website (serve) where
 {-
   This module ties everything website focussed together.
   Therefore it has to do the routing for Website.Sitemap
@@ -7,7 +7,7 @@ module OpenBrain.Website.Main (serve) where
 -}
 import OpenBrain.Backend (Backend)
 import OpenBrain.Config (Config(..))
-import qualified OpenBrain.Website.Files as F (serve)
+import qualified OpenBrain.Website.Files as Files (serve)
 
 import OpenBrain.Website.Basic (dummy)
 
@@ -27,7 +27,7 @@ serve backend config = do
     }
   else simpleHTTP nullConf{S.port = port config} serverParts
   where
-    serverParts = msum
-      [ dir "files" $ F.serve config
+    serverParts = msum [
+        dir "files" $ Files.serve config
       , S.ok $ S.toResponse dummy
       ]

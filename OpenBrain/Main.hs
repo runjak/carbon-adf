@@ -5,7 +5,7 @@ module Main (main) where
 -}
 import OpenBrain.Backend.Load (loadBackend)
 import OpenBrain.Config (Config, nullConfig, readConfig, writeConfig)
-import qualified OpenBrain.Website.Main as Web (serve)
+import qualified OpenBrain.Website as Web (serve)
 
 import Control.Monad
 import Data.Maybe (isJust, fromJust)
