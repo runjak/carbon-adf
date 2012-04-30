@@ -7,18 +7,21 @@ module OpenBrain.Website (serve) where
 -}
 import OpenBrain.Backend (Backend)
 import OpenBrain.Config (Config(..))
+import qualified OpenBrain.Website.Action as Action (serve)
+import OpenBrain.Website.Session (newSessionManager)
 import qualified OpenBrain.Website.Files as Files (serve)
 
 import OpenBrain.Website.Basic (dummy)
 
 import Control.Monad
-import Happstack.Server (nullConf, simpleHTTP, dir)
-import Happstack.Server.SimpleHTTPS (nullTLSConf, simpleHTTPS)
+import Happstack.Server hiding (port)
 import qualified Happstack.Server as S
+import Happstack.Server.SimpleHTTPS (nullTLSConf, simpleHTTPS)
 import qualified Happstack.Server.SimpleHTTPS as TLS
 
 serve :: Backend -> Config -> IO ()
 serve backend config = do
+  serverParts <- serve' backend config
   if useTLS config
   then flip simpleHTTPS serverParts nullTLSConf{
       TLS.tlsPort = port config
@@ -26,8 +29,12 @@ serve backend config = do
     , TLS.tlsCert = tlsCert config
     }
   else simpleHTTP nullConf{S.port = port config} serverParts
-  where
-    serverParts = msum [
-        dir "files" $ Files.serve config
-      , S.ok $ S.toResponse dummy
-      ]
+
+serve' :: Backend -> Config -> IO (ServerPartT IO Response)
+serve' backend config = do
+  sessionmanager <- newSessionManager config
+  return $ msum [
+      dir "action" $ Action.serve backend sessionmanager
+    , dir "files" $ Files.serve config
+    , ok $ toResponse dummy
+    ]

@@ -35,7 +35,7 @@ help = mapM_ putStrLn [
   , "---------------------"
   , "Simple start:       $openBrain <configFile>"
   , "Create nullConfig:  $openBrain nullConfig <location>"
-  , "Get this message:   $openBrain {--help,-help,help,}"
+  , "Get this message:   $openBrain {--help,-help,help}"
   ]
 
 startup :: Config -> IO ()

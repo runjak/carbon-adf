@@ -12,7 +12,9 @@ Build-Depends:  containers
               , blaze-html
               , happstack-server
               , happstack-server-tls
+              , mtl
               , old-time
+              , random
               , SHA2
               , stm
               , utf8-string
