@@ -15,11 +15,11 @@ test = do
       let y = K.toKarma b
       x - y >= 0
     fromto :: Int -> Bool
-    fromto x = (max 0 x) == K.fromKarma (K.toKarma x)
+    fromto x = max 0 x == K.fromKarma (K.toKarma x)
     hasK :: (Int, Int) -> Bool
     hasK (x, y) = do
       let a = max 0 x
       let b = max 0 y
-      (a <= b) == (K.hasKarma a $ K.toKarma b)
+      (a <= b) == K.hasKarma a (K.toKarma b)
 
 main = test

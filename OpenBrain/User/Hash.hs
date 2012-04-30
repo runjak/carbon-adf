@@ -20,4 +20,4 @@ fromString :: String -> Hash
 fromString = Hash
 
 toString :: Hash -> String
-toString = show
+toString (Hash s) = s

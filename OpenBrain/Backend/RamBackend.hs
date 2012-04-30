@@ -59,7 +59,7 @@ rRegister (userIdMap, userNameMap) un h = do
     uim <- readTVar userIdMap
     unm <- readTVar userNameMap
     if M.member un unm
-    then return $ Nothing
+    then return Nothing
     else do
       let uid = maximum . ([toUserId 0]++) $ M.keys uim
       let u = UserData {

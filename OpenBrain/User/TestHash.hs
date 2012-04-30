@@ -8,6 +8,6 @@ test = do
   quickCheck go
     where
       go :: String -> Bool
-      go s = let h = H.hash s in h == (H.fromString $ H.toString h)
+      go s = let h = H.hash s in h == H.fromString (H.toString h)
 
 main = test

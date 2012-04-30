@@ -8,6 +8,8 @@ module OpenBrain.User.Karma (
   Karma is basically an Int in the Set of N0.
 -}
 
+import Control.Arrow ((***))
+
 newtype Karma = Karma Int
 
 newKarma :: Karma
@@ -46,7 +48,7 @@ instance Num Karma where
 
 instance Bounded Karma where
   minBound = Karma 0
-  maxBound = Karma $ maxBound
+  maxBound = Karma maxBound
 
 instance Real Karma where
   toRational = toRational . fromKarma
@@ -62,6 +64,6 @@ instance Integral Karma where
   rem (Karma a) (Karma b) = toKarma $ rem a b
   div (Karma a) (Karma b) = toKarma $ div a b
   mod (Karma a) (Karma b) = toKarma $ mod a b
-  quotRem (Karma a) (Karma b) = (\(x, y)->(toKarma x, toKarma y)) $ quotRem a b
-  divMod (Karma a) (Karma b) = (\(x, y)->(toKarma x, toKarma y)) $ divMod a b
+  quotRem (Karma a) (Karma b) = (toKarma *** toKarma) $ quotRem a b
+  divMod (Karma a) (Karma b) = (toKarma *** toKarma) $ divMod a b
   toInteger = toInteger . fromKarma

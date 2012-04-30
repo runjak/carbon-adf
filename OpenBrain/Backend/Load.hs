@@ -9,8 +9,7 @@ import OpenBrain.Config
 import Control.Monad
 
 loadBackend :: Config -> IO (Maybe Backend)
-loadBackend c = do
-  case backendType c of
-    RamBackend -> liftM Just Ram.load
-    MissingBackend -> return Nothing
+loadBackend c = case backendType c of
+  RamBackend -> liftM Just Ram.load
+  MissingBackend -> return Nothing
   

@@ -25,7 +25,7 @@ template t m b = do
     H.body b
 
 template' :: Title -> Body -> H.Html
-template' t b = template t [] b
+template' t = template t []
 
 -- | Keywords for meta tags should be comma seperated
 type Keywords = String

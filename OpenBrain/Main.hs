@@ -24,9 +24,9 @@ main = do
     path:_ -> do
       putStrLn $ "Loading config from '" ++ path ++ "'."
       mConf <- readConfig path
-      if isJust mConf
-        then startup $ fromJust mConf
-        else putStrLn $ "Could not load config from '" ++ path ++ "'."
+      case mConf of
+        (Just c) -> startup c
+        Nothing -> putStrLn $ "Could not load config from '" ++ path ++ "'."
     _ -> help
 
 help :: IO ()
@@ -41,6 +41,6 @@ help = mapM_ putStrLn [
 startup :: Config -> IO ()
 startup config = do
   mBackend <- loadBackend config
-  if isJust mBackend
-  then Web.serve (fromJust mBackend) config
-  else putStrLn "Could not load backend."
+  case mBackend of
+    (Just b) -> Web.serve b config
+    Nothing -> putStrLn "Could not load backend."
