@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 module OpenBrain.Website.Action (serve) where
 {-
   Module for all actions that clients can perform on the website.
@@ -6,6 +7,7 @@ module OpenBrain.Website.Action (serve) where
 -}
 
 import OpenBrain.Backend as B
+import OpenBrain.Website.Common
 import OpenBrain.Website.Session as SM
 import qualified OpenBrain.Website.Action.User as User
 
@@ -15,5 +17,5 @@ import Happstack.Server as S
 serve :: Backend -> SessionManager -> ServerPartT IO Response
 serve backend sessionmanager = msum [
     method POST >> dir "user" (User.serve backend sessionmanager)
-  , badRequest $ toResponse "Actions are only allowed via POST requests."
+  , badRequest "Actions are only allowed via POST requests."
   ]
