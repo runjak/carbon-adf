@@ -15,6 +15,7 @@ Build-Depends:  aeson
               , happstack-server-tls
               , mtl
               , old-time
+              , pretty-show
               , random
               , SHA2
               , stm

@@ -11,6 +11,8 @@ module OpenBrain.Config (
 
 import Control.Monad (liftM)
 import Data.Maybe (listToMaybe)
+import Text.Show.Pretty (ppShow)
+
 import OpenBrain.Config.Karma
 
 type Seconds = Int
@@ -44,7 +46,7 @@ readConfig :: FilePath -> IO (Maybe Config)
 readConfig = liftM (liftM fst . listToMaybe . reads) . readFile
 
 writeConfig :: FilePath -> Config -> IO ()
-writeConfig path = writeFile path . show
+writeConfig path = writeFile path . ppShow
 
 data BackendType = RamBackend -- | All data is only kept in memory
                  | MissingBackend
