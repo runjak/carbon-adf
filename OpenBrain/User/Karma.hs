@@ -1,5 +1,7 @@
 module OpenBrain.User.Karma (
-  Karma, newKarma, toKarma, fromKarma, hasKarma
+    Karma, newKarma          -- Type and creation of it
+  , toKarma, fromKarma        -- simple conversion from/to Int
+  , hasKarma, satisfiesRatio  -- logic build upon it
 ) where
 {-
   Karma is a system to map user experience and cooperation
@@ -67,3 +69,12 @@ instance Integral Karma where
   quotRem (Karma a) (Karma b) = (toKarma *** toKarma) $ quotRem a b
   divMod (Karma a) (Karma b) = (toKarma *** toKarma) $ divMod a b
   toInteger = toInteger . fromKarma
+
+{- Describes the highest current value of Karma in the system. -}
+type Highest = Karma
+{-
+  Is a function that computes the required amount of Karma
+  to satisfy a ratio in realation to the highest current value.
+-}
+satisfiesRatio :: Rational -> Highest -> Karma
+satisfiesRatio rat = toKarma . ceiling . (rat *) . toRational

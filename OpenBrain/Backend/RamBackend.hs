@@ -18,7 +18,7 @@ import System.Time (getClockTime)
 import qualified System.Time as T
 
 load :: IO Backend
-load = liftM Backend loadUserBackend
+load = liftM (\b -> Backend b undefined) loadUserBackend
 
 type UserRamData = (TVar (Map UserId UserData), TVar (Map UserName UserData))
 loadUserBackend :: IO UserBackend

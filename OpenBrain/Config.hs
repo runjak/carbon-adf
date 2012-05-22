@@ -11,6 +11,7 @@ module OpenBrain.Config (
 
 import Control.Monad (liftM)
 import Data.Maybe (listToMaybe)
+import OpenBrain.Config.Karma
 
 type Seconds = Int
 data Config = Config {
@@ -23,6 +24,7 @@ data Config = Config {
   , tlsKey          :: FilePath
   , tlsCert         :: FilePath
   , sessionTimeout  :: Seconds  -- | Seconds until Sessions are dropped.
+  , karmaConfig     :: KarmaConfig
 } deriving (Eq, Read, Show)
 
 nullConfig = Config {
@@ -35,6 +37,7 @@ nullConfig = Config {
   , tlsKey          = ""
   , tlsCert         = ""
   , sessionTimeout  = 900   -- | 15 minutes
+  , karmaConfig     = nullKarmaConfig
 }
 
 readConfig :: FilePath -> IO (Maybe Config)
