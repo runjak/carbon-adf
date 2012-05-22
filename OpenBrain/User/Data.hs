@@ -31,4 +31,5 @@ data UserData = UserData {
   , karma     :: Karma
   , creation  :: ClockTime
   , lastLogin :: ClockTime
+  , isAdmin   :: Bool
 } deriving (Eq)

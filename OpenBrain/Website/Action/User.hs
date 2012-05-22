@@ -19,11 +19,11 @@ import Happstack.Server as S
 
 serve :: Backend -> SessionManager -> ServerPartT IO Response
 serve b sm = msum [
-    dir "create" $ create (B.userBackend b) sm
-  , dir "login" $ login (B.userBackend b) sm
-  , dir "logout" $ logout sm
-  , dir "edit" $ ok "not implemented." -- FIXME define edit -> profiles
-  , dir "delete" $ ok "not implemented." -- FIXME introduce roles
+    dir "create"  $ create (B.userBackend b) sm
+  , dir "login"   $ login (B.userBackend b) sm
+  , dir "logout"  $ logout sm
+  , dir "edit"    $ ok "not implemented." -- FIXME define edit -> profiles
+  , dir "delete"  $ ok "not implemented." -- FIXME no roles, only karma and admins
   ]
 
 create :: UserBackend -> SessionManager -> ServerPartT IO Response

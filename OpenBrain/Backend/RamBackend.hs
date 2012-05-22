@@ -69,6 +69,7 @@ rRegister (userIdMap, userNameMap) un h = do
         , karma     = newKarma
         , creation  = t
         , lastLogin = t
+        , isAdmin   = False
       }
       let uim' = M.insert uid u uim
       let unm' = M.insert un u unm
