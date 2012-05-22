@@ -1,5 +1,5 @@
 module OpenBrain.Config.Karma (
-    KarmaConfig
+    KarmaConfig (..)
   , nullKarmaConfig
 ) where
 {- Configuration of Karma values -}

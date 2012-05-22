@@ -1,6 +1,7 @@
 module OpenBrain.Backend (
     Backend(..)
   , UserBackend(..)
+  , KarmaBackend(..)
 ) where
 {-
   This module provides the Backend class that will be used to generate the website.

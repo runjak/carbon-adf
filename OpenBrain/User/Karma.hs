@@ -77,4 +77,6 @@ type Highest = Karma
   to satisfy a ratio in realation to the highest current value.
 -}
 satisfiesRatio :: Rational -> Highest -> Karma
-satisfiesRatio rat = toKarma . ceiling . (rat *) . toRational
+satisfiesRatio rat h =
+  let spaceToTop = toKarma . ceiling . (rat *) $ toRational h
+  in h - spaceToTop

@@ -10,6 +10,6 @@ import Control.Monad
 
 loadBackend :: Config -> IO (Maybe Backend)
 loadBackend c = case backendType c of
-  RamBackend -> liftM Just Ram.load
+  RamBackend -> liftM Just $ Ram.load c
   MissingBackend -> return Nothing
   

@@ -1,5 +1,6 @@
 module OpenBrain.Config (
     Config(..)
+  , KarmaConfig(..)
   , nullConfig
   , readConfig
   , writeConfig
