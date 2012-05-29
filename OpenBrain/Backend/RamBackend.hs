@@ -42,6 +42,8 @@ loadUserBackend userRamData = do
     , hasUserWithName = rHasUserWithName userRamData
     , register        = rRegister userRamData
     , delete          = rDelete userRamData
+    , getProfile      = undefined -- FIXME IMPLEMENT
+    , setProfile      = undefined -- FIXME IMPLEMENT
   }
 
 loadKarmaBackend :: UserRamData -> KarmaConfig -> IO KarmaBackend

@@ -11,6 +11,7 @@ import OpenBrain.Config
 import OpenBrain.User.Data (UserId, UserData(..), UserName)
 import OpenBrain.User.Hash (Hash)
 import OpenBrain.User.Karma (Karma)
+import OpenBrain.User.Profile (Profile)
 
 {- The highest abstraction of the backend-tree. -}
 data Backend = Backend {
@@ -26,6 +27,8 @@ data UserBackend = UserBackend {
   , hasUserWithName :: UserName -> IO Bool
   , register        :: UserName -> Hash -> IO (Maybe UserData)
   , delete          :: UserId -> IO Bool
+  , getProfile      :: UserId -> IO (Maybe Profile)
+  , setProfile      :: UserId -> Profile -> IO Bool
 }
 
 {-

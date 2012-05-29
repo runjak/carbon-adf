@@ -12,10 +12,10 @@ module OpenBrain.User.Data (
 import OpenBrain.User.Hash (Hash)
 import OpenBrain.User.Karma (Karma)
 
-import Data.Aeson (ToJSON)
+import Data.Aeson (ToJSON, FromJSON)
 import System.Time (ClockTime)
 
-newtype UserId = UserId Integer deriving (Eq, Ord, Enum, Read, Show, ToJSON)
+newtype UserId = UserId Integer deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
 
 toUserId :: Integer -> UserId
 toUserId = UserId
