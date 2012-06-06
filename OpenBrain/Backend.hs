@@ -1,6 +1,7 @@
 module OpenBrain.Backend (
     Backend(..)
   , UserBackend(..)
+  , ProfileBackend(..)
   , KarmaBackend(..)
 ) where
 {-
@@ -15,20 +16,27 @@ import OpenBrain.User.Profile (Profile)
 
 {- The highest abstraction of the backend-tree. -}
 data Backend = Backend {
-    userBackend :: UserBackend
-  , karmaBackend :: KarmaBackend
+    shutdown      :: IO ()
+  , userBackend   :: UserBackend
+  , karmaBackend  :: KarmaBackend
 }
 
 {- Controls for everything userrelated. -}
 data UserBackend = UserBackend {
-    login           :: UserName -> Hash -> IO (Maybe UserData)
+    login           :: UserName -> Hash -> IO (Maybe UserData) -- The Backend will update the lastLogin in UserData.
   , getUser         :: UserId -> IO (Maybe UserData)
   , hasUserWithId   :: UserId -> IO Bool
   , hasUserWithName :: UserName -> IO Bool
-  , register        :: UserName -> Hash -> IO (Maybe UserData)
+  , register        :: UserName -> Hash -> IO (Maybe UserData) -- The Backend will check for duplicate UserNames.
   , delete          :: UserId -> IO Bool
-  , getProfile      :: UserId -> IO (Maybe Profile)
-  , setProfile      :: UserId -> Profile -> IO Bool
+  , profileBackend  :: ProfileBackend
+}
+
+{- Controls for Userprofiles. -}
+data ProfileBackend = ProfileBackend {
+    getProfile :: UserId -> IO (Maybe Profile)
+  , setProfile :: UserId -> Profile -> IO Bool
+  -- FIXME Update Name, etc…
 }
 
 {-

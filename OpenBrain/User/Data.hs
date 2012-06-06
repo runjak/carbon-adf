@@ -13,7 +13,7 @@ import OpenBrain.User.Hash (Hash)
 import OpenBrain.User.Karma (Karma)
 
 import Data.Aeson (ToJSON, FromJSON)
-import System.Time (ClockTime)
+import System.Time (CalendarTime)
 
 newtype UserId = UserId Integer deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
 
@@ -29,7 +29,7 @@ data UserData = UserData {
   , username  :: UserName
   , password  :: Hash
   , karma     :: Karma
-  , creation  :: ClockTime
-  , lastLogin :: ClockTime
+  , creation  :: CalendarTime
+  , lastLogin :: CalendarTime
   , isAdmin   :: Bool
 } deriving (Eq)

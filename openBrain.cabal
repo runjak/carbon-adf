@@ -11,8 +11,9 @@ Build-Depends:  aeson
               , base
               , blaze-html
               , containers
-              , happstack-server
-              , happstack-server-tls
+              , convertible
+              , happstack-server, happstack-server-tls
+              , HDBC, HDBC-sqlite3
               , mtl
               , old-time
               , pretty-show

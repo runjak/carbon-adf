@@ -49,6 +49,6 @@ readConfig = liftM (liftM fst . listToMaybe . reads) . readFile
 writeConfig :: FilePath -> Config -> IO ()
 writeConfig path = writeFile path . ppShow
 
-data BackendType = RamBackend -- | All data is only kept in memory
+data BackendType = Sqlite3Backend {dblocation :: FilePath}
                  | MissingBackend
                    deriving (Eq, Read, Show)
