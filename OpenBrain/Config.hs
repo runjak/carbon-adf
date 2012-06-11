@@ -12,7 +12,6 @@ module OpenBrain.Config (
 
 import Control.Monad (liftM)
 import Data.Maybe (listToMaybe)
-import Text.Show.Pretty (ppShow)
 
 import OpenBrain.Config.Karma
 
@@ -31,11 +30,11 @@ data Config = Config {
 } deriving (Eq, Read, Show)
 
 nullConfig = Config {
-    fileStorage     = ""
+    fileStorage     = "/tmp/"
   , allowUploads    = False
-  , allowBrowsing   = False
+  , allowBrowsing   = True
   , port            = 8000  -- | Happstack std.
-  , backendType     = MissingBackend
+  , backendType     = Sqlite3Backend{dblocation = "/tmp/test.sqlite"}
   , useTLS          = False
   , tlsKey          = ""
   , tlsCert         = ""
@@ -47,7 +46,7 @@ readConfig :: FilePath -> IO (Maybe Config)
 readConfig = liftM (liftM fst . listToMaybe . reads) . readFile
 
 writeConfig :: FilePath -> Config -> IO ()
-writeConfig path = writeFile path . ppShow
+writeConfig path = writeFile path . show
 
 data BackendType = Sqlite3Backend {dblocation :: FilePath}
                  | MissingBackend

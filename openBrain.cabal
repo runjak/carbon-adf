@@ -16,7 +16,6 @@ Build-Depends:  aeson
               , HDBC, HDBC-sqlite3
               , mtl
               , old-time
-              , pretty-show
               , random
               , SHA2
               , stm
