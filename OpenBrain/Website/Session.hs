@@ -7,6 +7,7 @@ module OpenBrain.Website.Session (
 ) where
 {-
   Session management for clients.
+  FIXME clarify this and include timeout checking.
 -}
 
 import Control.Concurrent.STM as STM
