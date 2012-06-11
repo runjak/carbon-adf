@@ -1,7 +1,7 @@
 module OpenBrain.TestAll where
 
-import qualified OpenBrain.User.TestHash as UTH
-import qualified OpenBrain.User.TestKarma as UTK
+import qualified OpenBrain.Data.TestHash as UTH
+import qualified OpenBrain.Data.TestKarma as UTK
 
 main = do
   UTH.test
