@@ -1,6 +1,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module OpenBrain.Data.User (
     UserData(..)
+  , UserId
   , UserName
 ) where
 {-
@@ -12,9 +13,10 @@ import OpenBrain.Data.Id
 import OpenBrain.Data.Hash (Hash)
 import OpenBrain.Data.Karma (Karma)
 
+type UserId = Id
 type UserName = String
 data UserData = UserData {
-    userid    :: Id
+    userid    :: UserId
   , username  :: UserName
   , password  :: Hash
   , karma     :: Karma

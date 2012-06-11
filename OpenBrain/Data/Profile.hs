@@ -65,12 +65,15 @@ data ProfileSnippet = ProfileSnippet {
 
 {- Below some functions and Interfaces to work with profiles -}
 
-emptyProfile :: UserId -> Profile
-emptyProfile u = Profile u None Nothing Nothing [] [] [] []
+type UserId     = Id
+type ProfileId  = Id
+emptyProfile :: Id -> UserId -> Profile
+emptyProfile p u = Profile p u None Nothing Nothing [] [] [] []
 
 instance ToJSON Profile where
   toJSON p = object [
-      "userId"            .= userId p
+      "profileId"         .= profileId p
+    , "userId"            .= userId p
     , "accessRule"        .= accessRule p
     , "name"              .= name p
     , "avatar"            .= avatar p
@@ -82,6 +85,7 @@ instance ToJSON Profile where
 
 instance FromJSON Profile where
   parseJSON (Object v) = Profile <$>
+    v .: "profileId" <*>
     v .: "userId" <*>
     v .: "accessRule" <*>
     v .: "name" <*>
