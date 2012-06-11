@@ -8,7 +8,7 @@ import Data.Convertible.Base
 import OpenBrain.Backend
 import OpenBrain.Backend.SqliteBackend.Convertibles ()
 import OpenBrain.Config.Karma
-import OpenBrain.User.Karma
+import OpenBrain.Data.Karma
 
 -- Finding the highest current value of Karma in the system:
 maxKarma :: IConnection conn => conn -> IO Karma

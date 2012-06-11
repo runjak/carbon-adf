@@ -3,22 +3,26 @@ module OpenBrain.Backend (
   , UserBackend(..)
   , ProfileBackend(..)
   , KarmaBackend(..)
+  , SaltShaker(..)
 ) where
 {-
   This module provides the Backend class that will be used to generate the website.
   The Backend will provide things like Userdata :P
 -}
 import OpenBrain.Config
-import OpenBrain.User.Data (UserId, UserData(..), UserName)
-import OpenBrain.User.Hash (Hash)
-import OpenBrain.User.Karma (Karma)
-import OpenBrain.User.Profile (Profile)
+import OpenBrain.Data.User (UserData(..), UserId, UserName)
+import OpenBrain.Data.Hash (Hash)
+import OpenBrain.Data.Id (Id)
+import OpenBrain.Data.Karma (Karma)
+import OpenBrain.Data.Profile (Profile)
+import OpenBrain.Data.Salt (Salt)
 
 {- The highest abstraction of the backend-tree. -}
 data Backend = Backend {
     shutdown      :: IO ()
   , userBackend   :: UserBackend
   , karmaBackend  :: KarmaBackend
+  , saltShaker    :: SaltShaker
 }
 
 {- Controls for everything userrelated. -}
@@ -48,4 +52,16 @@ data ProfileBackend = ProfileBackend {
 data KarmaBackend = KarmaBackend {
     karmaDeleteUser :: IO Karma
   , karmaEditUser   :: IO Karma
+}
+
+{-
+  The SaltShaker produces Salts
+  that can be bound to a UserId
+  by using setId.
+-}
+data SaltShaker = SaltShaker {
+    shake :: IO Salt -- Produces a new Salt.
+  , setId :: Salt -> UserId -> IO () -- Stores a tuple of Salt and Id in the Backend.
+  , getSalt :: UserId -> IO Salt -- May use shake and setId of no Salt exists.
+  , removeSalt :: UserId -> IO () -- Deleting the Salt when it's not necessary anymore.
 }

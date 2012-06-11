@@ -5,24 +5,31 @@ module OpenBrain.Backend.SqliteBackend.Convertibles () where
 import Database.HDBC
 import Data.Convertible.Base
 
-import OpenBrain.User.Data as D
-import OpenBrain.User.Hash (Hash, toString, fromString)
-import OpenBrain.User.Karma (Karma, toKarma, fromKarma)
+import OpenBrain.Data.Hash (Hash, toHash, fromHash)
+import OpenBrain.Data.Id (Id, toId, fromId)
+import OpenBrain.Data.Karma (Karma, toKarma, fromKarma)
+import OpenBrain.Data.Salt (Salt, toSalt, fromSalt)
 
--- Instances to enable UserId <-> SqlValue conversions:
-instance Convertible UserId SqlValue where
-  safeConvert = Right . toSql. fromUserId
-instance Convertible SqlValue UserId where
-  safeConvert = Right . toUserId . fromSql
+-- Instances to enable Id <-> SqlValue conversions:
+instance Convertible Id SqlValue where
+  safeConvert = Right . toSql. fromId
+instance Convertible SqlValue Id where
+  safeConvert = Right . toId . fromSql
 
 -- Instances to enable Hash <-> SqlValue conversions:
 instance Convertible Hash SqlValue where
-  safeConvert = Right . toSql . toString
+  safeConvert = Right . toSql . fromHash
 instance Convertible SqlValue Hash where
-  safeConvert = Right . fromString . fromSql
+  safeConvert = Right . toHash . fromSql
 
 -- Instances to enable Karma <-> SqlValue conversions:
 instance Convertible Karma SqlValue where
   safeConvert = Right . toSql . fromKarma
 instance Convertible SqlValue Karma where
   safeConvert = Right . toKarma . fromSql
+
+-- Instances to enable Salt <-> SqlValue conversions:
+instance Convertible Salt SqlValue where
+  safeConvert = Right . toSql . fromSalt
+instance Convertible SqlValue Salt where
+  safeConvert = Right . toSalt . fromSql

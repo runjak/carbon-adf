@@ -54,6 +54,11 @@ tables = [
   ++"  , snippetType TINYINT NOT NULL" -- use data SnippetType
   ++"  , FOREIGN KEY(profileid) REFERENCES Profile(profileid)"
   ++")"
+  , "Salts ("
+  ++"    salt VARCHAR(255) NOT NULL"
+  ++"  , userid BIGINT(20) NOT NULL"
+  ++"  , FOREIGN KEY(userid) REFERENCES UserData(userid)"
+  ++")"
   ]
 
 -- Must have it's instances here because it should be defined with the Schema.

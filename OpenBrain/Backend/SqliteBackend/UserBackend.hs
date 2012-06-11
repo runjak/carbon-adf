@@ -8,9 +8,8 @@ import System.Time as T
 import OpenBrain.Backend
 import OpenBrain.Backend.SqliteBackend.Convertibles ()
 import qualified OpenBrain.Backend.SqliteBackend.ProfileBackend as P (load)
-import OpenBrain.User.Hash
-import OpenBrain.User.Profile
-import OpenBrain.User.Data
+import OpenBrain.Data.User
+import OpenBrain.Data.Hash
 
 load :: (IConnection conn) => conn -> UserBackend
 load conn = UserBackend {
