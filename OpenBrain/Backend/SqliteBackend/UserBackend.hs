@@ -64,19 +64,19 @@ hasUserWithId' conn userid = do
     [[count]] -> return $ (>0) (fromSql count :: Int)
     _         -> return False
 
-hasUserWithName' :: (IConnection conn) => conn -> UserName -> IO Bool
+hasUserWithName' :: (IConnection conn) => conn -> UserName -> IO (Maybe UserId)
 hasUserWithName' conn username = do
-  rst <- quickQuery conn "SELECT COUNT(*) FROM UserData WHERE username = ?" [toSql username]
+  rst <- quickQuery conn "SELECT userid FROM UserData WHERE username = ?" [toSql username]
   case rst of
-    [[count]] -> return $ (>0) (fromSql count :: Int)
-    _         -> return False
+    [[uid]] -> return . Just $ fromSql uid
+    _       -> return Nothing
 
 register' :: (IConnection conn) => conn -> UserName -> Hash -> IO (Maybe UserData)
 register' conn username hash = do
   duplicate <- hasUserWithName' conn username
   case duplicate of
-    True  -> return Nothing
-    False -> do
+    (Just _)  -> return Nothing
+    Nothing -> do
       t <- liftM (toSql . toUTCTime) getClockTime
       stmt <- prepare conn "INSERT INTO UserData(username, password, creation, lastLogin) VALUES (?, ?, ?, ?)"
       execute stmt [toSql username, toSql hash, t ,t] >> commit conn

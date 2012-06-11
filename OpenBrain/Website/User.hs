@@ -5,8 +5,8 @@ module OpenBrain.Website.User () where
   Narf - we need some guildelines here to ensure data safety and ++privacy
 -}
 
-import OpenBrain.User.Profile (Profile, AccessRule, Name, Location, ProfileSnippet)
-import qualified OpenBrain.User.Profile as P
+import OpenBrain.Data.Profile (Profile, AccessRule, Name, Location, ProfileSnippet)
+import qualified OpenBrain.Data.Profile as P
 
 import Text.Blaze ((!))
 import Text.Blaze.Html (ToMarkup(..))

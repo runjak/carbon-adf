@@ -30,7 +30,7 @@ data UserBackend = UserBackend {
     login           :: UserName -> Hash -> IO (Maybe UserData) -- The Backend will update the lastLogin in UserData.
   , getUser         :: UserId -> IO (Maybe UserData)
   , hasUserWithId   :: UserId -> IO Bool
-  , hasUserWithName :: UserName -> IO Bool
+  , hasUserWithName :: UserName -> IO (Maybe UserId)
   , register        :: UserName -> Hash -> IO (Maybe UserData) -- The Backend will check for duplicate UserNames.
   , delete          :: UserId -> IO Bool
   , profileBackend  :: ProfileBackend

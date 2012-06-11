@@ -9,10 +9,6 @@ module OpenBrain.Website.Session (
   Session management for clients.
 -}
 
-import OpenBrain.Config
-import OpenBrain.User.Data (UserId)
-import OpenBrain.User.Hash (Hash, hash, fromString)
-
 import Control.Concurrent.STM as STM
 import Control.Monad
 import Control.Monad.Trans (liftIO)
@@ -24,6 +20,10 @@ import qualified Happstack.Server as Cookie (Cookie(..), CookieLife(..))
 import System.Random (StdGen, newStdGen, random)
 import System.Time (ClockTime, getClockTime, TimeDiff(..), addToClockTime)
 
+import OpenBrain.Config
+import OpenBrain.Data.User (UserId)
+import OpenBrain.Data.Hash (Hash, hash', fromHash, toHash)
+
 newtype SessionKey = SK Hash deriving (Show, Ord, Eq)
 
 type ActionKey = Integer
@@ -34,7 +34,7 @@ data Session = Session {
 }
 
 mkSessionKey :: Session -> SessionKey
-mkSessionKey s = SK . hash $ concat [(show $ sessionSecret s),(show $ userId s)]
+mkSessionKey s = SK . hash' $ concat [(show $ sessionSecret s),(show $ userId s)]
 
 cookieName :: String
 cookieName = "SessionKey"
@@ -124,7 +124,7 @@ mkSession'' ms uid = do
 
 getSession' :: ManagerState -> ServerPartT IO Session
 getSession' ms = do
-  sessionkey <- liftM (SK . fromString) $ lookCookieValue cookieName
+  sessionkey <- liftM (SK . toHash) $ lookCookieValue cookieName
   mSession <- liftIO $ getSession'' ms sessionkey
   case mSession of
     (Just session) -> return session
@@ -144,7 +144,7 @@ getSession'' ms sk = do
 
 chkAction' :: ManagerState -> ServerPartT IO Session
 chkAction' ms = do
-  sessionkey  <- liftM (SK . fromString) $ lookCookieValue cookieName
+  sessionkey  <- liftM (SK . toHash) $ lookCookieValue cookieName
   actionkey   <- lookRead actionKeyParameter
   mSession    <- liftIO $ chkAction'' ms sessionkey actionkey
   case mSession of
@@ -169,7 +169,7 @@ chkAction'' ms sk ak = atomically $ do
 
 dropSession' :: ManagerState -> ServerPartT IO ()
 dropSession' ms = do
-  sessionkey  <- liftM (SK . fromString) $ lookCookieValue cookieName
+  sessionkey  <- liftM (SK . toHash) $ lookCookieValue cookieName
   liftIO $ dropSession'' ms sessionkey
   expireCookie cookieName
 
