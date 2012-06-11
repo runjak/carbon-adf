@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-module OpenBrain.User.Hash (
-  Hash, hash, fromString, toString
+module OpenBrain.Data.Hash (
+  Hash, hash, toHash, fromHash
 ) where
 {-
   A simple module for hashes.
@@ -11,13 +11,18 @@ module OpenBrain.User.Hash (
 import qualified Codec.Digest.SHA as S
 import qualified Data.ByteString.UTF8 as BS (fromString, ByteString)
 
+import OpenBrain.Data.Salt
+
 newtype Hash = Hash String deriving (Eq, Ord, Show)
 
-hash :: String -> Hash
-hash = Hash . S.showBSasHex . S.hash S.SHA512 . BS.fromString
+hash :: Salt -> String -> Hash
+hash salt str = hash' . (++str) $ fromSalt salt
 
-fromString :: String -> Hash
-fromString = Hash
+hash' :: String -> Hash
+hash' = Hash . S.showBSasHex . S.hash S.SHA512 . BS.fromString
 
-toString :: Hash -> String
-toString (Hash s) = s
+toHash :: String -> Hash
+toHash = Hash
+
+fromHash :: Hash -> String
+fromHash (Hash s) = s

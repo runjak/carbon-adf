@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module OpenBrain.User.Profile (
+module OpenBrain.Data.Profile (
     Profile(..)
   , AccessRule(..)
   , Name(..)
@@ -15,15 +15,16 @@ module OpenBrain.User.Profile (
   keeping in mind that RDF is not a priority now.
 -}
 
-import OpenBrain.User.Data (UserId)
-
 import Control.Applicative
 import Control.Monad
 import Data.Aeson as A
 import Data.Text (pack)
 
+import OpenBrain.Data.Id
+
 data Profile = Profile {
-    userId            :: UserId
+    profileId         :: Id
+  , userId            :: Id
   , accessRule        :: AccessRule
   , name              :: Maybe Name
   , avatar            :: Maybe String -- URL to image

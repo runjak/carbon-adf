@@ -1,5 +1,5 @@
-module OpenBrain.User.Karma (
-    Karma, newKarma          -- Type and creation of it
+module OpenBrain.Data.Karma (
+    Karma, newKarma           -- Type and creation of it
   , toKarma, fromKarma        -- simple conversion from/to Int
   , hasKarma, satisfiesRatio  -- logic build upon it
 ) where

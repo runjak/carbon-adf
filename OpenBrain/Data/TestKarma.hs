@@ -1,7 +1,7 @@
-module OpenBrain.User.TestKarma (test) where
+module OpenBrain.Data.TestKarma (test) where
 
 import Test.QuickCheck as T
-import qualified OpenBrain.User.Karma as K
+import qualified OpenBrain.Data.Karma as K
 
 test = do
   putStrLn "Testing User.Karma"
