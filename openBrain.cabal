@@ -10,6 +10,7 @@ Build-Type:     Simple
 Build-Depends:  aeson
               , base
               , blaze-html
+              , blaze-markup
               , containers
               , convertible
               , happstack-server, happstack-server-tls
