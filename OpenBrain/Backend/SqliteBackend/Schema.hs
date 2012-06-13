@@ -23,9 +23,10 @@ tables = [
   ++"  , isAdmin   TINYINT(1)    NOT NULL DEFAULT 0"
   ++")"
   , "Profile ("
-  ++"    profileid SERIAL"
-  ++"  , userid    BIGINT(20) NOT NULL"
-  ++"  , avatar    TEXT"
+  ++"    profileid   SERIAL"
+  ++"  , userid      BIGINT(20) NOT NULL"
+  ++"  , accessRule  TINYINT UNSIGNED NOT NULL DEFAULT 2"
+  ++"  , avatar      TEXT"
   ++"  , FOREIGN KEY(userid) REFERENCES UserData(userid)"
   ++")"
   , "Name ("
@@ -39,6 +40,7 @@ tables = [
   ++")"
   , "Location ("
   ++"    profileid BIGINT(20)    NOT NULL"
+  ++"  , street    VARCHAR(255)  NOT NULL DEFAULT ''"
   ++"  , city      VARCHAR(255)  NOT NULL DEFAULT ''"
   ++"  , state     VARCHAR(255)  NOT NULL DEFAULT ''"
   ++"  , land      VARCHAR(255)  NOT NULL DEFAULT ''"
@@ -61,10 +63,6 @@ tables = [
   ++")"
   ]
 
--- Must have it's instances here because it should be defined with the Schema.
 data SnippetType = Website | Email | InstantMessager
   deriving (Show, Read, Eq, Ord, Enum)
-instance Convertible SnippetType SqlValue where
-  safeConvert = Right . toSql . fromEnum
-instance Convertible SqlValue SnippetType where
-  safeConvert = Right . toEnum . fromSql
+

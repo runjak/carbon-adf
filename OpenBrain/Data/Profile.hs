@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module OpenBrain.Data.Profile (
     Profile(..)
+  , ProfileId
   , AccessRule(..)
   , Name(..)
   , Location(..)
@@ -21,10 +22,12 @@ import Data.Aeson as A
 import Data.Text (pack)
 
 import OpenBrain.Data.Id
+import OpenBrain.Data.User (UserId)
 
+type ProfileId  = Id
 data Profile = Profile {
-    profileId         :: Id
-  , userId            :: Id
+    profileId         :: ProfileId
+  , userId            :: UserId
   , accessRule        :: AccessRule
   , name              :: Maybe Name
   , avatar            :: Maybe String -- URL to image
@@ -38,7 +41,7 @@ data AccessRule =
     Everyone    -- Every client may view this Information
   | Registered  -- Only registered clients may view this Information
   | None        -- Nobody except self and admins may view this Information
-    deriving (Eq, Ord, Read, Show)
+    deriving (Eq, Ord, Read, Show, Enum)
 
 data Name = Name {
 	  prefix      :: String
@@ -65,8 +68,6 @@ data ProfileSnippet = ProfileSnippet {
 
 {- Below some functions and Interfaces to work with profiles -}
 
-type UserId     = Id
-type ProfileId  = Id
 emptyProfile :: Id -> UserId -> Profile
 emptyProfile p u = Profile p u None Nothing Nothing [] [] [] []
 

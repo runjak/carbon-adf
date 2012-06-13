@@ -10,11 +10,11 @@ module OpenBrain.Backend (
   The Backend will provide things like Userdata :P
 -}
 import OpenBrain.Config
-import OpenBrain.Data.User (UserData(..), UserId, UserName)
+import OpenBrain.Data.User
 import OpenBrain.Data.Hash (Hash)
 import OpenBrain.Data.Id (Id)
 import OpenBrain.Data.Karma (Karma)
-import OpenBrain.Data.Profile (Profile)
+import OpenBrain.Data.Profile hiding (emptyProfile)
 import OpenBrain.Data.Salt (Salt)
 
 {- The highest abstraction of the backend-tree. -}
@@ -38,9 +38,15 @@ data UserBackend = UserBackend {
 
 {- Controls for Userprofiles. -}
 data ProfileBackend = ProfileBackend {
-    getProfile :: UserId -> IO (Maybe Profile)
-  , setProfile :: UserId -> Profile -> IO Bool
-  -- FIXME Update Name, etc…
+    getProfileId        :: UserId -> IO ProfileId
+  , getProfile          :: ProfileId -> IO (Maybe Profile)
+  , setAccessRule       :: ProfileId -> AccessRule -> IO ()
+  , setName             :: ProfileId -> Maybe Name -> IO ()
+  , setAvatar           :: ProfileId -> Maybe String -> IO ()
+  , setLocations        :: ProfileId -> [Location] -> IO ()
+  , setWebsites         :: ProfileId -> [ProfileSnippet] -> IO ()
+  , setEmails           :: ProfileId -> [ProfileSnippet] -> IO ()
+  , setInstantMessagers :: ProfileId -> [ProfileSnippet] -> IO ()
 }
 
 {-
