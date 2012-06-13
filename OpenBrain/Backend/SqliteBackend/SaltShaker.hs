@@ -10,8 +10,7 @@ import OpenBrain.Data.Salt
 
 load :: (IConnection conn) => conn -> SaltShaker
 load conn = SaltShaker {
-    shake       = mkSalt
-  , setId       = setId' conn
+    setId       = setId' conn
   , getSalt     = getSalt' conn
   , removeSalt  = removeSalt' conn
   }

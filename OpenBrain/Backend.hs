@@ -60,8 +60,7 @@ data KarmaBackend = KarmaBackend {
   by using setId.
 -}
 data SaltShaker = SaltShaker {
-    shake :: IO Salt -- Produces a new Salt.
-  , setId :: Salt -> UserId -> IO () -- Stores a tuple of Salt and Id in the Backend.
+    setId :: Salt -> UserId -> IO () -- Stores a tuple of Salt and Id in the Backend.
   , getSalt :: UserId -> IO Salt -- May use shake and setId of no Salt exists.
   , removeSalt :: UserId -> IO () -- Deleting the Salt when it's not necessary anymore.
 }

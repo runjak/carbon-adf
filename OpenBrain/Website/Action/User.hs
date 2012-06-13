@@ -12,7 +12,7 @@ import OpenBrain.Backend (Backend, UserBackend, KarmaBackend, SaltShaker)
 import qualified OpenBrain.Backend as B
 import OpenBrain.Data.User
 import OpenBrain.Data.Hash (Hash, hash)
-import OpenBrain.Data.Salt (Salt)
+import OpenBrain.Data.Salt (Salt, mkSalt)
 import OpenBrain.Website.Action.Common (jToResponse)
 import OpenBrain.Website.Common
 import OpenBrain.Website.Session
@@ -29,7 +29,7 @@ serve b sm = msum [
 create :: Backend -> SessionManager -> ServerPartT IO Response
 create b sm = do
   username <- look "username"
-  salt <- liftIO $ B.shake $ B.saltShaker b
+  salt <- liftIO mkSalt
   hash <- liftM (hash salt) $ look "password"
   mUserData <- liftIO $ B.register (B.userBackend b) username hash
   case mUserData of
