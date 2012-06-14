@@ -1,0 +1,4 @@
+CryptoJS v3.0.2.zip:
+  files:    sha512.js
+  website:  http://code.google.com/p/crypto-js/
+  license:  http://www.opensource.org/licenses/bsd-license.php

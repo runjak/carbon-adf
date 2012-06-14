@@ -7,7 +7,14 @@ module OpenBrain.Website.Session (
 ) where
 {-
   Session management for clients.
-  FIXME clarify this and include timeout checking.
+  With login a client provides a Hash.
+  With each following action the client provides the cleartext for the hash
+  and a new hash. This legitimates the action by a secret the client knows.
+  Therefore we store triples of UserId, Hashcode and a Timestamp used for session timeouts.
+  The client delivers it's actionkey via cookie and always set's a new one.
+  
+  With a login a client gets a cookie with a hashcode.
+  This hashcode is used to verify that the client is logged in as a certain user.
 -}
 
 import Control.Concurrent.STM as STM

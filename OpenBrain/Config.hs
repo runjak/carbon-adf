@@ -14,6 +14,7 @@ import Control.Monad (liftM)
 import Data.Maybe (listToMaybe)
 
 import OpenBrain.Config.Karma
+import OpenBrain.Config.Website
 
 type Seconds = Int
 data Config = Config {
@@ -27,10 +28,11 @@ data Config = Config {
   , tlsCert         :: FilePath
   , sessionTimeout  :: Seconds  -- | Seconds until Sessions are dropped.
   , karmaConfig     :: KarmaConfig
+  , websiteConfig   :: WebsiteConfig
 } deriving (Eq, Read, Show)
 
 nullConfig = Config {
-    fileStorage     = "/tmp/"
+    fileStorage     = "files/"
   , allowUploads    = False
   , allowBrowsing   = True
   , port            = 8000  -- | Happstack std.
@@ -40,6 +42,7 @@ nullConfig = Config {
   , tlsCert         = ""
   , sessionTimeout  = 900   -- | 15 minutes
   , karmaConfig     = nullKarmaConfig
+  , websiteConfig   = nullWebsiteConfig
 }
 
 readConfig :: FilePath -> IO (Maybe Config)

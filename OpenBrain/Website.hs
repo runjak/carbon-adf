@@ -5,19 +5,18 @@ module OpenBrain.Website (serve) where
   Therefore it has to do the routing for Website.Sitemap
   and to know everything to handle these requests.
 -}
-import OpenBrain.Backend (Backend)
-import OpenBrain.Config (Config(..))
-import qualified OpenBrain.Website.Action as Action (serve)
-import OpenBrain.Website.Session (newSessionManager)
-import qualified OpenBrain.Website.Files as Files (serve)
-
-import OpenBrain.Website.Basic (dummy)
-
 import Control.Monad
 import Happstack.Server hiding (port)
 import qualified Happstack.Server as S
 import Happstack.Server.SimpleHTTPS (nullTLSConf, simpleHTTPS)
 import qualified Happstack.Server.SimpleHTTPS as TLS
+
+import OpenBrain.Backend (Backend)
+import OpenBrain.Config (Config(..))
+import qualified OpenBrain.Website.Action as Action (serve)
+import qualified OpenBrain.Website.Index as Index (serve)
+import OpenBrain.Website.Session (newSessionManager)
+import qualified OpenBrain.Website.Files as Files (serve)
 
 serve :: Backend -> Config -> IO ()
 serve backend config = do
@@ -36,5 +35,5 @@ serve' backend config = do
   return $ msum [
       dir "action" $ Action.serve backend sessionmanager
     , dir "files" $ Files.serve config
-    , ok $ toResponse dummy
+    , Index.serve backend config
     ]
