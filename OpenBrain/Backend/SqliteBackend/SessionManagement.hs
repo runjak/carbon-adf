@@ -38,6 +38,6 @@ validate' conn userid key = do
 
 stopSession' :: (IConnection conn) => conn -> UserId -> ActionKey -> IO ()
 stopSession' conn userid key = do
-  stmt <- prepare "DELETE FROM ActionKeys WHERE userid = ? and key = ?"
+  stmt <- prepare conn "DELETE FROM ActionKeys WHERE userid = ? and key = ?"
   execute stmt [toSql userid, toSql key] >> commit conn
 

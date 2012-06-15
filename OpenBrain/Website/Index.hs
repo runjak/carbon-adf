@@ -25,6 +25,7 @@ serve backend config = do
       sequence_ $ jsfiles config
     H.body $ do
       H.p "This is how we do it."
+      (H.iframe ! A.id "postTarget" ! A.name "postTarget" ! A.style "display: none;") ""
 
 meta :: Config -> [H.Html]
 meta config = map go . W.metaValues $ websiteConfig config

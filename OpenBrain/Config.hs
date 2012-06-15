@@ -26,7 +26,6 @@ data Config = Config {
   , useTLS          :: Bool
   , tlsKey          :: FilePath
   , tlsCert         :: FilePath
-  , sessionTimeout  :: Seconds  -- | Seconds until Sessions are dropped.
   , karmaConfig     :: KarmaConfig
   , websiteConfig   :: WebsiteConfig
 } deriving (Eq, Read, Show)
@@ -40,7 +39,6 @@ nullConfig = Config {
   , useTLS          = False
   , tlsKey          = ""
   , tlsCert         = ""
-  , sessionTimeout  = 900   -- | 15 minutes
   , karmaConfig     = nullKarmaConfig
   , websiteConfig   = nullWebsiteConfig
 }

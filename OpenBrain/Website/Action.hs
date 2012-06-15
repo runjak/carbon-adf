@@ -14,8 +14,8 @@ import qualified OpenBrain.Website.Action.User as User
 import Control.Monad
 import Happstack.Server as S
 
-serve :: Backend -> SessionManager -> ServerPartT IO Response
-serve backend sessionmanager = msum [
-    method POST >> dir "user" (User.serve backend sessionmanager)
+serve :: Backend -> ServerPartT IO Response
+serve backend = msum [
+    method POST >> dir "user" (User.serve backend)
   , badRequest "Actions are only allowed via POST requests."
   ]

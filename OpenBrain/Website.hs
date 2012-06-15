@@ -15,7 +15,6 @@ import OpenBrain.Backend (Backend)
 import OpenBrain.Config (Config(..))
 import qualified OpenBrain.Website.Action as Action (serve)
 import qualified OpenBrain.Website.Index as Index (serve)
-import OpenBrain.Website.Session (newSessionManager)
 import qualified OpenBrain.Website.Files as Files (serve)
 
 serve :: Backend -> Config -> IO ()
@@ -31,9 +30,8 @@ serve backend config = do
 
 serve' :: Backend -> Config -> IO (ServerPartT IO Response)
 serve' backend config = do
-  sessionmanager <- newSessionManager config
   return $ msum [
-      dir "action" $ Action.serve backend sessionmanager
+      dir "action" $ Action.serve backend
     , dir "files" $ Files.serve config
     , Index.serve backend config
     ]
