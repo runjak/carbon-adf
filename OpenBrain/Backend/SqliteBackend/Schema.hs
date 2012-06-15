@@ -61,6 +61,11 @@ tables = [
   ++"  , userid BIGINT(20) NOT NULL"
   ++"  , FOREIGN KEY(userid) REFERENCES UserData(userid)"
   ++")"
+  , "ActionKeys ("
+  ++"    key VARCHAR(255)  NOT NULL"
+  ++"  , userid BIGINT(20) NOT NULL"
+  ++"  , FOREIGN KEY(userid) REFERENCES UserData(userid)"
+  ++")"
   ]
 
 data SnippetType = Website | Email | InstantMessager

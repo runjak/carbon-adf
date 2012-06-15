@@ -4,6 +4,7 @@ module OpenBrain.Backend (
   , ProfileBackend(..)
   , KarmaBackend(..)
   , SaltShaker(..)
+  , SessionManagement(..), ActionKey
 ) where
 {-
   This module provides the Backend class that will be used to generate the website.
@@ -19,10 +20,11 @@ import OpenBrain.Data.Salt (Salt)
 
 {- The highest abstraction of the backend-tree. -}
 data Backend = Backend {
-    shutdown      :: IO ()
-  , userBackend   :: UserBackend
-  , karmaBackend  :: KarmaBackend
-  , saltShaker    :: SaltShaker
+    shutdown          :: IO ()
+  , userBackend       :: UserBackend
+  , karmaBackend      :: KarmaBackend
+  , saltShaker        :: SaltShaker
+  , sessionManagement :: SessionManagement
 }
 
 {- Controls for everything userrelated. -}
@@ -69,4 +71,18 @@ data SaltShaker = SaltShaker {
     setId :: Salt -> UserId -> IO () -- Stores a tuple of Salt and Id in the Backend.
   , getSalt :: UserId -> IO Salt -- May use shake and setId of no Salt exists.
   , removeSalt :: UserId -> IO () -- Deleting the Salt when it's not necessary anymore.
+}
+
+{-
+  SessionManagement helps managing logged in clients.
+  On Login each client get's an ActionKey.
+  The ActionKey shall be stored in a clients cookie along with the clients UserId.
+  A client action can than be validated using the clients UserId and ActionKey.
+  If the action is valid a new ActionKey will be produced to be stored instead of the old one.
+-}
+type ActionKey = String
+data SessionManagement = SessionManagement {
+    startSession  :: UserId -> IO ActionKey
+  , validate      :: UserId -> ActionKey -> IO (Maybe ActionKey)
+  , stopSession   :: UserId -> ActionKey -> IO ()
 }

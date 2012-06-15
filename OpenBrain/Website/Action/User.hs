@@ -17,17 +17,19 @@ import OpenBrain.Website.Action.Common (jToResponse)
 import OpenBrain.Website.Common
 import OpenBrain.Website.Session
 
-serve :: Backend -> SessionManager -> ServerPartT IO Response
-serve b sm = msum [
-    dir "create"  $ create b sm
-  , dir "login"   $ undefined -- login (B.userBackend b) sm
-  , dir "logout"  $ logout sm
-  , dir "edit"    $ edit sm b
-  , dir "delete"  $ ok "not implemented." -- FIXME no roles, only karma and admins and self.
+serve :: Backend -> ServerPartT IO Response
+serve b = msum [
+    dir "create"  $ create b
+  , dir "login"   $ login  b
+  , dir "logout"  $ logout b
+  , dir "delete"  $ delete b
   ]
 
-create :: Backend -> SessionManager -> ServerPartT IO Response
-create b sm = do
+{-
+  Expects get parameters: username, password
+-}
+create :: Backend -> ServerPartT IO Response
+create b = do
   username <- look "username"
   salt <- liftIO mkSalt
   hash <- liftM (hash salt) $ look "password"
@@ -38,14 +40,17 @@ create b sm = do
       , "success" .= False
       ]
     (Just userdata) -> do
-      mkSession sm $ userid userdata
+      mkSession b $ userid userdata
       ok . jToResponse $ object [
           "message" .= ("User created." :: String)
         , "success" .= True
         ]
 
-login :: Backend -> SessionManager -> ServerPartT IO Response
-login b sm = do
+{-
+  Expects get parameters: username, password
+-}
+login :: Backend -> ServerPartT IO Response
+login b = do
   username <- look "username"
   mUid <- liftIO $ B.hasUserWithName (B.userBackend b) username
   case mUid of
@@ -58,7 +63,7 @@ login b sm = do
         Nothing -> loginFail
         (Just userdata) -> do
           let uid = userid userdata
-          mkSession sm uid
+          mkSession b uid
           ok . jToResponse $ object [
               "message" .= ("Login complete" :: String)
             , "success" .= True
@@ -70,29 +75,16 @@ login b sm = do
       , "success" .= False
       ]
 
-logout :: SessionManager -> ServerPartT IO Response
-logout sm = do
-  dropSession sm
+logout :: Backend -> ServerPartT IO Response
+logout b = do
+  dropSession b
   ok . jToResponse $ object [
       "message" .= ("Logout complete" :: String)
     , "success" .= True
     ]
 
--- we need profiles for this
-edit :: SessionManager -> Backend -> ServerPartT IO Response
-edit sm b = ok "not implemented - need to define profiles first." {- do
-  uid   <- liftM userId $ chkAction sm
-  mUser <- B.getUser uid $ B.userBackend b
-  case mUser of
-    Nothing -> badRequest . jToResponse $ object [
-        "message" .= ("Fail: User not found." :: String)
-      , "success" .= False
-      ]
-    (Just user) -> do
-      kMustHave <- B.karmaEditUser $ B.karmaBackend b
-      if (karma user)-}
-
-delete :: SessionManager -> Backend -> ServerPartT IO Response
-delete sm b = do
-  uid <- liftM userId $ chkAction sm
+{- Expects get parameters: username -}
+delete :: Backend -> ServerPartT IO Response
+delete b = do
+  uid <-  chkSession b
   ok "not implemented - do so!"
