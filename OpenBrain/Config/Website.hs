@@ -16,6 +16,6 @@ nullWebsiteConfig = WebsiteConfig {
   , jsFiles     = map ("files/js/"++) [
       "jquery.js"
     , "jquery.cookie.js"
-    , "sha512.js"
-    , "test.js"]
+    , "User.js"
+    , "Main.js"]
   }

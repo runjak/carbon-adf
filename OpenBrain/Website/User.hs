@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings, FlexibleInstances #-}
-module OpenBrain.Website.User () where
+module OpenBrain.Website.User (loginBox) where
 {-
   Displaying information regarding a single user to a Client.
   Narf - we need some guildelines here to ensure data safety and ++privacy
@@ -12,6 +12,17 @@ import Text.Blaze ((!))
 import Text.Blaze.Html (ToMarkup(..))
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
+
+loginBox :: H.Html
+loginBox = H.form ! A.id "OpenBrainWebsiteUser_loginBox" $ do
+  "Username:"
+  H.input ! A.type_ "text" ! A.name "username"
+  H.br
+  "Password:"
+  H.input ! A.type_ "password" ! A.name "password"
+  H.br
+  H.input ! A.id "login" ! A.type_ "button" ! A.value "Login"
+  H.input ! A.id "create" ! A.type_ "button" ! A.value "Create"
 
 instance ToMarkup Profile where
   toMarkup p = (H.div ! A.class_ "userProfile") $ do
