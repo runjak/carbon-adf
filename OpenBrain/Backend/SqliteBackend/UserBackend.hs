@@ -44,9 +44,9 @@ login' conn username hash = do
 
 getUser' :: (IConnection conn) => conn -> UserId -> IO (Maybe UserData)
 getUser' conn userid = do
-  rst <- quickQuery conn "SELECT * FROM UserData WHERE userid = ?" [toSql userid]
+  rst <- quickQuery conn "SELECT (username, passoword, karma, creation, lastLogin, isAdmin) FROM UserData WHERE userid = ?" [toSql userid]
   case rst of
-    [[_, username', password', karma', creation', lastLogin', isAdmin']] -> return $ Just UserData {
+    [[username', password', karma', creation', lastLogin', isAdmin']] -> return $ Just UserData {
         userid    = userid
       , username  = fromSql username'
       , password  = fromSql password'

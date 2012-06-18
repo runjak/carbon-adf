@@ -28,7 +28,6 @@ serve b = msum [
 
 {-
   Expects get parameters: username, password
-  FIXME save the fucking SALT!
 -}
 create :: Backend -> ServerPartT IO Response
 create b = do
@@ -40,6 +39,7 @@ create b = do
   case mUserData of
     Nothing -> failMessage "Could not register user."
     (Just userdata) -> do
+      liftIO $ B.setId (B.saltShaker b) salt $ userid userdata
       mkSession b $ userid userdata
       successMessage "Creation complete."
 
