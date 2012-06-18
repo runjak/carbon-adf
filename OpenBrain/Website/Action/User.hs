@@ -13,6 +13,8 @@ import OpenBrain.Backend (Backend, UserBackend, KarmaBackend, SaltShaker)
 import qualified OpenBrain.Backend as B
 import OpenBrain.Data.User
 import OpenBrain.Data.Hash (Hash, hash)
+import OpenBrain.Data.Id
+import OpenBrain.Data.Karma
 import OpenBrain.Data.Salt (Salt, mkSalt)
 import OpenBrain.Website.Action.Common (failMessage, successMessage)
 import OpenBrain.Website.Common
@@ -20,14 +22,17 @@ import OpenBrain.Website.Session
 
 serve :: Backend -> ServerPartT IO Response
 serve b = msum [
-    dir "create"  $ create b
-  , dir "login"   $ login  b
-  , dir "logout"  $ logout b
-  , dir "delete"  $ delete b
+    dir "create"   $ create       b
+  , dir "login"    $ login        b
+  , dir "logout"   $ logout       b
+  , dir "delete"   $ delete       b
+  , dir "karma"    $ changeKarma  b
+  , dir "password" $ changePwd    b
+  , dir "admin"    $ admin        b
   ]
 
 {-
-  Expects get parameters: username, password
+  Expects parameters: username, password
 -}
 create :: Backend -> ServerPartT IO Response
 create b = do
@@ -44,7 +49,7 @@ create b = do
       successMessage "Creation complete."
 
 {-
-  Expects get parameters: username, password
+  Expects parameters: username, password
 -}
 login :: Backend -> ServerPartT IO Response
 login b = do
@@ -64,11 +69,9 @@ login b = do
           successMessage "Login complete."
 
 logout :: Backend -> ServerPartT IO Response
-logout b = do
-  dropSession b
-  successMessage "Logout complete."
+logout b = dropSession b >> successMessage "Logout complete."
 
-{- Expects get parameters: username -}
+{- Expects parameters: username -}
 delete :: Backend -> ServerPartT IO Response
 delete b = do
   deletename <- liftM read $ look "username"
@@ -90,4 +93,73 @@ delete b = do
               success <- liftIO $ B.delete (B.userBackend b) deleteId
               dropSession b
               successMessage "Deleted requested user."
+
+{-
+  Expects parameters: userid, karma :: Int
+  Clients can add or sub other clients karma
+  as long as they pay the same amount.
+-}
+changeKarma :: Backend -> ServerPartT IO Response
+changeKarma b = do
+  muid <- chkSession b
+  case muid of
+    Nothing -> failMessage "Invalid session"
+    (Just uid) -> do
+      userid <- liftM (toId . read) $ look "userid"
+      k <- lookRead "karma"
+      let change  = karmaUpdate k
+      let burn    = karmaUpdate . negate $ abs k
+      userdata <- liftIO $ liftM fromJust $ B.getUser (B.userBackend b) uid
+      let preds = [(userid == uid, "Can't give yourself karma.")
+                , ((fromKarma $ karma userdata) < abs k, "Not enough karma.")]
+      case (map snd $ filter fst preds) of
+        (m:_) -> failMessage m
+        [] -> do
+          -- Change someones karma:
+          liftIO $ B.updateKarma (B.userBackend b) userid change
+          -- Delete from clients karma:
+          liftIO $ B.updateKarma (B.userBackend b) uid burn
+          successMessage "Updated karma."
+  where
+    karmaUpdate :: Int -> Karma -> Karma
+    karmaUpdate x y
+      | x < 0     = (y -) . toKarma $ negate x
+      | otherwise = (y +) $ toKarma x
+
+{- Expects parameters: username, password -}
+changePwd :: Backend -> ServerPartT IO Response
+changePwd b = do
+  muid <- chkSession b
+  case muid of
+    Nothing -> failMessage "Invalid session"
+    (Just uid) -> do
+      username <- look "username"
+      password <- look "password"
+      admin <- liftIO . liftM (maybe False $ isAdmin)   $ B.getUser (B.userBackend b) uid
+      self  <- liftIO . liftM (maybe False $ (==) uid)  $ B.hasUserWithName (B.userBackend b) username
+      case admin || self of
+        False -> failMessage "Can't update password of another user."
+        True -> do
+          liftIO $ do
+            target  <- liftM fromJust $ B.hasUserWithName (B.userBackend b) username
+            salt    <- B.getSalt (B.saltShaker b) target
+            B.updatePasswd (B.userBackend b) target $ hash salt password
+          successMessage "Password changed."
+
+{- Expects parameters: username, admin :: {1,0} -}
+admin :: Backend -> ServerPartT IO Response
+admin b = do
+  muid <- chkSession b
+  case muid of
+    Nothing -> failMessage "Invalid session"
+    (Just uid) -> do
+      username <- look "username"
+      setA <- liftM (=="1") $ look "admin"
+      isA <- liftIO . liftM (maybe False $ isAdmin) $ B.getUser (B.userBackend b) uid
+      mTarget <- liftIO $ B.hasUserWithName (B.userBackend b) username
+      case isA && isJust mTarget of
+        False -> failMessage "Cannot change status, not admin yourself or username doesn't exist."
+        True -> do
+          liftIO $ B.setAdmin (B.userBackend b) (fromJust mTarget) isA
+          successMessage "Changed admin status."
 
