@@ -10,6 +10,7 @@ import OpenBrain.Backend.SqliteBackend.Convertibles ()
 import qualified OpenBrain.Backend.SqliteBackend.ProfileBackend as P (load)
 import OpenBrain.Data.User
 import OpenBrain.Data.Hash
+import OpenBrain.Data.Karma
 
 load :: (IConnection conn) => conn -> UserBackend
 load conn = UserBackend {
@@ -19,7 +20,11 @@ load conn = UserBackend {
   , hasUserWithName = hasUserWithName'  conn
   , register        = register'         conn
   , delete          = delete'           conn
-  , profileBackend  = P.load conn
+  , profileBackend  = P.load            conn
+  , getUserList     = getUserList'      conn
+  , updateKarma     = updateKarma'      conn
+  , updatePasswd    = updatePasswd'     conn
+  , setAdmin        = setAdmin'         conn
   }
 
 login' :: (IConnection conn) => conn -> UserName -> Hash -> IO (Maybe UserData)
@@ -88,4 +93,29 @@ delete' conn userid = do
   rst   <- execute stmt [toSql userid]
   commit conn
   return $ rst > 0
+
+getUserList' :: (IConnection conn) => conn -> IO [UserId]
+getUserList' conn = do
+  rst <- quickQuery' conn "SELECT userid FROM UserData" []
+  return $ map (fromSql . head) rst
+
+updateKarma' :: (IConnection conn) => conn -> UserId -> (Karma -> Karma) -> IO ()
+updateKarma' conn userid f = do
+  rst <- quickQuery conn "SELECT karma FROM UserData WHERE userid = ?" [toSql userid]
+  case rst of
+    [[k]] -> do
+      let k' = f $ fromSql k
+      stmt <- prepare conn "UPDATE UserData SET karma = ? WHERE userid = ?"
+      execute stmt [toSql k', toSql userid] >> commit conn
+    _ -> return ()
+
+updatePasswd' :: (IConnection conn) => conn -> UserId -> Hash -> IO ()
+updatePasswd' conn userid hash = do
+  stmt <- prepare conn "UPDATE UserData SET password = ? WHERE userid = ?"
+  execute stmt [toSql hash, toSql userid] >> commit conn
+
+setAdmin' :: (IConnection conn) => conn -> UserId -> Bool -> IO ()
+setAdmin' conn userid admin = do
+  stmt <- prepare conn "UPDATE UserData SET isAdmin = ? WHERE userid = ?"
+  execute stmt [toSql admin, toSql userid] >> commit conn
 
