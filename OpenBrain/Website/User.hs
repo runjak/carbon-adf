@@ -1,17 +1,32 @@
 {-# LANGUAGE OverloadedStrings, FlexibleInstances #-}
-module OpenBrain.Website.User (loginBox) where
+module OpenBrain.Website.User (userControl) where
 {-
   Displaying information regarding a single user to a Client.
   Narf - we need some guildelines here to ensure data safety and ++privacy
 -}
 
-import OpenBrain.Data.Profile (Profile, AccessRule, Name, Location, ProfileSnippet)
-import qualified OpenBrain.Data.Profile as P
-
+import Control.Monad
+import Control.Monad.Trans(liftIO)
+import Data.Maybe
+import Happstack.Server as S
 import Text.Blaze ((!))
 import Text.Blaze.Html (ToMarkup(..))
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
+
+import OpenBrain.Backend
+import OpenBrain.Data.Profile (Profile, AccessRule, Name, Location, ProfileSnippet)
+import qualified OpenBrain.Data.Profile as P
+import OpenBrain.Data.User
+import OpenBrain.Website.Session
+
+userControl :: Backend -> ServerPartT IO H.Html
+userControl b = do
+  muid <- chkSession b
+  guard $ isJust muid
+  ud <- liftIO . liftM (fromJust) $ getUser (userBackend b) (fromJust muid)
+  return . controlBox $ username ud
+  `mplus` (return loginBox)
 
 loginBox :: H.Html
 loginBox = H.form ! A.id "OpenBrainWebsiteUser_loginBox" $ do
@@ -21,8 +36,22 @@ loginBox = H.form ! A.id "OpenBrainWebsiteUser_loginBox" $ do
   "Password:"
   H.input ! A.type_ "password" ! A.name "password"
   H.br
-  H.input ! A.id "login" ! A.type_ "button" ! A.value "Login"
-  H.input ! A.id "create" ! A.type_ "button" ! A.value "Create"
+  H.input ! A.class_ "login" ! A.type_ "button" ! A.value "Login"
+  H.input ! A.class_ "create" ! A.type_ "button" ! A.value "Create"
+
+controlBox :: UserName -> H.Html
+controlBox username = H.form ! A.id "OpenBrainWebsiteUser_controlBox" $ do
+  "Username:"
+  H.input ! A.type_ "username" ! A.name "username" ! A.disabled "disabled" ! A.value (H.toValue username)
+  H.br
+  H.input ! A.class_ "delete" ! A.type_ "button" ! A.value "Delete"
+  H.br
+  "New password:"
+  H.input ! A.type_ "password" ! A.name "password"
+  H.br
+  "Confirm password:"
+  H.input ! A.type_ "confirm" ! A.name "confirm"
+  H.input ! A.class_ "change" ! A.type_ "button" ! A.value "Change"
 
 instance ToMarkup Profile where
   toMarkup p = (H.div ! A.class_ "userProfile") $ do

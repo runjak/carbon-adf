@@ -87,6 +87,7 @@ data SaltShaker = SaltShaker {
 type ActionKey = String
 data SessionManagement = SessionManagement {
     startSession  :: UserId -> IO ActionKey
-  , validate      :: UserId -> ActionKey -> IO (Maybe ActionKey)
+  , validate      :: UserId -> ActionKey -> IO Bool
+  , perform       :: UserId -> ActionKey -> IO (Maybe ActionKey)
   , stopSession   :: UserId -> ActionKey -> IO ()
 }

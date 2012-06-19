@@ -75,7 +75,7 @@ logout b = dropSession b >> successMessage "Logout complete."
 delete :: Backend -> ServerPartT IO Response
 delete b = do
   deletename <- liftM read $ look "username"
-  muid <- chkSession b
+  muid <- chkAction b
   case muid of
     Nothing -> failMessage "Invalid session"
     (Just uid) -> do
@@ -101,7 +101,7 @@ delete b = do
 -}
 changeKarma :: Backend -> ServerPartT IO Response
 changeKarma b = do
-  muid <- chkSession b
+  muid <- chkAction b
   case muid of
     Nothing -> failMessage "Invalid session"
     (Just uid) -> do
@@ -129,7 +129,7 @@ changeKarma b = do
 {- Expects parameters: username, password -}
 changePwd :: Backend -> ServerPartT IO Response
 changePwd b = do
-  muid <- chkSession b
+  muid <- chkAction b
   case muid of
     Nothing -> failMessage "Invalid session"
     (Just uid) -> do
@@ -149,7 +149,7 @@ changePwd b = do
 {- Expects parameters: username, admin :: {1,0} -}
 admin :: Backend -> ServerPartT IO Response
 admin b = do
-  muid <- chkSession b
+  muid <- chkAction b
   case muid of
     Nothing -> failMessage "Invalid session"
     (Just uid) -> do
