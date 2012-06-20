@@ -1,13 +1,13 @@
-{-# LANGUAGE DoAndIfThenElse #-}
+{-# LANGUAGE DoAndIfThenElse, ScopedTypeVariables #-}
 module OpenBrain.Backend.SqliteBackend.SessionManagement (load) where
 {- SessionManagement for the SqliteBackend. -}
 
 import Control.Monad
 import Database.HDBC as H
+import System.Random
 
 import OpenBrain.Backend
 import OpenBrain.Backend.SqliteBackend.Convertibles
-import OpenBrain.Data.Salt (mkSalt, fromSalt)
 import OpenBrain.Data.User
 
 load :: (IConnection conn) => conn -> SessionManagement
@@ -22,7 +22,9 @@ startSession' :: (IConnection conn) => conn -> UserId -> IO ActionKey
 startSession' conn userid = do
   stmt <- prepare conn "DELETE FROM ActionKeys WHERE userid = ?"
   execute stmt [toSql userid]
-  key <- liftM fromSalt mkSalt
+  (r:rs) <- liftM randoms newStdGen
+  let l = 10 + (r `mod` 11)
+  let (key :: String) = map (toEnum . (+ (fromEnum 'A')) . flip mod (fromEnum '~' - fromEnum 'A')) $ take l rs
   stmt <- prepare conn "INSERT INTO ActionKeys(key, userid) VALUES (?, ?)"
   execute stmt [toSql key, toSql userid]
   commit conn >> return key

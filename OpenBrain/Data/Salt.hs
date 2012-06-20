@@ -15,11 +15,6 @@ fromSalt (Salt s) = s
 mkSalt :: IO Salt
 mkSalt = do
   (r:rs) <- liftM randoms newStdGen
-  let l = saltLength r
-  return . Salt . take l $ map saltChar rs
+  let l = 10 + (r `mod` 11)
+  return . Salt . map (toEnum . flip mod (fromEnum (maxBound :: Char))) $ take l rs
 
-saltLength :: Int -> Int
-saltLength x = 10 + x `mod` 11
-
-saltChar :: Int -> Char
-saltChar = toEnum . (+) (fromEnum ' ') . (flip mod $ fromEnum '~' - fromEnum ' ')
