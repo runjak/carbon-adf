@@ -24,7 +24,7 @@ startSession' conn userid = do
   execute stmt [toSql userid]
   (r:rs) <- liftM randoms newStdGen
   let l = 10 + (r `mod` 11)
-  let (key :: String) = map (toEnum . (+ (fromEnum 'A')) . flip mod (fromEnum '~' - fromEnum 'A')) $ take l rs
+  let (key :: String) = map (toEnum . (+ (fromEnum 'a')) . flip mod (fromEnum '~' - fromEnum 'a')) $ take l rs
   stmt <- prepare conn "INSERT INTO ActionKeys(key, userid) VALUES (?, ?)"
   execute stmt [toSql key, toSql userid]
   commit conn >> return key

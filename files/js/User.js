@@ -22,10 +22,20 @@ function initUser(){
   }
   //Handling password change/deletion by users:
   if($("#OpenBrainWebsiteUser_controlBox").length > 0){
-    var username = $("OpenBrainWebsiteUser_controlBox input[name=username]").val();
+    var username = $("#OpenBrainWebsiteUser_controlBox input[name=username]").val();
+    console.log("username: " + username);
+    //Logout:
+    $("#OpenBrainWebsiteUser_controlBox input.logout").click(function(){
+      $.post('action/user/logout', {}, function(data, status, jqXHR){
+        console.log(data);
+      }, 'json');
+    });
     //Deleting the user:
     $("#OpenBrainWebsiteUser_controlBox input.delete").click(function(){
-      $.post('action/user/delete',{username: username}, function(data, status, jqXHR){
+      var req = {'username': username};
+      console.log("Sending req:");
+      console.log(req);
+      $.post('action/user/delete', req, function(data, status, jqXHR){
         console.log(data);
       }, 'json');
     });

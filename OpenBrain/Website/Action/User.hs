@@ -74,10 +74,10 @@ logout b = dropSession b >> successMessage "Logout complete."
 {- Expects parameters: username -}
 delete :: Backend -> ServerPartT IO Response
 delete b = do
-  deletename <- liftM read $ look "username"
-  muid <- chkAction b
+  deletename <- look "username"
+  muid <- chkSession b
   case muid of
-    Nothing -> failMessage "Invalid session"
+    Nothing -> (liftIO $ putStrLn "delete #1") >> failMessage "Invalid session"
     (Just uid) -> do
       mUser <- liftIO $ B.getUser (B.userBackend b) uid
       mDeleteId <- liftIO $ B.hasUserWithName (B.userBackend b) deletename
@@ -87,12 +87,11 @@ delete b = do
         Just (userData, deleteId) -> do
           deleteKarma <- liftIO . B.karmaDeleteUser $ B.karmaBackend b
           let allowed = or [userid userData == deleteId, isAdmin userData, karma userData >= deleteKarma]
-          case allowed of
-            False -> failMessage "Not allowed to delete requested user."
-            True -> do
-              success <- liftIO $ B.delete (B.userBackend b) deleteId
-              dropSession b
-              successMessage "Deleted requested user."
+          guard allowed
+          success <- liftIO $ B.delete (B.userBackend b) deleteId
+          dropSession b
+          successMessage "Deleted requested user."
+          `mplus` (failMessage "Not allowed to delete requested user.")
 
 {-
   Expects parameters: userid, karma :: Int

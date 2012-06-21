@@ -29,20 +29,19 @@ class UserSession u where
 instance UserSession SessionManagement where
   mkSession sm userid = do
     key <- liftIO $ startSession sm userid
-    let cookies = [mkCookie cookie_userid $ show userid, mkCookie cookie_actionKey key]
-    sequence_ $ map (addCookie Session) cookies
+    addCookies $ map ((,) Session) [mkCookie cookie_userid $ show userid, mkCookie cookie_actionKey key]
   chkSession sm = do
     key    <- lookCookieValue cookie_actionKey
     userid <- liftM read $ lookCookieValue cookie_userid
     valid  <- liftIO $ validate sm userid key
-    when (not valid) mzero
+    guard valid
     return $ Just userid
     `mplus` (return Nothing)
   chkAction sm = do
     key    <- lookCookieValue cookie_actionKey
     userid <- liftM read $ lookCookieValue cookie_userid
     mkey   <- liftIO $ perform sm userid key
-    when (isNothing mkey) mzero
+    guard $ isJust mkey
     addCookie Session (mkCookie cookie_actionKey $ fromJust mkey) >> return (Just userid)
     `mplus` (return Nothing)
   dropSession sm = do

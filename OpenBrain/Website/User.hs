@@ -44,13 +44,15 @@ controlBox username = H.form ! A.id "OpenBrainWebsiteUser_controlBox" $ do
   "Username:"
   H.input ! A.type_ "username" ! A.name "username" ! A.disabled "disabled" ! A.value (H.toValue username)
   H.br
+  H.input ! A.class_ "logout" ! A.type_ "button" ! A.value "Logout"
   H.input ! A.class_ "delete" ! A.type_ "button" ! A.value "Delete"
   H.br
   "New password:"
   H.input ! A.type_ "password" ! A.name "password"
   H.br
   "Confirm password:"
-  H.input ! A.type_ "confirm" ! A.name "confirm"
+  H.input ! A.type_ "password" ! A.name "confirm"
+  H.br
   H.input ! A.class_ "change" ! A.type_ "button" ! A.value "Change"
 
 instance ToMarkup Profile where
