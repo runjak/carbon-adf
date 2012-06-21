@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings, FlexibleInstances #-}
-module OpenBrain.Website.User (userControl) where
+module OpenBrain.Website.User (userControl, userList) where
 {-
   Displaying information regarding a single user to a Client.
   Narf - we need some guildelines here to ensure data safety and ++privacy
@@ -15,6 +15,7 @@ import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 
 import OpenBrain.Backend
+import OpenBrain.Data.Karma
 import OpenBrain.Data.Profile (Profile, AccessRule, Name, Location, ProfileSnippet)
 import qualified OpenBrain.Data.Profile as P
 import OpenBrain.Data.User
@@ -54,6 +55,19 @@ controlBox username = H.form ! A.id "OpenBrainWebsiteUser_controlBox" $ do
   H.input ! A.type_ "password" ! A.name "confirm"
   H.br
   H.input ! A.class_ "change" ! A.type_ "button" ! A.value "Change"
+
+userList :: Backend -> ServerPart H.Html
+userList b = do
+  userdata <- liftIO $ do
+    uids   <- getUserList $ userBackend b
+    mud    <- mapM (getUser $ userBackend b) uids
+    return $ catMaybes mud
+  return $ H.ul ! A.class_ "userList" $ do
+    flip mapM_ userdata $
+      \ud -> H.li ! A.class_ "user" $ do
+        when (isAdmin ud) "Admin: "
+        H.toHtml $ username ud
+        H.toHtml $ " (" ++ show (fromKarma $ karma ud) ++ ")"
 
 instance ToMarkup Profile where
   toMarkup p = (H.div ! A.class_ "userProfile") $ do
