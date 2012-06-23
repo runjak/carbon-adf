@@ -108,7 +108,7 @@ changeKarma b = do
       k <- lookRead "karma"
       let change  = karmaUpdate k
       let burn    = karmaUpdate . negate $ abs k
-      userdata <- liftIO $ liftM fromJust $ B.getUser (B.userBackend b) uid
+      userdata <- liftIOM fromJust $ B.getUser (B.userBackend b) uid
       let preds = [(userid == uid, "Can't give yourself karma.")
                 , ((fromKarma $ karma userdata) < abs k, "Not enough karma.")]
       case (map snd $ filter fst preds) of
@@ -134,8 +134,8 @@ changePwd b = do
     (Just uid) -> do
       username <- look "username"
       password <- look "password"
-      admin <- liftIO . liftM (maybe False $ isAdmin)   $ B.getUser (B.userBackend b) uid
-      self  <- liftIO . liftM (maybe False $ (==) uid)  $ B.hasUserWithName (B.userBackend b) username
+      admin <- liftIOM (maybe False $ isAdmin)  $ B.getUser (B.userBackend b) uid
+      self  <- liftIOM (maybe False $ (==) uid) $ B.hasUserWithName (B.userBackend b) username
       case admin || self of
         False -> failMessage "Can't update password of another user."
         True -> do
@@ -154,7 +154,7 @@ admin b = do
     (Just uid) -> do
       username <- look "username"
       setA <- liftM (=="1") $ look "admin"
-      isA <- liftIO . liftM (maybe False $ isAdmin) $ B.getUser (B.userBackend b) uid
+      isA <- liftIOM (maybe False $ isAdmin) $ B.getUser (B.userBackend b) uid
       mTarget <- liftIO $ B.hasUserWithName (B.userBackend b) username
       case isA && isJust mTarget of
         False -> failMessage "Cannot change status, not admin yourself or username doesn't exist."

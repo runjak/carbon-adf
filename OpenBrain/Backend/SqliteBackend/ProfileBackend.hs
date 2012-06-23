@@ -37,7 +37,7 @@ getProfileId' conn userid = do
 getProfile' :: (IConnection conn) => conn -> ProfileId -> IO (Maybe Profile)
 getProfile' conn profileid = do
   pdata <- quickQuery' conn "SELECT userid, accessRule, avatar FROM Profile WHERE profileid = ?" [toSql profileid]
-  ndata <- quickQuery' conn "SELECT prefix, foreName, middleName, familyName, suffix FROM Name WHERE profileif = ?" [toSql profileid]
+  ndata <- quickQuery' conn "SELECT prefix, foreName, middleName, familyName, suffix FROM Name WHERE profileid = ?" [toSql profileid]
   ldata <- quickQuery' conn "SELECT street, city, state, land, zipCode, note FROM Location WHERE profileid = ?" [toSql profileid]
   let locations' = concatMap mkLocations ldata
   mname <- case ndata of

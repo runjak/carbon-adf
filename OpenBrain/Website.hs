@@ -16,6 +16,7 @@ import OpenBrain.Config (Config(..))
 import qualified OpenBrain.Website.Action as Action (serve)
 import qualified OpenBrain.Website.Index as Index (serve)
 import qualified OpenBrain.Website.Files as Files (serve)
+import qualified OpenBrain.Website.User as User (serve)
 
 serve :: Backend -> Config -> IO ()
 serve backend config = do
@@ -33,5 +34,6 @@ serve' backend config = do
   return $ msum [
       dir "action" $ Action.serve backend
     , dir "files" $ Files.serve config
+    , dir "user" $ User.serve backend config
     , Index.serve backend config
     ]

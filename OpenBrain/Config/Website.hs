@@ -16,6 +16,8 @@ nullWebsiteConfig = WebsiteConfig {
   , jsFiles     = map ("files/js/"++) [
       "jquery.js"
     , "jquery.cookie.js"
+    , "wysihtml5.js"
+    , "wysihtml5_parser_advanced.js"
     , "User.js"
     , "Main.js"]
   }

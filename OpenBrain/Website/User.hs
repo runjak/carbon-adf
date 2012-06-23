@@ -1,10 +1,11 @@
 {-# LANGUAGE OverloadedStrings, FlexibleInstances #-}
-module OpenBrain.Website.User (userControl, userList) where
+module OpenBrain.Website.User (serve, userControl, userList) where
 {-
   Displaying information regarding a single user to a Client.
   Narf - we need some guildelines here to ensure data safety and ++privacy
 -}
 
+import Prelude hiding (head)
 import Control.Monad
 import Control.Monad.Trans(liftIO)
 import Data.Maybe
@@ -15,17 +16,48 @@ import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 
 import OpenBrain.Backend
+import OpenBrain.Backend.Plus
+import OpenBrain.Config
 import OpenBrain.Data.Karma
 import OpenBrain.Data.Profile (Profile, AccessRule, Name, Location, ProfileSnippet)
 import qualified OpenBrain.Data.Profile as P
 import OpenBrain.Data.User
+import OpenBrain.Website.Common
+import OpenBrain.Website.Index (head)
+import OpenBrain.Website.Profile
 import OpenBrain.Website.Session
 
-userControl :: Backend -> ServerPartT IO H.Html
+serve :: Backend -> Config -> ServerPart Response
+serve b c = mplus (showUser b c) $ do
+  uc <- userControl b
+  ul <- userList b
+  ok . toResponse . H.docTypeHtml $ do
+  head c
+  H.body $ do
+  uc
+  ul
+
+showUser :: Backend -> Config -> ServerPart Response
+showUser b c = path $ \uname -> do
+  mud <- liftIO $ getUserByName (userBackend b) uname
+  case mud of
+    Nothing -> badRequest . toResponse $ "User " ++ uname ++ " not found."
+    (Just ud) -> do
+      mprofile <- liftIO $ do
+        pid <- getProfileId (profileBackend $ userBackend b) (userid ud)
+        getProfile (profileBackend $ userBackend b) pid
+      ok . toResponse $ do
+        H.docTypeHtml $ do
+          head c
+          H.body $ do
+            H.toHtml ud
+            when (isJust mprofile) $ H.toHtml (fromJust mprofile)
+
+userControl :: Backend -> ServerPart H.Html
 userControl b = do
   muid <- chkSession b
   guard $ isJust muid
-  ud <- liftIO . liftM (fromJust) $ getUser (userBackend b) (fromJust muid)
+  ud <- liftIOM fromJust $ getUser (userBackend b) (fromJust muid)
   return . controlBox $ username ud
   `mplus` (return loginBox)
 
@@ -66,6 +98,13 @@ userList b = do
     flip mapM_ userdata $
       \ud -> H.li ! A.class_ "user" $ do
         when (isAdmin ud) "Admin: "
-        H.toHtml $ username ud
-        H.toHtml $ " (" ++ show (fromKarma $ karma ud) ++ ")"
+        (H.a ! A.href (H.toValue . ("user/"++) $ username ud)) $ do
+          H.toHtml $ username ud
+          H.toHtml $ " (" ++ show (fromKarma $ karma ud) ++ ")"
+
+instance ToMarkup UserData where
+  toMarkup ud = (H.dl ! A.class_ "userData") $ do
+    (H.dt ! A.class_ "username") "Username" >> (H.dd . H.toHtml $ username ud)
+    (H.dt ! A.class_ "karma") "Karma"       >> (H.dd . H.toHtml . fromKarma $ karma ud)
+    (H.dt ! A.class_ "creation") "Creation" >> (H.dd . H.toHtml $ creation ud)
 

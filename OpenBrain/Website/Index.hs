@@ -15,18 +15,13 @@ import qualified Text.Blaze.Html5.Attributes as A
 import OpenBrain.Backend
 import OpenBrain.Config
 import qualified OpenBrain.Config.Website as W
-import OpenBrain.Website.User (userControl, userList)
 
 serve :: Backend -> Config -> ServerPartT IO Response
 serve backend config = do
-  uc <- userControl backend
-  ul <- userList backend
   ok . toResponse . H.docTypeHtml $ do
     head config
     H.body $ do
-      ul
       H.p "This is how we do it."
-      uc
 
 head :: Config -> H.Html
 head config = H.head $ do

@@ -36,7 +36,7 @@ data UserBackend = UserBackend {
   , register        :: UserName -> Hash -> IO (Maybe UserData) -- The Backend will check for duplicate UserNames.
   , delete          :: UserId -> IO Bool
   , profileBackend  :: ProfileBackend
-  , getUserList     :: IO [UserId]
+  , getUserList     :: IO [UserId] -- FIXME Offset, Limit, Count
   , updateKarma     :: UserId -> (Karma -> Karma) -> IO ()
   , updatePasswd    :: UserId -> Hash -> IO ()
   , setAdmin        :: UserId -> Bool -> IO ()
