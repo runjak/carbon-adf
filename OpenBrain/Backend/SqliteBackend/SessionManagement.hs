@@ -1,22 +1,23 @@
 {-# LANGUAGE DoAndIfThenElse, ScopedTypeVariables #-}
-module OpenBrain.Backend.SqliteBackend.SessionManagement (load) where
+module OpenBrain.Backend.SqliteBackend.SessionManagement () where
 {- SessionManagement for the SqliteBackend. -}
 
 import Control.Monad
+import Control.Monad.Trans
+import Control.Monad.Trans.Maybe
 import Database.HDBC as H
 import System.Random
 
 import OpenBrain.Backend
 import OpenBrain.Backend.SqliteBackend.Convertibles
+import OpenBrain.Backend.SqliteBackend.Common
 import OpenBrain.Data.User
 
-load :: (IConnection conn) => conn -> SessionManagement
-load conn = SessionManagement {
-    startSession  = startSession' conn
-  , validate      = validate'     conn
-  , perform       = perform'      conn
-  , stopSession   = stopSession'  conn
-  }
+instance SessionManagement SqliteBackend where
+  startSession b = withWConn (conn b) startSession'
+  validate     b = withWConn (conn b) validate'
+  perform      b = withWConn (conn b) perform'
+  stopSession  b = withWConn (conn b) stopSession'
 
 startSession' :: (IConnection conn) => conn -> UserId -> IO ActionKey
 startSession' conn userid = do
@@ -36,15 +37,14 @@ validate' conn userid key = do
     [[snum]] -> return $ (fromSql snum :: Int) == 1
     _ -> return False
 
-perform' :: (IConnection conn) => conn -> UserId -> ActionKey -> IO (Maybe ActionKey)
+perform' :: (IConnection conn) => conn -> UserId -> ActionKey -> MaybeT IO ActionKey
 perform' conn userid key = do
-  rst <- quickQuery' conn "SELECT COUNT(*) FROM ActionKeys WHERE userid = ? AND key = ?" [toSql userid, toSql key]
+  rst <- liftIO $ quickQuery' conn "SELECT COUNT(*) FROM ActionKeys WHERE userid = ? AND key = ?" [toSql userid, toSql key]
   case rst of
     [[snum]] -> do
-      if (fromSql snum :: Int) /= 1
-      then return Nothing
-      else liftM Just $ startSession' conn userid
-    _ -> return Nothing
+      guard $ (fromSql snum :: Int) == 1
+      liftIO $ startSession' conn userid
+    _ -> mzero
 
 stopSession' :: (IConnection conn) => conn -> UserId -> ActionKey -> IO ()
 stopSession' conn userid key = do

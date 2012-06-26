@@ -1,4 +1,4 @@
-module OpenBrain.Backend.SqliteBackend.KarmaBackend (load) where
+module OpenBrain.Backend.SqliteBackend.KarmaBackend () where
 {- Provides the KarmaBackend for the SqliteBackend. -}
 
 import Control.Monad
@@ -7,6 +7,8 @@ import Data.Convertible.Base
 
 import OpenBrain.Backend
 import OpenBrain.Backend.SqliteBackend.Convertibles ()
+import OpenBrain.Backend.SqliteBackend.Common
+import OpenBrain.Config
 import OpenBrain.Config.Karma
 import OpenBrain.Data.Karma
 
@@ -18,10 +20,12 @@ maxKarma conn = do
     [[k]] -> return $ fromSql k
     _     -> return $ toKarma 0
 
--- Producing the KarmaBackend for a Connection and a given KarmaConfig:
-load :: IConnection conn => conn -> KarmaConfig -> KarmaBackend
-load conn kc = KarmaBackend {
-    karmaDeleteUser = liftM (satisfiesRatio $ ratioDeleteUser kc) $ maxKarma conn   
-  , karmaEditUser   = liftM (satisfiesRatio $ ratioEditUser kc)   $ maxKarma conn
-  }
+test :: SqliteBackend -> (KarmaConfig -> Rational) -> Highest -> Karma
+test b f k = do
+  let ratio = f . karmaConfig $ config b
+  satisfiesRatio ratio k  
+
+instance KarmaBackend SqliteBackend where
+  karmaDeleteUser b = liftM (test b ratioDeleteUser) $ withWConn (conn b) maxKarma
+  karmaEditUser   b = liftM (test b ratioEditUser) $ withWConn (conn b) maxKarma
 

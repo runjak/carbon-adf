@@ -1,19 +1,18 @@
-module OpenBrain.Backend.SqliteBackend.SaltShaker (load) where
+module OpenBrain.Backend.SqliteBackend.SaltShaker () where
 {- Provides the SaltShaker for the SqliteBackend. -}
 
 import Database.HDBC as H
 
 import OpenBrain.Backend
 import OpenBrain.Backend.SqliteBackend.Convertibles ()
+import OpenBrain.Backend.SqliteBackend.Common
 import OpenBrain.Data.User
 import OpenBrain.Data.Salt
 
-load :: (IConnection conn) => conn -> SaltShaker
-load conn = SaltShaker {
-    setId       = setId' conn
-  , getSalt     = getSalt' conn
-  , removeSalt  = removeSalt' conn
-  }
+instance SaltShaker SqliteBackend where
+  setId       b = withWConn (conn b) setId'
+  getSalt     b = withWConn (conn b)getSalt'
+  removeSalt  b = withWConn (conn b)removeSalt'
 
 setId' :: (IConnection conn) => conn -> Salt -> UserId -> IO ()
 setId' conn salt id = do

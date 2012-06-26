@@ -1,27 +1,28 @@
-module OpenBrain.Backend.SqliteBackend.ProfileBackend (load) where
+module OpenBrain.Backend.SqliteBackend.ProfileBackend () where
 {- Provides the ProfileBackend for SqliteBackend.UserBackend. -}
 
 import Control.Monad
+import Control.Monad.Trans
+import Control.Monad.Trans.Maybe
 import Database.HDBC as H
 
 import OpenBrain.Backend
 import OpenBrain.Backend.SqliteBackend.Convertibles ()
+import OpenBrain.Backend.SqliteBackend.Common
 import OpenBrain.Backend.SqliteBackend.Schema (SnippetType(..))
 import OpenBrain.Data.Profile
 import OpenBrain.Data.User (UserId)
 
-load :: (IConnection conn) => conn -> ProfileBackend
-load conn = ProfileBackend {
-    getProfileId        = getProfileId' conn
-  , getProfile          = getProfile' conn
-  , setAccessRule       = setAccessRule' conn
-  , setName             = setName' conn
-  , setAvatar           = setAvatar' conn
-  , setLocations        = setLocations' conn
-  , setWebsites         = setWebsites' conn
-  , setEmails           = setEmails' conn
-  , setInstantMessagers = setInstantMessagers' conn
-  }
+instance ProfileBackend SqliteBackend where
+  getProfileId b        = withWConn (conn b) getProfileId'
+  getProfile b          = withWConn (conn b) getProfile'
+  setAccessRule b       = withWConn (conn b) setAccessRule'
+  setName b             = withWConn (conn b) setName'
+  setAvatar b           = withWConn (conn b) setAvatar'
+  setLocations b        = withWConn (conn b) setLocations'
+  setWebsites b         = withWConn (conn b) setWebsites'
+  setEmails b           = withWConn (conn b) setEmails'
+  setInstantMessagers b = withWConn (conn b) setInstantMessagers'
 
 getProfileId' :: (IConnection conn) => conn -> UserId -> IO ProfileId
 getProfileId' conn userid = do
@@ -34,20 +35,20 @@ getProfileId' conn userid = do
       when (state <= 0) $ error "Could not create new profileid in SqliteBackend."
       commit conn >> getProfileId' conn userid
 
-getProfile' :: (IConnection conn) => conn -> ProfileId -> IO (Maybe Profile)
+getProfile' :: (IConnection conn) => conn -> ProfileId -> MaybeT IO Profile
 getProfile' conn profileid = do
-  pdata <- quickQuery' conn "SELECT userid, accessRule, avatar FROM Profile WHERE profileid = ?" [toSql profileid]
-  ndata <- quickQuery' conn "SELECT prefix, foreName, middleName, familyName, suffix FROM Name WHERE profileid = ?" [toSql profileid]
-  ldata <- quickQuery' conn "SELECT street, city, state, land, zipCode, note FROM Location WHERE profileid = ?" [toSql profileid]
+  pdata <- liftIO $ quickQuery' conn "SELECT userid, accessRule, avatar FROM Profile WHERE profileid = ?" [toSql profileid]
+  ndata <- liftIO $ quickQuery' conn "SELECT prefix, foreName, middleName, familyName, suffix FROM Name WHERE profileid = ?" [toSql profileid]
+  ldata <- liftIO $ quickQuery' conn "SELECT street, city, state, land, zipCode, note FROM Location WHERE profileid = ?" [toSql profileid]
   let locations' = concatMap mkLocations ldata
   mname <- case ndata of
-    [[p, fon, mn, fan, s]] -> return $ Just $ Name (fromSql p) (fromSql fon) (fromSql mn) (fromSql fan) (fromSql s)
-    _ -> return Nothing
-  websites' <- getProfileSnippets Website
-  emails'   <- getProfileSnippets Email
-  ims       <- getProfileSnippets InstantMessager
+    [[p, fon, mn, fan, s]] -> return . Just $ Name (fromSql p) (fromSql fon) (fromSql mn) (fromSql fan) (fromSql s)
+    _ -> mzero
+  websites' <- liftIO $ getProfileSnippets Website
+  emails'   <- liftIO $ getProfileSnippets Email
+  ims       <- liftIO $ getProfileSnippets InstantMessager
   case pdata of
-    [[userid', accessRule', avatar']] -> return . Just $ Profile {
+    [[userid', accessRule', avatar']] -> return Profile {
         profileId         = profileid
       , userId            = fromSql userid'
       , accessRule        = fromSql accessRule'
@@ -58,7 +59,7 @@ getProfile' conn profileid = do
       , emails            = emails'
       , instantMessagers  = ims
       }
-    _ -> return Nothing
+    _ -> mzero
   where
     getProfileSnippets :: SnippetType -> IO [ProfileSnippet]
     getProfileSnippets st = do

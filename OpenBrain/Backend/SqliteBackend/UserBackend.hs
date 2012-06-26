@@ -1,35 +1,39 @@
-module OpenBrain.Backend.SqliteBackend.UserBackend (load) where
+module OpenBrain.Backend.SqliteBackend.UserBackend () where
 {- Provides the UserBackend for SqliteBackend. -}
 
 import Control.Monad
+import Control.Monad.Trans
+import Control.Monad.Trans.Maybe
 import Database.HDBC as H
+import Data.Maybe
 import System.Time as T
 
 import OpenBrain.Backend
 import OpenBrain.Backend.SqliteBackend.Convertibles ()
-import qualified OpenBrain.Backend.SqliteBackend.ProfileBackend as P (load)
+import OpenBrain.Backend.SqliteBackend.Common
+import OpenBrain.Backend.SqliteBackend.ProfileBackend ()
+import OpenBrain.Common
 import OpenBrain.Data.User
 import OpenBrain.Data.Hash
 import OpenBrain.Data.Karma
 
-load :: (IConnection conn) => conn -> UserBackend
-load conn = UserBackend {
-    login           = login'            conn
-  , getUser         = getUser'          conn
-  , hasUserWithId   = hasUserWithId'    conn
-  , hasUserWithName = hasUserWithName'  conn
-  , register        = register'         conn
-  , delete          = delete'           conn
-  , profileBackend  = P.load            conn
-  , getUserList     = getUserList'      conn
-  , updateKarma     = updateKarma'      conn
-  , updatePasswd    = updatePasswd'     conn
-  , setAdmin        = setAdmin'         conn
-  }
+instance UserBackend SqliteBackend where
+  login           b = withWConn (conn b) login'
+  getUser         b = withWConn (conn b) getUser'
+  hasUserWithId   b = withWConn (conn b) hasUserWithId'
+  hasUserWithName b = withWConn (conn b) hasUserWithName'
+  register        b = withWConn (conn b) register'
+  delete          b = withWConn (conn b) delete'
+  profileBackend  b = CProfileBackend b
+  getUserCount    b = withWConn (conn b) getUserCount'
+  getUserList     b = withWConn (conn b) getUserList'
+  updateKarma     b = withWConn (conn b) updateKarma'
+  updatePasswd    b = withWConn (conn b) updatePasswd'
+  setAdmin        b = withWConn (conn b) setAdmin'
 
-login' :: (IConnection conn) => conn -> UserName -> Hash -> IO (Maybe UserData)
+login' :: (IConnection conn) => conn -> UserName -> Hash -> MaybeT IO UserData
 login' conn username hash = do
-  rst <- quickQuery conn "SELECT * FROM UserData WHERE username = ? AND password = ?" [toSql username, toSql hash]
+  rst <- liftIO $ quickQuery conn "SELECT * FROM UserData WHERE username = ? AND password = ?" [toSql username, toSql hash]
   case rst of
     [[userid', _, _, karma', creation', lastLogin', isAdmin']] -> do
       let userdata = UserData {
@@ -41,17 +45,18 @@ login' conn username hash = do
         , lastLogin = fromSql lastLogin'
         , isAdmin   = fromSql isAdmin'
         }
-      t <- liftM toUTCTime getClockTime
-      stmt <- prepare conn "UPDATE UserData SET lastLogin = ? WHERE userid = ?"
-      execute stmt [toSql t, toSql (userid userdata)] >> commit conn
-      return $ Just userdata{lastLogin = t}
-    _ -> return Nothing
+      liftIO $ do
+        t <- liftM toUTCTime getClockTime
+        stmt <- prepare conn "UPDATE UserData SET lastLogin = ? WHERE userid = ?"
+        execute stmt [toSql t, toSql (userid userdata)] >> commit conn
+        return userdata{lastLogin = t}
+    _ -> mzero
 
-getUser' :: (IConnection conn) => conn -> UserId -> IO (Maybe UserData)
+getUser' :: (IConnection conn) => conn -> UserId -> MaybeT IO UserData
 getUser' conn userid = do
-  rst <- quickQuery conn "SELECT username, password, karma, creation, lastLogin, isAdmin FROM UserData WHERE userid = ?" [toSql userid]
+  rst <- liftIO $ quickQuery conn "SELECT username, password, karma, creation, lastLogin, isAdmin FROM UserData WHERE userid = ?" [toSql userid]
   case rst of
-    [[username', password', karma', creation', lastLogin', isAdmin']] -> return $ Just UserData {
+    [[username', password', karma', creation', lastLogin', isAdmin']] -> return $ UserData {
         userid    = userid
       , username  = fromSql username'
       , password  = fromSql password'
@@ -60,7 +65,7 @@ getUser' conn userid = do
       , lastLogin = fromSql lastLogin'
       , isAdmin   = fromSql isAdmin'
       }
-    _ -> return Nothing
+    _ -> mzero
 
 hasUserWithId' :: (IConnection conn) => conn -> UserId -> IO Bool
 hasUserWithId' conn userid = do
@@ -69,23 +74,22 @@ hasUserWithId' conn userid = do
     [[count]] -> return $ (>0) (fromSql count :: Int)
     _         -> return False
 
-hasUserWithName' :: (IConnection conn) => conn -> UserName -> IO (Maybe UserId)
+hasUserWithName' :: (IConnection conn) => conn -> UserName -> MaybeT IO UserId
 hasUserWithName' conn username = do
-  rst <- quickQuery conn "SELECT userid FROM UserData WHERE username = ?" [toSql username]
+  rst <- liftIO $ quickQuery conn "SELECT userid FROM UserData WHERE username = ?" [toSql username]
   case rst of
-    [[uid]] -> return . Just $ fromSql uid
-    _       -> return Nothing
+    [[uid]] -> return $ fromSql uid
+    _       -> mzero
 
-register' :: (IConnection conn) => conn -> UserName -> Hash -> IO (Maybe UserData)
+register' :: (IConnection conn) => conn -> UserName -> Hash -> MaybeT IO UserData
 register' conn username hash = do
-  duplicate <- hasUserWithName' conn username
-  case duplicate of
-    (Just _)  -> return Nothing
-    Nothing -> do
-      t <- liftM (toSql . toUTCTime) getClockTime
-      stmt <- prepare conn "INSERT INTO UserData(username, password, creation, lastLogin) VALUES (?, ?, ?, ?)"
-      execute stmt [toSql username, toSql hash, t ,t] >> commit conn
-      login' conn username hash
+  duplicate <- liftIOM isJust . runMaybeT $ hasUserWithName' conn username
+  guard $ not duplicate
+  liftIO $ do
+    t <- liftM (toSql . toUTCTime) getClockTime
+    stmt <- liftIO $ prepare conn "INSERT INTO UserData(username, password, creation, lastLogin) VALUES (?, ?, ?, ?)"
+    execute stmt [toSql username, toSql hash, t ,t] >> commit conn
+  login' conn username hash
 
 delete' :: (IConnection conn) => conn -> UserId -> IO Bool
 delete' conn userid = do
@@ -94,10 +98,20 @@ delete' conn userid = do
   commit conn
   return $ rst > 0
 
-getUserList' :: (IConnection conn) => conn -> IO [UserId]
-getUserList' conn = do
-  rst <- quickQuery' conn "SELECT userid FROM UserData" []
-  return $ map (fromSql . head) rst
+getUserCount' :: (IConnection conn) => conn -> IO Int
+getUserCount' conn = do
+  rst <- quickQuery conn "SELECT COUNT(*) FROM UserData" []
+  case rst of
+    [[c]] -> return $ fromSql c
+    _ -> return 0
+
+getUserList' :: (IConnection conn) => conn -> Limit -> Offset -> IO [UserId]
+getUserList' conn limit offset = do
+  rst <- quickQuery conn "SELECT userid FROM UserData LIMIT ? OFFSET ?" [toSql limit, toSql offset]
+  return $ concatMap go rst
+  where
+    go [uid]  = [fromSql uid]
+    go _      = []
 
 updateKarma' :: (IConnection conn) => conn -> UserId -> (Karma -> Karma) -> IO ()
 updateKarma' conn userid f = do
