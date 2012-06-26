@@ -21,6 +21,7 @@ Build-Depends:  aeson
               , SHA2
               , stm
               , text
+              , transformers
               , utf8-string
 Executable:     openBrain
 Main-is:        OpenBrain/Main.hs
