@@ -1,0 +1,4 @@
+Name:		Unofficial Tango
+Found on:	http://art.gnome.org/themes/icon
+License:	CC BY-SA
+Made by:	Jones Lee
