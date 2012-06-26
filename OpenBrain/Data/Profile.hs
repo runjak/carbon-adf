@@ -7,6 +7,9 @@ module OpenBrain.Data.Profile (
   , Location(..)
   , ProfileSnippet(..)
   , emptyProfile
+  , emptyName
+  , emptyLocation
+  , emptySnippet
 ) where
 {-
   Definition of Profile information that can be attached to a UserId.
@@ -70,6 +73,9 @@ data ProfileSnippet = ProfileSnippet {
 
 emptyProfile :: Id -> UserId -> Profile
 emptyProfile p u = Profile p u None Nothing Nothing [] [] [] []
+emptyName = Name "" "" "" "" ""
+emptyLocation = Location "" "" "" "" "" ""
+emptySnippet = ProfileSnippet "" "" ""
 
 instance ToJSON Profile where
   toJSON p = object [

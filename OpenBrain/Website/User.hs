@@ -2,7 +2,6 @@
 module OpenBrain.Website.User (serve, userControl, userList) where
 {-
   Displaying information regarding a single user to a Client.
-  Narf - we need some guildelines here to ensure data safety and ++privacy
 -}
 
 import Prelude hiding (head)
@@ -105,6 +104,6 @@ userList b = do
 instance ToMarkup UserData where
   toMarkup ud = (H.dl ! A.class_ "userData") $ do
     (H.dt ! A.class_ "username") "Username" >> (H.dd . H.toHtml $ username ud)
-    (H.dt ! A.class_ "karma") "Karma"       >> (H.dd . H.toHtml . fromKarma $ karma ud)
+    (H.dt ! A.class_ "karma")    "Karma"    >> (H.dd . H.toHtml . fromKarma $ karma ud)
     (H.dt ! A.class_ "creation") "Creation" >> (H.dd . H.toHtml $ creation ud)
 
