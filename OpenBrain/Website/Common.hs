@@ -18,12 +18,7 @@ import qualified Text.Blaze.Html5.Attributes as A
 instance IsString Response where
   fromString = toResponse
 
-liftIOM f = liftIO . liftM f
-
 instance ToMarkup CalendarTime where
   toMarkup t =  H.toHtml $
     show (ctHour t) ++ ":" ++ show (ctMin t) ++ " " ++ show (ctDay t) ++ "." ++ show (ctMonth t) ++ " " ++ show (ctYear t)
-
-True  ? (a, _) = a
-False ? (_, b) = b
 
