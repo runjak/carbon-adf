@@ -16,6 +16,7 @@ import OpenBrain.Config (Config(..))
 import qualified OpenBrain.Website.Action as Action (serve)
 import qualified OpenBrain.Website.Index as Index (serve)
 import qualified OpenBrain.Website.Files as Files (serve)
+import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import qualified OpenBrain.Website.User as User (serve)
 
@@ -34,6 +35,7 @@ serve' :: OBW Response
 serve' = msum [
       dir "action" $ Action.serve
     , dir "files" $ Files.serve
-    , dir "user" $ User.serve
+    , contentNego "user"
+    , dir "user.html" $ User.serve
     , Index.serve
     ]

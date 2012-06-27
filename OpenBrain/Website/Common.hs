@@ -5,14 +5,18 @@ module OpenBrain.Website.Common where
 -}
 
 import Control.Monad
-import Control.Monad.Trans (liftIO)
+import Control.Monad.Trans
+import Data.ByteString (ByteString, isInfixOf)
+import qualified Data.ByteString as B
 import Data.String (IsString(..))
-import Happstack.Server
+import Happstack.Server as S
 import System.Time
 import Text.Blaze ((!))
 import Text.Blaze.Html (ToMarkup(..))
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
+
+import OpenBrain.Website.Monad
 
 -- For fun with OverloadedStrings pragma
 instance IsString Response where
@@ -21,4 +25,17 @@ instance IsString Response where
 instance ToMarkup CalendarTime where
   toMarkup t =  H.toHtml $
     show (ctHour t) ++ ":" ++ show (ctMin t) ++ " " ++ show (ctDay t) ++ "." ++ show (ctMonth t) ++ " " ++ show (ctYear t)
+
+contentNego :: String -> OBW Response
+contentNego base = dir base $ do
+  contentType <- liftM (maybe "" id) $ lift $ getHeaderM "Accept"
+  let suffix = suffixTable contentType
+  let target = base ++ suffix
+  lift $ seeOther target $ toResponse $ "303 redirect to " ++ target
+  where
+    suffixTable :: ByteString -> String
+    suffixTable contentType
+      | "application/json" `isInfixOf` contentType = ".json"
+      | "text/html" `isInfixOf` contentType = ".html"
+      | otherwise = ".html"
 
