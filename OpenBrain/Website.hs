@@ -11,14 +11,14 @@ import qualified Happstack.Server as S
 import Happstack.Server.SimpleHTTPS (nullTLSConf, simpleHTTPS)
 import qualified Happstack.Server.SimpleHTTPS as TLS
 
-import OpenBrain.Backend (Backend)
+import OpenBrain.Backend
 import OpenBrain.Config (Config(..))
 import qualified OpenBrain.Website.Action as Action (serve)
 import qualified OpenBrain.Website.Index as Index (serve)
 import qualified OpenBrain.Website.Files as Files (serve)
 import qualified OpenBrain.Website.User as User (serve)
 
-serve :: Backend -> Config -> IO ()
+serve :: CBackend -> Config -> IO ()
 serve backend config = do
   serverParts <- serve' backend config
   if useTLS config
@@ -29,7 +29,7 @@ serve backend config = do
     }
   else simpleHTTP nullConf{S.port = port config} serverParts
 
-serve' :: Backend -> Config -> IO (ServerPartT IO Response)
+serve' :: CBackend -> Config -> IO (ServerPartT IO Response)
 serve' backend config = do
   return $ msum [
       dir "action" $ Action.serve backend

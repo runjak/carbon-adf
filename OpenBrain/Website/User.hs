@@ -7,6 +7,7 @@ module OpenBrain.Website.User (serve, userControl, userList) where
 import Prelude hiding (head)
 import Control.Monad
 import Control.Monad.Trans(liftIO)
+import Control.Monad.Trans.Maybe
 import Data.Maybe
 import Happstack.Server as S
 import Text.Blaze ((!))
@@ -17,6 +18,7 @@ import qualified Text.Blaze.Html5.Attributes as A
 import OpenBrain.Backend
 import OpenBrain.Backend.Plus
 import OpenBrain.Config
+import OpenBrain.Common
 import OpenBrain.Data.Karma
 import OpenBrain.Data.Profile (Profile, AccessRule, Name, Location, ProfileSnippet)
 import qualified OpenBrain.Data.Profile as P
@@ -26,7 +28,7 @@ import OpenBrain.Website.Index (head)
 import OpenBrain.Website.Profile
 import OpenBrain.Website.Session
 
-serve :: Backend -> Config -> ServerPart Response
+serve :: CBackend -> Config -> ServerPart Response
 serve b c = mplus (showUser b c) $ do
   uc <- userControl b
   ul <- userList b
@@ -36,15 +38,15 @@ serve b c = mplus (showUser b c) $ do
   uc
   ul
 
-showUser :: Backend -> Config -> ServerPart Response
+showUser :: CBackend -> Config -> ServerPart Response
 showUser b c = path $ \uname -> do
-  mud <- liftIO $ getUserByName (userBackend b) uname
+  mud <- liftIOMay $ getUserByName (userBackend b) uname
   case mud of
     Nothing -> badRequest . toResponse $ "User " ++ uname ++ " not found."
     (Just ud) -> do
       mprofile <- liftIO $ do
         pid <- getProfileId (profileBackend $ userBackend b) (userid ud)
-        getProfile (profileBackend $ userBackend b) pid
+        runMaybeT $ getProfile (profileBackend $ userBackend b) pid
       ok . toResponse $ do
         H.docTypeHtml $ do
           head c
@@ -52,11 +54,11 @@ showUser b c = path $ \uname -> do
             H.toHtml ud
             when (isJust mprofile) $ H.toHtml (fromJust mprofile)
 
-userControl :: Backend -> ServerPart H.Html
+userControl :: CBackend -> ServerPart H.Html
 userControl b = do
   muid <- chkSession b
   guard $ isJust muid
-  ud <- liftIOM fromJust $ getUser (userBackend b) (fromJust muid)
+  ud <- liftM fromJust . liftIOMay $ getUser (userBackend b) (fromJust muid)
   return . controlBox $ username ud
   `mplus` (return loginBox)
 
@@ -87,12 +89,9 @@ controlBox username = H.form ! A.id "OpenBrainWebsiteUser_controlBox" $ do
   H.br
   H.input ! A.class_ "change" ! A.type_ "button" ! A.value "Change"
 
-userList :: Backend -> ServerPart H.Html
+userList :: CBackend -> ServerPart H.Html
 userList b = do
-  userdata <- liftIO $ do
-    uids   <- getUserList $ userBackend b
-    mud    <- mapM (getUser $ userBackend b) uids
-    return $ catMaybes mud
+  userdata <- liftIO $ getUserDataList (userBackend b) 0 100
   return $ H.ul ! A.class_ "userList" $ do
     flip mapM_ userdata $
       \ud -> H.li ! A.class_ "user" $ do

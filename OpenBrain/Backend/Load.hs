@@ -9,11 +9,10 @@ import Control.Monad.Trans.Maybe
 import OpenBrain.Backend
 import qualified OpenBrain.Backend.SqliteBackend as Sqlite
 import OpenBrain.Config
+import OpenBrain.Common
 
-import Control.Monad
-
-loadBackend :: Config -> MaybeT IO Backend
+loadBackend :: Config -> MaybeT IO CBackend
 loadBackend c = case backendType c of
-  (Sqlite3Backend dblocation) -> liftIO $ Sqlite.load dblocation c
+  (Sqlite3Backend dblocation) -> liftIOM CBackend $ Sqlite.load dblocation c
   MissingBackend              -> mzero
   

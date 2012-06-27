@@ -7,10 +7,12 @@ import Data.Aeson
 import Data.Maybe
 import Control.Monad
 import Control.Monad.Trans (liftIO)
+import Control.Monad.Trans.Maybe
 import Happstack.Server as S
 
-import OpenBrain.Backend (Backend, UserBackend, KarmaBackend, SaltShaker)
+import OpenBrain.Backend (CBackend, CUserBackend, CKarmaBackend, CSaltShaker)
 import qualified OpenBrain.Backend as B
+import OpenBrain.Common
 import OpenBrain.Data.User
 import OpenBrain.Data.Hash (Hash, hash)
 import OpenBrain.Data.Id
@@ -20,7 +22,7 @@ import OpenBrain.Website.Action.Common (failMessage, successMessage)
 import OpenBrain.Website.Common
 import OpenBrain.Website.Session
 
-serve :: Backend -> ServerPartT IO Response
+serve :: CBackend -> ServerPartT IO Response
 serve b = msum [
     dir "create"   $ create       b
   , dir "login"    $ login        b
@@ -34,13 +36,13 @@ serve b = msum [
 {-
   Expects parameters: username, password
 -}
-create :: Backend -> ServerPartT IO Response
+create :: CBackend -> ServerPartT IO Response
 create b = do
   username <- look "username"
   salt <- liftIO mkSalt
   hash <- liftM (hash salt) $ look "password"
   liftIO $ putStrLn $ "Request for creation: " ++ username ++ " with hash: " ++ show hash
-  mUserData <- liftIO $ B.register (B.userBackend b) username hash
+  mUserData <- liftIOMay $ B.register (B.userBackend b) username hash
   case mUserData of
     Nothing -> failMessage "Could not register user."
     (Just userdata) -> do
@@ -51,16 +53,16 @@ create b = do
 {-
   Expects parameters: username, password
 -}
-login :: Backend -> ServerPartT IO Response
+login :: CBackend -> ServerPartT IO Response
 login b = do
   username <- look "username"
-  mUid <- liftIO $ B.hasUserWithName (B.userBackend b) username
+  mUid <- liftIOMay $ B.hasUserWithName (B.userBackend b) username
   case mUid of
     Nothing -> failMessage "Login failed."
     (Just uid) -> do
       salt <- liftIO $ B.getSalt (B.saltShaker b) uid
       hash <- liftM (hash salt) $ look "password"
-      mUserData <- liftIO $ B.login (B.userBackend b) username hash
+      mUserData <- liftIOMay $ B.login (B.userBackend b) username hash
       case mUserData of
         Nothing -> failMessage "Login failed."
         (Just userdata) -> do
@@ -68,19 +70,19 @@ login b = do
           mkSession b uid
           successMessage "Login complete."
 
-logout :: Backend -> ServerPartT IO Response
+logout :: CBackend -> ServerPartT IO Response
 logout b = dropSession b >> successMessage "Logout complete."
 
 {- Expects parameters: username -}
-delete :: Backend -> ServerPartT IO Response
+delete :: CBackend -> ServerPartT IO Response
 delete b = do
   deletename <- look "username"
   muid <- chkSession b
   case muid of
     Nothing -> (liftIO $ putStrLn "delete #1") >> failMessage "Invalid session"
     (Just uid) -> do
-      mUser <- liftIO $ B.getUser (B.userBackend b) uid
-      mDeleteId <- liftIO $ B.hasUserWithName (B.userBackend b) deletename
+      mUser <- liftIOMay $ B.getUser (B.userBackend b) uid
+      mDeleteId <- liftIOMay $ B.hasUserWithName (B.userBackend b) deletename
       let mUserDeleteId = liftM2 (,) mUser mDeleteId
       case mUserDeleteId of
         Nothing -> failMessage "Data for deletion not found"
@@ -98,7 +100,7 @@ delete b = do
   Clients can add or sub other clients karma
   as long as they pay the same amount.
 -}
-changeKarma :: Backend -> ServerPartT IO Response
+changeKarma :: CBackend -> ServerPartT IO Response
 changeKarma b = do
   muid <- chkAction b
   case muid of
@@ -108,7 +110,7 @@ changeKarma b = do
       k <- lookRead "karma"
       let change  = karmaUpdate k
       let burn    = karmaUpdate . negate $ abs k
-      userdata <- liftIOM fromJust $ B.getUser (B.userBackend b) uid
+      userdata <- liftM fromJust . liftIOMay $ B.getUser (B.userBackend b) uid
       let preds = [(userid == uid, "Can't give yourself karma.")
                 , ((fromKarma $ karma userdata) < abs k, "Not enough karma.")]
       case (map snd $ filter fst preds) of
@@ -126,7 +128,7 @@ changeKarma b = do
       | otherwise = (y +) $ toKarma x
 
 {- Expects parameters: username, password -}
-changePwd :: Backend -> ServerPartT IO Response
+changePwd :: CBackend -> ServerPartT IO Response
 changePwd b = do
   muid <- chkAction b
   case muid of
@@ -134,19 +136,19 @@ changePwd b = do
     (Just uid) -> do
       username <- look "username"
       password <- look "password"
-      admin <- liftIOM (maybe False $ isAdmin)  $ B.getUser (B.userBackend b) uid
-      self  <- liftIOM (maybe False $ (==) uid) $ B.hasUserWithName (B.userBackend b) username
+      admin <- liftM (maybe False $ isAdmin) . liftIOMay  $ B.getUser (B.userBackend b) uid
+      self  <- liftM (maybe False $ (==) uid) . liftIOMay $ B.hasUserWithName (B.userBackend b) username
       case admin || self of
         False -> failMessage "Can't update password of another user."
         True -> do
           liftIO $ do
-            target  <- liftM fromJust $ B.hasUserWithName (B.userBackend b) username
+            target  <- liftM fromJust . runMaybeT $ B.hasUserWithName (B.userBackend b) username
             salt    <- B.getSalt (B.saltShaker b) target
             B.updatePasswd (B.userBackend b) target $ hash salt password
           successMessage "Password changed."
 
 {- Expects parameters: username, admin :: {1,0} -}
-admin :: Backend -> ServerPartT IO Response
+admin :: CBackend -> ServerPartT IO Response
 admin b = do
   muid <- chkAction b
   case muid of
@@ -154,8 +156,8 @@ admin b = do
     (Just uid) -> do
       username <- look "username"
       setA <- liftM (=="1") $ look "admin"
-      isA <- liftIOM (maybe False $ isAdmin) $ B.getUser (B.userBackend b) uid
-      mTarget <- liftIO $ B.hasUserWithName (B.userBackend b) username
+      isA <- liftM (maybe False $ isAdmin) . liftIOMay $ B.getUser (B.userBackend b) uid
+      mTarget <- liftIOMay $ B.hasUserWithName (B.userBackend b) username
       case isA && isJust mTarget of
         False -> failMessage "Cannot change status, not admin yourself or username doesn't exist."
         True -> do

@@ -8,6 +8,7 @@ import OpenBrain.Config (Config, nullConfig, readConfig, writeConfig)
 import qualified OpenBrain.Website as Web (serve)
 
 import Control.Monad
+import Control.Monad.Trans.Maybe
 import Data.Maybe (isJust, fromJust)
 import System.Environment (getArgs)
 
@@ -40,7 +41,7 @@ help = mapM_ putStrLn [
 
 startup :: Config -> IO ()
 startup config = do
-  mBackend <- loadBackend config
+  mBackend <- runMaybeT $ loadBackend config
   case mBackend of
     (Just b) -> Web.serve b config
     Nothing -> putStrLn "Could not load backend."

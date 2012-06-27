@@ -10,11 +10,13 @@ module OpenBrain.Website.Session (UserSession(..)) where
 
 import Control.Monad
 import Control.Monad.Trans (liftIO)
+import Control.Monad.Trans.Maybe
 import Data.Maybe
 import Happstack.Server as S
 
 import OpenBrain.Config
 import OpenBrain.Backend
+import OpenBrain.Backend.Plus
 import OpenBrain.Data.User
 
 cookie_actionKey  = "actionKey" :: String
@@ -26,7 +28,7 @@ class UserSession u where
   chkAction   :: u -> ServerPart (Maybe UserId) -- Like chkSession but changes the ActionKey
   dropSession :: u -> ServerPart ()
 
-instance UserSession SessionManagement where
+instance UserSession CSessionManagement where
   mkSession sm userid = do
     key <- liftIO $ startSession sm userid
     addCookies $ map ((,) Session) [mkCookie cookie_userid $ show userid, mkCookie cookie_actionKey key]
@@ -40,7 +42,7 @@ instance UserSession SessionManagement where
   chkAction sm = do
     key    <- lookCookieValue cookie_actionKey
     userid <- liftM read $ lookCookieValue cookie_userid
-    mkey   <- liftIO $ perform sm userid key
+    mkey   <- liftIO $ runMaybeT $ perform sm userid key
     guard $ isJust mkey
     addCookie Session (mkCookie cookie_actionKey $ fromJust mkey) >> return (Just userid)
     `mplus` (return Nothing)
@@ -50,7 +52,7 @@ instance UserSession SessionManagement where
     liftIO $ stopSession sm userid key
     sequence_ $ map expireCookie [cookie_actionKey, cookie_userid]
 
-instance UserSession Backend where
+instance UserSession CBackend where
   mkSession   = mkSession   . sessionManagement
   chkSession  = chkSession  . sessionManagement
   chkAction   = chkAction   . sessionManagement

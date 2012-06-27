@@ -9,6 +9,7 @@ import qualified Text.Blaze.Html5.Attributes as A
 
 import OpenBrain.Data.Profile (Profile)
 import qualified OpenBrain.Data.Profile as P
+import OpenBrain.Common
 import OpenBrain.Website.Common
 import qualified OpenBrain.Website.Images as Img
 

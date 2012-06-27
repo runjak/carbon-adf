@@ -16,7 +16,7 @@ import OpenBrain.Backend
 import OpenBrain.Config
 import qualified OpenBrain.Config.Website as W
 
-serve :: Backend -> Config -> ServerPartT IO Response
+serve :: CBackend -> Config -> ServerPartT IO Response
 serve backend config = do
   ok . toResponse . H.docTypeHtml $ do
     head config

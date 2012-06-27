@@ -3,12 +3,18 @@ module OpenBrain.Backend.Plus where
 
 import Control.Monad
 import Control.Monad.Trans.Maybe
+import Data.Maybe
 
 import OpenBrain.Backend
 import OpenBrain.Data.User
 
 getUserByName :: (UserBackend b) => b -> UserName -> MaybeT IO UserData
 getUserByName b name = getUser b =<< hasUserWithName b name
+
+getUserDataList :: (UserBackend b) => b -> Limit -> Offset -> IO [UserData]
+getUserDataList backend limit offset = do
+  uids <- getUserList backend limit offset
+  liftM catMaybes $ mapM runMaybeT $ map (getUser backend) uids
 
 instance UserBackend CBackend where
   login           = login           . userBackend
@@ -45,3 +51,4 @@ instance ProfileBackend CBackend where
   setWebsites         = setWebsites         . userBackend
   setEmails           = setEmails           . userBackend
   setInstantMessagers = setInstantMessagers . userBackend
+

@@ -14,7 +14,7 @@ import OpenBrain.Website.Common
 import OpenBrain.Website.Session as SM
 import qualified OpenBrain.Website.Action.User as User
 
-serve :: Backend -> ServerPartT IO Response
+serve :: CBackend -> ServerPartT IO Response
 serve backend = do
   let actions = liftM (setHeaderBS "Content-Type" "application/json") $ msum [dir "user" (User.serve backend)]
   method POST >> decodeBody (defaultBodyPolicy "/tmp/" 4096 4096 4096)
