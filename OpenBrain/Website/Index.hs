@@ -5,6 +5,7 @@ module OpenBrain.Website.Index (serve, head) where
 -}
 
 import Control.Monad
+import Control.Monad.State
 import Control.Monad.Trans(liftIO)
 import Happstack.Server as S
 import Prelude hiding (head)
@@ -15,11 +16,13 @@ import qualified Text.Blaze.Html5.Attributes as A
 import OpenBrain.Backend
 import OpenBrain.Config
 import qualified OpenBrain.Config.Website as W
+import OpenBrain.Website.Monad
 
-serve :: CBackend -> Config -> ServerPartT IO Response
-serve backend config = do
+serve :: OBW Response
+serve = do
+  c <- gets config
   ok . toResponse . H.docTypeHtml $ do
-    head config
+    head c
     H.body $ do
       H.p "This is how we do it."
 

@@ -6,7 +6,8 @@ module OpenBrain.Website.Action.User (serve) where
 import Data.Aeson
 import Data.Maybe
 import Control.Monad
-import Control.Monad.Trans (liftIO)
+import Control.Monad.State
+import Control.Monad.Trans
 import Control.Monad.Trans.Maybe
 import Happstack.Server as S
 
@@ -20,41 +21,44 @@ import OpenBrain.Data.Karma
 import OpenBrain.Data.Salt (Salt, mkSalt)
 import OpenBrain.Website.Action.Common (failMessage, successMessage)
 import OpenBrain.Website.Common
+import OpenBrain.Website.Monad
 import OpenBrain.Website.Session
 
-serve :: CBackend -> ServerPartT IO Response
-serve b = msum [
-    dir "create"   $ create       b
-  , dir "login"    $ login        b
-  , dir "logout"   $ logout       b
-  , dir "delete"   $ delete       b
-  , dir "karma"    $ changeKarma  b
-  , dir "password" $ changePwd    b
-  , dir "admin"    $ admin        b
+serve :: OBW Response
+serve = msum [
+    dir "create"    create
+  , dir "login"     login
+  , dir "logout"    logout
+  , dir "delete"    delete
+  , dir "karma"     changeKarma
+  , dir "password"  changePwd
+  , dir "admin"     admin
   ]
 
 {-
   Expects parameters: username, password
 -}
-create :: CBackend -> ServerPartT IO Response
-create b = do
+create :: OBW Response
+create = do
   username <- look "username"
   salt <- liftIO mkSalt
   hash <- liftM (hash salt) $ look "password"
   liftIO $ putStrLn $ "Request for creation: " ++ username ++ " with hash: " ++ show hash
+  b <- gets backend
   mUserData <- liftIOMay $ B.register (B.userBackend b) username hash
   case mUserData of
     Nothing -> failMessage "Could not register user."
     (Just userdata) -> do
       liftIO $ B.setId (B.saltShaker b) salt $ userid userdata
-      mkSession b $ userid userdata
+      lift $ mkSession b $ userid userdata
       successMessage "Creation complete."
 
 {-
   Expects parameters: username, password
 -}
-login :: CBackend -> ServerPartT IO Response
-login b = do
+login :: OBW Response
+login = do
+  b <- gets backend
   username <- look "username"
   mUid <- liftIOMay $ B.hasUserWithName (B.userBackend b) username
   case mUid of
@@ -67,17 +71,21 @@ login b = do
         Nothing -> failMessage "Login failed."
         (Just userdata) -> do
           let uid = userid userdata
-          mkSession b uid
+          lift $ mkSession b uid
           successMessage "Login complete."
 
-logout :: CBackend -> ServerPartT IO Response
-logout b = dropSession b >> successMessage "Logout complete."
+logout :: OBW Response
+logout = do
+  b <- gets backend
+  lift $ dropSession b
+  successMessage "Logout complete."
 
 {- Expects parameters: username -}
-delete :: CBackend -> ServerPartT IO Response
-delete b = do
+delete :: OBW Response
+delete = do
+  b <- gets backend
   deletename <- look "username"
-  muid <- chkSession b
+  muid <- lift $ chkSession b
   case muid of
     Nothing -> (liftIO $ putStrLn "delete #1") >> failMessage "Invalid session"
     (Just uid) -> do
@@ -91,7 +99,7 @@ delete b = do
           let allowed = or [userid userData == deleteId, isAdmin userData, karma userData >= deleteKarma]
           guard allowed
           success <- liftIO $ B.delete (B.userBackend b) deleteId
-          dropSession b
+          lift $ dropSession b
           successMessage "Deleted requested user."
           `mplus` (failMessage "Not allowed to delete requested user.")
 
@@ -100,9 +108,10 @@ delete b = do
   Clients can add or sub other clients karma
   as long as they pay the same amount.
 -}
-changeKarma :: CBackend -> ServerPartT IO Response
-changeKarma b = do
-  muid <- chkAction b
+changeKarma :: OBW Response
+changeKarma = do
+  b <- gets backend
+  muid <- lift $ chkAction b
   case muid of
     Nothing -> failMessage "Invalid session"
     (Just uid) -> do
@@ -128,9 +137,10 @@ changeKarma b = do
       | otherwise = (y +) $ toKarma x
 
 {- Expects parameters: username, password -}
-changePwd :: CBackend -> ServerPartT IO Response
-changePwd b = do
-  muid <- chkAction b
+changePwd :: OBW Response
+changePwd = do
+  b <- gets backend
+  muid <- lift $ chkAction b
   case muid of
     Nothing -> failMessage "Invalid session"
     (Just uid) -> do
@@ -148,9 +158,10 @@ changePwd b = do
           successMessage "Password changed."
 
 {- Expects parameters: username, admin :: {1,0} -}
-admin :: CBackend -> ServerPartT IO Response
-admin b = do
-  muid <- chkAction b
+admin :: OBW Response
+admin = do
+  b <- gets backend
+  muid <- lift $ chkAction b
   case muid of
     Nothing -> failMessage "Invalid session"
     (Just uid) -> do

@@ -6,6 +6,7 @@ module OpenBrain.Website.User (serve, userControl, userList) where
 
 import Prelude hiding (head)
 import Control.Monad
+import Control.Monad.State
 import Control.Monad.Trans(liftIO)
 import Control.Monad.Trans.Maybe
 import Data.Maybe
@@ -25,21 +26,27 @@ import qualified OpenBrain.Data.Profile as P
 import OpenBrain.Data.User
 import OpenBrain.Website.Common
 import OpenBrain.Website.Index (head)
+import OpenBrain.Website.Monad
 import OpenBrain.Website.Profile
 import OpenBrain.Website.Session
 
-serve :: CBackend -> Config -> ServerPart Response
-serve b c = mplus (showUser b c) $ do
-  uc <- userControl b
-  ul <- userList b
-  ok . toResponse . H.docTypeHtml $ do
-  head c
-  H.body $ do
-  uc
-  ul
+serve :: OBW Response
+serve = do
+  c <- gets config
+  b <- gets backend
+  mplus showUser $ do
+    uc <- userControl
+    ul <- userList
+    ok . toResponse . H.docTypeHtml $ do
+      head c
+      H.body $ do
+        uc
+        ul
 
-showUser :: CBackend -> Config -> ServerPart Response
-showUser b c = path $ \uname -> do
+showUser :: OBW Response
+showUser = path $ \uname -> do
+  b <- gets backend
+  c <- gets config
   mud <- liftIOMay $ getUserByName (userBackend b) uname
   case mud of
     Nothing -> badRequest . toResponse $ "User " ++ uname ++ " not found."
@@ -54,9 +61,10 @@ showUser b c = path $ \uname -> do
             H.toHtml ud
             when (isJust mprofile) $ H.toHtml (fromJust mprofile)
 
-userControl :: CBackend -> ServerPart H.Html
-userControl b = do
-  muid <- chkSession b
+userControl :: OBW H.Html
+userControl = do
+  b <- gets backend
+  muid <- lift $ chkSession b
   guard $ isJust muid
   ud <- liftM fromJust . liftIOMay $ getUser (userBackend b) (fromJust muid)
   return . controlBox $ username ud
@@ -89,8 +97,9 @@ controlBox username = H.form ! A.id "OpenBrainWebsiteUser_controlBox" $ do
   H.br
   H.input ! A.class_ "change" ! A.type_ "button" ! A.value "Change"
 
-userList :: CBackend -> ServerPart H.Html
-userList b = do
+userList :: OBW H.Html
+userList = do
+  b <- gets backend
   userdata <- liftIO $ getUserDataList (userBackend b) 0 100
   return $ H.ul ! A.class_ "userList" $ do
     flip mapM_ userdata $

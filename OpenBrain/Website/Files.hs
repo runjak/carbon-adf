@@ -4,12 +4,16 @@ module OpenBrain.Website.Files (serve) where
   which are located in /files/.
   It uses the Config.File module for configuration.
 -}
-import OpenBrain.Config (Config(..))
+import Control.Monad.State
 import Happstack.Server (Browsing(..), serveDirectory, Response)
 import qualified Happstack.Server as S
 
-serve :: Config -> S.ServerPartT IO Response
-serve conf = do
+import OpenBrain.Config (Config(..))
+import OpenBrain.Website.Monad
+
+serve :: OBW Response
+serve = do
+  conf <- gets config
   let b = browsing $ allowBrowsing conf
   serveDirectory b fallbackFiles $ fileStorage conf
 

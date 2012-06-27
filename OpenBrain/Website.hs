@@ -21,7 +21,7 @@ import qualified OpenBrain.Website.User as User (serve)
 
 serve :: CBackend -> Config -> IO ()
 serve backend config = do
-  serverParts <- serve' backend config
+  let serverParts = runOBW (WebsiteState backend config) serve'
   if useTLS config
   then flip simpleHTTPS serverParts nullTLSConf{
       TLS.tlsPort = port config
@@ -30,11 +30,10 @@ serve backend config = do
     }
   else simpleHTTP nullConf{S.port = port config} serverParts
 
-serve' :: CBackend -> Config -> IO (ServerPartT IO Response)
-serve' backend config = do
-  return $ msum [
-      dir "action" $ Action.serve backend
-    , dir "files" $ Files.serve config
-    , dir "user" $ User.serve backend config
-    , Index.serve backend config
+serve' :: OBW Response
+serve' = msum [
+      dir "action" $ Action.serve
+    , dir "files" $ Files.serve
+    , dir "user" $ User.serve
+    , Index.serve
     ]

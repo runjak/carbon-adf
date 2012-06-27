@@ -2,6 +2,7 @@
 module OpenBrain.Website.Profile () where
 
 import Control.Monad
+import Control.Monad.State
 import Text.Blaze ((!))
 import Text.Blaze.Html (ToMarkup(..))
 import qualified Text.Blaze.Html5 as H
@@ -11,6 +12,7 @@ import OpenBrain.Data.Profile (Profile)
 import qualified OpenBrain.Data.Profile as P
 import OpenBrain.Common
 import OpenBrain.Website.Common
+import OpenBrain.Website.Monad
 import qualified OpenBrain.Website.Images as Img
 
 instance ToMarkup Profile where
