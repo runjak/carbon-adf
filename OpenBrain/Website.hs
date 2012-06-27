@@ -16,6 +16,7 @@ import OpenBrain.Config (Config(..))
 import qualified OpenBrain.Website.Action as Action (serve)
 import qualified OpenBrain.Website.Index as Index (serve)
 import qualified OpenBrain.Website.Files as Files (serve)
+import OpenBrain.Website.Monad
 import qualified OpenBrain.Website.User as User (serve)
 
 serve :: CBackend -> Config -> IO ()
