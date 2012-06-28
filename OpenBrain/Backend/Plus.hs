@@ -52,3 +52,8 @@ instance ProfileBackend CBackend where
   setEmails           = setEmails           . userBackend
   setInstantMessagers = setInstantMessagers . userBackend
 
+instance SaltShaker CBackend where
+  setId       = setId       . saltShaker
+  getSalt     = getSalt     . saltShaker
+  removeSalt  = removeSalt  . saltShaker
+
