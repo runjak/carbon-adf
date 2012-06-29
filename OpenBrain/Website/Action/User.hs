@@ -56,8 +56,8 @@ login :: OBW Response
 login = handleFail "Login failed." $ do
   username  <- look "username"
   b         <- gets backend
-  uid       <- liftMaybeT $ B.hasUserWithName (B.userBackend b) username
-  salt      <- liftIO $ B.getSalt (B.saltShaker b) uid
+  uid       <- liftMaybeT $ B.hasUserWithName b username
+  salt      <- liftIO $ B.getSalt b uid
   hash      <- liftM (hash salt) $ look "password"
   userdata  <- liftMaybeT $ B.login (B.userBackend b) username hash
   lift $ mkSession b uid

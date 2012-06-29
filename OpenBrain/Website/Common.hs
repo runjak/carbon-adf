@@ -8,6 +8,7 @@ import Control.Monad
 import Control.Monad.Trans
 import Data.ByteString (ByteString, isInfixOf)
 import qualified Data.ByteString as B
+import Data.List (intercalate)
 import Data.String (IsString(..))
 import Happstack.Server as S
 import System.Time
@@ -39,3 +40,5 @@ contentNego base = dir base $ do
       | "text/html" `isInfixOf` contentType = ".html"
       | otherwise = ".html"
 
+toHref :: String -> [String] -> H.AttributeValue
+toHref target parameters = H.toValue $ target ++ "?" ++ intercalate "&" parameters

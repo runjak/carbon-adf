@@ -11,7 +11,7 @@ import OpenBrain.Config
 import OpenBrain.Website.Monad
 import qualified OpenBrain.Config.Website as W
 
-type Decorator = OBW H.Html -> OBW H.Html
+type Decorator = H.Html -> OBW H.Html
 
 {-
   Treats the target as body and adds head, html and doctype.
@@ -20,13 +20,12 @@ head :: Decorator
 head target = do
   m     <- meta
   js    <- jsfiles
-  body  <- target
   title <- liftM (W.title . websiteConfig) $ gets config
   return $ H.docTypeHtml $ do
     H.head $ do
       H.title $ H.toHtml title
       m >> js
-    H.body body
+    H.body target
 
 meta :: OBW H.Html
 meta = do

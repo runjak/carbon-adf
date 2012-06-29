@@ -19,6 +19,7 @@ import qualified OpenBrain.Website.Files as Files (serve)
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import qualified OpenBrain.Website.User as User (serve)
+import qualified OpenBrain.Website.Html.Users as HUsers
 
 serve :: CBackend -> Config -> IO ()
 serve backend config = do
@@ -37,5 +38,7 @@ serve' = msum [
     , dir "files" $ Files.serve
     , contentNego "user"
     , dir "user.html" $ User.serve
+    , contentNego "users"
+    , dir "users.html" $ HUsers.serve
     , Index.serve
     ]
