@@ -2,11 +2,13 @@ module OpenBrain.Backend.Plus where
 {- Helpfull extensions to OpenBrain.Backend -}
 
 import Control.Monad
+import Control.Monad.Trans
 import Control.Monad.Trans.Maybe
 import Data.Maybe
 
 import OpenBrain.Backend
 import OpenBrain.Data.User
+import OpenBrain.Data.Profile
 
 getUserByName :: (UserBackend b) => b -> UserName -> MaybeT IO UserData
 getUserByName b name = getUser b =<< hasUserWithName b name
@@ -15,6 +17,11 @@ getUserDataList :: (UserBackend b) => b -> Limit -> Offset -> IO [UserData]
 getUserDataList backend limit offset = do
   uids <- getUserList backend limit offset
   liftM catMaybes $ mapM runMaybeT $ map (getUser backend) uids
+
+getProfileByUserId :: (ProfileBackend p) => p -> UserId -> MaybeT IO Profile
+getProfileByUserId p userid = do
+  pid <- liftIO $ getProfileId p userid
+  getProfile p pid
 
 instance UserBackend CBackend where
   login           = login           . userBackend

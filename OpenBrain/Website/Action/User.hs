@@ -20,7 +20,7 @@ import OpenBrain.Data.Id
 import OpenBrain.Data.Karma
 import OpenBrain.Data.Salt (Salt, mkSalt)
 import OpenBrain.Website.Action.Common (failMessage, successMessage, handleFail)
-import OpenBrain.Website.Common
+import OpenBrain.Website.Common hiding (handleFail)
 import OpenBrain.Website.Monad
 import OpenBrain.Website.Session
 

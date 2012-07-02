@@ -19,6 +19,7 @@ import qualified OpenBrain.Website.Files as Files (serve)
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import qualified OpenBrain.Website.User as User (serve)
+import qualified OpenBrain.Website.Html.User  as HUser
 import qualified OpenBrain.Website.Html.Users as HUsers
 
 serve :: CBackend -> Config -> IO ()
@@ -36,9 +37,10 @@ serve' :: OBW Response
 serve' = msum [
       dir "action" $ Action.serve
     , dir "files" $ Files.serve
-    , dir "user.html" $ User.serve
     , contentNego "user"
---    , dir "user" $ path (\username -> contentNego username) -- FIXME this appears to be problematic
+    , dir "user.html" $ User.serve
+    , dir "user" $ path (\username -> contentNego username) -- FIXME this appears to be problematic
+    , dir "user" $ HUser.showUser
     , contentNego "users"
     , dir "users.html" $ HUsers.serve
     , Index.serve

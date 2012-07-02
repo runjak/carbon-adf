@@ -32,7 +32,8 @@ contentNego base = dir base $ do
   contentType <- liftM (maybe "" id) $ lift $ getHeaderM "Accept"
   let suffix = suffixTable contentType
   let target = base ++ suffix
-  lift $ seeOther target $ toResponse $ "303 redirect to " ++ target
+  lift $ ok $ toResponse $ "303 redirect to " ++ target
+--  lift $ seeOther target $ toResponse $ "303 redirect to " ++ target
   where
     suffixTable :: ByteString -> String
     suffixTable contentType
@@ -42,3 +43,6 @@ contentNego base = dir base $ do
 
 toHref :: String -> [String] -> H.AttributeValue
 toHref target parameters = H.toValue $ target ++ "?" ++ intercalate "&" parameters
+
+handleFail :: String -> OBW Response -> OBW Response
+handleFail msg handle = msum [handle, ok (toResponse msg)]
