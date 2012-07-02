@@ -37,11 +37,11 @@ serve' :: OBW Response
 serve' = msum [
       dir "action" $ Action.serve
     , dir "files" $ Files.serve
-    , contentNego "user"
-    , dir "user.html" $ User.serve
-    , dir "user" $ path (\username -> contentNego username) -- FIXME this appears to be problematic
+    , dir "user" $ path (\username -> contentNego username)
     , dir "user" $ HUser.showUser
-    , contentNego "users"
+    , contentNego' "user"
+    , dir "user.html" $ User.serve
+    , contentNego' "users"
     , dir "users.html" $ HUsers.serve
     , Index.serve
     ]

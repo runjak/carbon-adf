@@ -31,7 +31,7 @@ import qualified OpenBrain.Website.Html.Decorator as Decorator
 
 showUser :: OBW Response
 showUser = path $ \path -> do
-  guard $ ".html" `isSuffixOf` path
+--  guard $ ".html" `isSuffixOf` path
   let uname = take (length path - 5) path
   b <- gets backend
   c <- gets config

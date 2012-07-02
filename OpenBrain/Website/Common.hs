@@ -8,7 +8,7 @@ import Control.Monad
 import Control.Monad.Trans
 import Data.ByteString (ByteString, isInfixOf)
 import qualified Data.ByteString as B
-import Data.List (intercalate)
+import Data.List (intercalate, isSuffixOf)
 import Data.String (IsString(..))
 import Happstack.Server as S
 import System.Time
@@ -28,18 +28,27 @@ instance ToMarkup CalendarTime where
     show (ctHour t) ++ ":" ++ show (ctMin t) ++ " " ++ show (ctDay t) ++ "." ++ show (ctMonth t) ++ " " ++ show (ctYear t)
 
 contentNego :: String -> OBW Response
-contentNego base = dir base $ do
+contentNego base = do
+  guard $ needsContentNego base
   contentType <- liftM (maybe "" id) $ lift $ getHeaderM "Accept"
   let suffix = suffixTable contentType
   let target = base ++ suffix
-  lift $ ok $ toResponse $ "303 redirect to " ++ target
---  lift $ seeOther target $ toResponse $ "303 redirect to " ++ target
+  lift $ seeOther target $ toResponse $ "303 redirect to " ++ target
   where
+    needsContentNego :: String -> Bool
+    needsContentNego s
+      | ".html" `isSuffixOf` s = False
+      | ".json" `isSuffixOf` s = False
+      | otherwise = True
     suffixTable :: ByteString -> String
     suffixTable contentType
       | "application/json" `isInfixOf` contentType = ".json"
       | "text/html" `isInfixOf` contentType = ".html"
       | otherwise = ".html"
+
+{- In difference to contentNego this function also matches the dir. -}
+contentNego' :: String -> OBW Response
+contentNego' base = dir base $ contentNego base
 
 toHref :: String -> [String] -> H.AttributeValue
 toHref target parameters = H.toValue $ target ++ "?" ++ intercalate "&" parameters
