@@ -31,16 +31,16 @@ import qualified OpenBrain.Website.Html.Decorator as Decorator
 
 showUser :: OBW Response
 showUser = path $ \path -> do
---  guard $ ".html" `isSuffixOf` path
+  guard $ ".html" `isSuffixOf` path
   let uname = take (length path - 5) path
   b <- gets backend
   c <- gets config
   handleFail ("User " ++ uname ++ " not found.") $ do
     userdata  <- liftMaybeT $ getUserByName b uname
-    profile   <- liftMaybeT $ getProfileByUserId b $ userid userdata
+    mprofile  <- liftIOMay  $ getProfileByUserId b $ userid userdata
     html      <- Decorator.head $ do
       H.toHtml userdata
-      H.toHtml profile
+      when (isJust mprofile) $ H.toHtml $ fromJust mprofile
     ok $ toResponse html
 
 instance ToMarkup UserData where
