@@ -21,5 +21,5 @@ nullWebsiteConfig = WebsiteConfig {
     , "wysihtml5_parser_advanced.js"
     , "User.js"
     , "Main.js"]
-  , cssFiles    = map ("files/css/" ++) ["style.css"]
+  , cssFiles    = map ("files/css/" ++) ["style.css", "form.css"]
   }
