@@ -2,6 +2,7 @@
 module OpenBrain.Website.Html.User where
 {-
   Displaying information regarding a single user to a Client.
+  This module cares for the information under /user/<username>.html
 -}
 
 import Control.Monad
@@ -37,10 +38,10 @@ showUser = path $ \path -> do
   c <- gets config
   handleFail ("User " ++ uname ++ " not found.") $ do
     userdata  <- liftMaybeT $ getUserByName b uname
-    mprofile  <- liftIOMay  $ getProfileByUserId b $ userid userdata
+    profile   <- liftIO $ getProfile b $ userid userdata
     html      <- Decorator.head $ do
       H.toHtml userdata
-      when (isJust mprofile) $ H.toHtml $ fromJust mprofile
+      H.toHtml profile
     ok $ toResponse html
 
 instance ToMarkup UserData where

@@ -18,11 +18,6 @@ getUserDataList backend limit offset = do
   uids <- getUserList backend limit offset
   liftM catMaybes $ mapM runMaybeT $ map (getUser backend) uids
 
-getProfileByUserId :: (ProfileBackend p) => p -> UserId -> MaybeT IO Profile
-getProfileByUserId p userid = do
-  pid <- liftIO $ getProfileId p userid
-  getProfile p pid
-
 instance UserBackend CBackend where
   login           = login           . userBackend
   getUser         = getUser         . userBackend
@@ -38,7 +33,6 @@ instance UserBackend CBackend where
   setAdmin        = setAdmin        . userBackend
 
 instance ProfileBackend CUserBackend where
-  getProfileId        = getProfileId        . profileBackend
   getProfile          = getProfile          . profileBackend
   setAccessRule       = setAccessRule       . profileBackend
   setName             = setName             . profileBackend
@@ -49,7 +43,6 @@ instance ProfileBackend CUserBackend where
   setInstantMessagers = setInstantMessagers . profileBackend
 
 instance ProfileBackend CBackend where
-  getProfileId        = getProfileId        . userBackend
   getProfile          = getProfile          . userBackend
   setAccessRule       = setAccessRule       . userBackend
   setName             = setName             . userBackend

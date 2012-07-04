@@ -14,7 +14,6 @@ import OpenBrain.Data.Profile
 import OpenBrain.Data.User (UserId)
 
 instance ProfileBackend SqliteBackend where
-  getProfileId b        = withWConn (conn b) getProfileId'
   getProfile b          = withWConn (conn b) getProfile'
   setAccessRule b       = withWConn (conn b) setAccessRule'
   setName b             = withWConn (conn b) setName'
@@ -35,18 +34,19 @@ getProfileId' conn userid = do
       when (state <= 0) $ error "Could not create new profileid in SqliteBackend."
       commit conn >> getProfileId' conn userid
 
-getProfile' :: (IConnection conn) => conn -> ProfileId -> MaybeT IO Profile
-getProfile' conn profileid = do
+getProfile' :: (IConnection conn) => conn -> UserId -> IO Profile
+getProfile' conn userid = do
+  profileid <- getProfileId' conn userid
   pdata <- liftIO $ quickQuery' conn "SELECT userid, accessRule, avatar FROM Profile WHERE profileid = ?" [toSql profileid]
   ndata <- liftIO $ quickQuery' conn "SELECT prefix, foreName, middleName, familyName, suffix FROM Name WHERE profileid = ?" [toSql profileid]
   ldata <- liftIO $ quickQuery' conn "SELECT street, city, state, land, zipCode, note FROM Location WHERE profileid = ?" [toSql profileid]
   let locations' = concatMap mkLocations ldata
   mname <- case ndata of
     [[p, fon, mn, fan, s]] -> return . Just $ Name (fromSql p) (fromSql fon) (fromSql mn) (fromSql fan) (fromSql s)
-    _ -> mzero
-  websites' <- liftIO $ getProfileSnippets Website
-  emails'   <- liftIO $ getProfileSnippets Email
-  ims       <- liftIO $ getProfileSnippets InstantMessager
+    _ -> return Nothing
+  websites' <- liftIO $ getProfileSnippets profileid Website
+  emails'   <- liftIO $ getProfileSnippets profileid Email
+  ims       <- liftIO $ getProfileSnippets profileid InstantMessager
   case pdata of
     [[userid', accessRule', avatar']] -> return Profile {
         profileId         = profileid
@@ -59,10 +59,10 @@ getProfile' conn profileid = do
       , emails            = emails'
       , instantMessagers  = ims
       }
-    _ -> mzero
+    _ -> return $ emptyProfile profileid userid
   where
-    getProfileSnippets :: SnippetType -> IO [ProfileSnippet]
-    getProfileSnippets st = do
+    getProfileSnippets :: ProfileId -> SnippetType -> IO [ProfileSnippet]
+    getProfileSnippets profileid st = do
       rst <- quickQuery' conn "SELECT title, description, target FROM ProfileSnippet WHERE profileid = ? AND snippetType = ?" [toSql profileid, toSql st]
       return $ concatMap go rst
       where

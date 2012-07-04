@@ -62,8 +62,7 @@ instance UserBackend CUserBackend where
 
 {- Controls for Userprofiles. -}
 class ProfileBackend p where
-  getProfileId        :: p -> UserId -> IO ProfileId
-  getProfile          :: p -> ProfileId -> MaybeT IO Profile
+  getProfile          :: p -> UserId -> IO Profile
   setAccessRule       :: p -> ProfileId -> AccessRule -> IO ()
   setName             :: p -> ProfileId -> Maybe Name -> IO ()
   setAvatar           :: p -> ProfileId -> Maybe String -> IO ()
@@ -73,7 +72,6 @@ class ProfileBackend p where
   setInstantMessagers :: p -> ProfileId -> [ProfileSnippet] -> IO ()
 data CProfileBackend = forall p . ProfileBackend p => CProfileBackend p
 instance ProfileBackend CProfileBackend where
-  getProfileId (CProfileBackend p)        = getProfileId p
   getProfile (CProfileBackend p)          = getProfile p
   setAccessRule (CProfileBackend p)       = setAccessRule p
   setName (CProfileBackend p)             = setName p
