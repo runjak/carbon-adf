@@ -16,7 +16,7 @@ getUserByName b name = getUser b =<< hasUserWithName b name
 getUserDataList :: (UserBackend b) => b -> Limit -> Offset -> IO [UserData]
 getUserDataList backend limit offset = do
   uids <- getUserList backend limit offset
-  liftM catMaybes $ mapM runMaybeT $ map (getUser backend) uids
+  liftM catMaybes $ mapM (runMaybeT . getUser backend) uids
 
 instance UserBackend CBackend where
   login           = login           . userBackend

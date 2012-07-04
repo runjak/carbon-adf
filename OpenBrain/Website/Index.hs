@@ -23,8 +23,7 @@ serve = do
   c <- gets config
   ok . toResponse . H.docTypeHtml $ do
     head c
-    H.body $ do
-      H.p "This is how we do it."
+    H.body $ H.p "This is how we do it."
 
 head :: Config -> H.Html
 head config = H.head $ do

@@ -9,6 +9,7 @@ import Control.Monad.Trans
 import Data.ByteString (ByteString, isInfixOf)
 import qualified Data.ByteString as B
 import Data.List (intercalate, isSuffixOf)
+import Data.Maybe
 import Data.String (IsString(..))
 import Happstack.Server as S
 import System.Time
@@ -30,7 +31,7 @@ instance ToMarkup CalendarTime where
 contentNego :: String -> OBW Response
 contentNego base = do
   guard $ needsContentNego base
-  contentType <- liftM (maybe "" id) $ lift $ getHeaderM "Accept"
+  contentType <- liftM (fromMaybe "") $ lift $ getHeaderM "Accept"
   let suffix = suffixTable contentType
   let target = base ++ suffix
   lift $ seeOther target $ toResponse $ "303 redirect to " ++ target

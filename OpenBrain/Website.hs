@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, DoAndIfThenElse #-}
+{-# LANGUAGE OverloadedStrings #-}
 module OpenBrain.Website (serve) where
 {-
   This module ties everything website focussed together.
@@ -25,23 +25,23 @@ import qualified OpenBrain.Website.Html.Users as HUsers
 serve :: CBackend -> Config -> IO ()
 serve backend config = do
   let serverParts = runOBW (WebsiteState backend config) serve'
-  if useTLS config
-  then flip simpleHTTPS serverParts nullTLSConf{
-      TLS.tlsPort = port config
-    , TLS.tlsKey = tlsKey config
-    , TLS.tlsCert = tlsCert config
-    }
-  else simpleHTTP nullConf{S.port = port config} serverParts
+  if useTLS config then
+    simpleHTTPS nullTLSConf{
+        TLS.tlsPort = port config
+      , TLS.tlsKey = tlsKey config
+      , TLS.tlsCert = tlsCert config
+      } serverParts
+    else simpleHTTP nullConf{S.port = port config} serverParts
 
 serve' :: OBW Response
 serve' = msum [
-      dir "action" $ Action.serve
-    , dir "files" $ Files.serve
-    , dir "user" $ HUser.showUser
-    , dir "user" $ path (\username -> contentNego username)
+      dir "action" Action.serve
+    , dir "files" Files.serve
+    , dir "user" HUser.showUser
+    , dir "user" $ path contentNego
     , contentNego' "user"
-    , dir "user.html" $ HUserControl.serve
+    , dir "user.html" HUserControl.serve
     , contentNego' "users"
-    , dir "users.html" $ HUsers.serve
+    , dir "users.html" HUsers.serve
     , Index.serve
     ]

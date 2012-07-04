@@ -19,8 +19,8 @@ import OpenBrain.Backend
 import OpenBrain.Backend.Plus
 import OpenBrain.Data.User
 
-cookie_actionKey  = "actionKey" :: String
-cookie_userid     = "userid"    :: String
+cookieActionKey  = "actionKey" :: String
+cookieUserId     = "userid"    :: String
 
 class UserSession u where
   mkSession   :: u -> UserId -> ServerPart ()   -- Initialize a session
@@ -31,26 +31,26 @@ class UserSession u where
 instance UserSession CSessionManagement where
   mkSession sm userid = do
     key <- liftIO $ startSession sm userid
-    addCookies $ map ((,) Session) [mkCookie cookie_userid $ show userid, mkCookie cookie_actionKey key]
+    addCookies $ map ((,) Session) [mkCookie cookieUserId $ show userid, mkCookie cookieActionKey key]
   chkSession sm = do
-    key    <- lookCookieValue cookie_actionKey
-    userid <- liftM read $ lookCookieValue cookie_userid
+    key    <- lookCookieValue cookieActionKey
+    userid <- liftM read $ lookCookieValue cookieUserId
     valid  <- liftIO $ validate sm userid key
     guard valid
     return $ Just userid
-    `mplus` (return Nothing)
+    `mplus` return Nothing
   chkAction sm = do
-    key    <- lookCookieValue cookie_actionKey
-    userid <- liftM read $ lookCookieValue cookie_userid
+    key    <- lookCookieValue cookieActionKey
+    userid <- liftM read $ lookCookieValue cookieUserId
     mkey   <- liftIO $ runMaybeT $ perform sm userid key
     guard $ isJust mkey
-    addCookie Session (mkCookie cookie_actionKey $ fromJust mkey) >> return (Just userid)
-    `mplus` (return Nothing)
+    addCookie Session (mkCookie cookieActionKey $ fromJust mkey) >> return (Just userid)
+    `mplus` return Nothing
   dropSession sm = do
-    key    <- lookCookieValue cookie_actionKey
-    userid <- liftM read $ lookCookieValue cookie_userid
+    key    <- lookCookieValue cookieActionKey
+    userid <- liftM read $ lookCookieValue cookieUserId
     liftIO $ stopSession sm userid key
-    sequence_ $ map expireCookie [cookie_actionKey, cookie_userid]
+    mapM_ expireCookie [cookieActionKey, cookieUserId]
 
 instance UserSession CBackend where
   mkSession   = mkSession   . sessionManagement

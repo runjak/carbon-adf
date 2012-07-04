@@ -24,7 +24,7 @@ instance UserBackend SqliteBackend where
   hasUserWithName b = withWConn (conn b) hasUserWithName'
   register        b = withWConn (conn b) register'
   delete          b = withWConn (conn b) delete'
-  profileBackend  b = CProfileBackend b
+  profileBackend    = CProfileBackend
   getUserCount    b = withWConn (conn b) getUserCount'
   getUserList     b = withWConn (conn b) getUserList'
   updateKarma     b = withWConn (conn b) updateKarma'
@@ -56,7 +56,7 @@ getUser' :: (IConnection conn) => conn -> UserId -> MaybeT IO UserData
 getUser' conn userid = do
   rst <- liftIO $ quickQuery conn "SELECT username, password, karma, creation, lastLogin, isAdmin FROM UserData WHERE userid = ?" [toSql userid]
   case rst of
-    [[username', password', karma', creation', lastLogin', isAdmin']] -> return $ UserData {
+    [[username', password', karma', creation', lastLogin', isAdmin']] -> return UserData {
         userid    = userid
       , username  = fromSql username'
       , password  = fromSql password'

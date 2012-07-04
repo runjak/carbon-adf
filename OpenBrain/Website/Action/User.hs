@@ -123,7 +123,7 @@ changePwd = handleFail "Invalid session." $ do
   username  <- look "username"
   password  <- look "password"
   isAdmin   <- liftM isAdmin . liftMaybeT  $ B.getUser b uid
-  isSelf    <- liftM ((==) uid) . liftMaybeT $ B.hasUserWithName b username
+  isSelf    <- liftM (uid ==) . liftMaybeT $ B.hasUserWithName b username
   handleFail "Can't update password of another user." $ do
     guard $ isAdmin || isSelf
     target  <- liftMaybeT $ B.hasUserWithName b username

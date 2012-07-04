@@ -28,8 +28,8 @@ userList :: Limit -> Offset -> OBW H.Html
 userList limit offset = do
   b         <- gets backend
   userdata  <- liftIO $ P.getUserDataList b limit offset
-  return $ H.ul ! A.class_ "userList" $ do
-    flip mapM_ userdata $
+  return $ H.ul ! A.class_ "userList" $
+    forM_ userdata $
       \ud -> H.li ! A.class_ "user" $ do
         when (isAdmin ud) "Admin: "
         (H.a ! A.href (H.toValue . ("user/"++) $ username ud)) $ do
@@ -40,21 +40,21 @@ pageSelection :: OBW H.Html
 pageSelection = do
   limit   <- getLimit
   offset  <- getOffset
-  count   <- (\b -> liftIO $ B.getUserCount b) =<< (gets backend)
+  count   <- liftIO . B.getUserCount =<< gets backend
   let page  = offset `div` limit
   let prevs = take 5 . drop 1 . takeWhile (>= 0) $ iterate (subtract limit) offset
   let nexts = take 5 . drop 1 . takeWhile (<= (count - limit)) $ iterate (+ limit) offset
   return $ H.ul ! A.class_ "pageSelection" $ do
-    when (not $ null prevs) $ do
+    unless (null prevs) $
       H.li $ H.a ! A.href (toHref "users" ["limit=" ++ show limit, "offset=" ++ show (P.head prevs)]) $ "previous"
     toLink limit . reverse . zip prevs . drop 1 $ iterate (subtract 1) page
     H.li $ H.toHtml page
     toLink limit . zip nexts . drop 1 $ iterate (+ 1) page
-    when (not $ null nexts) $ do
+    unless (null nexts) $
       H.li $ H.a ! A.href (toHref "users" ["limit=" ++ show limit, "offset=" ++ show (P.head nexts)]) $ "next"
   where
     toLink :: Limit -> [(Offset,Int)] -> H.Html
-    toLink limit targets = flip mapM_ targets $ \(o, p) -> do
+    toLink limit targets = forM_ targets $ \(o, p) ->
       H.li $ H.a ! A.href (toHref "users" ["limit=" ++ show limit, "offset=" ++ show o]) $ H.toHtml p
 
 serve :: OBW Response

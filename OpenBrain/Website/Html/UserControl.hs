@@ -42,7 +42,7 @@ serve = do
     return $ do
       editProfile profile
       controlBox $ username ud
-    `mplus` (return loginBox)
+    `mplus` return loginBox
   ok $ toResponse html
 
 loginBox :: H.Html
@@ -70,7 +70,7 @@ controlBox username = H.form ! A.id "OpenBrainWebsiteUser_controlBox" $ do
     H.input ! A.class_ "change" ! A.type_ "button" ! A.value "Change"
   (H.fieldset ! A.class_ "userName") $ do
     H.label "Account"
-    H.ul $ do
+    H.ul $
       H.li $ do
         (H.label ! A.for "username") "Username"
         H.input ! A.type_ "text" ! A.name "username" ! A.disabled "disabled" ! A.value (H.toValue username)
@@ -81,14 +81,14 @@ editProfile :: Profile -> H.Html
 editProfile profile = (H.form ! A.acceptCharset "UTF-8" ! A.class_ "editProfile") $ do
   (H.fieldset ! A.class_ "editAvatar") $ do
     H.label "Avatar"
-    let avatar = H.toValue . maybe "" id $ P.avatar profile
+    let avatar = H.toValue . fromMaybe "" $ P.avatar profile
     when (isJust $ P.avatar profile) $ H.img ! A.src avatar
     H.ul $ H.li $ do
       (H.label ! A.for "avatar") "URL to Avatar"
       H.input ! A.type_ "url" ! A.name "avatar" ! A.value avatar
   (H.fieldset ! A.class_ "editName") $ do
     H.label "Username"
-    let n = maybe P.emptyName id $ P.name profile
+    let n = fromMaybe P.emptyName $ P.name profile
     H.ul $ do
       H.li $ do
         (H.label ! A.for "prefix") "Prefix"
@@ -108,7 +108,7 @@ editProfile profile = (H.form ! A.acceptCharset "UTF-8" ! A.class_ "editProfile"
   (H.fieldset ! A.class_ "editLocations") $ do
     H.label "Locations"
     let locations = P.locations profile ++ [P.emptyLocation]
-    H.ul $ flip mapM_ locations $ \location -> H.li $ (H.ul ! A.class_ "editLocation") $ do
+    H.ul $ forM_ locations $ \location -> H.li $ (H.ul ! A.class_ "editLocation") $ do
       H.li $ do
         (H.label ! A.for "street") "Street"
         H.input ! A.name "street" ! A.value (H.toValue $ P.street location)
@@ -130,7 +130,7 @@ editProfile profile = (H.form ! A.acceptCharset "UTF-8" ! A.class_ "editProfile"
   (H.fieldset ! A.class_ "editWebsites") $ do
     H.label "Websites"
     let websites = P.websites profile ++ [P.emptySnippet]
-    H.ul $ flip mapM_ websites $ \website -> H.li $ (H.ul ! A.class_ "editWebsite") $ do
+    H.ul $ forM_ websites $ \website -> H.li $ (H.ul ! A.class_ "editWebsite") $ do
       H.li $ do
         (H.label ! A.for "title") "Title"
         H.input ! A.name "title" ! A.value (H.toValue $ P.title website)
@@ -143,7 +143,7 @@ editProfile profile = (H.form ! A.acceptCharset "UTF-8" ! A.class_ "editProfile"
   (H.fieldset ! A.class_ "editEmails") $ do
     H.label "Emails"
     let emails = P.emails profile ++ [P.emptySnippet]
-    H.ul $ flip mapM_ emails $ \email -> H.li $ (H.ul ! A.class_ "editEmail") $ do
+    H.ul $ forM_ emails $ \email -> H.li $ (H.ul ! A.class_ "editEmail") $ do
       H.li $ do
         (H.label ! A.for "title") "Title"
         H.input ! A.name "title" ! A.value (H.toValue $ P.title email)
@@ -156,7 +156,7 @@ editProfile profile = (H.form ! A.acceptCharset "UTF-8" ! A.class_ "editProfile"
   (H.fieldset ! A.class_ "editIms") $ do
     H.label "Instant Messagers"
     let ims = P.instantMessagers profile ++ [P.emptySnippet]
-    H.ul $ flip mapM_ ims $ \im -> H.li $ (H.ul ! A.class_ "editIm") $ do
+    H.ul $ forM_ ims $ \im -> H.li $ (H.ul ! A.class_ "editIm") $ do
       H.li $ do
         (H.label ! A.for "title") "Title"
         H.input ! A.name "title" ! A.value (H.toValue $ P.title im)

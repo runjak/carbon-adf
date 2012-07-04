@@ -103,13 +103,13 @@ setLocations' conn profileid locations = do
     go l = [toSql profileid, toSql $ street l, toSql $ city l, toSql $ state l, toSql $ land l, toSql $ zipCode l, toSql $ note l]
 
 setWebsites' :: (IConnection conn) => conn -> ProfileId -> [ProfileSnippet] -> IO ()
-setWebsites' conn profileid websites = setProfileSnippets conn profileid Website websites
+setWebsites' conn profileid = setProfileSnippets conn profileid Website
 
 setEmails' :: (IConnection conn) => conn -> ProfileId -> [ProfileSnippet] -> IO ()
-setEmails' conn profileid emails = setProfileSnippets conn profileid Email emails
+setEmails' conn profileid = setProfileSnippets conn profileid Email
 
 setInstantMessagers' :: (IConnection conn) => conn -> ProfileId -> [ProfileSnippet] -> IO ()
-setInstantMessagers' conn profileid ims = setProfileSnippets conn profileid InstantMessager ims
+setInstantMessagers' conn profileid = setProfileSnippets conn profileid InstantMessager
 
 setProfileSnippets :: (IConnection conn) => conn -> ProfileId -> SnippetType -> [ProfileSnippet] -> IO ()
 setProfileSnippets conn profileid snippettype snippets = do
