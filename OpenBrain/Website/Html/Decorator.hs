@@ -19,12 +19,13 @@ type Decorator = H.Html -> OBW H.Html
 head :: Decorator
 head target = do
   m     <- meta
-  js    <- jsfiles
+  js    <- jsFiles
+  css     <- cssFiles
   title <- liftM (W.title . websiteConfig) $ gets config
   return $ H.docTypeHtml $ do
     H.head $ do
       H.title $ H.toHtml title
-      m >> js
+      m >> css >> js
     H.body target
 
 meta :: OBW H.Html
@@ -36,10 +37,15 @@ meta = do
   where
     go (name, content) = H.meta ! A.name (H.toValue name) ! A.content (H.toValue content)
 
-jsfiles :: OBW H.Html
-jsfiles = do
+jsFiles :: OBW H.Html
+jsFiles = do
   c <- gets config
   return $ mapM_ go $ W.jsFiles $ websiteConfig c
   where
     go target = H.script ! A.type_ "application/javascript" ! A.src (H.toValue target) $ ""
+
+cssFiles :: OBW H.Html
+cssFiles = do
+  c <- gets config
+  return $ forM_ (W.cssFiles $ websiteConfig c) $ \file -> H.link ! A.rel "stylesheet" ! A.type_ "text/css" ! A.href (H.toValue file)
 

@@ -24,7 +24,6 @@ import OpenBrain.Data.Karma
 import OpenBrain.Data.Profile (Profile, AccessRule, Name, Location, ProfileSnippet)
 import OpenBrain.Data.User
 import OpenBrain.Website.Common
-import OpenBrain.Website.Index (head)
 import OpenBrain.Website.Monad
 import OpenBrain.Website.Profile
 import OpenBrain.Website.Session

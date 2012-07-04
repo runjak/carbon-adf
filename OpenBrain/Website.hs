@@ -7,17 +7,17 @@ module OpenBrain.Website (serve) where
 -}
 import Control.Monad
 import Happstack.Server hiding (port)
-import qualified Happstack.Server as S
 import Happstack.Server.SimpleHTTPS (nullTLSConf, simpleHTTPS)
+import qualified Happstack.Server as S
 import qualified Happstack.Server.SimpleHTTPS as TLS
 
 import OpenBrain.Backend
 import OpenBrain.Config (Config(..))
-import qualified OpenBrain.Website.Action as Action (serve)
-import qualified OpenBrain.Website.Index as Index (serve)
-import qualified OpenBrain.Website.Files as Files (serve)
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
+import qualified OpenBrain.Website.Action as Action (serve)
+import qualified OpenBrain.Website.Files as Files (serve)
+import qualified OpenBrain.Website.Html.Index as HIndex (serve)
 import qualified OpenBrain.Website.Html.User as HUser
 import qualified OpenBrain.Website.Html.UserControl as HUserControl
 import qualified OpenBrain.Website.Html.Users as HUsers
@@ -43,5 +43,5 @@ serve' = msum [
     , dir "user.html" HUserControl.serve
     , contentNego' "users"
     , dir "users.html" HUsers.serve
-    , Index.serve
+    , HIndex.serve
     ]
