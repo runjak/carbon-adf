@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module OpenBrain.Website.Images (
+module OpenBrain.Website.Html.Images (
     add, clear, edit
   , logout, remove, save
   , users
