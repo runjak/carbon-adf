@@ -5,11 +5,13 @@ module OpenBrain.Backend where
   The Backend will provide things like Userdata :P
 -}
 import Control.Monad.Trans.Maybe
+import System.Time (CalendarTime)
 
 import OpenBrain.Config
 import OpenBrain.Data.User
 import OpenBrain.Data.Hash (Hash)
 import OpenBrain.Data.Id (Id)
+import OpenBrain.Data.Information (Information)
 import OpenBrain.Data.Karma (Karma)
 import OpenBrain.Data.Profile hiding (emptyProfile)
 import OpenBrain.Data.Salt (Salt)
@@ -129,4 +131,14 @@ instance SessionManagement CSessionManagement where
   validate (CSessionManagement s)     = validate s
   perform (CSessionManagement s)      = perform s
   stopSession (CSessionManagement s)  = stopSession s
+
+{-
+  Manages all information in the form of OpenBrain.Data.Information
+-}
+class InformationBackend b where
+  getInformationCount :: b -> IO Int
+  getInformation :: b -> Limit -> Offset -> IO [Information]
+  getInformationBy :: b -> UserId -> IO [Information]
+  getInformationAfter :: b -> Limit -> CalendarTime -> IO [Information]
+  -- FIXME add to declaration
 

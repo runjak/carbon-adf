@@ -1,5 +1,6 @@
 module OpenBrain.Data.Information where
 
+import Control.Monad.Trans.Maybe
 import System.Time (CalendarTime)
 
 import OpenBrain.Data.Id
@@ -11,9 +12,8 @@ data Information = Information {
   , creation    :: CalendarTime
   , description :: String
   , id          :: InformationId
-  , name        :: String
   , media       :: Media
-  , parent      :: Maybe Information
+  , parent      :: MaybeT IO Information -- Function fetching the parent.
   , title       :: String
   }
 
@@ -23,5 +23,15 @@ data Media =
   | Image       String
   | Video       String
   | Collection  [Information]
-  | Discussion -- FIXME fill in
-  | Decision -- FIXME fill in
+  | Discussion {
+    participants  :: [User.UserData]
+  , arguments     :: [Information]
+  , afType        :: ArgumentationFramework
+  }
+  | Decision {
+    -- result :: [Information]
+    -- FIXME define
+  }
+
+data ArgumentationFramework = AF1 | AF2 -- Types of Argumentation Frameworks
+
