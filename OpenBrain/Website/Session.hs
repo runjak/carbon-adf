@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module OpenBrain.Website.Session (UserSession(..)) where
 {-
   Session management for clients.
@@ -47,8 +48,8 @@ instance UserSession CSessionManagement where
     addCookie Session (mkCookie cookieActionKey $ fromJust mkey) >> return (Just userid)
     `mplus` return Nothing
   dropSession sm = do
-    key    <- lookCookieValue cookieActionKey
-    userid <- liftM read $ lookCookieValue cookieUserId
+    key <- lookCookieValue cookieActionKey
+    (userid :: UserId) <- liftM read $ lookCookieValue cookieUserId
     liftIO $ stopSession sm userid key
     mapM_ expireCookie [cookieActionKey, cookieUserId]
 

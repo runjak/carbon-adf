@@ -52,8 +52,9 @@ login' conn username hash = do
         return userdata{lastLogin = t}
     _ -> mzero
 
-getUser' :: (IConnection conn) => conn -> UserId -> MaybeT IO UserData
-getUser' conn userid = do
+getUser' :: (IConnection conn, UserIdentifier ui) => conn -> ui -> MaybeT IO UserData
+getUser' conn uid = do
+  let userid = getUserId uid
   rst <- liftIO $ quickQuery conn "SELECT username, password, karma, creation, lastLogin, isAdmin FROM UserData WHERE userid = ?" [toSql userid]
   case rst of
     [[username', password', karma', creation', lastLogin', isAdmin']] -> return UserData {
@@ -67,9 +68,9 @@ getUser' conn userid = do
       }
     _ -> mzero
 
-hasUserWithId' :: (IConnection conn) => conn -> UserId -> IO Bool
-hasUserWithId' conn userid = do
-  rst <- quickQuery conn "SELECT COUNT(*) FROM UserData WHERE userid = ?" [toSql userid]
+hasUserWithId' :: (IConnection conn, UserIdentifier ui) => conn -> ui -> IO Bool
+hasUserWithId' conn uid = do
+  rst <- quickQuery conn "SELECT COUNT(*) FROM UserData WHERE userid = ?" [toSql $ getUserId uid]
   case rst of
     [[count]] -> return $ (>0) (fromSql count :: Int)
     _         -> return False
@@ -91,10 +92,10 @@ register' conn username hash = do
     execute stmt [toSql username, toSql hash, t ,t] >> commit conn
   login' conn username hash
 
-delete' :: (IConnection conn) => conn -> UserId -> IO Bool
-delete' conn userid = do
+delete' :: (IConnection conn, UserIdentifier ui) => conn -> ui -> IO Bool
+delete' conn uid = do
   stmt  <- prepare conn "DELETE FROM UserData WHERE userid = ?"
-  rst   <- execute stmt [toSql userid]
+  rst   <- execute stmt [toSql $ getUserId uid]
   commit conn
   return $ rst > 0
 
@@ -113,8 +114,9 @@ getUserList' conn limit offset = do
     go [uid]  = [fromSql uid]
     go _      = []
 
-updateKarma' :: (IConnection conn) => conn -> UserId -> (Karma -> Karma) -> IO ()
-updateKarma' conn userid f = do
+updateKarma' :: (IConnection conn, UserIdentifier ui) => conn -> ui -> (Karma -> Karma) -> IO ()
+updateKarma' conn uid f = do
+  let userid = getUserId uid
   rst <- quickQuery conn "SELECT karma FROM UserData WHERE userid = ?" [toSql userid]
   case rst of
     [[k]] -> do
@@ -123,13 +125,13 @@ updateKarma' conn userid f = do
       execute stmt [toSql k', toSql userid] >> commit conn
     _ -> return ()
 
-updatePasswd' :: (IConnection conn) => conn -> UserId -> Hash -> IO ()
-updatePasswd' conn userid hash = do
+updatePasswd' :: (IConnection conn, UserIdentifier ui) => conn -> ui -> Hash -> IO ()
+updatePasswd' conn uid hash = do
   stmt <- prepare conn "UPDATE UserData SET password = ? WHERE userid = ?"
-  execute stmt [toSql hash, toSql userid] >> commit conn
+  execute stmt [toSql hash, toSql $ getUserId uid] >> commit conn
 
-setAdmin' :: (IConnection conn) => conn -> UserId -> Bool -> IO ()
-setAdmin' conn userid admin = do
+setAdmin' :: (IConnection conn, UserIdentifier ui) => conn -> ui -> Bool -> IO ()
+setAdmin' conn uid admin = do
   stmt <- prepare conn "UPDATE UserData SET isAdmin = ? WHERE userid = ?"
-  execute stmt [toSql admin, toSql userid] >> commit conn
+  execute stmt [toSql admin, toSql $ getUserId uid] >> commit conn
 

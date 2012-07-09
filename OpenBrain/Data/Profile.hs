@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, TypeSynonymInstances #-}
 module OpenBrain.Data.Profile (
     Profile(..)
   , ProfileId
@@ -10,6 +10,7 @@ module OpenBrain.Data.Profile (
   , emptyName
   , emptyLocation
   , emptySnippet
+  , ProfileIdentifier(..)
 ) where
 {-
   Definition of Profile information that can be attached to a UserId.
@@ -27,7 +28,7 @@ import Data.Text (pack)
 import OpenBrain.Data.Id
 import OpenBrain.Data.User (UserId)
 
-type ProfileId  = Id
+type ProfileId = Id
 data Profile = Profile {
     profileId         :: ProfileId
   , userId            :: UserId
@@ -76,6 +77,15 @@ emptyProfile p u = Profile p u None Nothing Nothing [] [] [] []
 emptyName = Name "" "" "" "" ""
 emptyLocation = Location "" "" "" "" "" ""
 emptySnippet = ProfileSnippet "" "" ""
+
+class ProfileIdentifier p where
+  getProfileId :: p -> ProfileId
+
+instance ProfileIdentifier ProfileId where
+  getProfileId = id
+
+instance ProfileIdentifier Profile where
+  getProfileId = profileId
 
 instance ToJSON Profile where
   toJSON p = object [

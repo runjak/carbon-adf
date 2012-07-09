@@ -11,9 +11,9 @@ import OpenBrain.Config
 import OpenBrain.Data.User
 import OpenBrain.Data.Hash (Hash)
 import OpenBrain.Data.Id (Id)
-import OpenBrain.Data.Information (Information)
+import OpenBrain.Data.Information
 import OpenBrain.Data.Karma (Karma)
-import OpenBrain.Data.Profile hiding (emptyProfile)
+import OpenBrain.Data.Profile
 import OpenBrain.Data.Salt (Salt)
 
 {- The highest abstraction of the backend-tree. -}
@@ -36,17 +36,17 @@ type Limit  = Int
 type Offset = Int
 class UserBackend u where
   login           :: u -> UserName -> Hash -> MaybeT IO UserData -- The Backend will update the lastLogin in UserData.
-  getUser         :: u -> UserId -> MaybeT IO UserData
-  hasUserWithId   :: u -> UserId -> IO Bool
+  getUser         :: (UserIdentifier ui) => u -> ui -> MaybeT IO UserData
+  hasUserWithId   :: (UserIdentifier ui) => u -> ui -> IO Bool
   hasUserWithName :: u -> UserName -> MaybeT IO UserId
   register        :: u -> UserName -> Hash -> MaybeT IO UserData -- The Backend will check for duplicate UserNames.
-  delete          :: u -> UserId -> IO Bool
+  delete          :: (UserIdentifier ui) => u -> ui -> IO Bool
   profileBackend  :: u -> CProfileBackend
   getUserCount    :: u -> IO Int
   getUserList     :: u -> Limit -> Offset -> IO [UserId]
-  updateKarma     :: u -> UserId -> (Karma -> Karma) -> IO ()
-  updatePasswd    :: u -> UserId -> Hash -> IO ()
-  setAdmin        :: u -> UserId -> Bool -> IO ()
+  updateKarma     :: (UserIdentifier ui) => u -> ui -> (Karma -> Karma) -> IO ()
+  updatePasswd    :: (UserIdentifier ui) => u -> ui -> Hash -> IO ()
+  setAdmin        :: (UserIdentifier ui) => u -> ui -> Bool -> IO ()
 data CUserBackend = forall u . UserBackend u => CUserBackend u
 instance UserBackend CUserBackend where
   login (CUserBackend u)            = login u
@@ -64,14 +64,14 @@ instance UserBackend CUserBackend where
 
 {- Controls for Userprofiles. -}
 class ProfileBackend p where
-  getProfile          :: p -> UserId -> IO Profile
-  setAccessRule       :: p -> ProfileId -> AccessRule -> IO ()
-  setName             :: p -> ProfileId -> Maybe Name -> IO ()
-  setAvatar           :: p -> ProfileId -> Maybe String -> IO ()
-  setLocations        :: p -> ProfileId -> [Location] -> IO ()
-  setWebsites         :: p -> ProfileId -> [ProfileSnippet] -> IO ()
-  setEmails           :: p -> ProfileId -> [ProfileSnippet] -> IO ()
-  setInstantMessagers :: p -> ProfileId -> [ProfileSnippet] -> IO ()
+  getProfile          :: (UserIdentifier ui) => p -> ui -> IO Profile
+  setAccessRule       :: (ProfileIdentifier pi) => p -> pi -> AccessRule -> IO ()
+  setName             :: (ProfileIdentifier pi) => p -> pi -> Maybe Name -> IO ()
+  setAvatar           :: (ProfileIdentifier pi) => p -> pi -> Maybe String -> IO ()
+  setLocations        :: (ProfileIdentifier pi) => p -> pi -> [Location] -> IO ()
+  setWebsites         :: (ProfileIdentifier pi) => p -> pi -> [ProfileSnippet] -> IO ()
+  setEmails           :: (ProfileIdentifier pi) => p -> pi -> [ProfileSnippet] -> IO ()
+  setInstantMessagers :: (ProfileIdentifier pi) => p -> pi -> [ProfileSnippet] -> IO ()
 data CProfileBackend = forall p . ProfileBackend p => CProfileBackend p
 instance ProfileBackend CProfileBackend where
   getProfile (CProfileBackend p)          = getProfile p
@@ -103,9 +103,9 @@ instance KarmaBackend CKarmaBackend where
   by using setId.
 -}
 class SaltShaker s where
-  setId       :: s -> Salt -> UserId -> IO ()
-  getSalt     :: s -> UserId -> IO Salt
-  removeSalt  :: s -> UserId -> IO ()
+  setId       :: (UserIdentifier ui) => s -> Salt -> ui -> IO ()
+  getSalt     :: (UserIdentifier ui) => s -> ui -> IO Salt
+  removeSalt  :: (UserIdentifier ui) => s -> ui -> IO ()
 data CSaltShaker = forall s . SaltShaker s => CSaltShaker s
 instance SaltShaker CSaltShaker where
   setId (CSaltShaker s)       = setId s
@@ -121,10 +121,10 @@ instance SaltShaker CSaltShaker where
 -}
 type ActionKey = String
 class SessionManagement s where
-  startSession  :: s -> UserId -> IO ActionKey
-  validate      :: s -> UserId -> ActionKey -> IO Bool
-  perform       :: s -> UserId -> ActionKey -> MaybeT IO ActionKey
-  stopSession   :: s -> UserId -> ActionKey -> IO ()
+  startSession  :: (UserIdentifier ui) => s -> ui -> IO ActionKey
+  validate      :: (UserIdentifier ui) => s -> ui -> ActionKey -> IO Bool
+  perform       :: (UserIdentifier ui) => s -> ui -> ActionKey -> MaybeT IO ActionKey
+  stopSession   :: (UserIdentifier ui) => s -> ui -> ActionKey -> IO ()
 data CSessionManagement = forall s . SessionManagement s => CSessionManagement s
 instance SessionManagement CSessionManagement where
   startSession (CSessionManagement s) = startSession s
@@ -138,7 +138,7 @@ instance SessionManagement CSessionManagement where
 class InformationBackend b where
   getInformationCount :: b -> IO Int
   getInformation :: b -> Limit -> Offset -> IO [Information]
-  getInformationBy :: b -> UserId -> IO [Information]
+  getInformationBy :: (UserIdentifier ui) => b -> ui -> IO [Information]
   getInformationAfter :: b -> Limit -> CalendarTime -> IO [Information]
   -- FIXME add to declaration
 

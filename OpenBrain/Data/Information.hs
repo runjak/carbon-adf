@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeSynonymInstances #-}
 module OpenBrain.Data.Information where
 
 import Control.Monad.Trans.Maybe
@@ -8,13 +9,13 @@ import qualified OpenBrain.Data.User as User
 
 type InformationId = Id
 data Information = Information {
-    author      :: User.UserData
-  , creation    :: CalendarTime
-  , description :: String
-  , id          :: InformationId
-  , media       :: Media
-  , parent      :: MaybeT IO Information -- Function fetching the parent.
-  , title       :: String
+    author        :: User.UserData
+  , creation      :: CalendarTime
+  , description   :: String
+  , informationId :: InformationId
+  , media         :: Media
+  , parent        :: MaybeT IO Information -- Function fetching the parent.
+  , title         :: String
   }
 
 data Media =
@@ -34,4 +35,13 @@ data Media =
   }
 
 data ArgumentationFramework = AF1 | AF2 -- Types of Argumentation Frameworks
+
+class InformationIdentifier i where
+  getInformationId :: i -> InformationId
+
+instance InformationIdentifier InformationId where
+  getInformationId = id
+
+instance InformationIdentifier Information where
+  getInformationId = informationId
 

@@ -1,7 +1,9 @@
+{-# LANGUAGE TypeSynonymInstances #-}
 module OpenBrain.Data.User (
     UserData(..)
   , UserId
   , UserName
+  , UserIdentifier(..)
 ) where
 {-
   This module holds all the data concerning users.
@@ -23,3 +25,12 @@ data UserData = UserData {
   , lastLogin :: CalendarTime
   , isAdmin   :: Bool
 } deriving (Eq)
+
+class UserIdentifier ui where
+  getUserId :: ui -> UserId
+
+instance UserIdentifier UserId where
+  getUserId = id
+
+instance UserIdentifier UserData where
+  getUserId = userid

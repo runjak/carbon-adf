@@ -11,26 +11,26 @@ import OpenBrain.Data.Salt
 
 instance SaltShaker SqliteBackend where
   setId       b = withWConn (conn b) setId'
-  getSalt     b = withWConn (conn b)getSalt'
-  removeSalt  b = withWConn (conn b)removeSalt'
+  getSalt     b = withWConn (conn b) getSalt'
+  removeSalt  b = withWConn (conn b) removeSalt'
 
-setId' :: (IConnection conn) => conn -> Salt -> UserId -> IO ()
-setId' conn salt id = do
+setId' :: (IConnection conn, UserIdentifier ui) => conn -> Salt -> ui -> IO ()
+setId' conn salt uid = do
   stmt <- prepare conn "INSERT INTO Salts(salt, userid) VALUES (?, ?)"
-  execute stmt [toSql salt, toSql id] >> commit conn
+  execute stmt [toSql salt, toSql $ getUserId uid] >> commit conn
 
-getSalt' :: (IConnection conn) => conn -> UserId -> IO Salt
-getSalt' conn id = do
-  rst <- quickQuery conn "SELECT salt FROM Salts WHERE userid = ?" [toSql id]
+getSalt' :: (IConnection conn, UserIdentifier ui) => conn -> ui -> IO Salt
+getSalt' conn uid = do
+  rst <- quickQuery conn "SELECT salt FROM Salts WHERE userid = ?" [toSql $ getUserId uid]
   case rst of
     [[salt]] -> return $ fromSql salt
     _ -> do
       salt <- mkSalt
-      setId' conn salt id
+      setId' conn salt uid
       return salt
 
-removeSalt' :: (IConnection conn) => conn -> UserId -> IO ()
-removeSalt' conn id = do
+removeSalt' :: (IConnection conn, UserIdentifier ui) => conn -> ui -> IO ()
+removeSalt' conn uid = do
   stmt <- prepare conn "DELETE FROM Salts WHERE salt = ?"
-  execute stmt [toSql id] >> commit conn
+  execute stmt [toSql $ getUserId uid] >> commit conn
 

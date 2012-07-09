@@ -11,7 +11,7 @@ import OpenBrain.Backend.SqliteBackend.Convertibles ()
 import OpenBrain.Backend.SqliteBackend.Common
 import OpenBrain.Backend.SqliteBackend.Schema (SnippetType(..))
 import OpenBrain.Data.Profile
-import OpenBrain.Data.User (UserId)
+import OpenBrain.Data.User
 
 instance ProfileBackend SqliteBackend where
   getProfile b          = withWConn (conn b) getProfile'
@@ -23,8 +23,9 @@ instance ProfileBackend SqliteBackend where
   setEmails b           = withWConn (conn b) setEmails'
   setInstantMessagers b = withWConn (conn b) setInstantMessagers'
 
-getProfileId' :: (IConnection conn) => conn -> UserId -> IO ProfileId
-getProfileId' conn userid = do
+getProfileId' :: (IConnection conn, UserIdentifier ui) => conn -> ui -> IO ProfileId
+getProfileId' conn uid = do
+  let userid = getUserId uid
   rst <- quickQuery conn "SELECT profileid FROM Profile WHERE userid = ? " [toSql userid]
   case rst of
     [[pid]] -> return $ fromSql pid
@@ -34,8 +35,9 @@ getProfileId' conn userid = do
       when (state <= 0) $ error "Could not create new profileid in SqliteBackend."
       commit conn >> getProfileId' conn userid
 
-getProfile' :: (IConnection conn) => conn -> UserId -> IO Profile
-getProfile' conn userid = do
+getProfile' :: (IConnection conn, UserIdentifier ui) => conn -> ui -> IO Profile
+getProfile' conn uid = do
+  let userid = getUserId uid
   profileid <- getProfileId' conn userid
   pdata <- liftIO $ quickQuery' conn "SELECT userid, accessRule, avatar FROM Profile WHERE profileid = ?" [toSql profileid]
   ndata <- liftIO $ quickQuery' conn "SELECT prefix, foreName, middleName, familyName, suffix FROM Name WHERE profileid = ?" [toSql profileid]
@@ -73,13 +75,15 @@ getProfile' conn userid = do
       [Location (fromSql street') (fromSql city') (fromSql state') (fromSql land') (fromSql zipCode') (fromSql note')]
     mkLocations _ = []
 
-setAccessRule' :: (IConnection conn) => conn -> ProfileId -> AccessRule -> IO ()
-setAccessRule' conn profileid accessrule = do
+setAccessRule' :: (IConnection conn, ProfileIdentifier pi) => conn -> pi -> AccessRule -> IO ()
+setAccessRule' conn pid accessrule = do
+  let profileid = getProfileId pid
   stmt <- prepare conn "UPDATE Profile SET accessRule = ? WHERE profileid = ?"
   execute stmt [toSql accessrule, toSql profileid] >> commit conn
 
-setName' :: (IConnection conn) => conn -> ProfileId -> Maybe Name -> IO ()
-setName' conn profileid mname = do
+setName' :: (IConnection conn, ProfileIdentifier pi) => conn -> pi -> Maybe Name -> IO ()
+setName' conn pid mname = do
+  let profileid = getProfileId pid
   quickQuery conn "DELETE FROM Name WHERE profileid = ?" [toSql profileid]
   case mname of
     Nothing -> return ()
@@ -88,31 +92,34 @@ setName' conn profileid mname = do
       execute stmt [toSql profileid, toSql $ prefix n, toSql $ foreName n, toSql $ middleName n, toSql $ familyName n, toSql $ suffix n]
       commit conn
 
-setAvatar' :: (IConnection conn) => conn -> ProfileId -> Maybe String -> IO ()
-setAvatar' conn profileid mavatar = do
+setAvatar' :: (IConnection conn, ProfileIdentifier pi) => conn -> pi -> Maybe String -> IO ()
+setAvatar' conn pid mavatar = do
+  let profileid = getProfileId pid
   stmt <- prepare conn "UPDATE Profile SET avatar = ? WHERE profileid = ?"
   execute stmt [toSql mavatar, toSql profileid] >> commit conn
 
-setLocations' :: (IConnection conn) => conn -> ProfileId -> [Location] -> IO ()
-setLocations' conn profileid locations = do
+setLocations' :: (IConnection conn, ProfileIdentifier pi) => conn -> pi -> [Location] -> IO ()
+setLocations' conn pid locations = do
+  let profileid = getProfileId pid
   quickQuery conn "DELETE FROM Location WHERE profileid = ?" [toSql profileid]
   stmt <- prepare conn "INSERT INTO Location(profileid, street, city, state, land, zipCode, note) VALUES (?, ?, ?, ?, ?, ?, ?)"
   executeMany stmt (map go locations) >> commit conn
   where
     go :: Location -> [SqlValue]
-    go l = [toSql profileid, toSql $ street l, toSql $ city l, toSql $ state l, toSql $ land l, toSql $ zipCode l, toSql $ note l]
+    go l = [toSql $ getProfileId pid, toSql $ street l, toSql $ city l, toSql $ state l, toSql $ land l, toSql $ zipCode l, toSql $ note l]
 
-setWebsites' :: (IConnection conn) => conn -> ProfileId -> [ProfileSnippet] -> IO ()
-setWebsites' conn profileid = setProfileSnippets conn profileid Website
+setWebsites' :: (IConnection conn, ProfileIdentifier pi) => conn -> pi -> [ProfileSnippet] -> IO ()
+setWebsites' conn pid = setProfileSnippets conn pid Website
 
-setEmails' :: (IConnection conn) => conn -> ProfileId -> [ProfileSnippet] -> IO ()
-setEmails' conn profileid = setProfileSnippets conn profileid Email
+setEmails' :: (IConnection conn, ProfileIdentifier pi) => conn -> pi -> [ProfileSnippet] -> IO ()
+setEmails' conn pid = setProfileSnippets conn pid Email
 
-setInstantMessagers' :: (IConnection conn) => conn -> ProfileId -> [ProfileSnippet] -> IO ()
-setInstantMessagers' conn profileid = setProfileSnippets conn profileid InstantMessager
+setInstantMessagers' :: (IConnection conn, ProfileIdentifier pi) => conn -> pi -> [ProfileSnippet] -> IO ()
+setInstantMessagers' conn pid = setProfileSnippets conn pid InstantMessager
 
-setProfileSnippets :: (IConnection conn) => conn -> ProfileId -> SnippetType -> [ProfileSnippet] -> IO ()
-setProfileSnippets conn profileid snippettype snippets = do
+setProfileSnippets :: (IConnection conn, ProfileIdentifier pi) => conn -> pi -> SnippetType -> [ProfileSnippet] -> IO ()
+setProfileSnippets conn pid snippettype snippets = do
+  let profileid = getProfileId pid
   quickQuery conn "DELETE FROM ProfileSnippet WHERE snippetType = ? AND profileid = ?" [toSql snippettype, toSql profileid]
   stmt <- prepare conn "INSERT INTO ProfileSnippet(profileid, title, description, target, snippetType) VALUES (?, ?, ?, ?, ?)"
   executeMany stmt $ map (\s -> [toSql profileid, toSql $ title s, toSql $ description s, toSql $ target s, toSql snippettype]) snippets
