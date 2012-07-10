@@ -46,15 +46,15 @@ serve = do
   ok $ toResponse html
 
 loginBox :: H.Html
-loginBox = H.form ! A.id "OpenBrainWebsiteUser_loginBox" $ do
-  "Username:"
-  H.input ! A.type_ "text" ! A.name "username"
-  H.br
-  "Password:"
-  H.input ! A.type_ "password" ! A.name "password"
-  H.br
-  H.input ! A.class_ "login" ! A.type_ "button" ! A.value "Login"
-  H.input ! A.class_ "create" ! A.type_ "button" ! A.value "Create"
+loginBox = H.form ! A.id "OpenBrainWebsiteUser_loginBox" $ H.ul $ do
+  H.li $ do
+    (H.label ! A.for "username") "Username"
+    H.input ! A.type_ "text" ! A.name "username"
+  H.li $ do
+    (H.label ! A.for "password") "Password"
+    H.input ! A.type_ "password" ! A.name "password"
+  H.button ! A.class_ "login" ! A.type_ "button" $ "Login"
+  H.button ! A.class_ "create" ! A.type_ "button" $ "Create"
 
 controlBox :: UserName -> H.Html
 controlBox username = H.form ! A.id "OpenBrainWebsiteUser_controlBox" $ do
@@ -67,15 +67,15 @@ controlBox username = H.form ! A.id "OpenBrainWebsiteUser_controlBox" $ do
       H.li $ do
         (H.label ! A.for "confirm") "Confirm"
         H.input ! A.type_ "password" ! A.name "confirm"
-    H.input ! A.class_ "change" ! A.type_ "button" ! A.value "Change"
+    H.button ! A.class_ "change" ! A.type_ "button" $ "Change"
   (H.fieldset ! A.class_ "userName") $ do
     H.label "Account"
     H.ul $
       H.li $ do
         (H.label ! A.for "username") "Username"
         H.input ! A.type_ "text" ! A.name "username" ! A.disabled "disabled" ! A.value (H.toValue username)
-    H.input ! A.class_ "logout" ! A.type_ "button" ! A.value "Logout"
-    H.input ! A.class_ "delete" ! A.type_ "button" ! A.value "Delete"
+    H.button ! A.class_ "logout" ! A.type_ "button" $ "Logout"
+    H.button ! A.class_ "delete" ! A.type_ "button" $ "Delete"
 
 editProfile :: Profile -> H.Html
 editProfile profile = (H.form ! A.acceptCharset "UTF-8" ! A.class_ "editProfile") $ do
@@ -174,7 +174,7 @@ editProfile profile = (H.form ! A.acceptCharset "UTF-8" ! A.class_ "editProfile"
         H.li $ do
           (H.label ! A.for "description") "Description"
           (H.textarea ! A.name "description") (H.toHtml $ P.description im)
-  H.input ! A.type_ "button" ! A.name "save" ! A.value "Save data"
+  H.button ! A.type_ "button" ! A.name "save" $ "Save data"
 
 toolSet :: H.Html
 toolSet = H.ul ! A.class_ "toolset" $ do

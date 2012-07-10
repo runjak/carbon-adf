@@ -28,14 +28,13 @@ form legend {
   text-shadow: 0 1px 1px #c0d576;
 }
 
-form fieldset fieldset legend {
+form fieldset legend {
   color: #111111;
   font-size: 13px;
   font-weight: normal;
   padding-bottom: 0;
 }
 
-form ul li ul li,
 form ul li {
   background: #b9cf6a;
   background: rgba(255,255,255,.3);
@@ -52,31 +51,13 @@ form ul li {
   margin-bottom: 2px;
 }
 
-form ul ul li {
-  background: none;
-  border: none;
-  float: left;
-}
-
-form label {
+form li > label {
   float: left;
   font-size: 13px;
   width: 110px;
 }
 
-form fieldset fieldset label {
-  background:none no-repeat left 50%;
-  line-height: 20px;
-  padding: 0 0 0 30px;
-  width: auto;
-}
-
-form fieldset fieldset label:hover {
-  cursor: pointer;
-}
-
 form input:not([type=radio]),
-
 form textarea {
   background: #ffffff;
   border: none;
@@ -95,11 +76,6 @@ form textarea:focus {
   background: #eaeaea;
 }
 
-form input[type=radio] {
-  float: left;
-  margin-right: 5px;
-}
-
 form button {
   background: #384313;
   border: none;
@@ -108,10 +84,10 @@ form button {
   -khtml-border-radius: 20px;
   border-radius: 20px;
   color: #ffffff;
-  display: block;
+  display: inline;
   font: 18px Georgia, "Times New Roman", Times, serif;
   letter-spacing: 1px;
-  margin: auto;
+  margin-right: 5px;
   padding: 7px 25px;
   text-shadow: 0 1px 1px #000000;
   text-transform: uppercase;
@@ -120,3 +96,4 @@ form button {
 form button:hover {
   background: #1e2506;
   cursor: pointer;
+}

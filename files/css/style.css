@@ -11,5 +11,5 @@ body {
 }
 
 ul.toolset {list-style: none;}
-ul.toolset li {display: inline;}
+ul.toolset li {display: inline; border: none;}
 ul.toolset img {width: 20px; height: 20px;}
