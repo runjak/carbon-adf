@@ -16,7 +16,7 @@ path :: String -> H.AttributeValue
 path = H.toValue . ("files/img/" ++)
 
 image :: String -> H.Html
-image i = H.embed ! A.type_ "image/svg+xml" ! A.src (path i)
+image i = H.img ! A.src (path i)
 
 add     = image "add.svg"
 clear   = image "clear.svg"
