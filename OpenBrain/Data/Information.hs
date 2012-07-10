@@ -14,8 +14,13 @@ data Information = Information {
   , description   :: String
   , informationId :: InformationId
   , media         :: Media
-  , parent        :: MaybeT IO Information -- Function fetching the parent.
   , title         :: String
+  -- Functions: -- Do I want functions for this?
+  , parent        :: MaybeT IO Information
+  , attacked      :: MaybeT IO [Information]
+  , attackers     :: MaybeT IO [Information]
+  , supported     :: MaybeT IO [Information]
+  , supporters    :: MaybeT IO [Information]
   }
 
 data Media =

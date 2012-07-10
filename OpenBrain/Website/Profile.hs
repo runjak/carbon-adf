@@ -14,7 +14,6 @@ import qualified OpenBrain.Data.Profile as P
 import OpenBrain.Common
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
-import qualified OpenBrain.Website.Images as Img
 
 instance ToMarkup Profile where
   toMarkup p = (H.div ! A.class_ "userProfile") $ do
