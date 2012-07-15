@@ -1,10 +1,11 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, ScopedTypeVariables #-}
 module OpenBrain.Website.Action.Profile (serve) where
 
 import Data.Aeson
+import Data.Maybe
 import Control.Monad
-
 import Happstack.Server as Server
+import qualified Data.ByteString.Lazy.UTF8 as LU
 
 import OpenBrain.Common
 import OpenBrain.Data.Profile
@@ -53,12 +54,12 @@ instance FromReqURI AccessRule where
 -}
 setName :: OBW Response
 setName = do
-  _prefix     <- msum [look "prefix",     return ""]
-  _foreName   <- msum [look "foreName",   return ""]
-  _middleName <- msum [look "middleName", return ""]
-  _familyName <- msum [look "familyName", return ""]
-  _suffix     <- msum [look "suffix",     return ""]
-  let n = Name _prefix _foreName _middleName _familyName _suffix
+  prefix     <- msum [look "prefix",     return ""]
+  foreName   <- msum [look "foreName",   return ""]
+  middleName <- msum [look "middleName", return ""]
+  familyName <- msum [look "familyName", return ""]
+  suffix     <- msum [look "suffix",     return ""]
+  let n = Name prefix foreName middleName familyName suffix
   let n' = (n == emptyName) ? (Nothing, Just n)
   p <- getProfile
   b <- gets backend
@@ -77,21 +78,60 @@ setAvatar = do
   liftIO $ B.setAvatar b p avatar
   successMessage "Avatar changed."
 
+{-
+  Expects parameter: locations - a list of JSON encoded OpenBrain.Data.Profile.Location
+  Missing parameter will be understood as an empty list.
+-}
 setLocations :: OBW Response
-setLocations = undefined
+setLocations = do
+  ls <- msum [look "locations", return "[]"]
+  let (ls' :: Maybe [Location]) = decode $ LU.fromString ls
+  when (isNothing ls') $ rqError "Invalid JSON."
+  p <- getProfile
+  b <- gets backend
+  liftIO $ B.setLocations b p $ fromJust ls'
+  successMessage "Locations changed."
 
-setWebsites :: OBW Response
-setWebsites = undefined
-
-setEmails :: OBW Response
-setEmails = undefined
-
-setInstantMessagers :: OBW Response
-setInstantMessagers = undefined
+getSnippets :: String -> OBW [ProfileSnippet]
+getSnippets parameter = do
+  s <- msum [look parameter, return "[]"]
+  let (s' :: Maybe [ProfileSnippet]) = decode $ LU.fromString s
+  when (isNothing s') $ rqError "Invalid JSON."
+  return $ fromJust s'
 
 {-
-  setLocations        :: (ProfileIdentifier pi) => p -> pi -> [Location] -> IO ()
-  setWebsites         :: (ProfileIdentifier pi) => p -> pi -> [ProfileSnippet] -> IO ()
-  setEmails           :: (ProfileIdentifier pi) => p -> pi -> [ProfileSnippet] -> IO ()
-  setInstantMessagers :: (ProfileIdentifier pi) => p -> pi -> [ProfileSnippet] -> IO ()
+  Expects parameter: websites - a list of JSON encoded OpenBrain.Data.Profile.ProfileSnippet
+  Missing parameter will result in empty List
 -}
+setWebsites :: OBW Response
+setWebsites = do
+  websites  <- getSnippets "websites"
+  p         <- getProfile
+  b         <- gets backend
+  liftIO $ B.setWebsites b p websites
+  successMessage "Websites changed."
+
+{-
+  Expects parameter: emails - a list of JSON encoded OpenBrain.Data.Profile.ProfileSnippet
+  Missing parameter will result in empty List
+-}
+setEmails :: OBW Response
+setEmails = do
+  emails  <- getSnippets "emails"
+  p       <- getProfile
+  b       <- gets backend
+  liftIO $ B.setEmails b p emails
+  successMessage "Emails changed."
+
+{-
+  Expects parameter: instantMessagers - a list of JSON encoded OpenBrain.Data.Profile.ProfileSnippet
+  Missing parameter will result in empty List
+-}
+setInstantMessagers :: OBW Response
+setInstantMessagers = do
+  instantMessagers  <- getSnippets "instantMessagers"
+  p                 <- getProfile
+  b                 <- gets backend
+  liftIO $ B.setInstantMessagers b p instantMessagers
+  successMessage "InstantMessagers changed."
+

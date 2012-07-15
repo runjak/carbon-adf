@@ -13,11 +13,15 @@ mkSession userId = do
 
 -- | mzero on fail
 chkSession :: OBW UserId
-chkSession = liftMaybe =<< (lift . Session.chkSession) =<< gets backend
+chkSession = do
+  liftMaybe =<< (lift . Session.chkSession) =<< gets backend
+  `mplus` rqError "Invalid session."
 
 -- | mzero on fail
 chkAction :: OBW UserId
-chkAction = liftMaybe =<< (lift . Session.chkAction) =<< gets backend
+chkAction = do
+  liftMaybe =<< (lift . Session.chkAction) =<< gets backend
+  `mplus` rqError "Invalid action."
 
 dropSession :: OBW ()
 dropSession = (lift . Session.dropSession) =<< gets backend
