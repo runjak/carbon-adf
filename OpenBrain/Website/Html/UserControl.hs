@@ -174,6 +174,13 @@ editProfile profile = (H.form ! A.acceptCharset "UTF-8" ! A.class_ "editProfile"
         H.li $ do
           (H.label ! A.for "description") "Description"
           (H.textarea ! A.name "description") (H.toHtml $ P.description im)
+  H.fieldset $ do
+    H.label "Access Rule"
+    H.ul $ H.li $ do
+      (H.label ! A.for "accessRule") "Visible for"
+      (H.select ! A.name "accessRule" ! A.class_ "accessRule") $ forM_ [P.Everyone ..] $ \ar -> do
+        let op = (ar == P.accessRule profile) ? (H.option ! A.selected "selected", H.option)
+        op $ H.toHtml $ show ar
   H.button ! A.type_ "button" ! A.name "save" $ "Save data"
 
 toolSet :: H.Html
