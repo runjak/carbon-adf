@@ -5,10 +5,9 @@ module OpenBrain.Website.Action.User (serve) where
 -}
 import Data.Aeson
 import Data.Maybe
-import Happstack.Server as S
+import Happstack.Server as Server
 
 import OpenBrain.Backend (CBackend, CUserBackend, CKarmaBackend, CSaltShaker)
-import qualified OpenBrain.Backend as B
 import OpenBrain.Common
 import OpenBrain.Data.User
 import OpenBrain.Data.Hash (Hash, hash)
@@ -18,7 +17,8 @@ import OpenBrain.Data.Salt (Salt, mkSalt)
 import OpenBrain.Website.Action.Common (failMessage, successMessage, handleFail)
 import OpenBrain.Website.Common hiding (handleFail)
 import OpenBrain.Website.Monad
-import OpenBrain.Website.Session
+import qualified OpenBrain.Backend as B
+import qualified OpenBrain.Website.Session.Plus as Session
 
 serve :: OBW Response
 serve = msum [
@@ -42,7 +42,7 @@ create = handleFail "Could not register user." $ do
   b         <- gets backend
   userData  <- liftMaybeT $ B.register (B.userBackend b) username hash
   liftIO  $ B.setId (B.saltShaker b) salt $ userid userData
-  lift    $ mkSession b $ userid userData
+  Session.mkSession $ userid userData
   successMessage "Creation complete."
 
 {-
@@ -56,13 +56,13 @@ login = handleFail "Login failed." $ do
   salt      <- liftIO $ B.getSalt b uid
   hash      <- liftM (hash salt) $ look "password"
   userdata  <- liftMaybeT $ B.login (B.userBackend b) username hash
-  lift $ mkSession b uid
+  Session.mkSession uid
   successMessage "Login complete."
 
 logout :: OBW Response
 logout = do
   b <- gets backend
-  lift $ dropSession b
+  Session.dropSession
   successMessage "Logout complete."
 
 {- Expects parameters: username -}
@@ -70,7 +70,7 @@ delete :: OBW Response
 delete = handleFail "Invalid session." $ do
   b           <- gets backend
   deletename  <- look "username"
-  uid         <- liftMaybe =<< lift (chkSession b)
+  uid         <- Session.chkSession
   handleFail "Data for deletion not found." $ do
     userData <- liftMaybeT $ B.getUser b uid
     deleteId <- liftMaybeT $ B.hasUserWithName b deletename
@@ -79,7 +79,7 @@ delete = handleFail "Invalid session." $ do
       let isSelf = deleteId == userid userData
       guard $ isA || isSelf
       liftIO $ B.delete b deleteId
-      when isSelf $ lift $ dropSession b
+      when isSelf Session.dropSession
       successMessage "Deleted requested user."
 
 {-
@@ -90,7 +90,7 @@ delete = handleFail "Invalid session." $ do
 changeKarma :: OBW Response
 changeKarma = handleFail "Invalid session." $ do
   b       <- gets backend
-  uid     <- liftMaybe =<< lift (chkAction b)
+  uid     <- Session.chkAction
   target  <- liftM (toId . read) $ look "userid"
   k       <- lookRead "karma"
   let change  = karmaUpdate k
@@ -115,7 +115,7 @@ changeKarma = handleFail "Invalid session." $ do
 changePwd :: OBW Response
 changePwd = handleFail "Invalid session." $ do
   b         <- gets backend
-  uid       <- liftMaybe =<< lift (chkAction b)
+  uid       <- Session.chkAction
   username  <- look "username"
   password  <- look "password"
   isAdmin   <- liftM isAdmin . liftMaybeT  $ B.getUser b uid
@@ -132,7 +132,7 @@ admin :: OBW Response
 admin = handleFail "Invalid session." $ do
   setA      <- liftM (=="1") $ look "admin"
   b         <- gets backend
-  uid       <- liftMaybe =<< lift (chkAction b)
+  uid       <- Session.chkAction
   isA       <- liftM isAdmin . liftMaybeT $ B.getUser b uid
   handleFail "You need to be admin for this." $ do
     guard isA

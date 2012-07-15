@@ -4,7 +4,6 @@ module OpenBrain.Website.Action.Common where
   Things to be used across modules of OpenBrain.Website.Action.*
 -}
 
-import Control.Monad
 import Data.Aeson
 import Happstack.Server
 
