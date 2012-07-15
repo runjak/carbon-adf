@@ -1,12 +1,21 @@
-module OpenBrain.Website.Monad where
+module OpenBrain.Website.Monad (
+    WebsiteState(..), OBW
+  , runOBW
+  , liftMaybeT, liftMaybe
+  -- exports from imports:
+  , module ControlMonad
+  , module ControlMonadState
+  , module ControlMonadTrans
+  , module ControlMonadTransMaybe
+) where
 {-
   Definition of a Website Monad that will help me doing things with more ease.
 -}
 
-import Control.Monad
-import Control.Monad.State as State
-import Control.Monad.Trans
-import Control.Monad.Trans.Maybe
+import Control.Monad              as ControlMonad
+import Control.Monad.State        as ControlMonadState
+import Control.Monad.Trans        as ControlMonadTrans
+import Control.Monad.Trans.Maybe  as ControlMonadTransMaybe
 import Happstack.Server as Server
 
 import OpenBrain.Backend

@@ -5,10 +5,6 @@ module OpenBrain.Website.Action.User (serve) where
 -}
 import Data.Aeson
 import Data.Maybe
-import Control.Monad
-import Control.Monad.State
-import Control.Monad.Trans
-import Control.Monad.Trans.Maybe
 import Happstack.Server as S
 
 import OpenBrain.Backend (CBackend, CUserBackend, CKarmaBackend, CSaltShaker)
