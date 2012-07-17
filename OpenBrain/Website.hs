@@ -5,7 +5,6 @@ module OpenBrain.Website (serve) where
   Therefore it has to do the routing for Website.Sitemap
   and to know everything to handle these requests.
 -}
-import Control.Monad
 import Happstack.Server hiding (port)
 import Happstack.Server.SimpleHTTPS (nullTLSConf, simpleHTTPS)
 import qualified Happstack.Server as S
@@ -45,3 +44,4 @@ serve' = msum [
     , dir "users.html" HUsers.serve
     , HIndex.serve
     ]
+
