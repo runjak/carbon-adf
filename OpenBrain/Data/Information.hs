@@ -1,7 +1,6 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 module OpenBrain.Data.Information where
 
-import Control.Monad.Trans.Maybe
 import System.Time (CalendarTime)
 
 import OpenBrain.Data.Id
@@ -15,12 +14,6 @@ data Information = Information {
   , informationId :: InformationId
   , media         :: Media
   , title         :: String
-  -- Functions: -- Do I want functions for this?
-  , parent        :: MaybeT IO Information
-  , attacked      :: MaybeT IO [Information]
-  , attackers     :: MaybeT IO [Information]
-  , supported     :: MaybeT IO [Information]
-  , supporters    :: MaybeT IO [Information]
   }
 
 data Media =
@@ -30,16 +23,19 @@ data Media =
   | Video       String
   | Collection  [Information]
   | Discussion {
-    participants  :: [User.UserData]
-  , arguments     :: [Information]
-  , afType        :: ArgumentationFramework
+    arguments     :: [Information]          -- | Arguments that make up the Discussion
+  , afType        :: ArgumentationFramework -- | Choosen on creation
+  , choices       :: [([Information], Int)] -- | Groups of Informations with their vote count
+  , complete      :: Maybe Media            -- | Is expected to be a Decision
+  , deadline      :: CalendarTime           -- | After this no changes to arguments are allowed any longer
+  , participants  :: [User.UserData]        -- | Anyone that decided to be a participant before the deadline
+  , voted         :: [User.UserData]        -- | Users that already voted and are no longer allowed
   }
   | Decision {
-    -- result :: [Information]
-    -- FIXME define
+    result :: [Information]
   }
 
-data ArgumentationFramework = AF1 | AF2 -- Types of Argumentation Frameworks
+data ArgumentationFramework = AttackOnly | AttackDefense deriving (Show, Read, Eq, Enum)
 
 class InformationIdentifier i where
   getInformationId :: i -> InformationId
