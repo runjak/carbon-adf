@@ -56,3 +56,6 @@ toHref target parameters = H.toValue $ target ++ "?" ++ intercalate "&" paramete
 
 handleFail :: String -> OBW Response -> OBW Response
 handleFail msg handle = msum [handle, ok (toResponse msg)]
+
+handleSuccess :: String -> OBW Response
+handleSuccess = ok . toResponse

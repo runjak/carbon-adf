@@ -14,8 +14,7 @@ import OpenBrain.Data.Hash (Hash, hash)
 import OpenBrain.Data.Id
 import OpenBrain.Data.Karma
 import OpenBrain.Data.Salt (Salt, mkSalt)
-import OpenBrain.Website.Action.Common (failMessage, successMessage, handleFail)
-import OpenBrain.Website.Common hiding (handleFail)
+import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import qualified OpenBrain.Backend as B
 import qualified OpenBrain.Website.Session.Plus as Session
@@ -43,7 +42,7 @@ create = handleFail "Could not register user." $ do
   userData  <- liftMaybeT $ B.register (B.userBackend b) username hash
   liftIO  $ B.setId (B.saltShaker b) salt $ userid userData
   Session.mkSession $ userid userData
-  successMessage "Creation complete."
+  handleSuccess "Creation complete."
 
 {-
   Expects parameters: username, password
@@ -57,13 +56,13 @@ login = handleFail "Login failed." $ do
   hash      <- liftM (hash salt) $ look "password"
   userdata  <- liftMaybeT $ B.login (B.userBackend b) username hash
   Session.mkSession uid
-  successMessage "Login complete."
+  handleSuccess "Login complete."
 
 logout :: OBW Response
 logout = do
   b <- gets backend
   Session.dropSession
-  successMessage "Logout complete."
+  handleSuccess "Logout complete."
 
 {- Expects parameters: username -}
 delete :: OBW Response
@@ -80,7 +79,7 @@ delete = handleFail "Invalid session." $ do
       guard $ isA || isSelf
       liftIO $ B.delete b deleteId
       when isSelf Session.dropSession
-      successMessage "Deleted requested user."
+      handleSuccess "Deleted requested user."
 
 {-
   Expects parameters: userid, karma :: Int
@@ -104,7 +103,7 @@ changeKarma = handleFail "Invalid session." $ do
       liftIO $ B.updateKarma b target change
       -- Delete from clients karma:
       liftIO $ B.updateKarma b uid burn
-      successMessage "Updated karma."
+      handleSuccess "Updated karma."
   where
     karmaUpdate :: Int -> Karma -> Karma
     karmaUpdate x y
@@ -125,7 +124,7 @@ changePwd = handleFail "Invalid session." $ do
     target  <- liftMaybeT $ B.hasUserWithName b username
     salt    <- liftIO $ B.getSalt b target
     liftIO $ B.updatePasswd b target $ hash salt password
-    successMessage "Password changed."
+    handleSuccess "Password changed."
 
 {- Expects parameters: username, admin :: {1,0} -}
 admin :: OBW Response
@@ -140,5 +139,5 @@ admin = handleFail "Invalid session." $ do
     handleFail "Username doesn't exist." $ do
       target <- liftMaybeT $ B.hasUserWithName b username
       liftIO $ B.setAdmin b target setA
-      successMessage "Changed admin status."
+      handleSuccess "Changed admin status."
 

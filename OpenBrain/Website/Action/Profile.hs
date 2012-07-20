@@ -10,7 +10,7 @@ import qualified Data.ByteString.Lazy.UTF8 as LU
 import OpenBrain.Common
 import OpenBrain.Data.Profile
 import OpenBrain.Data.User
-import OpenBrain.Website.Action.Common hiding (jToResponse)
+import OpenBrain.Website.Common
 import OpenBrain.Website.Monad as M
 import qualified OpenBrain.Backend as B
 import qualified OpenBrain.Website.Session.Plus as Session
@@ -41,7 +41,7 @@ setAccessRule = do
   profile     <- getProfile
   b           <- gets backend
   liftIO $ B.setAccessRule b profile accessRule
-  successMessage "AccessRule changed."
+  handleSuccess "AccessRule changed."
 
 instance FromReqURI AccessRule where
   fromReqURI s = case reads s of
@@ -64,7 +64,7 @@ setName = do
   p <- getProfile
   b <- gets backend
   liftIO $ B.setName b p n'
-  successMessage "Name changed."
+  handleSuccess "Name changed."
 
 {-
   Expects parameter: avatar
@@ -76,7 +76,7 @@ setAvatar = do
   p <- getProfile
   b <- gets backend
   liftIO $ B.setAvatar b p avatar
-  successMessage "Avatar changed."
+  handleSuccess "Avatar changed."
 
 {-
   Expects parameter: locations - a list of JSON encoded OpenBrain.Data.Profile.Location
@@ -91,7 +91,7 @@ setLocations = do
     p <- getProfile
     b <- gets backend
     liftIO $ B.setLocations b p $ fromJust ls'
-    successMessage "Locations changed."
+    handleSuccess "Locations changed."
 
 getSnippets :: String -> OBW [ProfileSnippet]
 getSnippets parameter = do
@@ -110,7 +110,7 @@ setWebsites = handleFail "Invalid JSON." $ do
   p         <- getProfile
   b         <- gets backend
   liftIO $ B.setWebsites b p websites
-  successMessage "Websites changed."
+  handleSuccess "Websites changed."
 
 {-
   Expects parameter: emails - a list of JSON encoded OpenBrain.Data.Profile.ProfileSnippet
@@ -122,7 +122,7 @@ setEmails = handleFail "Invalid JSON." $ do
   p       <- getProfile
   b       <- gets backend
   liftIO $ B.setEmails b p emails
-  successMessage "Emails changed."
+  handleSuccess "Emails changed."
 
 {-
   Expects parameter: instantMessagers - a list of JSON encoded OpenBrain.Data.Profile.ProfileSnippet
@@ -134,5 +134,5 @@ setInstantMessagers = handleFail "Invalid JSON." $ do
   p                 <- getProfile
   b                 <- gets backend
   liftIO $ B.setInstantMessagers b p instantMessagers
-  successMessage "InstantMessagers changed."
+  handleSuccess "InstantMessagers changed."
 
