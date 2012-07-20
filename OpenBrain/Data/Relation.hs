@@ -8,7 +8,8 @@ import OpenBrain.Data.Information
 
 type RelationId = Id
 data Relation = Relation {
-    creation    :: CalendarTime
+    comment     :: String
+  , creation    :: CalendarTime
   , deletion    :: Maybe CalendarTime
   , relation    :: RelationType
   , relationId  :: RelationId

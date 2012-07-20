@@ -14,22 +14,27 @@ import OpenBrain.Data.Id (Id)
 import OpenBrain.Data.Information
 import OpenBrain.Data.Karma (Karma)
 import OpenBrain.Data.Profile
+import OpenBrain.Data.Relation
 import OpenBrain.Data.Salt (Salt)
 
 {- The highest abstraction of the backend-tree. -}
 class Backend b where
-  shutdown          :: b -> IO ()
-  userBackend       :: b -> CUserBackend
-  karmaBackend      :: b -> CKarmaBackend
-  saltShaker        :: b -> CSaltShaker
-  sessionManagement :: b -> CSessionManagement
+  informationBackend  :: b -> CInformationBackend
+  relationBackend     :: b -> CRelationBackend
+  shutdown            :: b -> IO ()
+  userBackend         :: b -> CUserBackend
+  karmaBackend        :: b -> CKarmaBackend
+  saltShaker          :: b -> CSaltShaker
+  sessionManagement   :: b -> CSessionManagement
 data CBackend = forall b . Backend b => CBackend b
 instance Backend CBackend where
-  shutdown (CBackend b)           = shutdown b
-  userBackend (CBackend b)        = userBackend b
-  karmaBackend (CBackend b)       = karmaBackend b
-  saltShaker (CBackend b)         = saltShaker b
-  sessionManagement (CBackend b)  = sessionManagement b
+  informationBackend  (CBackend b) = informationBackend b
+  relationBackend     (CBackend b) = relationBackend b
+  shutdown            (CBackend b) = shutdown b
+  userBackend         (CBackend b) = userBackend b
+  karmaBackend        (CBackend b) = karmaBackend b
+  saltShaker          (CBackend b) = saltShaker b
+  sessionManagement   (CBackend b) = sessionManagement b
 
 {- Controls for everything userrelated. -}
 type Limit  = Int
@@ -108,9 +113,9 @@ class SaltShaker s where
   removeSalt  :: (UserIdentifier ui) => s -> ui -> IO ()
 data CSaltShaker = forall s . SaltShaker s => CSaltShaker s
 instance SaltShaker CSaltShaker where
-  setId (CSaltShaker s)       = setId s
-  getSalt (CSaltShaker s)     = getSalt s
-  removeSalt (CSaltShaker s)  = removeSalt s
+  setId       (CSaltShaker s) = setId s
+  getSalt     (CSaltShaker s) = getSalt s
+  removeSalt  (CSaltShaker s) = removeSalt s
 
 {-
   SessionManagement helps managing logged in clients.
@@ -127,18 +132,51 @@ class SessionManagement s where
   stopSession   :: (UserIdentifier ui) => s -> ui -> ActionKey -> IO ()
 data CSessionManagement = forall s . SessionManagement s => CSessionManagement s
 instance SessionManagement CSessionManagement where
-  startSession (CSessionManagement s) = startSession s
-  validate (CSessionManagement s)     = validate s
-  perform (CSessionManagement s)      = perform s
-  stopSession (CSessionManagement s)  = stopSession s
+  startSession  (CSessionManagement s) = startSession s
+  validate      (CSessionManagement s) = validate s
+  perform       (CSessionManagement s) = perform s
+  stopSession   (CSessionManagement s) = stopSession s
 
 {-
   Manages all information in the form of OpenBrain.Data.Information
 -}
+type Title = String
+type Description = String
 class InformationBackend b where
-  getInformationCount :: b -> IO Int
-  getInformation :: b -> Limit -> Offset -> IO [Information]
-  getInformationBy :: (UserIdentifier ui) => b -> ui -> IO [Information]
-  getInformationAfter :: b -> Limit -> CalendarTime -> IO [Information]
-  -- FIXME add to declaration
+  addInformation        :: (UserIdentifier ui) => b -> ui -> Title -> Description -> Media -> IO ()
+  deleteInformation     :: (InformationIdentifier i, UserIdentifier ui) => b -> ui -> i -> IO ()
+  getInformationCount   :: b -> IO Int
+  getInformation        :: (InformationIdentifier i) => b -> i -> MaybeT IO Information
+  getInformations       :: b -> Limit -> Offset -> IO [Information]                 -- | No parents
+  getInformationAfter   :: b -> Limit -> CalendarTime -> IO [Information]           -- | No parents
+  getInformationBy      :: (UserIdentifier ui) => b -> ui -> IO [Information]       -- | No parents
+  getInformationParents :: (InformationIdentifier i) => b -> i -> IO [Information]  -- | youngest first
+  updateDescription     :: (InformationIdentifier i, UserIdentifier ui) => b -> ui -> i -> Description -> IO ()
+  updateMedia           :: (InformationIdentifier i, UserIdentifier ui) => b -> ui -> i -> Media -> IO ()
+  updateTitle           :: (InformationIdentifier i, UserIdentifier ui) => b -> ui -> i -> Title -> IO ()
+data CInformationBackend = forall b . InformationBackend b => CInformationBackend b
+instance InformationBackend CInformationBackend where
+  addInformation        (CInformationBackend b) = addInformation b
+  deleteInformation     (CInformationBackend b) = deleteInformation b
+  getInformationCount   (CInformationBackend b) = getInformationCount b
+  getInformation        (CInformationBackend b) = getInformation b
+  getInformations       (CInformationBackend b) = getInformations b
+  getInformationAfter   (CInformationBackend b) = getInformationAfter b
+  getInformationBy      (CInformationBackend b) = getInformationBy b
+  getInformationParents (CInformationBackend b) = getInformationParents b
+  updateDescription     (CInformationBackend b) = updateDescription b
+  updateMedia           (CInformationBackend b) = updateMedia b
+  updateTitle           (CInformationBackend b) = updateTitle b
+
+class RelationBackend b where
+  addRelation     :: (InformationIdentifier i) => b -> i -> i -> RelationType -> String -> IO ()  
+  deleteRelation  :: (InformationIdentifier i) => b -> i -> i -> RelationType -> IO ()
+  getRelations    :: (InformationIdentifier i) => b -> i -> IO [Relation] -- | youngest first, deleted after non deleted
+  updateComment   :: b -> RelationId -> String -> IO ()
+data CRelationBackend = forall b . RelationBackend b => CRelationBackend b
+instance RelationBackend CRelationBackend where
+  addRelation     (CRelationBackend b) = addRelation b
+  deleteRelation  (CRelationBackend b) = deleteRelation b
+  getRelations    (CRelationBackend b) = getRelations b
+  updateComment   (CRelationBackend b) = updateComment b
 
