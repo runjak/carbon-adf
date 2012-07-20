@@ -24,7 +24,7 @@ data UserData = UserData {
   , creation  :: CalendarTime
   , lastLogin :: CalendarTime
   , isAdmin   :: Bool
-} deriving (Eq)
+} deriving (Eq, Show)
 
 class UserIdentifier ui where
   getUserId :: ui -> UserId

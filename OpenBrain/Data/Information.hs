@@ -14,7 +14,7 @@ data Information = Information {
   , informationId :: InformationId
   , media         :: Media
   , title         :: String
-  }
+  } deriving (Eq, Show)
 
 data Media =
     Link        String
@@ -33,7 +33,7 @@ data Media =
   }
   | Decision {
     result :: [Information]
-  }
+  } deriving (Eq, Show)
 
 data ArgumentationFramework = AttackOnly | AttackDefense deriving (Show, Read, Eq, Enum)
 
