@@ -86,25 +86,26 @@ setLocations :: OBW Response
 setLocations = do
   ls <- msum [look "locations", return "[]"]
   let (ls' :: Maybe [Location]) = decode $ LU.fromString ls
-  when (isNothing ls') $ rqError "Invalid JSON."
-  p <- getProfile
-  b <- gets backend
-  liftIO $ B.setLocations b p $ fromJust ls'
-  successMessage "Locations changed."
+  handleFail "Invalid JSON." $ do
+    guard $ isJust ls'
+    p <- getProfile
+    b <- gets backend
+    liftIO $ B.setLocations b p $ fromJust ls'
+    successMessage "Locations changed."
 
 getSnippets :: String -> OBW [ProfileSnippet]
 getSnippets parameter = do
   s <- msum [look parameter, return "[]"]
   let (s' :: Maybe [ProfileSnippet]) = decode $ LU.fromString s
-  when (isNothing s') $ rqError "Invalid JSON."
-  return $ fromJust s'
+  guard   $ isJust s'
+  return  $ fromJust s'
 
 {-
   Expects parameter: websites - a list of JSON encoded OpenBrain.Data.Profile.ProfileSnippet
   Missing parameter will result in empty List
 -}
 setWebsites :: OBW Response
-setWebsites = do
+setWebsites = handleFail "Invalid JSON." $ do
   websites  <- getSnippets "websites"
   p         <- getProfile
   b         <- gets backend
@@ -116,7 +117,7 @@ setWebsites = do
   Missing parameter will result in empty List
 -}
 setEmails :: OBW Response
-setEmails = do
+setEmails = handleFail "Invalid JSON." $ do
   emails  <- getSnippets "emails"
   p       <- getProfile
   b       <- gets backend
@@ -128,7 +129,7 @@ setEmails = do
   Missing parameter will result in empty List
 -}
 setInstantMessagers :: OBW Response
-setInstantMessagers = do
+setInstantMessagers = handleFail "Invalid JSON." $ do
   instantMessagers  <- getSnippets "instantMessagers"
   p                 <- getProfile
   b                 <- gets backend

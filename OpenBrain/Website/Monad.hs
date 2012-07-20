@@ -2,8 +2,6 @@ module OpenBrain.Website.Monad (
     WebsiteState(..), OBW
   , runOBW
   , liftMaybeT, liftMaybe
-  , rqError
-  -- exports from imports:
   , module ControlMonad
   , module ControlMonadState
   , module ControlMonadTrans
@@ -40,5 +38,3 @@ liftMaybeT m = do
 liftMaybe :: Maybe a -> OBW a
 liftMaybe = maybe mzero return
 
-rqError :: HasRqData m => String -> m a
-rqError = rqDataError . Error.strMsg
