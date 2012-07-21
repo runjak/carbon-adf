@@ -17,11 +17,11 @@ data Information = Information {
   } deriving (Eq, Show)
 
 data Media =
-    Link        String
-  | Text        String
-  | Image       String
-  | Video       String
-  | Collection  [Information]
+    Link       String
+  | Text       String
+  | Image      String
+  | Video      String
+  | Collection [Information]
   | Discussion {
     arguments     :: [Information]          -- | Arguments that make up the Discussion
   , afType        :: ArgumentationFramework -- | Choosen on creation
