@@ -20,5 +20,5 @@ data Relation = Relation {
 data RelationType = Parent  -- | Source = Child, Target = Parent
                   | Attack  -- | Source = Attacker
                   | Defense -- | Source = Defender
-                  deriving (Eq, Show)
+                  deriving (Eq, Show, Enum)
 

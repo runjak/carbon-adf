@@ -16,24 +16,20 @@ data Information = Information {
   , title         :: String
   } deriving (Eq, Show)
 
+type Voted = Bool
 data Media =
-    Link       String
-  | Text       String
-  | Image      String
-  | Video      String
+    Media String -- | HTML rich content
   | Collection [Information]
   | Discussion {
-    arguments     :: [Information]          -- | Arguments that make up the Discussion
-  , afType        :: ArgumentationFramework -- | Choosen on creation
-  , choices       :: [([Information], Int)] -- | Groups of Informations with their vote count
-  , complete      :: Maybe Media            -- | Is expected to be a Decision
-  , deadline      :: CalendarTime           -- | After this no changes to arguments are allowed any longer
-  , participants  :: [User.UserData]        -- | Anyone that decided to be a participant before the deadline
-  , voted         :: [User.UserData]        -- | Users that already voted and are no longer allowed
+    arguments     :: [Information]            -- | Arguments that make up the Discussion
+  , afType        :: ArgumentationFramework   -- | Choosen on creation
+  , choices       :: [([Information], Int)]   -- | Groups of Informations with their vote count
+  , complete      :: Maybe Media              -- | Is expected to be a Decision
+  , deadline      :: CalendarTime             -- | After this no changes to arguments are allowed any longer
+  , participants  :: [(User.UserData, Voted)] -- | Anyone that decided to be a participant before the deadline
   }
-  | Decision {
-    result :: [Information]
-  } deriving (Eq, Show)
+  | Decision [Information]
+  deriving (Eq, Show)
 
 data ArgumentationFramework = AttackOnly | AttackDefense deriving (Show, Read, Eq, Enum)
 
