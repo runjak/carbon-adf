@@ -24,7 +24,7 @@ data Media =
     arguments     :: [Information]            -- | Arguments that make up the Discussion
   , afType        :: ArgumentationFramework   -- | Choosen on creation
   , choices       :: [([Information], Int)]   -- | Groups of Informations with their vote count
-  , complete      :: Maybe Media              -- | Is expected to be a Decision
+  , complete      :: Maybe Information        -- | Media of that Information should always be a Decision
   , deadline      :: CalendarTime             -- | After this no changes to arguments are allowed any longer
   , participants  :: [(User.UserData, Voted)] -- | Anyone that decided to be a participant before the deadline
   }

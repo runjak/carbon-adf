@@ -8,6 +8,7 @@ import Data.Convertible.Base
 import OpenBrain.Backend.SqliteBackend.Schema (SnippetType)
 import OpenBrain.Data.Hash (Hash, toHash, fromHash)
 import OpenBrain.Data.Id (Id, toId, fromId)
+import OpenBrain.Data.Information (ArgumentationFramework(..))
 import OpenBrain.Data.Karma (Karma, toKarma, fromKarma)
 import OpenBrain.Data.Profile (AccessRule)
 import OpenBrain.Data.Salt (Salt, toSalt, fromSalt)
@@ -17,6 +18,12 @@ instance Convertible Id SqlValue where
   safeConvert = Right . toSql. fromId
 instance Convertible SqlValue Id where
   safeConvert = Right . toId . fromSql
+
+-- Instances to enable ArgumentationFramwork <-> SqlValue conversions:
+instance Convertible ArgumentationFramework SqlValue where
+  safeConvert = Right . toSql . fromEnum
+instance Convertible SqlValue ArgumentationFramework where
+  safeConvert = Right . toEnum . fromSql
 
 -- Instances to enable Hash <-> SqlValue conversions:
 instance Convertible Hash SqlValue where

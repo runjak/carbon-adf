@@ -144,7 +144,7 @@ type Title = String
 type Description = String
 class InformationBackend b where
   addInformation        :: (UserIdentifier ui) => b -> ui -> Title -> Description -> Media -> IO ()
-  deleteInformation     :: (InformationIdentifier i, UserIdentifier ui) => b -> ui -> i -> IO ()
+  deleteInformation     :: (InformationIdentifier i) => b -> i -> IO ()
   getInformationCount   :: b -> IO Int
   getInformation        :: (InformationIdentifier i) => b -> i -> MaybeT IO Information
   getInformations       :: b -> Limit -> Offset -> IO [Information]                 -- | No parents

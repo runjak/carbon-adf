@@ -17,11 +17,13 @@ createTables :: IConnection conn => conn -> IO ()
 createTables conn = mapM_ (\t -> run conn t []) initTables >> commit conn
 
 instance Backend SqliteBackend where
+  informationBackend  = undefined -- CInformationBackend
+  relationBackend     = undefined -- CRelationBackend
   shutdown          b = commit (conn b) >> disconnect (conn b)
-  userBackend       = CUserBackend
-  karmaBackend      = CKarmaBackend
-  saltShaker        = CSaltShaker
-  sessionManagement = CSessionManagement
+  userBackend         = CUserBackend
+  karmaBackend        = CKarmaBackend
+  saltShaker          = CSaltShaker
+  sessionManagement   = CSessionManagement
 
 load :: FilePath -> Config -> IO CBackend
 load dblocation config = do

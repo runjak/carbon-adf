@@ -87,9 +87,9 @@ MediaBundle(
 MediaDiscussion (
   discussionid  INTEGER PRIMARY KEY
 , aftype        INTEGER NOT NULL
-, complete      INTEGER DEFAULT NULL
+, complete      INTEGER
 , deadline      INTEGER NOT NULL
-, FOREIGN KEY(complete) REFERENCES MediaBundle(informationid)
+, FOREIGN KEY(complete) REFERENCES Information(informationid)
 )
 
 DiscussionArguments (
