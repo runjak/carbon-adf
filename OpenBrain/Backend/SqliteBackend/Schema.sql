@@ -77,11 +77,11 @@ MediaContent (
 )
 
 MediaBundle(
-  informationid   INTEGER     NOT NULL
-, mediacontentid  INTEGER     NOT NULL
-, isdecision      TINYINT(1)  NOT NULL DEFAULT 0
+  informationid INTEGER     NOT NULL
+, targetid      INTEGER     NOT NULL
+, isdecision    TINYINT(1)  NOT NULL DEFAULT 0
 , FOREIGN KEY(informationid)  REFERENCES Information(informationid)
-, FOREIGN KEY(mediacontentid) REFERENCES MediaContent(mediacontentid)
+, FOREIGN KEY(targetid)       REFERENCES Information(informationid)
 )
 
 MediaDiscussion (
