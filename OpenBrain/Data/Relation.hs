@@ -20,5 +20,6 @@ data Relation = Relation {
 data RelationType = Parent  -- | Source = Child, Target = Parent
                   | Attack  -- | Source = Attacker
                   | Defense -- | Source = Defender
+                  | Collection -- | Source = Information that bundles, Target = Element of the collection
                   deriving (Eq, Show, Enum)
 
