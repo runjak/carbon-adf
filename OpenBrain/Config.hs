@@ -49,8 +49,7 @@ readConfig = liftM (liftM fst . listToMaybe . reads) . readFile
 writeConfig :: FilePath -> Config -> IO ()
 writeConfig path = writeFile path . show
 
-data BackendType = Sqlite3Backend {dblocation :: FilePath} -- | Default was Sqlite3Backend{dblocation = "/tmp/test.sqlite"}
-                 | MissingBackend
+data BackendType = MissingBackend
                  | MysqlBackend {
                     mysqlHost         :: String
                   , mysqlUser         :: String
