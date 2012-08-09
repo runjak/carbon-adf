@@ -35,7 +35,7 @@ nullConfig = Config {
   , allowUploads    = False
   , allowBrowsing   = True
   , port            = 8000  -- | Happstack std.
-  , backendType     = Sqlite3Backend{dblocation = "/tmp/test.sqlite"}
+  , backendType     = MysqlBackend {mysqlHost = "127.0.0.1", mysqlUser = "root", mysqlPassword = "1234", mysqlDatabase = "OpenBrain", mysqlPort = 3306, mysqlSchemaUpdate = Nothing}
   , useTLS          = False
   , tlsKey          = ""
   , tlsCert         = ""
@@ -49,6 +49,13 @@ readConfig = liftM (liftM fst . listToMaybe . reads) . readFile
 writeConfig :: FilePath -> Config -> IO ()
 writeConfig path = writeFile path . show
 
-data BackendType = Sqlite3Backend {dblocation :: FilePath}
+data BackendType = Sqlite3Backend {dblocation :: FilePath} -- | Default was Sqlite3Backend{dblocation = "/tmp/test.sqlite"}
                  | MissingBackend
-                   deriving (Eq, Read, Show)
+                 | MysqlBackend {
+                    mysqlHost         :: String
+                  , mysqlUser         :: String
+                  , mysqlPassword     :: String
+                  , mysqlDatabase     :: String
+                  , mysqlPort         :: Int -- | Default is 3306
+                  , mysqlSchemaUpdate :: Maybe FilePath}
+                 deriving (Eq, Read, Show)

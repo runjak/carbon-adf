@@ -19,7 +19,7 @@ CREATE  TABLE IF NOT EXISTS `OpenBrain`.`UserData` (
   `lastLogin` INT(11) NOT NULL ,
   `isAdmin` TINYINT(1) NOT NULL DEFAULT 0 ,
   `salt` VARCHAR(255) NOT NULL ,
-  `actionKey` VARCHAR(255) NOT NULL DEFAULT '' ,
+  `actionKey` VARCHAR(255) NULL ,
   PRIMARY KEY (`userid`) ,
   UNIQUE INDEX `userid_UNIQUE` (`userid` ASC) )
 ENGINE = InnoDB;
@@ -34,7 +34,7 @@ CREATE  TABLE IF NOT EXISTS `OpenBrain`.`Profile` (
   `profileid` INT(11) NOT NULL AUTO_INCREMENT ,
   `userid` INT(11) NOT NULL ,
   `accessRule` TINYINT UNSIGNED NOT NULL DEFAULT 2 COMMENT 'Default 2\\ncorresponds to\\nthe Enum value\\nof data AccessRule\\nNone' ,
-  `avatar` TEXT NOT NULL DEFAULT '' ,
+  `avatar` TEXT NULL ,
   `name_prefix` VARCHAR(255) NOT NULL DEFAULT '' ,
   `name_foreName` VARCHAR(255) NOT NULL DEFAULT '' ,
   `name_middleName` VARCHAR(255) NOT NULL DEFAULT '' ,
@@ -43,7 +43,7 @@ CREATE  TABLE IF NOT EXISTS `OpenBrain`.`Profile` (
   PRIMARY KEY (`profileid`) ,
   UNIQUE INDEX `profileid_UNIQUE` (`profileid` ASC) ,
   INDEX `fk_Profile_1_idx` (`userid` ASC) ,
-  CONSTRAINT `userid`
+  CONSTRAINT `ProfileToUserData`
     FOREIGN KEY (`userid` )
     REFERENCES `OpenBrain`.`UserData` (`userid` )
     ON DELETE NO ACTION
@@ -57,19 +57,16 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `OpenBrain`.`Location` ;
 
 CREATE  TABLE IF NOT EXISTS `OpenBrain`.`Location` (
-  `locationid` INT(11) NOT NULL AUTO_INCREMENT ,
   `profileid` INT(11) NOT NULL ,
   `street` VARCHAR(255) NOT NULL DEFAULT '' ,
   `city` VARCHAR(255) NOT NULL DEFAULT '' ,
   `state` VARCHAR(255) NOT NULL DEFAULT '' ,
   `land` VARCHAR(255) NOT NULL DEFAULT '' ,
   `zipCode` VARCHAR(255) NOT NULL DEFAULT '' ,
-  `note` TEXT NOT NULL DEFAULT '' ,
-  PRIMARY KEY (`locationid`) ,
-  UNIQUE INDEX `locationid_UNIQUE` (`locationid` ASC) ,
+  `note` TEXT NULL ,
   UNIQUE INDEX `profileid_UNIQUE` (`profileid` ASC) ,
   INDEX `profileid_idx` (`profileid` ASC) ,
-  CONSTRAINT `profileid`
+  CONSTRAINT `LocationToProfile`
     FOREIGN KEY (`profileid` )
     REFERENCES `OpenBrain`.`Profile` (`profileid` )
     ON DELETE NO ACTION
@@ -83,16 +80,13 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `OpenBrain`.`ProfileSnippet` ;
 
 CREATE  TABLE IF NOT EXISTS `OpenBrain`.`ProfileSnippet` (
-  `profilesnippetid` INT(11) NOT NULL AUTO_INCREMENT ,
   `profileid` INT(11) NOT NULL ,
   `title` VARCHAR(255) NOT NULL DEFAULT '' ,
-  `description` TEXT NOT NULL DEFAULT '' ,
+  `description` TEXT NULL ,
   `target` TEXT NOT NULL ,
   `snippetType` TINYINT NOT NULL ,
-  PRIMARY KEY (`profilesnippetid`) ,
-  UNIQUE INDEX `profilesnippetid_UNIQUE` (`profilesnippetid` ASC) ,
   INDEX `profileid_idx` (`profileid` ASC) ,
-  CONSTRAINT `profileid`
+  CONSTRAINT `ProfileSnippetToProfile`
     FOREIGN KEY (`profileid` )
     REFERENCES `OpenBrain`.`Profile` (`profileid` )
     ON DELETE NO ACTION
@@ -121,13 +115,13 @@ DROP TABLE IF EXISTS `OpenBrain`.`Media` ;
 
 CREATE  TABLE IF NOT EXISTS `OpenBrain`.`Media` (
   `mediaid` INT(11) NOT NULL AUTO_INCREMENT ,
-  `content` TEXT NULL DEFAULT '' ,
+  `content` TEXT NULL ,
   `collectiontype` INT(11) NULL ,
   `discussionid` INT(11) NULL ,
   PRIMARY KEY (`mediaid`) ,
   UNIQUE INDEX `mediaid_UNIQUE` (`mediaid` ASC) ,
   INDEX `fk_Media_1_idx` (`discussionid` ASC) ,
-  CONSTRAINT `discussionid`
+  CONSTRAINT `MediaToDiscussionInfo`
     FOREIGN KEY (`discussionid` )
     REFERENCES `OpenBrain`.`DiscussionInfo` (`discussionid` )
     ON DELETE NO ACTION
@@ -144,19 +138,19 @@ CREATE  TABLE IF NOT EXISTS `OpenBrain`.`Information` (
   `informationid` INT(11) NOT NULL AUTO_INCREMENT ,
   `author` INT(11) NOT NULL ,
   `creation` INT(11) NOT NULL ,
-  `description` TEXT NOT NULL DEFAULT '' ,
+  `description` TEXT NULL ,
   `title` VARCHAR(255) NOT NULL DEFAULT '' ,
   `mediaid` INT(11) NOT NULL ,
   PRIMARY KEY (`informationid`) ,
   UNIQUE INDEX `informationid_UNIQUE` (`informationid` ASC) ,
   INDEX `userid_idx` (`author` ASC) ,
   INDEX `mediaid_idx` (`mediaid` ASC) ,
-  CONSTRAINT `userid`
+  CONSTRAINT `InformationToUserData`
     FOREIGN KEY (`author` )
     REFERENCES `OpenBrain`.`UserData` (`userid` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `mediaid`
+  CONSTRAINT `InformationToMedia`
     FOREIGN KEY (`mediaid` )
     REFERENCES `OpenBrain`.`Media` (`mediaid` )
     ON DELETE NO ACTION
@@ -175,12 +169,12 @@ CREATE  TABLE IF NOT EXISTS `OpenBrain`.`DiscussionChoices` (
   `votes` INT(11) NOT NULL DEFAULT 0 ,
   INDEX `discussionid_idx` (`discussionid` ASC) ,
   INDEX `informationid_idx` (`informationid` ASC) ,
-  CONSTRAINT `discussionid`
+  CONSTRAINT `DiscussionChoicesToDiscussionInfo`
     FOREIGN KEY (`discussionid` )
     REFERENCES `OpenBrain`.`DiscussionInfo` (`discussionid` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `informationid`
+  CONSTRAINT `DiscussionChoicesToInformation`
     FOREIGN KEY (`informationid` )
     REFERENCES `OpenBrain`.`Information` (`informationid` )
     ON DELETE NO ACTION
@@ -199,12 +193,12 @@ CREATE  TABLE IF NOT EXISTS `OpenBrain`.`DiscussionParticipants` (
   `userid` INT(11) NOT NULL ,
   INDEX `discussionid_idx` (`discussionid` ASC) ,
   INDEX `userid_idx` (`userid` ASC) ,
-  CONSTRAINT `discussionid`
+  CONSTRAINT `DiscussionParticipantsToDiscussionInfo`
     FOREIGN KEY (`discussionid` )
     REFERENCES `OpenBrain`.`DiscussionInfo` (`discussionid` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `userid`
+  CONSTRAINT `DiscussionParticipantsToUserData`
     FOREIGN KEY (`userid` )
     REFERENCES `OpenBrain`.`UserData` (`userid` )
     ON DELETE NO ACTION
@@ -229,12 +223,12 @@ CREATE  TABLE IF NOT EXISTS `OpenBrain`.`Relations` (
   UNIQUE INDEX `relationid_UNIQUE` (`relationid` ASC) ,
   INDEX `informationid_idx` (`source` ASC) ,
   INDEX `informationid_idx1` (`target` ASC) ,
-  CONSTRAINT `informationid`
+  CONSTRAINT `RelationsSourceToInformation`
     FOREIGN KEY (`source` )
     REFERENCES `OpenBrain`.`Information` (`informationid` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `informationid`
+  CONSTRAINT `RelationsTargetToInformation`
     FOREIGN KEY (`target` )
     REFERENCES `OpenBrain`.`Information` (`informationid` )
     ON DELETE NO ACTION
