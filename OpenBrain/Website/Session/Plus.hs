@@ -2,7 +2,7 @@ module OpenBrain.Website.Session.Plus where
 
 import Happstack.Server as Server
 
-import OpenBrain.Data.User
+import OpenBrain.Data.Id
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import qualified OpenBrain.Website.Session as Session

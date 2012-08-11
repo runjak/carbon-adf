@@ -6,17 +6,17 @@ import Database.HDBC
 import Data.Convertible.Base
 
 import OpenBrain.Data.Hash (Hash, toHash, fromHash)
-import OpenBrain.Data.Id (Id, toId, fromId)
+import OpenBrain.Data.Id (Id, wrap, unwrap)
 import OpenBrain.Data.Information (CollectionType)
 import OpenBrain.Data.Karma (Karma, toKarma, fromKarma)
 import OpenBrain.Data.Profile (AccessRule)
 import OpenBrain.Data.Salt (Salt, toSalt, fromSalt)
 
--- Instances to enable Id <-> SqlValue conversions:
+-- Instances to enable IdType <-> SqlValue conversions:
 instance Convertible Id SqlValue where
-  safeConvert = Right . toSql. fromId
+  safeConvert = Right . toSql  . unwrap
 instance Convertible SqlValue Id where
-  safeConvert = Right . toId . fromSql
+  safeConvert = Right . wrap . fromSql
 
 -- Instances to enable CollectionType <-> SqlValue conversions:
 instance Convertible CollectionType SqlValue where
@@ -47,3 +47,4 @@ instance Convertible AccessRule SqlValue where
   safeConvert = Right . toSql . fromEnum
 instance Convertible SqlValue AccessRule where
   safeConvert = Right . toEnum . fromSql
+

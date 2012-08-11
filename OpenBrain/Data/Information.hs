@@ -1,4 +1,3 @@
-{-# LANGUAGE TypeSynonymInstances #-}
 module OpenBrain.Data.Information where
 
 import System.Time (CalendarTime)
@@ -6,7 +5,6 @@ import System.Time (CalendarTime)
 import OpenBrain.Data.Id
 import qualified OpenBrain.Data.User as User
 
-type InformationId = Id
 data Information = Information {
     author        :: User.UserData  -- | Every information has an author.
   , creation      :: CalendarTime   -- | The time of creation for the information.
@@ -41,13 +39,4 @@ data DiscussionInfo = DiscussionInfo {        -- | If a collection is a discussi
   , deadline      :: CalendarTime             -- | When the Discussion doesn't allow for changing arguments and votes are cast.
   , participants  :: [(User.UserData, Voted)] -- | Users that take part in the discussion and if they already voted.
   } deriving (Eq, Show)
-
-class InformationIdentifier i where
-  getInformationId :: i -> InformationId
-
-instance InformationIdentifier InformationId where
-  getInformationId = id
-
-instance InformationIdentifier Information where
-  getInformationId = informationId
 

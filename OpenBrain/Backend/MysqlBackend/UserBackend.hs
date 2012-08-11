@@ -12,6 +12,7 @@ import OpenBrain.Backend.MysqlBackend.Convertibles ()
 import OpenBrain.Backend.MysqlBackend.Common
 import OpenBrain.Backend.MysqlBackend.ProfileBackend ()
 import OpenBrain.Common
+import OpenBrain.Data.Id
 import OpenBrain.Data.User
 import OpenBrain.Data.Hash
 import OpenBrain.Data.Karma
@@ -36,7 +37,7 @@ login' conn username hash = do
   case rst of
     [[userid', _, _, karma', creation', lastLogin', isAdmin']] -> do
       let userdata = UserData {
-          userid    = fromSql userid'
+          userid    = fromId $ fromSql userid'
         , username  = username
         , password  = hash
         , karma     = fromSql karma'
@@ -47,17 +48,16 @@ login' conn username hash = do
       liftIO $ do
         t <- liftM toUTCTime getClockTime
         stmt <- prepare conn "UPDATE UserData SET lastLogin = ? WHERE userid = ?"
-        execute stmt [toSql t, toSql (userid userdata)] >> commit conn
+        execute stmt [toSql t, toSql . toId $ userid userdata] >> commit conn
         return userdata{lastLogin = t}
     _ -> mzero
 
-getUser' :: (IConnection conn, UserIdentifier ui) => conn -> ui -> MaybeT IO UserData
+getUser' :: (IConnection conn) => conn -> UserId -> MaybeT IO UserData
 getUser' conn uid = do
-  let userid = getUserId uid
-  rst <- liftIO $ quickQuery conn "SELECT username, password, karma, creation, lastLogin, isAdmin FROM UserData WHERE userid = ?" [toSql userid]
+  rst <- liftIO $ quickQuery conn "SELECT username, password, karma, creation, lastLogin, isAdmin FROM UserData WHERE userid = ?" [toSql $ toId uid]
   case rst of
     [[username', password', karma', creation', lastLogin', isAdmin']] -> return UserData {
-        userid    = userid
+        userid    = uid
       , username  = fromSql username'
       , password  = fromSql password'
       , karma     = fromSql karma'
@@ -67,9 +67,9 @@ getUser' conn uid = do
       }
     _ -> mzero
 
-hasUserWithId' :: (IConnection conn, UserIdentifier ui) => conn -> ui -> IO Bool
+hasUserWithId' :: (IConnection conn) => conn -> UserId -> IO Bool
 hasUserWithId' conn uid = do
-  rst <- quickQuery conn "SELECT COUNT(*) FROM UserData WHERE userid = ?" [toSql $ getUserId uid]
+  rst <- quickQuery conn "SELECT COUNT(*) FROM UserData WHERE userid = ?" [toSql $ toId uid]
   case rst of
     [[count]] -> return $ (>0) (fromSql count :: Int)
     _         -> return False
@@ -78,7 +78,7 @@ hasUserWithName' :: (IConnection conn) => conn -> UserName -> MaybeT IO UserId
 hasUserWithName' conn username = do
   rst <- liftIO $ quickQuery conn "SELECT userid FROM UserData WHERE username = ?" [toSql username]
   case rst of
-    [[uid]] -> return $ fromSql uid
+    [[uid]] -> return . fromId $ fromSql uid
     _       -> mzero
 
 register' :: (IConnection conn) => conn -> UserName -> Hash -> MaybeT IO UserData
@@ -91,10 +91,10 @@ register' conn username hash = do
     execute stmt [toSql username, toSql hash, t ,t] >> commit conn
   login' conn username hash
 
-delete' :: (IConnection conn, UserIdentifier ui) => conn -> ui -> IO Bool
+delete' :: (IConnection conn) => conn -> UserId -> IO Bool
 delete' conn uid = do
   stmt  <- prepare conn "DELETE FROM UserData WHERE userid = ?"
-  rst   <- execute stmt [toSql $ getUserId uid]
+  rst   <- execute stmt [toSql $ toId uid]
   commit conn
   return $ rst > 0
 
@@ -110,12 +110,12 @@ getUserList' conn limit offset = do
   rst <- quickQuery conn "SELECT userid FROM UserData LIMIT ? OFFSET ?" [toSql limit, toSql offset]
   return $ concatMap go rst
   where
-    go [uid]  = [fromSql uid]
+    go [uid]  = [fromId $ fromSql uid]
     go _      = []
 
-updateKarma' :: (IConnection conn, UserIdentifier ui) => conn -> ui -> (Karma -> Karma) -> IO ()
+updateKarma' :: (IConnection conn) => conn -> UserId -> (Karma -> Karma) -> IO ()
 updateKarma' conn uid f = do
-  let userid = getUserId uid
+  let userid = toId uid
   rst <- quickQuery conn "SELECT karma FROM UserData WHERE userid = ?" [toSql userid]
   case rst of
     [[k]] -> do
@@ -124,13 +124,13 @@ updateKarma' conn uid f = do
       execute stmt [toSql k', toSql userid] >> commit conn
     _ -> return ()
 
-updatePasswd' :: (IConnection conn, UserIdentifier ui) => conn -> ui -> Hash -> IO ()
+updatePasswd' :: (IConnection conn) => conn -> UserId -> Hash -> IO ()
 updatePasswd' conn uid hash = do
   stmt <- prepare conn "UPDATE UserData SET password = ? WHERE userid = ?"
-  execute stmt [toSql hash, toSql $ getUserId uid] >> commit conn
+  execute stmt [toSql hash, toSql $ toId uid] >> commit conn
 
-setAdmin' :: (IConnection conn, UserIdentifier ui) => conn -> ui -> Bool -> IO ()
+setAdmin' :: (IConnection conn) => conn -> UserId -> Bool -> IO ()
 setAdmin' conn uid admin = do
   stmt <- prepare conn "UPDATE UserData SET isAdmin = ? WHERE userid = ?"
-  execute stmt [toSql admin, toSql $ getUserId uid] >> commit conn
+  execute stmt [toSql admin, toSql $ toId uid] >> commit conn
 

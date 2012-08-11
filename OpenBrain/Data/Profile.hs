@@ -1,17 +1,5 @@
-{-# LANGUAGE OverloadedStrings, TypeSynonymInstances #-}
-module OpenBrain.Data.Profile (
-    Profile(..)
-  , ProfileId
-  , AccessRule(..)
-  , Name(..)
-  , Location(..)
-  , ProfileSnippet(..)
-  , emptyProfile
-  , emptyName
-  , emptyLocation
-  , emptySnippet
-  , ProfileIdentifier(..)
-) where
+{-# LANGUAGE OverloadedStrings #-}
+module OpenBrain.Data.Profile where
 {-
   Definition of Profile information that can be attached to a UserId.
   Profiles will be displayed on the page as HTML and RDF
@@ -26,9 +14,7 @@ import Data.Aeson as A
 import Data.Text (pack)
 
 import OpenBrain.Data.Id
-import OpenBrain.Data.User (UserId)
 
-type ProfileId = Id
 data Profile = Profile {
     profileId         :: ProfileId
   , userId            :: UserId
@@ -72,20 +58,11 @@ data ProfileSnippet = ProfileSnippet {
 
 {- Below some functions and Interfaces to work with profiles -}
 
-emptyProfile :: Id -> UserId -> Profile
+emptyProfile :: ProfileId -> UserId -> Profile
 emptyProfile p u = Profile p u None Nothing Nothing [] [] [] []
 emptyName = Name "" "" "" "" ""
 emptyLocation = Location "" "" "" "" "" ""
 emptySnippet = ProfileSnippet "" "" ""
-
-class ProfileIdentifier p where
-  getProfileId :: p -> ProfileId
-
-instance ProfileIdentifier ProfileId where
-  getProfileId = id
-
-instance ProfileIdentifier Profile where
-  getProfileId = profileId
 
 instance ToJSON Profile where
   toJSON p = object [

@@ -6,7 +6,6 @@ import System.Time (CalendarTime)
 import OpenBrain.Data.Id
 import OpenBrain.Data.Information
 
-type RelationId = Id
 data Relation = Relation {
     comment     :: String
   , creation    :: CalendarTime

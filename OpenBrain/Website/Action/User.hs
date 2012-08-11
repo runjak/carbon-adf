@@ -90,7 +90,7 @@ changeKarma :: OBW Response
 changeKarma = handleFail "Invalid session." $ do
   b       <- gets backend
   uid     <- Session.chkAction
-  target  <- liftM (toId . read) $ look "userid"
+  target  <- liftM (fromId . wrap . read) $ look "userid"
   k       <- lookRead "karma"
   let change  = karmaUpdate k
   let burn    = karmaUpdate . negate $ abs k

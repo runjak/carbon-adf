@@ -9,7 +9,7 @@ import qualified Data.ByteString.Lazy.UTF8 as LU
 
 import OpenBrain.Common
 import OpenBrain.Data.Profile
-import OpenBrain.Data.User
+import OpenBrain.Data.Id
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad as M
 import qualified OpenBrain.Backend as B
@@ -31,6 +31,8 @@ getProfile = do
   b <- gets backend
   liftIO . (B.getProfile b) =<< Session.chkAction
 
+getProfileId = liftM profileId getProfile
+
 {-
   Expects parameter: accessRule
   Fails on missing parameter.
@@ -38,9 +40,9 @@ getProfile = do
 setAccessRule :: OBW Response
 setAccessRule = do
   accessRule  <- lookRead "accessRule"
-  profile     <- getProfile
+  pid         <- getProfileId
   b           <- gets backend
-  liftIO $ B.setAccessRule b profile accessRule
+  liftIO $ B.setAccessRule b pid accessRule
   handleSuccess "AccessRule changed."
 
 instance FromReqURI AccessRule where
@@ -61,7 +63,7 @@ setName = do
   suffix     <- msum [look "suffix",     return ""]
   let n = Name prefix foreName middleName familyName suffix
   let n' = (n == emptyName) ? (Nothing, Just n)
-  p <- getProfile
+  p <- getProfileId
   b <- gets backend
   liftIO $ B.setName b p n'
   handleSuccess "Name changed."
@@ -73,7 +75,7 @@ setName = do
 setAvatar :: OBW Response
 setAvatar = do
   avatar <- msum [liftM Just $ look "avatar", return Nothing]
-  p <- getProfile
+  p <- getProfileId
   b <- gets backend
   liftIO $ B.setAvatar b p avatar
   handleSuccess "Avatar changed."
@@ -88,7 +90,7 @@ setLocations = do
   let (ls' :: Maybe [Location]) = decode $ LU.fromString ls
   handleFail "Invalid JSON." $ do
     guard $ isJust ls'
-    p <- getProfile
+    p <- getProfileId
     b <- gets backend
     liftIO $ B.setLocations b p $ fromJust ls'
     handleSuccess "Locations changed."
@@ -107,7 +109,7 @@ getSnippets parameter = do
 setWebsites :: OBW Response
 setWebsites = handleFail "Invalid JSON." $ do
   websites  <- getSnippets "websites"
-  p         <- getProfile
+  p         <- getProfileId
   b         <- gets backend
   liftIO $ B.setWebsites b p websites
   handleSuccess "Websites changed."
@@ -119,7 +121,7 @@ setWebsites = handleFail "Invalid JSON." $ do
 setEmails :: OBW Response
 setEmails = handleFail "Invalid JSON." $ do
   emails  <- getSnippets "emails"
-  p       <- getProfile
+  p       <- getProfileId
   b       <- gets backend
   liftIO $ B.setEmails b p emails
   handleSuccess "Emails changed."
@@ -131,7 +133,7 @@ setEmails = handleFail "Invalid JSON." $ do
 setInstantMessagers :: OBW Response
 setInstantMessagers = handleFail "Invalid JSON." $ do
   instantMessagers  <- getSnippets "instantMessagers"
-  p                 <- getProfile
+  p                 <- getProfileId
   b                 <- gets backend
   liftIO $ B.setInstantMessagers b p instantMessagers
   handleSuccess "InstantMessagers changed."

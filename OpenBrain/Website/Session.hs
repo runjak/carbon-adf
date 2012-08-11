@@ -18,7 +18,7 @@ import Happstack.Server as S
 import OpenBrain.Config
 import OpenBrain.Backend
 import OpenBrain.Backend.Plus
-import OpenBrain.Data.User
+import OpenBrain.Data.Id
 
 cookieActionKey  = "actionKey" :: String
 cookieUserId     = "userid"    :: String

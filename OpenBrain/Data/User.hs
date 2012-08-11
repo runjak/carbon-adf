@@ -1,10 +1,4 @@
-{-# LANGUAGE TypeSynonymInstances #-}
-module OpenBrain.Data.User (
-    UserData(..)
-  , UserId
-  , UserName
-  , UserIdentifier(..)
-) where
+module OpenBrain.Data.User where
 {-
   This module holds all the data concerning users.
 -}
@@ -14,7 +8,6 @@ import OpenBrain.Data.Id
 import OpenBrain.Data.Hash (Hash)
 import OpenBrain.Data.Karma (Karma)
 
-type UserId = Id
 type UserName = String
 data UserData = UserData {
     userid    :: UserId
@@ -26,11 +19,3 @@ data UserData = UserData {
   , isAdmin   :: Bool
 } deriving (Eq, Show)
 
-class UserIdentifier ui where
-  getUserId :: ui -> UserId
-
-instance UserIdentifier UserId where
-  getUserId = id
-
-instance UserIdentifier UserData where
-  getUserId = userid
