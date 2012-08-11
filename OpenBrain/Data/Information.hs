@@ -6,12 +6,13 @@ import OpenBrain.Data.Id
 import qualified OpenBrain.Data.User as User
 
 data Information = Information {
-    author        :: User.UserData  -- | Every information has an author.
-  , creation      :: CalendarTime   -- | The time of creation for the information.
-  , description   :: String         -- | A short description of what the information is about.
+    author        :: User.UserData      -- | Every information has an author.
+  , creation      :: CalendarTime       -- | The time of creation for the information.
+  , deletion      :: Maybe CalendarTime -- | The time of deletion for the information
+  , description   :: String             -- | A short description of what the information is about.
   , informationId :: InformationId
-  , media         :: Media          -- | The real content
-  , title         :: String         -- | A title for the information
+  , media         :: Media              -- | The real content
+  , title         :: String             -- | A title for the information
   } deriving (Eq, Show)
 
 data Media =
