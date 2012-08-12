@@ -1,6 +1,6 @@
 module OpenBrain.Website.Monad (
     WebsiteState(..), OBW
-  , runOBW
+  , runOBW, liftOBB
   , liftMaybeT, liftMaybe
   , module ControlMonad
   , module ControlMonadState
@@ -19,15 +19,21 @@ import Happstack.Server as Server
 import qualified Control.Monad.Error as Error
 
 import OpenBrain.Backend
+import OpenBrain.Backend.Monad
 import OpenBrain.Config
 
-data WebsiteState = WebsiteState {backend :: CBackend, config :: Config}
+data WebsiteState = WebsiteState {backend :: Backend, config :: Config}
 
 -- OBW ~ the OpenBrainWebsite Monad
 type OBW a = StateT WebsiteState (ServerPartT IO) a
 
 runOBW :: WebsiteState -> OBW a -> ServerPartT IO a
 runOBW ws m = evalStateT m ws
+
+liftOBB :: OBB a -> OBW a
+liftOBB m = do
+  b <- gets backend
+  liftMaybeT $ evalStateT m b
 
 -- Running a MaybeT in OBW using mzero on Nothing.
 liftMaybeT :: MaybeT IO a -> OBW a
