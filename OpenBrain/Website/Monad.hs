@@ -30,12 +30,12 @@ type OBW a = StateT WebsiteState (ServerPartT IO) a
 runOBW :: WebsiteState -> OBW a -> ServerPartT IO a
 runOBW ws m = evalStateT m ws
 
+-- Some lift operations:
 liftOBB :: OBB a -> OBW a
 liftOBB m = do
   b <- gets backend
   liftMaybeT $ evalStateT m b
 
--- Running a MaybeT in OBW using mzero on Nothing.
 liftMaybeT :: MaybeT IO a -> OBW a
 liftMaybeT m = do
   val <- liftIO $ runMaybeT m

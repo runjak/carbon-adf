@@ -11,7 +11,7 @@ import OpenBrain.Config
 import OpenBrain.Common
 import qualified OpenBrain.Backend.MysqlBackend as Mysql
 
-loadBackend :: Config -> MaybeT IO CBackend
+loadBackend :: Config -> MaybeT IO Backend
 loadBackend c
   | Mysql.validConfig c = liftIO $ Mysql.load c
   | otherwise = mzero

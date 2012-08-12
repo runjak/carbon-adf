@@ -10,7 +10,7 @@ import System.Time as T
 import OpenBrain.Backend
 import OpenBrain.Backend.MysqlBackend.Convertibles ()
 import OpenBrain.Backend.MysqlBackend.Common
-import OpenBrain.Backend.MysqlBackend.ProfileBackend ()
+import OpenBrain.Backend.Types
 import OpenBrain.Common
 import OpenBrain.Data.Id
 import OpenBrain.Data.User
@@ -24,7 +24,6 @@ instance UserBackend MysqlBackend where
   hasUserWithName b = withWConn (conn b) hasUserWithName'
   register        b = withWConn (conn b) register'
   delete          b = withWConn (conn b) delete'
-  profileBackend    = CProfileBackend
   getUserCount    b = withWConn (conn b) getUserCount'
   getUserList     b = withWConn (conn b) getUserList'
   updateKarma     b = withWConn (conn b) updateKarma'
