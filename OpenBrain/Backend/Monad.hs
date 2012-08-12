@@ -35,6 +35,8 @@ withBackend f = do
   (Backend b) <- get
   f b
 
+-- | Functions derived from OpenBrain.Backend classes:
+
 shutdown :: OBB ()
 shutdown = withBackend $ \x -> liftIO $ Backend.shutdown x
 
@@ -191,3 +193,9 @@ getRelations iid = withBackend $ \b -> liftIO $ Backend.getRelations b iid
 updateComment :: RelationId -> Types.Comment -> OBB ()
 updateComment rid comment = withBackend $ \b -> liftIO $ Backend.updateComment b rid comment
 
+-- | Functions on top of derived ones:
+getUserByName :: UserName -> OBB UserData
+getUserByName = hasUserWithName >=> getUser
+
+getUsers :: [UserId] -> OBB [UserData]
+getUsers = mapM getUser
