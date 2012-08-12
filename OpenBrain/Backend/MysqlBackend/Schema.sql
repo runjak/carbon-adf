@@ -1,6 +1,6 @@
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
 
 CREATE SCHEMA IF NOT EXISTS `OpenBrain` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci ;
 USE `OpenBrain` ;
@@ -16,7 +16,7 @@ CREATE  TABLE IF NOT EXISTS `OpenBrain`.`UserData` (
   `password` VARCHAR(255) NOT NULL ,
   `karma` INT UNSIGNED NOT NULL DEFAULT 0 ,
   `creation` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  `lastLogin` INT(11) NOT NULL ,
+  `lastLogin` TIMESTAMP NULL ,
   `isAdmin` TINYINT(1) NOT NULL DEFAULT 0 ,
   `salt` VARCHAR(255) NOT NULL ,
   `actionKey` VARCHAR(255) NULL ,
@@ -33,7 +33,7 @@ DROP TABLE IF EXISTS `OpenBrain`.`Profile` ;
 CREATE  TABLE IF NOT EXISTS `OpenBrain`.`Profile` (
   `profileid` INT(11) NOT NULL AUTO_INCREMENT ,
   `userid` INT(11) NOT NULL ,
-  `accessRule` TINYINT UNSIGNED NOT NULL DEFAULT 2 COMMENT 'Default 2\\ncorresponds to\\nthe Enum value\\nof data AccessRule\\nNone' ,
+  `accessRule` TINYINT UNSIGNED NOT NULL DEFAULT 2 COMMENT 'Default 2\ncorresponds to\nthe Enum value\nof data AccessRule\nNone' ,
   `avatar` TEXT NULL ,
   `name_prefix` VARCHAR(255) NOT NULL DEFAULT '' ,
   `name_foreName` VARCHAR(255) NOT NULL DEFAULT '' ,
