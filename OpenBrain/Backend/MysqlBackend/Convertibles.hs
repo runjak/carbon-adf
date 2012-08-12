@@ -10,6 +10,7 @@ import OpenBrain.Data.Id (Id, wrap, unwrap)
 import OpenBrain.Data.Information (CollectionType)
 import OpenBrain.Data.Karma (Karma, toKarma, fromKarma)
 import OpenBrain.Data.Profile (AccessRule)
+import OpenBrain.Data.Relation (RelationType)
 import OpenBrain.Data.Salt (Salt, toSalt, fromSalt)
 
 -- Instances to enable IdType <-> SqlValue conversions:
@@ -48,3 +49,8 @@ instance Convertible AccessRule SqlValue where
 instance Convertible SqlValue AccessRule where
   safeConvert = Right . toEnum . fromSql
 
+-- Instances to enable RelationType <-> SqlValue conversions:
+instance Convertible RelationType SqlValue where
+  safeConvert = Right . toSql . fromEnum
+instance Convertible SqlValue RelationType where
+  safeConvert = Right . toEnum . fromSql
