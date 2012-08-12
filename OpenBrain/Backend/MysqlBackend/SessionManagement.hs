@@ -10,6 +10,7 @@ import System.Random
 import OpenBrain.Backend
 import OpenBrain.Backend.MysqlBackend.Convertibles
 import OpenBrain.Backend.MysqlBackend.Common
+import OpenBrain.Backend.Types
 import OpenBrain.Data.Id
 
 instance SessionManagement MysqlBackend where

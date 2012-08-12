@@ -17,28 +17,23 @@ import OpenBrain.Data.Profile
 import OpenBrain.Data.Relation
 import OpenBrain.Data.Salt (Salt)
 
-{- The highest abstraction of the backend-tree. -}
-class Backend b where
-  informationBackend  :: b -> CInformationBackend
-  relationBackend     :: b -> CRelationBackend
-  shutdown            :: b -> IO ()
-  userBackend         :: b -> CUserBackend
-  karmaBackend        :: b -> CKarmaBackend
-  saltShaker          :: b -> CSaltShaker
-  sessionManagement   :: b -> CSessionManagement
-data CBackend = forall b . Backend b => CBackend b
-instance Backend CBackend where
-  informationBackend  (CBackend b) = informationBackend b
-  relationBackend     (CBackend b) = relationBackend b
-  shutdown            (CBackend b) = shutdown b
-  userBackend         (CBackend b) = userBackend b
-  karmaBackend        (CBackend b) = karmaBackend b
-  saltShaker          (CBackend b) = saltShaker b
-  sessionManagement   (CBackend b) = sessionManagement b
+import qualified OpenBrain.Backend.Types as Types
+
+data Backend = forall b . ( GeneralBackend      b
+                          , InformationBackend  b
+                          , KarmaBackend        b
+                          , ProfileBackend      b
+                          , RelationBackend     b
+                          , SaltShaker          b
+                          , SessionManagement   b
+                          , UserBackend         b
+                          ) => Backend b
+
+{- General Backend control that doesn't belong somewhere else. -}
+class GeneralBackend g where
+  shutdown :: g -> IO ()
 
 {- Controls for everything userrelated. -}
-type Limit  = Int
-type Offset = Int
 class UserBackend u where
   login           :: u -> UserName -> Hash -> MaybeT IO UserData -- The Backend will update the lastLogin in UserData.
   getUser         :: u -> UserId -> MaybeT IO UserData
@@ -46,26 +41,11 @@ class UserBackend u where
   hasUserWithName :: u -> UserName -> MaybeT IO UserId
   register        :: u -> UserName -> Hash -> MaybeT IO UserData -- The Backend will check for duplicate UserNames.
   delete          :: u -> UserId -> IO Bool
-  profileBackend  :: u -> CProfileBackend
-  getUserCount    :: u -> IO Int
-  getUserList     :: u -> Limit -> Offset -> IO [UserId]
+  getUserCount    :: u -> IO Types.Count
+  getUserList     :: u -> Types.Limit -> Types.Offset -> IO [UserId]
   updateKarma     :: u -> UserId -> (Karma -> Karma) -> IO ()
   updatePasswd    :: u -> UserId -> Hash -> IO ()
   setAdmin        :: u -> UserId -> Bool -> IO ()
-data CUserBackend = forall u . UserBackend u => CUserBackend u
-instance UserBackend CUserBackend where
-  login           (CUserBackend u) = login            u
-  getUser         (CUserBackend u) = getUser          u
-  hasUserWithId   (CUserBackend u) = hasUserWithId    u
-  hasUserWithName (CUserBackend u) = hasUserWithName  u
-  register        (CUserBackend u) = register         u
-  delete          (CUserBackend u) = delete           u
-  profileBackend  (CUserBackend u) = profileBackend   u
-  getUserCount    (CUserBackend u) = getUserCount     u
-  getUserList     (CUserBackend u) = getUserList      u
-  updateKarma     (CUserBackend u) = updateKarma      u
-  updatePasswd    (CUserBackend u) = updatePasswd     u
-  setAdmin        (CUserBackend u) = setAdmin         u
 
 {- Controls for Userprofiles. -}
 class ProfileBackend p where
@@ -77,16 +57,6 @@ class ProfileBackend p where
   setWebsites         :: p -> ProfileId -> [ProfileSnippet] -> IO ()
   setEmails           :: p -> ProfileId -> [ProfileSnippet] -> IO ()
   setInstantMessagers :: p -> ProfileId -> [ProfileSnippet] -> IO ()
-data CProfileBackend = forall p . ProfileBackend p => CProfileBackend p
-instance ProfileBackend CProfileBackend where
-  getProfile          (CProfileBackend p) = getProfile          p
-  setAccessRule       (CProfileBackend p) = setAccessRule       p
-  setName             (CProfileBackend p) = setName             p
-  setAvatar           (CProfileBackend p) = setAvatar           p
-  setLocations        (CProfileBackend p) = setLocations        p
-  setWebsites         (CProfileBackend p) = setWebsites         p
-  setEmails           (CProfileBackend p) = setEmails           p
-  setInstantMessagers (CProfileBackend p) = setInstantMessagers p
 
 {-
   Controls for everything karma related.
@@ -97,10 +67,6 @@ instance ProfileBackend CProfileBackend where
 class KarmaBackend k where
   karmaDeleteUser :: k -> IO Karma
   karmaEditUser   :: k -> IO Karma
-data CKarmaBackend = forall k . KarmaBackend k => CKarmaBackend k
-instance KarmaBackend CKarmaBackend where
-  karmaDeleteUser (CKarmaBackend k) = karmaDeleteUser k
-  karmaEditUser (CKarmaBackend k)   = karmaEditUser k
 
 {-
   The SaltShaker produces Salts
@@ -111,11 +77,6 @@ class SaltShaker s where
   setId       :: s -> Salt -> UserId -> IO ()
   getSalt     :: s -> UserId -> IO Salt
   removeSalt  :: s -> UserId -> IO ()
-data CSaltShaker = forall s . SaltShaker s => CSaltShaker s
-instance SaltShaker CSaltShaker where
-  setId       (CSaltShaker s) = setId s
-  getSalt     (CSaltShaker s) = getSalt s
-  removeSalt  (CSaltShaker s) = removeSalt s
 
 {-
   SessionManagement helps managing logged in clients.
@@ -124,56 +85,44 @@ instance SaltShaker CSaltShaker where
   A client action can than be validated using the clients UserId and ActionKey.
   If the action is valid a new ActionKey will be produced to be stored instead of the old one.
 -}
-type ActionKey = String
+
 class SessionManagement s where
-  startSession  :: s -> UserId -> IO ActionKey
-  validate      :: s -> UserId -> ActionKey -> IO Bool
-  perform       :: s -> UserId -> ActionKey -> MaybeT IO ActionKey
-  stopSession   :: s -> UserId -> ActionKey -> IO ()
-data CSessionManagement = forall s . SessionManagement s => CSessionManagement s
-instance SessionManagement CSessionManagement where
-  startSession  (CSessionManagement s) = startSession s
-  validate      (CSessionManagement s) = validate     s
-  perform       (CSessionManagement s) = perform      s
-  stopSession   (CSessionManagement s) = stopSession  s
+  startSession  :: s -> UserId -> IO Types.ActionKey
+  validate      :: s -> UserId -> Types.ActionKey -> IO Bool
+  perform       :: s -> UserId -> Types.ActionKey -> MaybeT IO Types.ActionKey
+  stopSession   :: s -> UserId -> Types.ActionKey -> IO ()
 
 {-
   Manages all information in the form of OpenBrain.Data.Information
 -}
-type Title = String
-type Description = String
-type Content = String
 class InformationBackend b where
-  addContentMedia :: b -> UserId -> Title -> Description -> Content -> IO Information
-  
-  {- | Below are obsolete, old functions:
-  addInformation        :: (UserIdentifier ui) => b -> ui -> Title -> Description -> Media -> IO ()
-  deleteInformation     :: (InformationIdentifier i) => b -> i -> IO ()
-  getInformationCount   :: b -> IO Int
-  getInformation        :: (InformationIdentifier i) => b -> i -> MaybeT IO Information
-  getInformations       :: b -> Limit -> Offset -> IO [Information]                 -- | No parents
-  getInformationAfter   :: b -> Limit -> CalendarTime -> IO [Information]           -- | No parents
-  getInformationBy      :: (UserIdentifier ui) => b -> ui -> IO [Information]       -- | No parents
-  getInformationParents :: (InformationIdentifier i) => b -> i -> IO [Information]  -- | youngest first
-  updateDescription     :: (InformationIdentifier i, UserIdentifier ui) => b -> ui -> i -> Description -> IO ()
-  updateMedia           :: (InformationIdentifier i, UserIdentifier ui) => b -> ui -> i -> Media -> IO ()
-  updateTitle           :: (InformationIdentifier i, UserIdentifier ui) => b -> ui -> i -> Title -> IO () -}
-data CInformationBackend = forall b . InformationBackend b => CInformationBackend b
-instance InformationBackend CInformationBackend where
-  addContentMedia = undefined
-  -- FIXME implement the rest!
+  -- | 'Creative' Operations:
+  addContentMedia   :: b -> Types.CreateInformation -> Types.Content -> IO InformationId
+  addToCollection   :: b -> Types.Target -> InformationId -> IO InformationId
+  addParticipant    :: b -> InformationId -> UserId -> IO ()
+  createCollection  :: b -> [InformationId] -> IO InformationId
+  createDiscussion  :: b -> [InformationId] -> Types.Deadline -> Types.DiscussionType -> IO InformationId
+  -- | 'Querying' Operations:
+  getInformationCount         :: b -> IO Types.Count
+  getInformation              :: b -> InformationId -> MaybeT IO Information
+  getInformations             :: b -> Types.Limit -> Types.Offset -> IO [Information] -- | No parents
+  getInformationsAfter        :: b -> Types.Limit -> CalendarTime -> IO [Information] -- | No parents
+  getInformationCountBy       :: b -> UserId -> IO Types.Count
+  getInformationBy            :: b -> UserId -> Types.Limit -> Types.Offset -> IO [Information] -- | No parents
+  getInformationParentsCount  :: b -> InformationId -> IO Types.Count
+  getInformationParents       :: b -> Types.Limit -> Types.Offset -> IO [Information] -- | youngest first
+  -- | 'Modifying' Operations:
+  updateDescription :: b -> InformationId -> Types.Description -> IO InformationId
+  updateTitle       :: b -> InformationId -> Types.Title -> IO InformationId
+  updateContent     :: b -> InformationId -> Types.Content -> IO InformationId
+  vote              :: b -> InformationId -> UserId -> IO () -- | May only target CollectionType Choice - Discussion is found because it's a parent.
+  -- | 'Destructive' Operations:
+  deleteInformation :: b -> InformationId -> IO () -- | Sets a delete date on an Information
+  removeParticipant :: b -> InformationId -> UserId -> IO () -- | May only target discussions
 
-type Source = InformationId
-type Target = InformationId
 class RelationBackend b where
-  addRelation     :: b -> Source -> Target -> RelationType -> String -> IO ()  
+  addRelation     :: b -> Types.Source -> Types.Target -> RelationType -> Types.Comment -> IO ()  
   deleteRelation  :: b -> RelationId -> IO ()
   getRelations    :: b -> InformationId -> IO [Relation] -- | youngest first, deleted after non deleted
-  updateComment   :: b -> RelationId -> String -> IO ()
-data CRelationBackend = forall b . RelationBackend b => CRelationBackend b
-instance RelationBackend CRelationBackend where
-  addRelation     (CRelationBackend b) = addRelation    b
-  deleteRelation  (CRelationBackend b) = deleteRelation b
-  getRelations    (CRelationBackend b) = getRelations   b
-  updateComment   (CRelationBackend b) = updateComment  b
+  updateComment   :: b -> RelationId -> Types.Comment -> IO ()
 
