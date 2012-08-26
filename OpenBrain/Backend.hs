@@ -98,13 +98,13 @@ class SessionManagement s where
 class InformationBackend b where
   -- | 'Creative' Operations:
   addContentMedia   :: b -> Types.CreateInformation -> Types.Content -> IO InformationId
-  addToCollection   :: b -> Types.Target -> InformationId -> IO InformationId
-  addParticipant    :: b -> InformationId -> UserId -> IO ()
-  createCollection  :: b -> [InformationId] -> IO InformationId
-  createDiscussion  :: b -> [InformationId] -> Types.Deadline -> Types.DiscussionType -> IO InformationId
+  addToCollection   :: b -> Types.Collection -> [InformationId] -> IO InformationId
+  addParticipant    :: b -> InformationId -> UserId -> IO () -- | May only target discussions
+  createCollection  :: b -> Types.CreateInformation -> [InformationId] -> IO Types.Collection
+  createDiscussion  :: b -> Types.CreateInformation -> [InformationId] -> Types.Deadline -> Types.DiscussionType -> IO InformationId
   -- | 'Querying' Operations:
   getInformationCount         :: b -> IO Types.Count
-  getInformation              :: b -> InformationId -> MaybeT IO Information
+  getInformation              :: b -> InformationId -> IO Information
   getInformations             :: b -> Types.Limit -> Types.Offset -> IO [Information] -- | No parents
   getInformationsAfter        :: b -> Types.Limit -> CalendarTime -> IO [Information] -- | No parents
   getInformationCountBy       :: b -> UserId -> IO Types.Count
@@ -118,7 +118,7 @@ class InformationBackend b where
   vote              :: b -> InformationId -> UserId -> IO () -- | May only target CollectionType Choice - Discussion is found because it's a parent.
   -- | 'Destructive' Operations:
   deleteInformation :: b -> InformationId -> IO () -- | Sets a delete date on an Information
-  removeParticipant :: b -> InformationId -> UserId -> IO () -- | May only target discussions
+  removeParticipant :: b -> InformationId -> UserId -> IO () -- | May only target discussions, should not be possible when voted.
 
 class RelationBackend b where
   addRelation     :: b -> Types.Source -> Types.Target -> RelationType -> Types.Comment -> IO ()  

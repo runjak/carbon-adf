@@ -1,4 +1,4 @@
-module OpenBrain.Backend.MysqlBackend.UserBackend () where
+module OpenBrain.Backend.MysqlBackend.UserBackend (getUser') where
 
 import Control.Monad
 import Control.Monad.Trans

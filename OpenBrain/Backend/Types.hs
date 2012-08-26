@@ -30,6 +30,8 @@ toCollectionType AttackDefense  = DiscussionAttackDefense
 
 type Deadline = CalendarTime
 
+type Collection = InformationId
+
 type Target = InformationId
 type Source = InformationId
 
