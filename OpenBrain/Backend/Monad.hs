@@ -71,29 +71,8 @@ updatePasswd userid hash = withBackend $ \b -> liftIO $ Backend.updatePasswd b u
 setAdmin :: UserId -> Bool -> OBB ()
 setAdmin userid isadmin = withBackend $ \b -> liftIO $ Backend.setAdmin b userid isadmin
 
-getProfile :: UserId -> OBB Profile
-getProfile userid = withBackend $ \b -> liftIO $ Backend.getProfile b userid
-
-setAccessRule :: ProfileId -> AccessRule -> OBB ()
-setAccessRule profileid accessrule = withBackend $ \b -> liftIO $ Backend.setAccessRule b profileid accessrule
-
-setName :: ProfileId -> Maybe Name -> OBB ()
-setName profileid mname = withBackend $ \b -> liftIO $ Backend.setName b profileid mname
-
-setAvatar :: ProfileId -> Maybe String -> OBB ()
-setAvatar profileid mstring = withBackend $ \b -> liftIO $ Backend.setAvatar b profileid mstring
-
-setLocations :: ProfileId -> [Location] -> OBB ()
-setLocations profileid locations = withBackend $ \b -> liftIO $ Backend.setLocations b profileid locations
-
-setWebsites :: ProfileId -> [ProfileSnippet] -> OBB ()
-setWebsites profileid snippets = withBackend $ \b -> liftIO $ Backend.setWebsites b profileid snippets
-
-setEmails :: ProfileId -> [ProfileSnippet] -> OBB ()
-setEmails profileid snippets = withBackend $ \b -> liftIO $ Backend.setEmails b profileid snippets
-
-setInstantMessagers :: ProfileId -> [ProfileSnippet] -> OBB ()
-setInstantMessagers profileid snippets = withBackend $ \b -> liftIO $ Backend.setInstantMessagers b profileid snippets
+setProfile :: UserId -> Maybe InformationId -> OBB ()
+setProfile uid miid = withBackend $ \b -> liftIO $ Backend.setProfile b uid miid
 
 karmaDeleteUser :: OBB Karma
 karmaDeleteUser = withBackend $ liftIO . Backend.karmaDeleteUser
@@ -125,23 +104,23 @@ stopSession userid actionkey = withBackend $ \b -> liftIO $ Backend.stopSession 
 addContentMedia :: Types.CreateInformation -> Types.Content -> OBB InformationId
 addContentMedia createinformation content = withBackend $ \b -> liftIO $ Backend.addContentMedia b createinformation content
 
-addToCollection :: Types.Target -> InformationId -> OBB InformationId
-addToCollection target iid = withBackend $ \b -> liftIO $ Backend.addToCollection b target iid
+addToCollection :: Types.Collection -> [InformationId] -> OBB InformationId
+addToCollection collection iids = withBackend $ \b -> liftIO $ Backend.addToCollection b collection iids
 
 addParticipant :: InformationId -> UserId -> OBB ()
 addParticipant iid uid = withBackend $ \b -> liftIO $ Backend.addParticipant b iid uid
 
-createCollection :: [InformationId] -> OBB InformationId
-createCollection iids = withBackend $ \b -> liftIO $ Backend.createCollection b iids
+createCollection :: Types.CreateInformation -> [InformationId] -> OBB InformationId
+createCollection ci iids = withBackend $ \b -> liftIO $ Backend.createCollection b ci iids
 
-createDiscussion :: [InformationId] -> Types.Deadline -> Types.DiscussionType -> OBB InformationId
-createDiscussion iids dl dt = withBackend $ \b -> liftIO $ Backend.createDiscussion b iids dl dt
+createDiscussion :: Types.CreateInformation -> [InformationId] -> Types.Deadline -> Types.DiscussionType -> OBB InformationId
+createDiscussion ci iids dl dt = withBackend $ \b -> liftIO $ Backend.createDiscussion b ci iids dl dt
 
 getInformationCount :: OBB Types.Count
 getInformationCount = withBackend $ liftIO . Backend.getInformationCount
 
 getInformation :: InformationId -> OBB Information
-getInformation iid = withBackend $ \b -> lift $ Backend.getInformation b iid
+getInformation iid = withBackend $ \b -> liftIO $ Backend.getInformation b iid
 
 getInformations :: Types.Limit -> Types.Offset -> OBB [Information]
 getInformations limit offset = withBackend $ \b -> liftIO $ Backend.getInformations b limit offset
@@ -158,8 +137,11 @@ getInformationBy uid limit offset = withBackend $ \b -> liftIO $ Backend.getInfo
 getInformationParentsCount :: InformationId -> OBB Types.Count
 getInformationParentsCount iid = withBackend $ \b -> liftIO $ Backend.getInformationParentsCount b iid
 
-getInformationParents :: Types.Limit -> Types.Offset -> OBB [Information]
-getInformationParents limit offset = withBackend $ \b -> liftIO $ Backend.getInformationParents b limit offset
+getInformationParents :: InformationId -> Types.Limit -> Types.Offset -> OBB [Information]
+getInformationParents iid limit offset = withBackend $ \b -> liftIO $ Backend.getInformationParents b iid limit offset
+
+getProfiledUsers :: InformationId -> OBB [UserData]
+getProfiledUsers iid = withBackend $ \b -> liftIO $ Backend.getProfiledUsers b iid
 
 updateDescription :: InformationId -> Types.Description -> OBB InformationId
 updateDescription iid description = withBackend $ \b -> liftIO $ Backend.updateDescription b iid description
