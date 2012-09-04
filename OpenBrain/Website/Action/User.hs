@@ -7,7 +7,6 @@ import Data.Aeson
 import Data.Maybe
 import Happstack.Server as Server
 
-import OpenBrain.Backend (CBackend, CUserBackend, CKarmaBackend, CSaltShaker)
 import OpenBrain.Common
 import OpenBrain.Data.User
 import OpenBrain.Data.Hash (Hash, hash)
@@ -16,8 +15,9 @@ import OpenBrain.Data.Karma
 import OpenBrain.Data.Salt (Salt, mkSalt)
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
-import qualified OpenBrain.Backend as B
-import qualified OpenBrain.Website.Session.Plus as Session
+import OpenBrain.Website.Session
+
+import qualified OpenBrain.Backend.Monad as OBB
 
 serve :: OBW Response
 serve = msum [
@@ -38,10 +38,9 @@ create = handleFail "Could not register user." $ do
   username  <- look "username"
   salt      <- liftIO mkSalt
   hash      <- liftM (hash salt) $ look "password"
-  b         <- gets backend
-  userData  <- liftMaybeT $ B.register (B.userBackend b) username hash
-  liftIO  $ B.setId (B.saltShaker b) salt $ userid userData
-  Session.mkSession $ userid userData
+  userData  <- liftOBB $ OBB.register username hash
+  liftOBB $ OBB.setId salt $ userid userData
+  mkSession $ userid userData
   handleSuccess "Creation complete."
 
 {-
@@ -50,35 +49,31 @@ create = handleFail "Could not register user." $ do
 login :: OBW Response
 login = handleFail "Login failed." $ do
   username  <- look "username"
-  b         <- gets backend
-  uid       <- liftMaybeT $ B.hasUserWithName b username
-  salt      <- liftIO $ B.getSalt b uid
-  hash      <- liftM (hash salt) $ look "password"
-  userdata  <- liftMaybeT $ B.login (B.userBackend b) username hash
-  Session.mkSession uid
-  handleSuccess "Login complete."
+  password  <- look "password"
+  uid       <- liftOBB $ do
+    uid <- OBB.hasUserWithName username
+    salt <- OBB.getSalt uid
+    OBB.login username $ hash salt password
+    return uid
+  mkSession uid >> handleSuccess "Login complete."
 
 logout :: OBW Response
-logout = do
-  b <- gets backend
-  Session.dropSession
-  handleSuccess "Logout complete."
+logout = dropSession >> handleSuccess "Logout complete."
 
 {- Expects parameters: username -}
 delete :: OBW Response
 delete = handleFail "Invalid session." $ do
-  b           <- gets backend
   deletename  <- look "username"
-  uid         <- Session.chkSession
+  uid         <- chkSession
   handleFail "Data for deletion not found." $ do
-    userData <- liftMaybeT $ B.getUser b uid
-    deleteId <- liftMaybeT $ B.hasUserWithName b deletename
+    userData <- liftOBB $ OBB.getUser uid
+    deleteId <- liftOBB $ OBB.hasUserWithName deletename
     handleFail "Not allowed to delete user." $ do
       let isA = isAdmin userData
       let isSelf = deleteId == userid userData
       guard $ isA || isSelf
-      liftIO $ B.delete b deleteId
-      when isSelf Session.dropSession
+      liftOBB $ OBB.delete deleteId
+      when isSelf dropSession
       handleSuccess "Deleted requested user."
 
 {-
@@ -88,21 +83,20 @@ delete = handleFail "Invalid session." $ do
 -}
 changeKarma :: OBW Response
 changeKarma = handleFail "Invalid session." $ do
-  b       <- gets backend
-  uid     <- Session.chkAction
+  uid     <- chkSession
   target  <- liftM (fromId . wrap . read) $ look "userid"
   k       <- lookRead "karma"
   let change  = karmaUpdate k
   let burn    = karmaUpdate . negate $ abs k
-  userdata <- liftMaybeT $ B.getUser b uid
+  userdata <- liftOBB $ OBB.getUser uid
   handleFail "Can't give yourself karma." $ do
     guard $ target /= uid
     handleFail "Not enough karma." $ do
       guard $ abs k <= fromKarma (karma userdata)
       -- Change someones karma:
-      liftIO $ B.updateKarma b target change
+      liftOBB $ OBB.updateKarma target change
       -- Delete from clients karma:
-      liftIO $ B.updateKarma b uid burn
+      liftOBB $ OBB.updateKarma uid burn
       handleSuccess "Updated karma."
   where
     karmaUpdate :: Int -> Karma -> Karma
@@ -113,31 +107,29 @@ changeKarma = handleFail "Invalid session." $ do
 {- Expects parameters: username, password -}
 changePwd :: OBW Response
 changePwd = handleFail "Invalid session." $ do
-  b         <- gets backend
-  uid       <- Session.chkAction
+  uid       <- chkSession
   username  <- look "username"
   password  <- look "password"
-  isAdmin   <- liftM isAdmin . liftMaybeT  $ B.getUser b uid
-  isSelf    <- liftM (uid ==) . liftMaybeT $ B.hasUserWithName b username
+  isAdmin   <- liftM isAdmin . liftOBB  $ OBB.getUser uid
+  isSelf    <- liftM (uid ==) . liftOBB $ OBB.hasUserWithName username
   handleFail "Can't update password of another user." $ do
     guard $ isAdmin || isSelf
-    target  <- liftMaybeT $ B.hasUserWithName b username
-    salt    <- liftIO $ B.getSalt b target
-    liftIO $ B.updatePasswd b target $ hash salt password
+    target  <- liftOBB $ OBB.hasUserWithName username
+    salt    <- liftOBB $ OBB.getSalt target
+    liftOBB . OBB.updatePasswd target $ hash salt password
     handleSuccess "Password changed."
 
 {- Expects parameters: username, admin :: {1,0} -}
 admin :: OBW Response
 admin = handleFail "Invalid session." $ do
   setA      <- liftM (=="1") $ look "admin"
-  b         <- gets backend
-  uid       <- Session.chkAction
-  isA       <- liftM isAdmin . liftMaybeT $ B.getUser b uid
+  uid       <- chkSession
+  isA       <- liftM isAdmin . liftOBB $ OBB.getUser uid
   handleFail "You need to be admin for this." $ do
     guard isA
     username <- look "username"
     handleFail "Username doesn't exist." $ do
-      target <- liftMaybeT $ B.hasUserWithName b username
-      liftIO $ B.setAdmin b target setA
+      target <- liftOBB $ OBB.hasUserWithName username
+      liftOBB $ OBB.setAdmin target setA
       handleSuccess "Changed admin status."
 
