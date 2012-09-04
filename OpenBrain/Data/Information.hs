@@ -1,5 +1,6 @@
 module OpenBrain.Data.Information where
 
+import Data.Function (on)
 import System.Time (CalendarTime)
 
 import OpenBrain.Data.Id
@@ -13,16 +14,24 @@ data Information = Information {
   , informationId :: InformationId
   , media         :: Media              -- | The real content
   , title         :: String             -- | A title for the information
-  } deriving (Eq, Show)
+  } deriving (Show)
+instance Eq Information where
+  (==) = (==) `on` informationId
 
 data Media =
     Content String  -- | HTML rich content
   | Collection {    -- | Everything that is not a single information
-    arguments       :: [Information]        -- | Informations that are grouped by this Collection.
+    arguments       :: [IO Information]     -- | Informations that are grouped by this Collection.
   , collectionType  :: CollectionType       -- | The nature of this Collection.
   , discussion      :: Maybe DiscussionInfo -- | Additional Information if the Collection is a Discussiontype.
   }
-  deriving (Eq, Show)
+instance Show Media where
+  show (Content s)                = "Content " ++ show s
+  show (Collection args ctype d)  = "Collection {"
+                                 ++ "arguments = [" ++ replicate (length args) '.' ++ "]"
+                                 ++ ", collectionType = " ++ show ctype
+                                 ++ ", discussion = " ++ show d
+                                 ++ "}"
 
 data CollectionType =       -- | The different kinds of collections of informations in OpenBrain
     SimpleCollection        -- | Information that is grouped by a user
