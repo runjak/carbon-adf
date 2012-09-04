@@ -1,5 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-module OpenBrain.Website.Session (UserSession(..)) where
+module OpenBrain.Website.Session where
 {-
   Session management for clients.
   Each client will get an actionkey set on login.
@@ -17,45 +16,37 @@ import Happstack.Server as S
 
 import OpenBrain.Config
 import OpenBrain.Backend
-import OpenBrain.Backend.Plus
 import OpenBrain.Data.Id
+import OpenBrain.Website.Monad as OBW
 
-cookieActionKey  = "actionKey" :: String
-cookieUserId     = "userid"    :: String
+import qualified OpenBrain.Backend.Monad as OBB
 
-class UserSession u where
-  mkSession   :: u -> UserId -> ServerPart ()   -- Initialize a session
-  chkSession  :: u -> ServerPart (Maybe UserId) -- Check if the Session is valid
-  chkAction   :: u -> ServerPart (Maybe UserId) -- Like chkSession but changes the ActionKey
-  dropSession :: u -> ServerPart ()
+cookieActionKey  = "actionKey"
+cookieUserId     = "userid"
 
-instance UserSession CSessionManagement where
-  mkSession sm userid = do
-    key <- liftIO $ startSession sm userid
-    addCookies $ map ((,) Session) [mkCookie cookieUserId $ show userid, mkCookie cookieActionKey key]
-  chkSession sm = do
-    key    <- lookCookieValue cookieActionKey
-    userid <- liftM read $ lookCookieValue cookieUserId
-    valid  <- liftIO $ validate sm userid key
-    guard valid
-    return $ Just userid
-    `mplus` return Nothing
-  chkAction sm = do
-    key    <- lookCookieValue cookieActionKey
-    userid <- liftM read $ lookCookieValue cookieUserId
-    mkey   <- liftIO $ runMaybeT $ perform sm userid key
-    guard $ isJust mkey
-    addCookie Session (mkCookie cookieActionKey $ fromJust mkey) >> return (Just userid)
-    `mplus` return Nothing
-  dropSession sm = do
-    key <- lookCookieValue cookieActionKey
-    (userid :: UserId) <- liftM read $ lookCookieValue cookieUserId
-    liftIO $ stopSession sm userid key
-    mapM_ expireCookie [cookieActionKey, cookieUserId]
+{-|
+  Initializes a session for a given UserId
+  and sets a cookie for the client.
+|-}
+mkSession :: UserId -> OBW ()
+mkSession uid = do
+  key <- liftOBB $ OBB.startSession uid
+  addCookies $ map ((,) Session) [mkCookie cookieUserId $ show uid, mkCookie cookieActionKey key]
 
-instance UserSession CBackend where
-  mkSession   = mkSession   . sessionManagement
-  chkSession  = chkSession  . sessionManagement
-  chkAction   = chkAction   . sessionManagement
-  dropSession = dropSession . sessionManagement
+{-|
+  mzero on invalid session.
+|-}
+chkSession :: OBW UserId
+chkSession = do
+  key   <-  lookCookieValue cookieActionKey
+  uid   <-  liftM read $ lookCookieValue cookieUserId
+  guard =<< (liftOBB $ OBB.validate uid key)
+  return uid
+
+dropSession :: OBW ()
+dropSession = do
+  key <- lookCookieValue cookieActionKey
+  uid <- liftM read $ lookCookieValue cookieUserId
+  liftOBB $ OBB.stopSession uid key
+  mapM_ expireCookie [cookieActionKey, cookieUserId]
 

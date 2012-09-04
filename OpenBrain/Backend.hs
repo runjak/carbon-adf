@@ -77,7 +77,6 @@ class SaltShaker s where
 class SessionManagement s where
   startSession  :: s -> UserId -> IO Types.ActionKey
   validate      :: s -> UserId -> Types.ActionKey -> IO Bool
-  perform       :: s -> UserId -> Types.ActionKey -> MaybeT IO Types.ActionKey
   stopSession   :: s -> UserId -> Types.ActionKey -> IO ()
 
 {-

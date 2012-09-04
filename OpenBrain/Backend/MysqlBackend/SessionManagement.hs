@@ -16,7 +16,6 @@ import OpenBrain.Data.Id
 instance SessionManagement MysqlBackend where
   startSession b = withWConn (conn b) startSession'
   validate     b = withWConn (conn b) validate'
-  perform      b = withWConn (conn b) perform'
   stopSession  b = withWConn (conn b) stopSession'
 
 startSession' :: (IConnection conn) => conn -> UserId -> IO ActionKey
@@ -37,12 +36,6 @@ validate' conn uid key = do
   case rst of
     [[snum]] -> return $ (fromSql snum :: Int) == 1
     _ -> return False
-
-perform' :: (IConnection conn) => conn -> UserId -> ActionKey -> MaybeT IO ActionKey
-perform' conn uid key = do
-  valid <- liftIO $ validate' conn uid key
-  guard valid
-  liftIO $ startSession' conn uid
 
 stopSession' :: (IConnection conn) => conn -> UserId -> ActionKey -> IO ()
 stopSession' conn uid key = do

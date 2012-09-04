@@ -95,9 +95,6 @@ startSession userid = withBackend $ \b -> liftIO $ Backend.startSession b userid
 validate :: UserId -> Types.ActionKey -> OBB Bool
 validate userid actionkey = withBackend $ \b -> liftIO $ Backend.validate b userid actionkey
 
-perform :: UserId -> Types.ActionKey -> OBB Types.ActionKey
-perform userid actionkey = withBackend $ \b -> lift $ Backend.perform b userid actionkey
-
 stopSession :: UserId -> Types.ActionKey -> OBB ()
 stopSession userid actionkey = withBackend $ \b -> liftIO $ Backend.stopSession b userid actionkey
 
