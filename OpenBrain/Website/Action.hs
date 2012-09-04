@@ -10,15 +10,15 @@ import Control.Monad
 import Control.Monad.State
 import Happstack.Server as S
 
-import OpenBrain.Backend as B
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
-import OpenBrain.Website.Session as SM
-import qualified OpenBrain.Website.Action.Profile as Profile
+import OpenBrain.Website.Session
+
+import qualified OpenBrain.Backend.Monad as OBB
 import qualified OpenBrain.Website.Action.User as User
 
 serve :: OBW Response
 serve = do
-  let actions = liftM (setHeaderBS "Content-Type" "application/json") $ msum [dir "profile" Profile.serve ,dir "user" User.serve]
+  let actions = liftM (setHeaderBS "Content-Type" "application/json") $ msum [dir "user" User.serve]
   method POST >> decodeBody (defaultBodyPolicy "/tmp/" 4096 4096 4096)
   msum [actions, badRequest "Actions are only allowed via POST requests."]
