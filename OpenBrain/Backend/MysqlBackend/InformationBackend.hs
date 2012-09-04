@@ -1,3 +1,4 @@
+{-# LANGUAGE DoAndIfThenElse #-}
 module OpenBrain.Backend.MysqlBackend.InformationBackend () where
 
 import Control.Monad
