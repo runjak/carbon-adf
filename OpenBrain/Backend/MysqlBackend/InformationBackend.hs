@@ -7,14 +7,16 @@ import Data.Maybe
 import Database.HDBC as H hiding (clone)
 import System.Time (CalendarTime)
 
-import OpenBrain.Data.Id
-import OpenBrain.Data.Information
 import OpenBrain.Backend
 import OpenBrain.Backend.MysqlBackend.Convertibles ()
 import OpenBrain.Backend.MysqlBackend.Common
 import OpenBrain.Backend.MysqlBackend.UserBackend (getUser')
+import OpenBrain.Common
+import OpenBrain.Data.Id
+import OpenBrain.Data.Information
 
 import qualified OpenBrain.Data.Relation as R
+import qualified OpenBrain.Data.User as U
 import qualified OpenBrain.Backend.Types as Types
 
 instance InformationBackend MysqlBackend where
@@ -153,7 +155,7 @@ getInformation' conn iid = do
                        ++ "FROM Information WHERE informationid = ?"
   [[_author, _creation, _deletion, _description, _title, mediaid]] <- quickQuery conn selectInformation [toSql $ toId iid]
   user  <- liftM fromJust . runMaybeT . getUser' conn . fromId $ fromSql _author
-  media <- getMedia conn mediaid
+  media <- getMedia conn iid
   return Information{
     author        = user
   , creation      = fromSql _creation
@@ -164,45 +166,167 @@ getInformation' conn iid = do
   , title         = fromSql _title
   }
 
-getMedia :: (IConnection conn) => conn -> MediaId -> IO Media
-getMedia conn mediaid = do
-  let selectMedia = "SELECT content, collectiontype, discussionid FROM Media WHERE mediaid = ?"
-  [_content, _ctype, did] -- FIXME WIP
-  undefined
+getMedia :: (IConnection conn) => conn -> InformationId -> IO Media
+getMedia conn iid = do
+  let selectMedia = "SELECT M.mediaid, M.content, M.collectiontype, M.discussionid "
+                 ++ "FROM Media AS M JOIN Information AS I USING (mediaid) "
+                 ++ "WHERE I.informationid = ?"
+      iid'        = toSql $ toId iid
+  [[mid, _content, _ctype, did]] <- quickQuery conn selectMedia [iid']
+  -- Two constructors for Media:
+  if _content /= SqlNull
+  then return . Content $ fromSql _content
+  else do -- Media is a Collection:
+    let ctype = fromSql _ctype :: CollectionType
+    -- Fetching arguments:
+    let argQuery = "SELECT target FROM Relations WHERE source = ? AND type = ?"
+    _args <- quickQuery conn argQuery [iid', toSql R.Collection]
+    let args = map (getInformation' conn . fromId . fromSql . head) _args
+    -- Looking for DiscussionInfo:
+    dinfo <- runMaybeT $ getDiscussionInfo conn did
+    -- Building the complete Collection:
+    return $ Collection {
+      arguments       = args
+    , collectionType  = ctype
+    , discussion      = dinfo
+    }
+
+type DiscussionId = SqlValue
+getDiscussionInfo :: (IConnection conn) => conn -> DiscussionId -> MaybeT IO DiscussionInfo
+getDiscussionInfo conn did = do
+  guard $ did /= SqlNull
+  -- Fetching basic discussion info:
+  let q = "SELECT complete, deadline FROM DiscussionInfo WHERE discussionid = ?"
+  [[_complete, _deadline]] <- liftIO $ quickQuery conn q [did]
+  -- Fetching complete:
+  let mkComplete = liftM return . getInformation' conn . fromId $ fromSql _complete
+  complete <- liftIO $ (_complete /= SqlNull) ? (mkComplete, return Nothing)
+  -- Fetching the choices:
+  let q = "SELECT userid, voted FROM DiscussionParticipants WHERE discussionid = ?"
+  _choices  <- liftIO $ quickQuery conn q [did]
+  choices   <- mapM (mkChoice conn) _choices
+  -- Fetching the participants:
+  let q = "SELECT userid, voted FROM DiscussionParticipants WHERE discussionid = ?"
+  _parts  <- liftIO $ quickQuery conn q [did]
+  parts   <- mapM (mkPart conn) _parts
+  -- Building the complete DiscussionInfo:
+  return DiscussionInfo {
+    choices       = choices
+  , complete      = complete
+  , deadline      = fromSql _deadline
+  , participants  = parts
+  }
+  where
+    mkChoice :: (IConnection conn) => conn -> [SqlValue] -> MaybeT IO (Information, Votes)
+    mkChoice conn [_iid, v] = do
+      i <- liftIO . getInformation' conn . fromId $ fromSql _iid
+      return (i, fromSql v)
+    mkChoice _ _            = mzero
+    
+    mkPart :: (IConnection conn) => conn -> [SqlValue] -> MaybeT IO (U.UserData, Voted)
+    mkPart conn [_uid, v] = do
+      u <- getUser' conn . fromId $ fromSql _uid
+      return (u, fromSql v)
+    mkPart _ _            = mzero
 
 getInformations' :: (IConnection conn) => conn -> Types.Limit -> Types.Offset -> IO [Information]
-getInformations' conn limit offset = undefined
+getInformations' conn limit offset = do
+  let q = "SELECT informationid FROM Information ORDER BY creation DESC LIMIT ? OFFSET ?"
+  rst <- quickQuery conn q [toSql limit, toSql offset]
+  mapM (getInformation' conn . fromId . fromSql . head) rst
 
 getInformationsAfter' :: (IConnection conn) => conn -> Types.Limit -> CalendarTime -> IO [Information]
-getInformationsAfter' conn limit ctime = undefined
+getInformationsAfter' conn limit ctime = do
+  let q = "SELECT informationid FROM Information WHERE creation > ? ORDER BY creation DESC LIMIT ?"
+  rst <- quickQuery conn q [toSql ctime, toSql limit]
+  mapM (getInformation' conn . fromId . fromSql . head) rst
 
 getInformationCountBy' :: (IConnection conn) => conn -> UserId -> IO Types.Count
-getInformationCountBy' conn uid = undefined
+getInformationCountBy' conn uid = do
+  let q = "SELECT COUNT(*) FROM Information WHERE author = ?"
+  [[c]] <- quickQuery conn q [toSql $ toId uid]
+  return $ fromSql c
 
 getInformationBy' :: (IConnection conn) => conn -> UserId -> Types.Limit -> Types.Offset -> IO [Information]
-getInformationBy' conn uid limit offset = undefined
+getInformationBy' conn uid limit offset = do
+  let q = "SELECT informationid FROM Information WHERE author = ? ORDER BY creation DESC LIMIT ? OFFSET ?"
+  rst <- quickQuery conn q [toSql $ toId uid, toSql limit, toSql offset]
+  mapM (getInformation' conn . fromId . fromSql . head) rst
 
 getInformationParentsCount' :: (IConnection conn) => conn -> InformationId -> IO Types.Count
-getInformationParentsCount' conn iid = undefined
+getInformationParentsCount' conn iid = do
+  let q = "SELECT COUNT(*) FROM Relations WHERE type = ? AND target = ?"
+  [[c]] <- quickQuery conn q [toSql R.Parent, toSql $ toId iid]
+  return $ fromSql c
 
-getInformationParents' :: (IConnection conn) => conn -> Types.Limit -> Types.Offset -> IO [Information]
-getInformationParents' conn limit offset = undefined
+getInformationParents' :: (IConnection conn) => conn -> InformationId -> Types.Limit -> Types.Offset -> IO [Information]
+getInformationParents' conn iid limit offset = do
+  let q = "SELECT source FROM Relations WHERE target = ? ORDER BY creation DESC LIMIT ? OFFSET ?"
+  rst <- quickQuery conn q [toSql $ toId iid, toSql limit, toSql offset]
+  mapM (getInformation' conn . fromId . fromSql . head) rst
 
 updateDescription' :: (IConnection conn) => conn -> InformationId -> Types.Description -> IO InformationId
-updateDescription' conn iid description = undefined
+updateDescription' conn iid' description = do
+  iid <- clone conn iid'
+  let q = "UPDATE Information SET description = ? WHERE informationid = ?"
+  quickQuery conn q [toSql description, toSql $ toId iid]
+  commit conn >> return iid
 
 updateTitle' :: (IConnection conn) => conn -> InformationId -> Types.Title -> IO InformationId
-updateTitle' conn idd title = undefined
+updateTitle' conn iid' title = do
+  iid <- clone conn iid'
+  let q = "UPDATE Information SET title = ? WHERE informationid = ?"
+  quickQuery conn q [toSql title, toSql $ toId iid]
+  commit conn >> return iid
 
 updateContent' :: (IConnection conn) => conn -> InformationId -> Types.Content -> IO InformationId
-updateContent' conn iid content = undefined
+updateContent' conn iid' content = do
+  iid <- clone conn iid'
+  let q = "UPDATE Media AS M JOIN Information AS I USING (mediaid) SET content = ? WHERE informationid = ?"
+  quickQuery conn q [toSql content, toSql $ toId iid]
+  commit conn >> return iid
 
 vote' :: (IConnection conn) => conn -> InformationId -> UserId -> IO ()
-vote' conn iid uid = undefined
+vote' conn iid uid = do
+  let _iid = toSql $ toId iid
+      _uid = toSql $ toId uid
+  -- Figure out Discussion iid belongs to:
+  let getDid = "SELECT discussionid FROM DiscussionChoices WHERE informationid = ?"
+  [[did]] <- quickQuery conn getDid [_iid]
+  -- Check that UserId belongs to a Participant:
+  let pCount = "SELECT COUNT(*) FROM DiscussionParticipants WHERE discussionid = ? AND userid = ?"
+  [[c]] <- quickQuery conn pCount [did, _uid]
+  when ((fromSql c :: Types.Count) > 0) $ do
+    -- Check that Participant hasn't already voted:
+    let getVoted = "SELECT voted FROM DiscussionParticipants WHERE discussionid = ? AND userid = ?"
+    [[voted]] <- quickQuery conn getVoted [did, _uid]
+    when (not $ fromSql voted) $ do
+      -- Perform the vote:
+      let markVoted   = "UPDATE DiscussionParticipants SET voted = 1 WHERE discussionid = ? AND userid = ?"
+          markChoice  = "UPDATE DiscussionChoices SET votes = votes + 1 WHERE discussionid = ? AND informationid = ?"
+      quickQuery conn markVoted [did, _uid]
+      quickQuery conn markChoice [did, _iid]
+      commit conn
 
 deleteInformation' :: (IConnection conn) => conn -> InformationId -> IO ()
-deleteInformation' conn iid = undefined
+deleteInformation' conn iid = do
+  let q = "UPDATE Information SET deletion = CURRENT_TIMESTAMP WHERE informationid = ?"
+  quickQuery conn q [toSql $ toId iid] >> commit conn
 
 removeParticipant' :: (IConnection conn) => conn -> InformationId -> UserId -> IO ()
-removeParticipant' conn iid uid = undefined
+removeParticipant' conn iid uid = do
+  -- Find the did:
+  let getDid = "SELECT discussionid FROM Media JOIN Information USING (mediaid) WHERE informationid = ?"
+  [[did]] <- quickQuery conn getDid [toSql $ toId iid]
+  -- Check if the deadline has passed:
+  let beforeDeadline = "SELECT deadline = NULL FROM DiscussionInfo WHERE discussionid = ?"
+  [[validDeadline]] <- quickQuery conn beforeDeadline [did]
+  when (fromSql validDeadline) $ do
+    -- Check if participant hasn't voted:
+    let notVoted = "SELECT voted = 0 FROM DiscussionParticipants WHERE discussionid = ? AND userid = ?"
+    [[canVote]] <- quickQuery conn notVoted [did, toSql $ toId uid]
+    when (fromSql canVote) $ do
+      -- Remove participant:
+      let q = "DELETE FROM DiscussionParticipants WHERE discussionid = ? AND userid = ?"
+      quickQuery conn q [did, toSql $ toId uid] >> commit conn
 

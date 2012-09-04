@@ -104,7 +104,13 @@ CREATE  TABLE IF NOT EXISTS `OpenBrain`.`DiscussionInfo` (
   `complete` INT(11) NULL ,
   `deadline` INT(11) NOT NULL ,
   PRIMARY KEY (`discussionid`) ,
-  UNIQUE INDEX `_UNIQUE` (`discussionid` ASC) )
+  UNIQUE INDEX `_UNIQUE` (`discussionid` ASC) ,
+  INDEX `fk_DiscussionInfo_1` (`complete` ASC) ,
+  CONSTRAINT `fk_DiscussionInfo_1`
+    FOREIGN KEY (`complete` )
+    REFERENCES `OpenBrain`.`Information` (`informationid` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 

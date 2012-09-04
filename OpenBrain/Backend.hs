@@ -110,7 +110,7 @@ class InformationBackend b where
   getInformationCountBy       :: b -> UserId -> IO Types.Count
   getInformationBy            :: b -> UserId -> Types.Limit -> Types.Offset -> IO [Information] -- | No parents
   getInformationParentsCount  :: b -> InformationId -> IO Types.Count
-  getInformationParents       :: b -> Types.Limit -> Types.Offset -> IO [Information] -- | youngest first
+  getInformationParents       :: b -> InformationId -> Types.Limit -> Types.Offset -> IO [Information] -- | youngest first
   -- | 'Modifying' Operations:
   updateDescription :: b -> InformationId -> Types.Description -> IO InformationId
   updateTitle       :: b -> InformationId -> Types.Title -> IO InformationId

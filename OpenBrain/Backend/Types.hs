@@ -24,9 +24,15 @@ data CreateInformation = CreateInformation {
 type Content = String
 
 data DiscussionType = AttackOnly | AttackDefense
+
 toCollectionType :: DiscussionType -> CollectionType
 toCollectionType AttackOnly     = DiscussionAttackOnly
 toCollectionType AttackDefense  = DiscussionAttackDefense
+
+isDiscussionType :: CollectionType -> Bool
+isDiscussionType DiscussionAttackOnly     = True
+isDiscussionType DiscussionAttackDefense  = True
+isDiscussionType _                        = False
 
 type Deadline = CalendarTime
 
