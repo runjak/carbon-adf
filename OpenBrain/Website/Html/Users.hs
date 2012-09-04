@@ -11,23 +11,24 @@ import Happstack.Server as S
 import Prelude hiding (head)
 import Text.Blaze ((!))
 import Text.Blaze.Html (ToMarkup(..))
+
 import qualified Prelude as P (head)
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 
-import OpenBrain.Backend (Limit, Offset)
+import OpenBrain.Backend.Types as Types
 import OpenBrain.Data.Karma
 import OpenBrain.Data.User
 import OpenBrain.Website.Common
 import OpenBrain.Website.Html.Decorator
 import OpenBrain.Website.Monad
-import qualified OpenBrain.Backend as B
-import qualified OpenBrain.Backend.Plus as P
 
-userList :: Limit -> Offset -> OBW H.Html
+import qualified OpenBrain.Backend.Monad as OBB
+
+userList :: Types.Limit -> Types.Offset -> OBW H.Html
 userList limit offset = do
   b         <- gets backend
-  userdata  <- liftIO $ P.getUserDataList b limit offset
+  userdata  <- liftOBB $ OBB.getUsers =<< OBB.getUserList limit offset
   return $ H.ul ! A.class_ "userList" $
     forM_ userdata $
       \ud -> H.li ! A.class_ "user" $ do
@@ -40,7 +41,7 @@ pageSelection :: OBW H.Html
 pageSelection = do
   limit   <- getLimit
   offset  <- getOffset
-  count   <- liftIO . B.getUserCount =<< gets backend
+  count   <- liftOBB OBB.getUserCount
   let page  = offset `div` limit
   let prevs = take 5 . drop 1 . takeWhile (>= 0) $ iterate (subtract limit) offset
   let nexts = take 5 . drop 1 . takeWhile (<= (count - limit)) $ iterate (+ limit) offset
