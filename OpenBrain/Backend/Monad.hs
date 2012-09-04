@@ -11,7 +11,6 @@ import OpenBrain.Data.Hash
 import OpenBrain.Data.Id
 import OpenBrain.Data.Information
 import OpenBrain.Data.Karma
-import OpenBrain.Data.Profile
 import OpenBrain.Data.Relation
 import OpenBrain.Data.Salt
 import OpenBrain.Data.User
@@ -25,7 +24,6 @@ type OBB a = StateT Backend (MaybeT IO) a
 withBackend :: (forall b . ( Backend.GeneralBackend      b
                            , Backend.InformationBackend  b
                            , Backend.KarmaBackend        b
-                           , Backend.ProfileBackend      b
                            , Backend.RelationBackend     b
                            , Backend.SaltShaker          b
                            , Backend.SessionManagement   b

@@ -33,6 +33,7 @@ instance InformationBackend MysqlBackend where
   getInformationBy            b = withWConn (conn b) getInformationBy'
   getInformationParentsCount  b = withWConn (conn b) getInformationParentsCount'
   getInformationParents       b = withWConn (conn b) getInformationParents'
+  getProfiledUsers            b = withWConn (conn b) getProfiledUsers'
   updateDescription           b = withWConn (conn b) updateDescription'
   updateTitle                 b = withWConn (conn b) updateTitle'
   updateContent               b = withWConn (conn b) updateContent'
@@ -264,6 +265,12 @@ getInformationParents' conn iid limit offset = do
   let q = "SELECT source FROM Relations WHERE target = ? ORDER BY creation DESC LIMIT ? OFFSET ?"
   rst <- quickQuery conn q [toSql $ toId iid, toSql limit, toSql offset]
   mapM (getInformation' conn . fromId . fromSql . head) rst
+
+getProfiledUsers' :: (IConnection conn) => conn -> InformationId -> IO [U.UserData]
+getProfiledUsers' conn iid = do
+  _uids <- quickQuery conn "SELECT userid FROM UserData WHERE profile = ?" [toSql $ toId iid]
+  muds  <- mapM (runMaybeT . getUser' conn . fromId . fromSql . head) _uids
+  return $ catMaybes muds
 
 updateDescription' :: (IConnection conn) => conn -> InformationId -> Types.Description -> IO InformationId
 updateDescription' conn iid' description = do

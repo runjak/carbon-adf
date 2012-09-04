@@ -6,95 +6,6 @@ CREATE SCHEMA IF NOT EXISTS `OpenBrain` DEFAULT CHARACTER SET utf8 COLLATE utf8_
 USE `OpenBrain` ;
 
 -- -----------------------------------------------------
--- Table `OpenBrain`.`UserData`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `OpenBrain`.`UserData` ;
-
-CREATE  TABLE IF NOT EXISTS `OpenBrain`.`UserData` (
-  `userid` INT(11) NOT NULL AUTO_INCREMENT ,
-  `username` VARCHAR(255) NOT NULL ,
-  `password` VARCHAR(255) NOT NULL ,
-  `karma` INT UNSIGNED NOT NULL DEFAULT 0 ,
-  `creation` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  `lastLogin` TIMESTAMP NULL ,
-  `isAdmin` TINYINT(1) NOT NULL DEFAULT 0 ,
-  `salt` VARCHAR(255) NOT NULL ,
-  `actionKey` VARCHAR(255) NULL ,
-  PRIMARY KEY (`userid`) ,
-  UNIQUE INDEX `userid_UNIQUE` (`userid` ASC) )
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `OpenBrain`.`Profile`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `OpenBrain`.`Profile` ;
-
-CREATE  TABLE IF NOT EXISTS `OpenBrain`.`Profile` (
-  `profileid` INT(11) NOT NULL AUTO_INCREMENT ,
-  `userid` INT(11) NOT NULL ,
-  `accessRule` TINYINT UNSIGNED NOT NULL DEFAULT 2 COMMENT 'Default 2\ncorresponds to\nthe Enum value\nof data AccessRule\nNone' ,
-  `avatar` TEXT NULL ,
-  `name_prefix` VARCHAR(255) NOT NULL DEFAULT '' ,
-  `name_foreName` VARCHAR(255) NOT NULL DEFAULT '' ,
-  `name_middleName` VARCHAR(255) NOT NULL DEFAULT '' ,
-  `name_familyName` VARCHAR(255) NOT NULL DEFAULT '' ,
-  `name_suffix` VARCHAR(255) NOT NULL DEFAULT '' ,
-  PRIMARY KEY (`profileid`) ,
-  UNIQUE INDEX `profileid_UNIQUE` (`profileid` ASC) ,
-  INDEX `fk_Profile_1_idx` (`userid` ASC) ,
-  CONSTRAINT `ProfileToUserData`
-    FOREIGN KEY (`userid` )
-    REFERENCES `OpenBrain`.`UserData` (`userid` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `OpenBrain`.`Location`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `OpenBrain`.`Location` ;
-
-CREATE  TABLE IF NOT EXISTS `OpenBrain`.`Location` (
-  `profileid` INT(11) NOT NULL ,
-  `street` VARCHAR(255) NOT NULL DEFAULT '' ,
-  `city` VARCHAR(255) NOT NULL DEFAULT '' ,
-  `state` VARCHAR(255) NOT NULL DEFAULT '' ,
-  `land` VARCHAR(255) NOT NULL DEFAULT '' ,
-  `zipCode` VARCHAR(255) NOT NULL DEFAULT '' ,
-  `note` TEXT NULL ,
-  UNIQUE INDEX `profileid_UNIQUE` (`profileid` ASC) ,
-  INDEX `profileid_idx` (`profileid` ASC) ,
-  CONSTRAINT `LocationToProfile`
-    FOREIGN KEY (`profileid` )
-    REFERENCES `OpenBrain`.`Profile` (`profileid` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `OpenBrain`.`ProfileSnippet`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `OpenBrain`.`ProfileSnippet` ;
-
-CREATE  TABLE IF NOT EXISTS `OpenBrain`.`ProfileSnippet` (
-  `profileid` INT(11) NOT NULL ,
-  `title` VARCHAR(255) NOT NULL DEFAULT '' ,
-  `description` TEXT NULL ,
-  `target` TEXT NOT NULL ,
-  `snippetType` TINYINT NOT NULL ,
-  INDEX `profileid_idx` (`profileid` ASC) ,
-  CONSTRAINT `ProfileSnippetToProfile`
-    FOREIGN KEY (`profileid` )
-    REFERENCES `OpenBrain`.`Profile` (`profileid` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
 -- Table `OpenBrain`.`DiscussionInfo`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `OpenBrain`.`DiscussionInfo` ;
@@ -160,6 +71,33 @@ CREATE  TABLE IF NOT EXISTS `OpenBrain`.`Information` (
   CONSTRAINT `InformationToMedia`
     FOREIGN KEY (`mediaid` )
     REFERENCES `OpenBrain`.`Media` (`mediaid` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `OpenBrain`.`UserData`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `OpenBrain`.`UserData` ;
+
+CREATE  TABLE IF NOT EXISTS `OpenBrain`.`UserData` (
+  `userid` INT(11) NOT NULL AUTO_INCREMENT ,
+  `username` VARCHAR(255) NOT NULL ,
+  `password` VARCHAR(255) NOT NULL ,
+  `karma` INT UNSIGNED NOT NULL DEFAULT 0 ,
+  `creation` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+  `lastLogin` TIMESTAMP NULL ,
+  `isAdmin` TINYINT(1) NOT NULL DEFAULT 0 ,
+  `salt` VARCHAR(255) NOT NULL ,
+  `actionKey` VARCHAR(255) NULL ,
+  `profile` INT(11) NULL ,
+  PRIMARY KEY (`userid`) ,
+  UNIQUE INDEX `userid_UNIQUE` (`userid` ASC) ,
+  INDEX `fk_UserData_1` (`profile` ASC) ,
+  CONSTRAINT `fk_UserData_1`
+    FOREIGN KEY (`profile` )
+    REFERENCES `OpenBrain`.`Information` (`informationid` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;

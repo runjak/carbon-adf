@@ -13,7 +13,6 @@ import OpenBrain.Data.Hash (Hash)
 import OpenBrain.Data.Id
 import OpenBrain.Data.Information
 import OpenBrain.Data.Karma (Karma)
-import OpenBrain.Data.Profile
 import OpenBrain.Data.Relation
 import OpenBrain.Data.Salt (Salt)
 
@@ -22,7 +21,6 @@ import qualified OpenBrain.Backend.Types as Types
 data Backend = forall b . ( GeneralBackend      b
                           , InformationBackend  b
                           , KarmaBackend        b
-                          , ProfileBackend      b
                           , RelationBackend     b
                           , SaltShaker          b
                           , SessionManagement   b
@@ -46,17 +44,7 @@ class UserBackend u where
   updateKarma     :: u -> UserId -> (Karma -> Karma) -> IO ()
   updatePasswd    :: u -> UserId -> Hash -> IO ()
   setAdmin        :: u -> UserId -> Bool -> IO ()
-
-{- Controls for Userprofiles. -}
-class ProfileBackend p where
-  getProfile          :: p -> UserId -> IO Profile
-  setAccessRule       :: p -> ProfileId -> AccessRule -> IO ()
-  setName             :: p -> ProfileId -> Maybe Name -> IO ()
-  setAvatar           :: p -> ProfileId -> Maybe String -> IO ()
-  setLocations        :: p -> ProfileId -> [Location] -> IO ()
-  setWebsites         :: p -> ProfileId -> [ProfileSnippet] -> IO ()
-  setEmails           :: p -> ProfileId -> [ProfileSnippet] -> IO ()
-  setInstantMessagers :: p -> ProfileId -> [ProfileSnippet] -> IO ()
+  setProfile      :: u -> UserId -> Maybe InformationId -> IO ()
 
 {-
   Controls for everything karma related.
@@ -111,6 +99,7 @@ class InformationBackend b where
   getInformationBy            :: b -> UserId -> Types.Limit -> Types.Offset -> IO [Information] -- | No parents
   getInformationParentsCount  :: b -> InformationId -> IO Types.Count
   getInformationParents       :: b -> InformationId -> Types.Limit -> Types.Offset -> IO [Information] -- | youngest first
+  getProfiledUsers            :: b -> InformationId -> IO [UserData]
   -- | 'Modifying' Operations:
   updateDescription :: b -> InformationId -> Types.Description -> IO InformationId
   updateTitle       :: b -> InformationId -> Types.Title -> IO InformationId

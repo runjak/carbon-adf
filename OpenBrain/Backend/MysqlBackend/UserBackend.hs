@@ -29,12 +29,14 @@ instance UserBackend MysqlBackend where
   updateKarma     b = withWConn (conn b) updateKarma'
   updatePasswd    b = withWConn (conn b) updatePasswd'
   setAdmin        b = withWConn (conn b) setAdmin'
+  setProfile      b = withWConn (conn b) setProfile'
 
 login' :: (IConnection conn) => conn -> UserName -> Hash -> MaybeT IO UserData
 login' conn username hash = do
-  rst <- liftIO $ quickQuery conn "SELECT userid, karma, creation, lastLogin, isAdmin FROM UserData WHERE username = ? AND password = ?" [toSql username, toSql hash]
+  let q = "SELECT userid, karma, creation, lastLogin, isAdmin, profile FROM UserData WHERE username = ? AND password = ?"
+  rst <- liftIO $ quickQuery conn q [toSql username, toSql hash]
   case rst of
-    [[userid', _, _, karma', creation', lastLogin', isAdmin']] -> do
+    [[userid', _, _, karma', creation', lastLogin', isAdmin', profile']] -> do
       let userdata = UserData {
           userid    = fromId $ fromSql userid'
         , username  = username
@@ -43,6 +45,7 @@ login' conn username hash = do
         , creation  = fromSql creation'
         , lastLogin = fromSql lastLogin'
         , isAdmin   = fromSql isAdmin'
+        , profile   = fromId $ fromSql profile'
         }
       liftIO $ do
         t <- liftM toUTCTime getClockTime
@@ -53,9 +56,10 @@ login' conn username hash = do
 
 getUser' :: (IConnection conn) => conn -> UserId -> MaybeT IO UserData
 getUser' conn uid = do
-  rst <- liftIO $ quickQuery conn "SELECT username, password, karma, creation, lastLogin, isAdmin FROM UserData WHERE userid = ?" [toSql $ toId uid]
+  let q = "SELECT username, password, karma, creation, lastLogin, isAdmin, profile FROM UserData WHERE userid = ?"
+  rst <- liftIO $ quickQuery conn q [toSql $ toId uid]
   case rst of
-    [[username', password', karma', creation', lastLogin', isAdmin']] -> return UserData {
+    [[username', password', karma', creation', lastLogin', isAdmin', profile']] -> return UserData {
         userid    = uid
       , username  = fromSql username'
       , password  = fromSql password'
@@ -63,6 +67,7 @@ getUser' conn uid = do
       , creation  = fromSql creation'
       , lastLogin = fromSql lastLogin'
       , isAdmin   = fromSql isAdmin'
+      , profile   = fromId $ fromSql profile'
       }
     _ -> mzero
 
@@ -132,4 +137,10 @@ setAdmin' :: (IConnection conn) => conn -> UserId -> Bool -> IO ()
 setAdmin' conn uid admin = do
   stmt <- prepare conn "UPDATE UserData SET isAdmin = ? WHERE userid = ?"
   execute stmt [toSql admin, toSql $ toId uid] >> commit conn
+
+setProfile' :: (IConnection conn) => conn -> UserId -> Maybe InformationId -> IO ()
+setProfile' conn uid iid = do
+  let _iid  = toSql $ liftM toId iid
+      q     = "UPDATE UserData SET profile = ? WHERE userid = ?"
+  quickQuery conn q [_iid, toSql $ toId uid] >> commit conn
 

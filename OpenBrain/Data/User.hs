@@ -17,5 +17,6 @@ data UserData = UserData {
   , creation  :: CalendarTime
   , lastLogin :: CalendarTime
   , isAdmin   :: Bool
+  , profile   :: InformationId
 } deriving (Eq, Show)
 
