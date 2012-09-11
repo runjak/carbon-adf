@@ -21,7 +21,7 @@ instance Eq Information where
 data Media =
     Content String  -- | HTML rich content
   | Collection {    -- | Everything that is not a single information
-    arguments       :: [IO Information]     -- | Informations that are grouped by this Collection.
+    arguments       :: [InformationId]      -- | Informations that are grouped by this Collection.
   , collectionType  :: CollectionType       -- | The nature of this Collection.
   , discussion      :: Maybe DiscussionInfo -- | Additional Information if the Collection is a Discussiontype.
   }

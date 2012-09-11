@@ -183,7 +183,7 @@ getMedia conn iid = do
     -- Fetching arguments:
     let argQuery = "SELECT target FROM Relations WHERE source = ? AND type = ?"
     _args <- quickQuery conn argQuery [iid', toSql R.Collection]
-    let args = map (getInformation' conn . fromId . fromSql . head) _args
+    let args = map (fromId . fromSql . head) _args
     -- Looking for DiscussionInfo:
     dinfo <- runMaybeT $ getDiscussionInfo conn did
     -- Building the complete Collection:
