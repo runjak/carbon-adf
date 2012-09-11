@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module OpenBrain.Website.Html.Decorator (Decorator, head) where
+module OpenBrain.Website.Html.Decorator (Decorator, head, page) where
 
 import Control.Monad.State
 import Prelude hiding (head)
@@ -10,8 +10,14 @@ import qualified Text.Blaze.Html5.Attributes as A
 import OpenBrain.Config
 import OpenBrain.Website.Monad
 import qualified OpenBrain.Config.Website as W
+import qualified OpenBrain.Website.Html.Menu as Menu
 
 type Decorator = H.Html -> OBW H.Html
+
+page :: Decorator
+page content = do
+  m <- Menu.menu
+  head . H.body $ m >> content
 
 {-
   Treats the target as body and adds head, html and doctype.
@@ -26,7 +32,7 @@ head target = do
     H.head $ do
       H.title $ H.toHtml title
       m >> css >> js
-    H.body target
+    target
 
 meta :: OBW H.Html
 meta = do
