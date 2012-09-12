@@ -19,6 +19,7 @@ nullWebsiteConfig = WebsiteConfig {
     , "jquery.cookie.js"
     , "wysihtml5.js"
     , "wysihtml5_parser_advanced.js"
+    , "Edit.js"
     , "User.js"
     , "Main.js"]
   , cssFiles    = map ("files/css/" ++) ["style.css", "form.css"]

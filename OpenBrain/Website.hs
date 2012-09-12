@@ -17,6 +17,7 @@ import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 
 import qualified OpenBrain.Website.Action as Action (serve)
+import qualified OpenBrain.Website.Html.Edit as Edit (serve)
 import qualified OpenBrain.Website.Files as Files (serve)
 import qualified OpenBrain.Website.Html.Index as HIndex (serve)
 import qualified OpenBrain.Website.Html.User as HUser
@@ -37,6 +38,7 @@ serve backend config = do
 serve' :: OBW Response
 serve' = msum [
       dir "action" Action.serve
+    , dir "edit" Edit.serve
     , dir "files" Files.serve
     , dir "user" HUser.showUser
     , dir "user" $ path contentNego
