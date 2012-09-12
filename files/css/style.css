@@ -1,8 +1,9 @@
-html, body, h1, form, fieldset, legend, ul, ol, li {
+html, body, form, fieldset, legend, ul, ol, li {
   margin:   0;
   padding:  0;
 }
-
+h1 {margin-top: 5px;}
+h1,h2 {border-bottom: 1px solid black;}
 body {
   background: #ffffff;
   color: #111111;
@@ -27,7 +28,7 @@ body {
   border-width:           2px;
   display:                inline;
   font-family:            'Courier New', Courier, 'Nimbus Mono L', monospace;
-  margin:                 5px;
+  margin-right:           5px;
   -moz-border-radius:     5px;
   -webkit-border-radius:  5px;
   border-radius:          5px;
@@ -36,15 +37,21 @@ body {
 form#editor {
   background:             #9cbc2c;
   margin:                 5px;
-  padding:                5px;
   -moz-border-radius:     5px;
   -webkit-border-radius:  5px;
   border-radius:          5px;
+  padding: 5px;
 }
-ul#EditorToolbar {
-  list-style-type: none;
+#editor section {margin-right: 5px;}
+#editor #InformationTitle {width: 100%;}
+#editor #InformationDescription {
+  width:          100%;
+  margin-bottom:  5px;
+  resize:         none;
 }
-#EditorToolbar li {
+ul#EditorToolbar {list-style-type: none;}
+ul#EditorFooter {list-style-type: none;}
+#EditorToolbar li, #EditorFooter li {
   background:             #b9cf6a;
   background:             rgba(255,255,255,.3);
   border-color:           #e3ebc3;
@@ -53,17 +60,25 @@ ul#EditorToolbar {
   border-width:           2px;
   display:                inline;
   font-family:            'Courier New', Courier, 'Nimbus Mono L', monospace;
-  margin:                 5px;
+  margin-right:           5px;
   -moz-border-radius:     5px;
   -webkit-border-radius:  5px;
   border-radius:          5px;
 }
 textarea#wysihtml5-textarea {
-  width: 100%;
-  height: 100px;
-  background: transparent;
-  border: none;
-  /*resize: none;*/
-  white-space: pre;
-  word-wrap: normal;
+  width:                  100%;
+  height:                 200px;
+  background:             transparent;
+  resize:                 vertical;
+  white-space:            pre;
+  word-wrap:              normal;
+  margin-top:             5px;
+  margin-bottom:          5px;
+  border-color:           #e3ebc3;
+  border-color:           rgba(255,255,255,.6);
+  border-style:           solid;
+  border-width:           2px;
+  -moz-border-radius:     5px;
+  -webkit-border-radius:  5px;
+  border-radius:          5px;
 }
