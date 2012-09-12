@@ -7,4 +7,13 @@ function initEdit(){
     toolbar:      "EditorToolbar"
   , parserRules:  wysihtml5ParserRules
   });
+  //Function to resize the iframe:
+  var resize = function(){
+    var frame = $("iframe.wysihtml5-sandbox")[0];
+    var body = frame.contentWindow.document.body;
+    var height = $(body).height();
+    $(frame).height(height);
+    $("#wysihtml5-textarea").height(height);
+  };
+  $("a#resize").click(resize);
 };
