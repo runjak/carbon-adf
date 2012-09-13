@@ -40,7 +40,7 @@ editor eContent = H.form ! A.id "editor" $ do
   -- Toolbar of the editor:
   let dCommand      = \c -> H.dataAttribute "wysihtml5-command"       c
       dCommandValue = \v -> H.dataAttribute "wysihtml5-command-value" v
-      dDialog       = \d -> H.dataAttribute "wysihtmlw-dialog"        d
+      dDialog       = \d -> H.dataAttribute "wysihtml5-dialog"        d
       dDialogAction = \a -> H.dataAttribute "wysihtml5-dialog-action" a
       dDialogField  = \f -> H.dataAttribute "wysihtml5-dialog-field"  f
   H.header $ H.ul ! A.id "EditorToolbar" ! A.style "display: none;" $ do
@@ -58,8 +58,8 @@ editor eContent = H.form ! A.id "editor" $ do
       H.label $ do
         "Link:"
         H.input ! dDialogField "href" ! A.value "http://" ! A.class_ "text"
-      H.a ! dDialogAction "save"    $ "OK"
-      H.a ! dDialogAction "cancel"  $ "Cancel"
+      H.button ! dDialogAction "save"    $ "OK"
+      H.button ! dDialogAction "cancel"  $ "Cancel"
     -- Dialog for image insertion:
     H.div ! dDialog "insertImage" ! A.style "display: none;" $ do
       H.label $ do
@@ -71,8 +71,8 @@ editor eContent = H.form ! A.id "editor" $ do
           H.option ! A.value ""           $ "default"
           H.option ! A.value "img-left"   $ "left"
           H.option ! A.value "img-right"  $ "right"
-      H.a ! dDialogAction "save"    $ "OK"
-      H.a ! dDialogAction "cancel"  $ "Cancel"
+      H.button ! dDialogAction "save"   $ "OK"
+      H.button ! dDialogAction "cancel" $ "Cancel"
   -- The content:
   H.section $ do
     let attrs = [A.id "wysihtml5-textarea"
