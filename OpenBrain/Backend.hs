@@ -91,7 +91,7 @@ class InformationBackend b where
   createDiscussion  :: b -> Types.CreateInformation -> [InformationId] -> Types.Deadline -> Types.DiscussionType -> IO InformationId
   -- | 'Querying' Operations:
   getInformationCount         :: b -> IO Types.Count
-  getInformation              :: b -> InformationId -> IO Information
+  getInformation              :: b -> InformationId -> MaybeT IO Information
   getInformations             :: b -> Types.Limit -> Types.Offset -> IO [Information] -- | No parents
   getInformationsAfter        :: b -> Types.Limit -> CalendarTime -> IO [Information] -- | No parents
   getInformationCountBy       :: b -> UserId -> IO Types.Count

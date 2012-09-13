@@ -151,22 +151,25 @@ getInformationCount' conn = do
   [[c]] <- quickQuery conn "SELECT COUNT(*) FROM Information" []  
   return $ fromSql c
 
-getInformation' :: (IConnection conn) => conn -> InformationId -> IO Information
+getInformation' :: (IConnection conn) => conn -> InformationId -> MaybeT IO Information
 getInformation' conn iid = do
   let selectInformation = "SELECT author, creation, deletion, description, title, mediaid "
                        ++ "FROM Information WHERE informationid = ?"
-  [[_author, _creation, _deletion, _description, _title, mediaid]] <- quickQuery conn selectInformation [toSql $ toId iid]
-  user  <- liftM fromJust . runMaybeT . getUser' conn . fromId $ fromSql _author
-  media <- getMedia conn iid
-  return Information{
-    author        = user
-  , creation      = fromSql _creation
-  , deletion      = fromSql _deletion
-  , description   = fromSql _description
-  , informationId = iid
-  , media         = media
-  , title         = fromSql _title
-  }
+  rst <- liftIO $ quickQuery conn selectInformation [toSql $ toId iid]
+  case rst of
+    [[_author, _creation, _deletion, _description, _title, mediaid]] -> do
+      user  <- getUser' conn . fromId $ fromSql _author
+      media <- liftIO $ getMedia conn iid
+      return Information{
+        author        = user
+      , creation      = fromSql _creation
+      , deletion      = fromSql _deletion
+      , description   = fromSql _description
+      , informationId = iid
+      , media         = media
+      , title         = fromSql _title
+      }
+    _ -> mzero
 
 getMedia :: (IConnection conn) => conn -> InformationId -> IO Media
 getMedia conn iid = do
@@ -202,7 +205,7 @@ getDiscussionInfo conn did = do
   [[_complete, _deadline]] <- liftIO $ quickQuery conn q [did]
   -- Fetching complete:
   let mkComplete = liftM return . getInformation' conn . fromId $ fromSql _complete
-  complete <- liftIO $ (_complete /= SqlNull) ? (mkComplete, return Nothing)
+  complete <- (_complete /= SqlNull) ? (mkComplete, mzero)
   -- Fetching the choices:
   let q = "SELECT userid, voted FROM DiscussionParticipants WHERE discussionid = ?"
   _choices  <- liftIO $ quickQuery conn q [did]
@@ -221,7 +224,7 @@ getDiscussionInfo conn did = do
   where
     mkChoice :: (IConnection conn) => conn -> [SqlValue] -> MaybeT IO (Information, Votes)
     mkChoice conn [_iid, v] = do
-      i <- liftIO . getInformation' conn . fromId $ fromSql _iid
+      i <- getInformation' conn . fromId $ fromSql _iid
       return (i, fromSql v)
     mkChoice _ _            = mzero
     
@@ -235,13 +238,13 @@ getInformations' :: (IConnection conn) => conn -> Types.Limit -> Types.Offset ->
 getInformations' conn limit offset = do
   let q = "SELECT informationid FROM Information ORDER BY creation DESC LIMIT ? OFFSET ?"
   rst <- quickQuery conn q [toSql limit, toSql offset]
-  mapM (getInformation' conn . fromId . fromSql . head) rst
+  mapM (liftM fromJust . runMaybeT . getInformation' conn . fromId . fromSql . head) rst
 
 getInformationsAfter' :: (IConnection conn) => conn -> Types.Limit -> CalendarTime -> IO [Information]
 getInformationsAfter' conn limit ctime = do
   let q = "SELECT informationid FROM Information WHERE creation > ? ORDER BY creation DESC LIMIT ?"
   rst <- quickQuery conn q [toSql ctime, toSql limit]
-  mapM (getInformation' conn . fromId . fromSql . head) rst
+  mapM (liftM fromJust . runMaybeT . getInformation' conn . fromId . fromSql . head) rst
 
 getInformationCountBy' :: (IConnection conn) => conn -> UserId -> IO Types.Count
 getInformationCountBy' conn uid = do
@@ -253,7 +256,7 @@ getInformationBy' :: (IConnection conn) => conn -> UserId -> Types.Limit -> Type
 getInformationBy' conn uid limit offset = do
   let q = "SELECT informationid FROM Information WHERE author = ? ORDER BY creation DESC LIMIT ? OFFSET ?"
   rst <- quickQuery conn q [toSql $ toId uid, toSql limit, toSql offset]
-  mapM (getInformation' conn . fromId . fromSql . head) rst
+  mapM (liftM fromJust . runMaybeT . getInformation' conn . fromId . fromSql . head) rst
 
 getInformationParentsCount' :: (IConnection conn) => conn -> InformationId -> IO Types.Count
 getInformationParentsCount' conn iid = do
@@ -265,7 +268,7 @@ getInformationParents' :: (IConnection conn) => conn -> InformationId -> Types.L
 getInformationParents' conn iid limit offset = do
   let q = "SELECT source FROM Relations WHERE target = ? ORDER BY creation DESC LIMIT ? OFFSET ?"
   rst <- quickQuery conn q [toSql $ toId iid, toSql limit, toSql offset]
-  mapM (getInformation' conn . fromId . fromSql . head) rst
+  mapM (liftM fromJust . runMaybeT . getInformation' conn . fromId . fromSql . head) rst
 
 getProfiledUsers' :: (IConnection conn) => conn -> InformationId -> IO [U.UserData]
 getProfiledUsers' conn iid = do

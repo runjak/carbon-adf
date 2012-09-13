@@ -117,7 +117,7 @@ getInformationCount :: OBB Types.Count
 getInformationCount = withBackend $ liftIO . Backend.getInformationCount
 
 getInformation :: InformationId -> OBB Information
-getInformation iid = withBackend $ \b -> liftIO $ Backend.getInformation b iid
+getInformation iid = withBackend $ \b -> lift $ Backend.getInformation b iid
 
 getInformations :: Types.Limit -> Types.Offset -> OBB [Information]
 getInformations limit offset = withBackend $ \b -> liftIO $ Backend.getInformations b limit offset
