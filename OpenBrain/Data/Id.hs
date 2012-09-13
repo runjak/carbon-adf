@@ -6,6 +6,7 @@ module OpenBrain.Data.Id (
 ) where
 
 import Data.Aeson (ToJSON, FromJSON)
+import Happstack.Server as S
 
 newtype Id = Id Integer
   deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
@@ -40,3 +41,7 @@ instance IdType UserId where
 instance IdType Id where
   fromId  = id
   toId    = id
+
+-- | Instances for external classes:
+instance FromReqURI Id where
+  fromReqURI = return . wrap . read
