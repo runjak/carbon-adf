@@ -34,7 +34,7 @@ instance UserBackend MysqlBackend where
 login' :: (IConnection conn) => conn -> UserName -> Hash -> MaybeT IO UserData
 login' conn username hash = do
   let q = "SELECT userid, karma, creation, lastLogin, isAdmin, profile FROM UserData WHERE username = ? AND password = ?"
-  rst <- liftIO $ quickQuery conn q [toSql username, toSql hash]
+  rst <- liftIO $ quickQuery' conn q [toSql username, toSql hash]
   case rst of
     [[userid', _, _, karma', creation', lastLogin', isAdmin', profile']] -> do
       let userdata = UserData {
@@ -57,7 +57,7 @@ login' conn username hash = do
 getUser' :: (IConnection conn) => conn -> UserId -> MaybeT IO UserData
 getUser' conn uid = do
   let q = "SELECT username, password, karma, creation, lastLogin, isAdmin, profile FROM UserData WHERE userid = ?"
-  rst <- liftIO $ quickQuery conn q [toSql $ toId uid]
+  rst <- liftIO $ quickQuery' conn q [toSql $ toId uid]
   case rst of
     [[username', password', karma', creation', lastLogin', isAdmin', profile']] -> return UserData {
         userid    = uid
@@ -73,14 +73,14 @@ getUser' conn uid = do
 
 hasUserWithId' :: (IConnection conn) => conn -> UserId -> IO Bool
 hasUserWithId' conn uid = do
-  rst <- quickQuery conn "SELECT COUNT(*) FROM UserData WHERE userid = ?" [toSql $ toId uid]
+  rst <- quickQuery' conn "SELECT COUNT(*) FROM UserData WHERE userid = ?" [toSql $ toId uid]
   case rst of
     [[count]] -> return $ (>0) (fromSql count :: Int)
     _         -> return False
 
 hasUserWithName' :: (IConnection conn) => conn -> UserName -> MaybeT IO UserId
 hasUserWithName' conn username = do
-  rst <- liftIO $ quickQuery conn "SELECT userid FROM UserData WHERE username = ?" [toSql username]
+  rst <- liftIO $ quickQuery' conn "SELECT userid FROM UserData WHERE username = ?" [toSql username]
   case rst of
     [[uid]] -> return . fromId $ fromSql uid
     _       -> mzero
@@ -104,14 +104,14 @@ delete' conn uid = do
 
 getUserCount' :: (IConnection conn) => conn -> IO Int
 getUserCount' conn = do
-  rst <- quickQuery conn "SELECT COUNT(*) FROM UserData" []
+  rst <- quickQuery' conn "SELECT COUNT(*) FROM UserData" []
   case rst of
     [[c]] -> return $ fromSql c
     _ -> return 0
 
 getUserList' :: (IConnection conn) => conn -> Limit -> Offset -> IO [UserId]
 getUserList' conn limit offset = do
-  rst <- quickQuery conn "SELECT userid FROM UserData LIMIT ? OFFSET ?" [toSql limit, toSql offset]
+  rst <- quickQuery' conn "SELECT userid FROM UserData LIMIT ? OFFSET ?" [toSql limit, toSql offset]
   return $ concatMap go rst
   where
     go [uid]  = [fromId $ fromSql uid]
@@ -120,7 +120,7 @@ getUserList' conn limit offset = do
 updateKarma' :: (IConnection conn) => conn -> UserId -> (Karma -> Karma) -> IO ()
 updateKarma' conn uid f = do
   let userid = toId uid
-  rst <- quickQuery conn "SELECT karma FROM UserData WHERE userid = ?" [toSql userid]
+  rst <- quickQuery' conn "SELECT karma FROM UserData WHERE userid = ?" [toSql userid]
   case rst of
     [[k]] -> do
       let k' = f $ fromSql k
@@ -142,5 +142,5 @@ setProfile' :: (IConnection conn) => conn -> UserId -> Maybe InformationId -> IO
 setProfile' conn uid iid = do
   let _iid  = toSql $ liftM toId iid
       q     = "UPDATE UserData SET profile = ? WHERE userid = ?"
-  quickQuery conn q [_iid, toSql $ toId uid] >> commit conn
+  quickQuery' conn q [_iid, toSql $ toId uid] >> commit conn
 

@@ -14,7 +14,7 @@ import OpenBrain.Data.Karma
 -- Finding the highest current value of Karma in the system:
 maxKarma :: IConnection conn => conn -> IO Karma
 maxKarma conn = do
-  rst <- quickQuery conn "SELECT MAX(karma) FROM UserData" []
+  rst <- quickQuery' conn "SELECT MAX(karma) FROM UserData" []
   case rst of
     [[k]] -> return $ fromSql k
     _     -> return $ toKarma 0

@@ -20,7 +20,7 @@ setId' conn salt uid = do
 
 getSalt' :: (IConnection conn) => conn -> UserId -> IO Salt
 getSalt' conn uid = do
-  rst <- quickQuery conn "SELECT salt FROM UserData WHERE userid = ?" [toSql $ toId uid]
+  rst <- quickQuery' conn "SELECT salt FROM UserData WHERE userid = ?" [toSql $ toId uid]
   case rst of
     [[salt]] -> return $ fromSql salt
     _ -> do

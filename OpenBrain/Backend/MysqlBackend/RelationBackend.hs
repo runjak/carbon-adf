@@ -31,7 +31,7 @@ getRelations' :: (IConnection conn) => conn -> InformationId -> IO [Relation]
 getRelations' conn iid = do
   let query = "SELECT relationid, comment, creation, deletion, type, source, target FROM Relations WHERE source = ?"
             ++" ORDER BY deletion DESC, creation DESC"
-  rst <- quickQuery conn query [toSql $ toId iid]
+  rst <- quickQuery' conn query [toSql $ toId iid]
   return $ map go rst
   where
     go :: [SqlValue] -> Relation
