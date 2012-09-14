@@ -122,6 +122,9 @@ getInformation iid = withBackend $ \b -> lift $ Backend.getInformation b iid
 getInformations :: Types.Limit -> Types.Offset -> OBB [Information]
 getInformations limit offset = withBackend $ \b -> liftIO $ Backend.getInformations b limit offset
 
+getInformationCountAfter :: CalendarTime -> OBB Types.Count
+getInformationCountAfter ct = withBackend $ \b -> liftIO $ Backend.getInformationCountAfter b ct
+
 getInformationsAfter :: CalendarTime -> Types.Limit -> Types.Offset -> OBB [Information]
 getInformationsAfter ct limit offset = withBackend $ \b -> liftIO $ Backend.getInformationsAfter b ct limit offset
 

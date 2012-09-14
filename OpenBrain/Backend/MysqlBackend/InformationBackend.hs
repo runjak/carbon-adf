@@ -29,6 +29,7 @@ instance InformationBackend MysqlBackend where
   getInformationCount         b = withWConn (conn b) getInformationCount'
   getInformation              b = withWConn (conn b) getInformation'
   getInformations             b = withWConn (conn b) getInformations'
+  getInformationCountAfter    b = withWConn (conn b) getInformationCountAfter'
   getInformationsAfter        b = withWConn (conn b) getInformationsAfter'
   getInformationCountBy       b = withWConn (conn b) getInformationCountBy'
   getInformationBy            b = withWConn (conn b) getInformationBy'
@@ -239,6 +240,12 @@ getInformations' conn limit offset = do
   let q = "SELECT informationid FROM Information ORDER BY creation DESC LIMIT ? OFFSET ?"
   rst <- quickQuery conn q [toSql limit, toSql offset]
   mapM (liftM fromJust . runMaybeT . getInformation' conn . fromId . fromSql . head) rst
+
+getInformationCountAfter' :: (IConnection conn) => conn -> CalendarTime -> IO Types.Count
+getInformationCountAfter' conn ctime = do
+  let q = "SELECT COUNT(*) FROM Information WHERE creation > ?"
+  [[c]] <- quickQuery conn q [toSql ctime]
+  return $ fromSql c
 
 getInformationsAfter' :: (IConnection conn) => conn -> CalendarTime -> Types.Limit -> Types.Offset -> IO [Information]
 getInformationsAfter' conn ctime limit offset = do
