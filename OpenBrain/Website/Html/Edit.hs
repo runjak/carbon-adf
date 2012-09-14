@@ -6,7 +6,11 @@ import Text.Blaze ((!))
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 
+import OpenBrain.Data.Id
+import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
+import qualified OpenBrain.Backend.Monad as OBB
+import qualified OpenBrain.Data.Information as I
 import qualified OpenBrain.Website.Html.Decorator as Decorator
 import qualified OpenBrain.Website.Html.Menu as Menu
 
@@ -82,7 +86,26 @@ editor eContent = H.form ! A.id "editor" $ do
   -- Buttons to save content, etc.
   H.footer $ H.ul ! A.id "EditorFooter" $ mapM_ H.li $ footerLinks eContent
 
+mkEditor :: EditorContent -> I.Information -> OBW H.Html
+mkEditor ec i = case I.media i of
+  (I.Content s) -> do
+    let content = ec{
+        title       = I.title i
+      , description = I.description i
+      , content     = s
+      }
+    return $ editor content
+  _ -> mzero
+
+{- Serving the editor: -}
 serve :: OBW Response
-serve = do
+serve = mplus (path lookupInformation) $ do
   p <- Decorator.page $ editor emptyContent
   ok $ toResponse p
+
+lookupInformation :: Id -> OBW Response
+lookupInformation i' = handleFail "Can't find requested Information." $ do
+  i <- liftOBB . OBB.getInformation $ fromId i'
+  handleFail "Information is not simple content - can't edit that." $ do
+    p <- Decorator.page =<< mkEditor emptyContent{editorTitle = "Edit Information"} i
+    ok $ toResponse p

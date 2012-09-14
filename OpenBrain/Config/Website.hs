@@ -14,7 +14,7 @@ data WebsiteConfig = WebsiteConfig {
 nullWebsiteConfig = WebsiteConfig {
     title       = "OpenBrain v0.1 - demo of a dream"
   , metaValues  = [("generator", "OpenBrain v0.1"),("author", "Hλskell-lover J.Runge")]  
-  , jsFiles     = map ("files/js/" ++) [
+  , jsFiles     = map ("/files/js/" ++) [
       "jquery.js"
     , "jquery.cookie.js"
     , "wysihtml5.js"
@@ -22,5 +22,5 @@ nullWebsiteConfig = WebsiteConfig {
     , "Edit.js"
     , "User.js"
     , "Main.js"]
-  , cssFiles    = map ("files/css/" ++) ["style.css"{- , "form.css"-}]
+  , cssFiles    = map ("/files/css/" ++) ["style.css"{- , "form.css"-}]
   }
