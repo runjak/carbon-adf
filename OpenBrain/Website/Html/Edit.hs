@@ -12,7 +12,6 @@ import OpenBrain.Website.Monad
 import qualified OpenBrain.Backend.Monad as OBB
 import qualified OpenBrain.Data.Information as I
 import qualified OpenBrain.Website.Html.Decorator as Decorator
-import qualified OpenBrain.Website.Html.Menu as Menu
 
 data EditorContent = EditorContent {
     editorTitle :: String

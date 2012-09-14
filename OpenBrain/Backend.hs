@@ -93,7 +93,7 @@ class InformationBackend b where
   getInformationCount         :: b -> IO Types.Count
   getInformation              :: b -> InformationId -> MaybeT IO Information
   getInformations             :: b -> Types.Limit -> Types.Offset -> IO [Information] -- | No parents
-  getInformationsAfter        :: b -> Types.Limit -> CalendarTime -> IO [Information] -- | No parents
+  getInformationsAfter        :: b -> CalendarTime ->Types.Limit -> Types.Offset -> IO [Information] -- | No parents
   getInformationCountBy       :: b -> UserId -> IO Types.Count
   getInformationBy            :: b -> UserId -> Types.Limit -> Types.Offset -> IO [Information] -- | No parents
   getInformationParentsCount  :: b -> InformationId -> IO Types.Count

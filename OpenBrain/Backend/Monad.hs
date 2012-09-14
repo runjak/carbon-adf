@@ -122,8 +122,8 @@ getInformation iid = withBackend $ \b -> lift $ Backend.getInformation b iid
 getInformations :: Types.Limit -> Types.Offset -> OBB [Information]
 getInformations limit offset = withBackend $ \b -> liftIO $ Backend.getInformations b limit offset
 
-getInformationsAfter :: Types.Limit -> CalendarTime -> OBB [Information]
-getInformationsAfter limit ct = withBackend $ \b -> liftIO $ Backend.getInformationsAfter b limit ct
+getInformationsAfter :: CalendarTime -> Types.Limit -> Types.Offset -> OBB [Information]
+getInformationsAfter ct limit offset = withBackend $ \b -> liftIO $ Backend.getInformationsAfter b ct limit offset
 
 getInformationCountBy :: UserId -> OBB Types.Count
 getInformationCountBy uid = withBackend $ \b -> liftIO $ Backend.getInformationCountBy b uid

@@ -240,10 +240,10 @@ getInformations' conn limit offset = do
   rst <- quickQuery conn q [toSql limit, toSql offset]
   mapM (liftM fromJust . runMaybeT . getInformation' conn . fromId . fromSql . head) rst
 
-getInformationsAfter' :: (IConnection conn) => conn -> Types.Limit -> CalendarTime -> IO [Information]
-getInformationsAfter' conn limit ctime = do
-  let q = "SELECT informationid FROM Information WHERE creation > ? ORDER BY creation DESC LIMIT ?"
-  rst <- quickQuery conn q [toSql ctime, toSql limit]
+getInformationsAfter' :: (IConnection conn) => conn -> CalendarTime -> Types.Limit -> Types.Offset -> IO [Information]
+getInformationsAfter' conn ctime limit offset = do
+  let q = "SELECT informationid FROM Information WHERE creation > ? ORDER BY creation DESC LIMIT ? OFFSET ?"
+  rst <- quickQuery conn q [toSql ctime, toSql limit, toSql offset]
   mapM (liftM fromJust . runMaybeT . getInformation' conn . fromId . fromSql . head) rst
 
 getInformationCountBy' :: (IConnection conn) => conn -> UserId -> IO Types.Count
