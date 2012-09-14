@@ -22,5 +22,5 @@ nullWebsiteConfig = WebsiteConfig {
     , "Edit.js"
     , "User.js"
     , "Main.js"]
-  , cssFiles    = map ("/files/css/" ++) ["style.css"{- , "form.css"-}]
+  , cssFiles    = map ("/files/css/" ++) ["style.css"]
   }
