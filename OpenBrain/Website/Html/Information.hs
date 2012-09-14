@@ -19,10 +19,12 @@ import qualified OpenBrain.Website.Html.Decorator as Decorator
 
 {- Displaying informations: -}
 viewSingle :: Information -> OBW H.Html
-viewSingle i = return "Some dummy code - replace"
+viewSingle i = (=<<) Decorator.page $ do
+  return "Some dummy code - replace"
 
 viewMany :: Count -> Limit -> Offset -> [Information] -> OBW H.Html
-viewMany count limit offset is = return "More dummy code!"
+viewMany count limit offset is = (=<<) Decorator.page $ do
+  return "More dummy code!"
 
 {- Fetching parameters: -}
 getLimit :: OBW Limit
@@ -77,7 +79,7 @@ serveAfter :: OBW Response
 serveAfter = do
   after   <- getAfter
   limit   <- getLimit
-  count   <- undefined -- FIXME
+  count   <- liftOBB $ OBB.getInformationCountAfter after
   offset  <- getOffset
   is      <- liftOBB $ OBB.getInformationsAfter after limit offset
   ok . toResponse =<< viewMany count limit offset is
@@ -96,5 +98,6 @@ serveUser = do
 serveSingle :: OBW Response
 serveSingle = do
   iid <- getDisplay
-  i   <- liftOBB $ OBB.getInformation iid
-  ok . toResponse =<< viewSingle i
+  handleFail "Can't find requested information." $ do
+    i   <- liftOBB $ OBB.getInformation iid
+    ok . toResponse =<< viewSingle i
