@@ -41,8 +41,8 @@ serve' = msum [
       dir "action" Action.serve
     , dir "edit" Edit.serve
     , dir "files" Files.serve
-    , contentNego "information"
     , dir "information.html" HInformation.serve
+    , contentNego "information"
     , dir "user" HUser.showUser
     , dir "user" $ path contentNego
     , contentNego' "user"
