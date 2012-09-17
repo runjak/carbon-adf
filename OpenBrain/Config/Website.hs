@@ -18,7 +18,7 @@ nullWebsiteConfig = WebsiteConfig {
       "jquery.js"
     , "jquery.cookie.js"
     , "marked/marked.js"
-    , "Edit.js"
+    , "Marked.js"
     , "User.js"
     , "Main.js"]
   , cssFiles    = map ("/files/css/" ++) ["style.css"]

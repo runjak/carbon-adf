@@ -9,17 +9,16 @@ body {
   color: #111111;
   font-family: Georgia, "Times New Roman", Times, serif;
 }
-
-#menu {
+/*Styling the menu:*/
+#menu, .menu {
   background:             #9cbc2c;
   list-style-type:        none;
   margin:                 5px;
   padding:                5px;
-  -moz-border-radius:     5px;
   -webkit-border-radius:  5px;
   border-radius:          5px;
 }
-#menu li {
+#menu li, .menu li {
   background:             #b9cf6a;
   background:             rgba(255,255,255,.3);
   border-color:           #e3ebc3;
@@ -29,15 +28,13 @@ body {
   display:                inline;
   font-family:            'Courier New', Courier, 'Nimbus Mono L', monospace;
   margin-right:           5px;
-  -moz-border-radius:     5px;
   -webkit-border-radius:  5px;
   border-radius:          5px;
 }
-
+/*Styling the editor:*/
 form#MarkdownEditor {
   background:             #9cbc2c;
   margin:                 5px;
-  -moz-border-radius:     5px;
   -webkit-border-radius:  5px;
   border-radius:          5px;
   padding:                5px;
@@ -58,7 +55,6 @@ div#MarkdownPreview {
   border-style:           solid;
   border-width:           2px;
   padding-left:           20px;
-  -moz-border-radius:     5px;
   -webkit-border-radius:  5px;
   border-radius:          5px;
 }
@@ -73,7 +69,23 @@ ul#EditorFooter li {
   display:                inline;
   font-family:            'Courier New', Courier, 'Nimbus Mono L', monospace;
   margin-right:           5px;
-  -moz-border-radius:     5px;
   -webkit-border-radius:  5px;
   border-radius:          5px;
+}
+/*Styling informations:*/
+ul.InformationList {
+  list-style:             none;
+  background:             #9cbc2c;
+  margin:                 5px;
+  -webkit-border-radius:  5px;
+  border-radius:          5px;
+}
+ul.InformationList li {display: inline; width: 50%;}
+div.Information {
+  list-style:             none;
+  background:             #9cbc2c;
+  margin:                 5px;
+  -webkit-border-radius:  5px;
+  border-radius:          5px;
+  padding:                5px;
 }
