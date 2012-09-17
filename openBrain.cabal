@@ -19,6 +19,7 @@ Build-Depends:  aeson
               , mtl
               , old-time
               , random
+              , regex-compat
               , SHA2
               , stm
               , text
