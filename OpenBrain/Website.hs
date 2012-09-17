@@ -42,7 +42,7 @@ serve' = msum [
     , dir "edit" Edit.serve
     , dir "files" Files.serve
     , dir "information.html" HInformation.serve
-    , contentNego "information"
+    , contentNego' "information"
     , dir "user" HUser.showUser
     , dir "user" $ path contentNego
     , contentNego' "user"
