@@ -1,0 +1,86 @@
+module OpenBrain.Website.Action.Edit (serve) where
+{-
+  Actions necessary for OpenBrain.Website.Action.Edit
+-}
+import Happstack.Server as Server
+import Text.Regex as T
+
+import OpenBrain.Backend.Types
+import OpenBrain.Common
+import OpenBrain.Data.Id
+import OpenBrain.Website.Common
+import OpenBrain.Website.Monad
+import OpenBrain.Website.Session
+
+import qualified OpenBrain.Backend.Monad as OBB
+import qualified OpenBrain.Data.Information as Information
+import qualified OpenBrain.Website.Session as Session
+
+serve :: OBW Response
+serve = msum [
+    dir "create" create
+  , dir "update" update
+  ]
+
+{-
+  Parameters:
+  title, description, content
+-}
+create :: OBW Response
+create = do
+  -- Gathering parameters:
+  uid     <- Session.chkSession
+  title   <- getTitle
+  desc    <- getDescription
+  content <- getContent
+  -- Creating Information:
+  let ci = CreateInformation{
+      userId      = uid
+    , title       = title
+    , description = desc
+    }
+  iid <- liftOBB $ OBB.addContentMedia ci content
+  handleSuccess $ "Created Information: " ++ show iid
+
+{-
+  Parameters:
+  informationId, title, description, content
+-}
+update :: OBW Response
+update = do
+  -- Gathering parameters:
+  uid     <- Session.chkSession
+  iid     <- getInformationId
+  title   <- getTitle
+  desc    <- getDescription
+  content <- getContent
+  -- Fetching initial Information to compare:
+  handleFail "Could not lookup target Information." $ do
+    i     <- liftOBB $ OBB.getInformation iid
+    -- Looking at changes:
+    let titleChanged = title /= Information.title i
+        descChanged  = desc  /= Information.description i
+    handleFail "Information is not simply Content." $ do
+      contentChanged <- case Information.media i of
+        (Information.Content c) -> return $ content /= c
+        _ -> mzero
+      -- A list of actions to chain:
+      let actions = (titleChanged   ? ([\i -> liftOBB $ OBB.updateTitle i title],       [return]))
+                 ++ (descChanged    ? ([\i -> liftOBB $ OBB.updateDescription i desc],  [return]))
+                 ++ (contentChanged ? ([\i -> liftOBB $ OBB.updateContent i content],   [return]))
+                 :: [InformationId -> OBW InformationId]
+      iid' <- foldl (>>=) (return iid) actions
+      handleSuccess $ "Updated Information: " ++ show iid'
+
+{- Functions to help with the deal: -}
+getInformationId  = liftM fromId $ lookRead "informationId" :: OBW InformationId
+getTitle          = look "title"                            :: OBW Title
+getDescription    = look "description"                      :: OBW Description
+getContent        = liftM sanitize $ look "content"         :: OBW Content
+
+sanitize :: String -> String
+sanitize = foldl1 (.) [
+    \x -> subRegex (mkRegex "<") x "&lt;"
+  , \x -> subRegex (mkRegex ">") x "&gt;"
+  ]
+
