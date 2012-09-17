@@ -1,11 +1,24 @@
 function initEdit(){
   //Break if no target is found:
-  if($('#wysihtml5-textarea').length != 1)
+  if($('#MarkdownEditor').length != 1)
     return;
-  //Load the editor:
-  var editor = new wysihtml5.Editor("wysihtml5-textarea", {
-    toolbar:      "EditorToolbar"
-  , stylesheets:  "files/css/style.css"
-  , parserRules:  wysihtml5ParserRules
+  //Setting marked options:
+  marked.setOptions({
+    gfm:      true
+  , pedantic: false
+  , sanitize: true
   });
+  //Function to render MarkdownPreview:
+  var render = function(){
+    var input = $('#InformationContent').val();
+    if(input == "")
+      input = "Nothing there to preview.";
+    $('#MarkdownPreview').html(marked(input));
+  };
+  //Preview on change of content:
+  $('#InformationContent').keyup(function(){
+    render();
+  });
+  //Initial preview:
+  render();
 };
