@@ -18,6 +18,8 @@ import Text.Blaze.Html (ToMarkup(..))
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 
+import OpenBrain.Backend.Types
+import OpenBrain.Common
 import OpenBrain.Website.Monad
 
 -- For fun with OverloadedStrings pragma
@@ -59,3 +61,23 @@ handleFail msg handle = msum [handle, ok (toResponse msg)]
 
 handleSuccess :: String -> OBW Response
 handleSuccess = ok . toResponse
+
+{-
+  Calculates pages as names and offsets for a given combination
+  of Limit, Offset and Count.
+  Up to 5 pages precede the "Current" page,
+  up to 5 follow it.
+  All pages are generated so that all Items can be listed,
+  but Limit + Offset may be bigger than Count.
+-}
+pages :: Limit -> Offset -> Count -> [(String, Limit)]
+pages limit offset count = do
+  let page  = offset `div` limit
+      cutoff = take 5 . drop 1
+      mkPositive = map (\x->(x>0)?(x,0)) . (\(as,bs) -> as ++ [head bs]) . break (<=0)
+      prevs = cutoff . mkPositive $ iterate (subtract limit) offset
+      nexts = cutoff . takeWhile (< count) $ iterate (+ limit) offset
+  zip (map show . drop 1 $ iterate (subtract 1) page) prevs
+    ++ [("Current",page)]
+    ++ zip (map show [(page + 1)..]) nexts
+

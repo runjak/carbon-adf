@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module OpenBrain.Website.Html.Information (serve) where
+module OpenBrain.Website.Html.Information (serve, viewSingle) where
 
 import Data.Maybe
 import Happstack.Server as S
@@ -22,7 +22,7 @@ import qualified OpenBrain.Website.Html.Decorator as Decorator
 
 {- Displaying informations: -}
 viewSingle :: Information -> OBW H.Html
-viewSingle i = (=<<) Decorator.page $ do
+viewSingle i = do
   -- Gathering information necessary to display:
   let deleted     = (isJust $ Information.deletion i) ? ([A.class_ "deleted"],[])
       attributes  = [A.class_ "Information"] ++ deleted
@@ -38,7 +38,7 @@ viewSingle i = (=<<) Decorator.page $ do
     H.hr >> footnotes i
 
 viewMany :: Count -> Limit -> Offset -> [Information] -> OBW H.Html
-viewMany count limit offset is = (=<<) Decorator.page $ do
+viewMany count limit offset is = do
   return $ do
     "A List of informations:" >> list is
 
@@ -114,7 +114,7 @@ serveList = do
   offset  <- getOffset
   count   <- liftOBB $ OBB.getInformationCount
   is      <- liftOBB $ OBB.getInformations limit offset
-  ok . toResponse =<< viewMany count limit offset is
+  ok . toResponse =<< Decorator.page =<< viewMany count limit offset is
 
 {- /information.html?after=_&limit=_&offset=_ -}
 serveAfter :: OBW Response
@@ -124,7 +124,7 @@ serveAfter = do
   count   <- liftOBB $ OBB.getInformationCountAfter after
   offset  <- getOffset
   is      <- liftOBB $ OBB.getInformationsAfter after limit offset
-  ok . toResponse =<< viewMany count limit offset is
+  ok . toResponse =<< Decorator.page =<< viewMany count limit offset is
 
 {- /information.html?user=_&limit=_&offset=_ -}
 serveUser :: OBW Response
@@ -134,7 +134,7 @@ serveUser = do
   offset  <- getOffset
   count   <- liftOBB $ OBB.getInformationCountBy uid
   is      <- liftOBB $ OBB.getInformationBy uid limit offset
-  ok . toResponse =<< viewMany count limit offset is
+  ok . toResponse =<< Decorator.page =<< viewMany count limit offset is
 
 {- /information.html?display=_ -}
 serveSingle :: OBW Response
@@ -142,4 +142,4 @@ serveSingle = do
   iid <- getDisplay
   handleFail "Can't find requested information." $ do
     i   <- liftOBB $ OBB.getInformation iid
-    ok . toResponse =<< viewSingle i
+    ok . toResponse =<< Decorator.page =<< viewSingle i

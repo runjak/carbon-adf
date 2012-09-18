@@ -16,14 +16,12 @@ import OpenBrain.Config (Config(..))
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 
-import qualified OpenBrain.Website.Action as Action (serve)
-import qualified OpenBrain.Website.Files as Files (serve)
-import qualified OpenBrain.Website.Html.Edit as Edit (serve)
-import qualified OpenBrain.Website.Html.Index as HIndex (serve)
-import qualified OpenBrain.Website.Html.Information as HInformation (serve)
-import qualified OpenBrain.Website.Html.User as HUser
-import qualified OpenBrain.Website.Html.UserControl as HUserControl
-import qualified OpenBrain.Website.Html.Users as HUsers
+import qualified OpenBrain.Website.Action           as Action (serve)
+import qualified OpenBrain.Website.Files            as Files (serve)
+import qualified OpenBrain.Website.Html.Edit        as Edit (serve)
+import qualified OpenBrain.Website.Html.Index       as Index (serve)
+import qualified OpenBrain.Website.Html.Information as Information (serve)
+import qualified OpenBrain.Website.Html.User        as User(serve)
 
 serve :: Backend -> Config -> IO ()
 serve backend config = do
@@ -41,14 +39,10 @@ serve' = msum [
       dir "action" Action.serve
     , dir "edit" Edit.serve
     , dir "files" Files.serve
-    , dir "information.html" HInformation.serve
+    , dir "information.html" Information.serve
     , contentNego' "information"
-    , dir "user" HUser.showUser
-    , dir "user" $ path contentNego
+    , dir "user.html" User.serve
     , contentNego' "user"
-    , dir "user.html" HUserControl.serve
-    , contentNego' "users"
-    , dir "users.html" HUsers.serve
-    , HIndex.serve
+    , Index.serve
     ]
 

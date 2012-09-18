@@ -45,7 +45,7 @@ login' conn username hash = do
         , creation  = fromSql creation'
         , lastLogin = fromSql lastLogin'
         , isAdmin   = fromSql isAdmin'
-        , profile   = fromId $ fromSql profile'
+        , profile   = liftM fromId $ fromSql profile'
         }
       liftIO $ do
         t <- liftM toUTCTime getClockTime
@@ -67,7 +67,7 @@ getUser' conn uid = do
       , creation  = fromSql creation'
       , lastLogin = fromSql lastLogin'
       , isAdmin   = fromSql isAdmin'
-      , profile   = fromId $ fromSql profile'
+      , profile   = liftM fromId $ fromSql profile'
       }
     _ -> mzero
 
