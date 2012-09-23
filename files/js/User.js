@@ -1,4 +1,15 @@
 function initUser(){
+  //Display/Hide LogIn/Out Box:
+  $('li#MenuLogin > img').toggle(
+    function(){ // Display LoginBox
+      $('form#LoginBox').show();
+    }
+  , function(){ // Hide LoginBox
+      $('form#LoginBox').hide();
+    }
+  );
+  /*
+  // Old code that will be thrown out:
   this.username = '';
   //Handling login/creation of users:
   if($("#OpenBrainWebsiteUser_loginBox").length > 0){
@@ -52,4 +63,5 @@ function initUser(){
       $('#OpenBrainWebsiteUser_controlBox input[name=confirm]').val('');
     });
   }
+  */
 };

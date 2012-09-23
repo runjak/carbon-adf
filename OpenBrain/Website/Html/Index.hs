@@ -11,5 +11,5 @@ import qualified OpenBrain.Website.Html.Decorator as Decorator
 
 serve :: OBW Response
 serve = do
-  html <- Decorator.head $ H.p "This is how we do it again."
+  html <- Decorator.page $ H.p "This is how we do it again."
   ok. toResponse $ html

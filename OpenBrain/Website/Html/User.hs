@@ -1,5 +1,5 @@
-{-# LANGUAGE OverloadedStrings, DoAndIfThenElse #-}
-module OpenBrain.Website.Html.User (edit, login, serve) where
+{-# LANGUAGE OverloadedStrings#-}
+module OpenBrain.Website.Html.User (edit, serve) where
 {-
   Displaying single users and lists of users.
   Also forms for registering, login/out and password changing.
@@ -23,29 +23,6 @@ import qualified OpenBrain.Backend.Monad as OBB
 import qualified OpenBrain.Website.Html.Decorator as Decorator
 import qualified OpenBrain.Website.Html.Information as Information
 import qualified OpenBrain.Website.Session as Session
-
-{-
-  Login/Logout controls depending on the client.
--}
-login :: OBW H.Html
-login = do
-  mUid <- msum [liftM return $ Session.chkSession, return Nothing]
-  if isJust mUid
-  then return $ do
-    H.form ! A.id "LogoutBox" $ do
-      H.button ! A.class_ "Logout" ! A.type_ "button" $ "Logout"
-      let uid = H.toValue . show . unwrap . toId $ fromJust mUid
-      H.button ! A.class_ "Profile" ! A.type_ "button" ! H.dataAttribute "uid" uid $ "Profile"
-  else return $ do
-    H.form ! A.id "LoginBox" $ do
-      H.label $ do
-        "Username:"
-        H.input ! A.type_ "text" ! A.name "Username"
-      H.label $ do
-        "Password:"
-        H.input ! A.type_ "password" ! A.name "Password"
-      H.button ! A.class_ "Login"   ! A.type_ "button" $ "Login"
-      H.button ! A.class_ "Create"  ! A.type_ "button" $ "Create"
 
 {-
   Controls to change the password or delete the user,

@@ -25,11 +25,26 @@ body {
   border-color:           rgba(255,255,255,.6);
   border-style:           solid;
   border-width:           2px;
-  display:                inline;
   font-family:            'Courier New', Courier, 'Nimbus Mono L', monospace;
   margin-right:           5px;
   -webkit-border-radius:  5px;
   border-radius:          5px;
+  display:                inline;
+}
+#menu li.icon {
+  background:   #9cbc2c;
+  border-style: none;
+  border-width: 0px;
+}
+li#MenuLogin form#LoginBox {
+  display:        none;
+  position:       fixed;
+  background:     #b9cf6a;
+  border-color:   #e3ebc3;
+  border-style:   solid;
+  border-width:   2px;
+  border-radius:  5px;
+  padding:        5px;
 }
 /*Styling the editor:*/
 form#MarkdownEditor {
