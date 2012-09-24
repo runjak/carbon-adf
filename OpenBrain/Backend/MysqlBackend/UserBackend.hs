@@ -1,5 +1,6 @@
 module OpenBrain.Backend.MysqlBackend.UserBackend (getUser') where
 
+import Control.Exception as Exception
 import Control.Monad
 import Control.Monad.Trans
 import Control.Monad.Trans.Maybe
@@ -16,6 +17,7 @@ import OpenBrain.Data.Id
 import OpenBrain.Data.User
 import OpenBrain.Data.Hash
 import OpenBrain.Data.Karma
+import OpenBrain.Data.Salt
 
 instance UserBackend MysqlBackend where
   login           b = withWConn (conn b) login'
@@ -33,8 +35,10 @@ instance UserBackend MysqlBackend where
 
 login' :: (IConnection conn) => conn -> UserName -> Hash -> MaybeT IO UserData
 login' conn username hash = do
-  let q = "SELECT userid, karma, creation, lastLogin, isAdmin, profile FROM UserData WHERE username = ? AND password = ?"
+  liftIO $ putStrLn "UserBackend.login' - start"
+  let q = "SELECT userid, karma, creation, CURRENT_TIMESTAMP, isAdmin, profile FROM UserData WHERE username = ? AND password = ?"
   rst <- liftIO $ quickQuery' conn q [toSql username, toSql hash]
+  liftIO $ putStrLn "UserBackend.login' - case"
   case rst of
     [[userid', _, _, karma', creation', lastLogin', isAdmin', profile']] -> do
       let userdata = UserData {
@@ -48,10 +52,9 @@ login' conn username hash = do
         , profile   = liftM fromId $ fromSql profile'
         }
       liftIO $ do
-        t <- liftM toUTCTime getClockTime
-        stmt <- prepare conn "UPDATE UserData SET lastLogin = ? WHERE userid = ?"
-        execute stmt [toSql t, toSql . toId $ userid userdata] >> commit conn
-        return userdata{lastLogin = t}
+        quickQuery' conn "UPDATE UserData SET lastLogin = CURRENT_TIMESTAMP WHERE userid = ?" [toSql . toId $ userid userdata]
+        putStrLn "UserBackend.login' - done"
+        return userdata
     _ -> mzero
 
 getUser' :: (IConnection conn) => conn -> UserId -> MaybeT IO UserData
@@ -85,14 +88,18 @@ hasUserWithName' conn username = do
     [[uid]] -> return . fromId $ fromSql uid
     _       -> mzero
 
-register' :: (IConnection conn) => conn -> UserName -> Hash -> MaybeT IO UserData
-register' conn username hash = do
-  duplicate <- liftIOM isJust . runMaybeT $ hasUserWithName' conn username
-  guard $ not duplicate
+register' :: (IConnection conn) => conn -> UserName -> Hash -> Salt -> MaybeT IO UserData
+register' conn username hash salt = do
+  --duplicate <- liftIOM isJust . runMaybeT $ hasUserWithName' conn username
+  --guard $ not duplicate
   liftIO $ do
-    t <- liftM (toSql . toUTCTime) getClockTime
-    stmt <- liftIO $ prepare conn "INSERT INTO UserData(username, password, creation, lastLogin, salt) VALUES (?, ?, ?, ?, '')"
-    execute stmt [toSql username, toSql hash, t ,t] >> commit conn
+    insert <- prepare conn "INSERT INTO UserData (username, password, salt) VALUES (?, ?, ?)"
+    execute insert [toSql username, toSql hash, toSql salt]
+    putStrLn $ "OpenBrain.Backend.MysqlBackend.UserBackend.register' - commit"
+    Exception.catch (commit conn) $ \e' -> do
+      let e = fromException e' :: Maybe SqlError
+      putStrLn $ "Exception in commit:" ++ show e
+    putStrLn "OpenBrain.Backend.MysqlBackend.UserBackend.register' - done"
   login' conn username hash
 
 delete' :: (IConnection conn) => conn -> UserId -> IO Bool

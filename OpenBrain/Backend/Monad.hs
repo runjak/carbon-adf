@@ -50,8 +50,8 @@ hasUserWithId userid = withBackend $ \b -> liftIO $ Backend.hasUserWithId b user
 hasUserWithName :: UserName -> OBB UserId
 hasUserWithName username = withBackend $ \b -> lift $ Backend.hasUserWithName b username
 
-register :: UserName -> Hash -> OBB UserData
-register username hash = withBackend $ \b -> lift $ Backend.register b username hash
+register :: UserName -> Hash -> Salt -> OBB UserData
+register username hash salt = withBackend $ \b -> lift $ Backend.register b username hash salt
 
 delete :: UserId -> OBB Bool
 delete userid = withBackend $ \b -> liftIO $ Backend.delete b userid

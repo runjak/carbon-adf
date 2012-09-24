@@ -28,9 +28,9 @@ controls = do
     H.form ! A.id "LoginBox" $ do
       H.label $ do
         "Username:"
-        H.input ! A.type_ "text" ! A.name "Username"
+        H.input ! A.id "Username" ! A.type_ "text" ! A.name "Username"
       H.label $ do
         "Password:"
-        H.input ! A.type_ "password" ! A.name "Password"
+        H.input ! A.id "Password" ! A.type_ "password" ! A.name "Password"
       H.button ! A.class_ "Login"   ! A.type_ "button" $ "Login"
       H.button ! A.class_ "Create"  ! A.type_ "button" $ "Create"

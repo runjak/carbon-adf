@@ -13,8 +13,10 @@ fromSalt :: Salt -> String
 fromSalt (Salt s) = s
 
 mkSalt :: IO Salt
-mkSalt = do
+mkSalt = return $ Salt "foo"
+{-mkSalt = do
   (r:rs) <- liftM randoms newStdGen
   let l = 10 + (r `mod` 11)
   return . Salt . map (toEnum . flip mod (fromEnum (maxBound :: Char))) $ take l rs
+-- -}
 

@@ -8,6 +8,33 @@ function initUser(){
       $('form#LoginBox').hide();
     }
   );
+  //Helper functions for the Buttons:
+  var getUsername = function(){return $('form#LoginBox input#Username').val()};
+  var getPassword = function(){return $('form#LoginBox input#Password').val()};
+  //The Login Button:
+  $('form#LoginBox button.Login').click(function(){
+    alert('Implement Login button!');
+  });
+  //The Create Button:
+  $('form#LoginBox button.Create').click(function(){
+    var rq = {
+      username: getUsername()
+    , password: getPassword()
+    };
+    console.log(rq);
+    $.post("action/user/create", rq, function(reply){
+      alert('Got reply');
+      console.log(reply);
+    });
+  });
+  //The Logout Button:
+  $('form#LoginBox button.Logout').click(function(){
+    alert('Implement Logout button!');
+  });
+  //The Profile Button:
+  $('form#LoginBox button.Profile').click(function(){
+    alert('Implement Profile button!');
+  });
   /*
   // Old code that will be thrown out:
   this.username = '';
