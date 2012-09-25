@@ -9,9 +9,9 @@ import Control.Monad.Trans.Maybe
 import OpenBrain.Backend
 import OpenBrain.Config
 import OpenBrain.Common
-import qualified OpenBrain.Backend.MysqlBackend as Mysql
+import qualified OpenBrain.Backend.PostgreSQLBackend as Psql
 
 loadBackend :: Config -> MaybeT IO Backend
 loadBackend c
-  | Mysql.validConfig c = liftIO $ Mysql.load c
+  | Psql.validConfig c = liftIO $ Psql.load c
   | otherwise = mzero

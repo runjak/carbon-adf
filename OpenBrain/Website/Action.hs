@@ -24,5 +24,5 @@ serve = do
                 dir "edit" Edit.serve
               , dir "user" User.serve
               ]
-  method POST >> decodeBody (defaultBodyPolicy "/tmp/" 4096 4096 4096)
+  --method POST >> decodeBody (defaultBodyPolicy "/tmp/" 4096 4096 4096)
   msum [actions, badRequest "Actions are only allowed via POST requests."]

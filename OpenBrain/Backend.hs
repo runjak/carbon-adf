@@ -62,9 +62,7 @@ class KarmaBackend k where
   by using setId.
 -}
 class SaltShaker s where
-  setId       :: s -> Salt -> UserId -> IO ()
   getSalt     :: s -> UserId -> IO Salt
-  removeSalt  :: s -> UserId -> IO ()
 
 {-
   SessionManagement helps managing logged in clients.

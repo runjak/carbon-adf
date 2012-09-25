@@ -15,7 +15,7 @@ Build-Depends:  aeson
               , containers
               , convertible
               , happstack-server, happstack-server-tls
-              , HDBC, HDBC-mysql
+              , HDBC, HDBC-postgresql
               , mtl
               , old-time
               , random

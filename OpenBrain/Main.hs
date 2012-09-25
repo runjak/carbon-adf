@@ -3,14 +3,14 @@ module Main (main) where
 {-
   The Main module, which is supposed to link everything together.
 -}
-import OpenBrain.Backend.Load (loadBackend)
-import OpenBrain.Config (Config, nullConfig, readConfig, writeConfig)
-import qualified OpenBrain.Website as Web (serve)
-
 import Control.Monad
 import Control.Monad.Trans.Maybe
 import Data.Maybe (isJust, fromJust)
 import System.Environment (getArgs)
+
+import OpenBrain.Backend.Load (loadBackend)
+import OpenBrain.Config (Config, nullConfig, readConfig, writeConfig)
+import qualified OpenBrain.Website as Web (serve)
 
 main :: IO ()
 main = do

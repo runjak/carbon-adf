@@ -34,7 +34,8 @@ runOBW ws m = evalStateT m ws
 liftOBB :: OBB a -> OBW a
 liftOBB m = do
   b <- gets backend
-  liftMaybeT $ evalStateT m b
+  mRst <- liftIO $ runMaybeT $ evalStateT m b
+  maybe mzero return mRst
 
 liftMaybeT :: MaybeT IO a -> OBW a
 liftMaybeT m = do

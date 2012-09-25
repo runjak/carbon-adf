@@ -35,7 +35,7 @@ nullConfig = Config {
   , allowUploads    = False
   , allowBrowsing   = True
   , port            = 8000  -- | Happstack std.
-  , backendType     = MysqlBackend {mysqlHost = "127.0.0.1", mysqlUser = "root", mysqlPassword = "1234", mysqlDatabase = "OpenBrain", mysqlPort = 3306, mysqlSchemaUpdate = Nothing}
+  , backendType     = PostgreSQLBackend {pgOptions = "dbname=OpenBrain host=127.0.0.1 user=sicarius password=1234"}
   , useTLS          = False
   , tlsKey          = ""
   , tlsCert         = ""
@@ -50,11 +50,12 @@ writeConfig :: FilePath -> Config -> IO ()
 writeConfig path = writeFile path . show
 
 data BackendType = MissingBackend
-                 | MysqlBackend {
-                    mysqlHost         :: String
-                  , mysqlUser         :: String
-                  , mysqlPassword     :: String
-                  , mysqlDatabase     :: String
-                  , mysqlPort         :: Int -- | Default is 3306
-                  , mysqlSchemaUpdate :: Maybe FilePath}
+                 | PostgreSQLBackend {
+                   pgOptions :: String -- As described in http://www.postgresql.org/docs/8.1/static/libpq.html#LIBPQ-CONNECT
+                 }
                  deriving (Eq, Read, Show)
+
+{-
+MysqlBackend {mysqlHost = "127.0.0.1", mysqlUser = "root", mysqlPassword = "1234", mysqlDatabase = "OpenBrain", mysqlPort = 3306, mysqlSchemaUpdate = Nothing}
+-}
+

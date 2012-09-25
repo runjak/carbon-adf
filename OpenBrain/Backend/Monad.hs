@@ -80,14 +80,8 @@ karmaDeleteUser = withBackend $ liftIO . Backend.karmaDeleteUser
 karmaEditUser :: OBB Karma
 karmaEditUser = withBackend $ liftIO . Backend.karmaEditUser
 
-setId :: Salt -> UserId -> OBB ()
-setId salt userid = withBackend $ \b -> liftIO $ Backend.setId b salt userid
-
 getSalt :: UserId -> OBB Salt
 getSalt userid = withBackend $ \b -> liftIO $ Backend.getSalt b userid
-
-removeSalt :: UserId -> OBB ()
-removeSalt userid = withBackend $ \b -> liftIO $ Backend.removeSalt b userid
 
 startSession :: UserId -> OBB Types.ActionKey
 startSession userid = withBackend $ \b -> liftIO $ Backend.startSession b userid

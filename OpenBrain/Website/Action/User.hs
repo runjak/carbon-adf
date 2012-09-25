@@ -39,8 +39,6 @@ create = handleFail "Could not register user." $ do
   salt      <- liftIO mkSalt
   hash      <- liftM (hash salt) $ look "password"
   userData  <- liftOBB $ OBB.register username hash salt
-  liftIO $ putStrLn "OpenBrain.Website.Action.User:43 - On the road again!"
-  liftOBB $ OBB.setId salt $ userid userData -- FIXME remove
   mkSession $ userid userData
   handleSuccess "Creation complete."
 
