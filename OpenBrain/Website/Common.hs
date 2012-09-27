@@ -57,7 +57,7 @@ toHref :: String -> [String] -> H.AttributeValue
 toHref target parameters = H.toValue $ target ++ "?" ++ intercalate "&" parameters
 
 handleFail :: String -> OBW Response -> OBW Response
-handleFail msg handle = msum [handle, ok (toResponse msg)]
+handleFail msg handle = msum [handle, ok (toResponse $ "FAIL: " ++ msg)]
 
 handleSuccess :: String -> OBW Response
 handleSuccess = ok . toResponse

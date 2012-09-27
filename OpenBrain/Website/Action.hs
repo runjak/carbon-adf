@@ -19,10 +19,11 @@ import qualified OpenBrain.Website.Action.Edit as Edit
 import qualified OpenBrain.Website.Action.User as User
 
 serve :: OBW Response
-serve = do
-  let actions = liftM (setHeaderBS "Content-Type" "application/json") $ msum [
+serve = do -- actions liftM commented to enable different answers than json
+  let actions = {-liftM (setHeaderBS "Content-Type" "application/json") $-} msum [
                 dir "edit" Edit.serve
               , dir "user" User.serve
               ]
-  --method POST >> decodeBody (defaultBodyPolicy "/tmp/" 4096 4096 4096)
+  --method POST FIXME uncomment to allow only post requests
+  decodeBody (defaultBodyPolicy "/tmp/" 4096 4096 4096)
   msum [actions, badRequest "Actions are only allowed via POST requests."]

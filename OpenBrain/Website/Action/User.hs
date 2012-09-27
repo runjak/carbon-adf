@@ -16,7 +16,7 @@ import OpenBrain.Data.Salt (Salt, mkSalt)
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import OpenBrain.Website.Session
-
+import qualified OpenBrain.Website.Html.Login as Login
 import qualified OpenBrain.Backend.Monad as OBB
 
 serve :: OBW Response
@@ -40,7 +40,7 @@ create = handleFail "Could not register user." $ do
   hash      <- liftM (hash salt) $ look "password"
   userData  <- liftOBB $ OBB.register username hash salt
   mkSession $ userid userData
-  handleSuccess "Creation complete."
+  ok . toResponse . Login.logoutBox $ userid userData
 
 {-
   Expects parameters: username, password
@@ -54,10 +54,13 @@ login = handleFail "Login failed." $ do
     salt <- OBB.getSalt uid
     OBB.login username $ hash salt password
     return uid
-  mkSession uid >> handleSuccess "Login complete."
+  mkSession uid
+  ok . toResponse $ Login.logoutBox uid
 
 logout :: OBW Response
-logout = dropSession >> handleSuccess "Logout complete."
+logout = do
+  dropSession
+  ok $ toResponse Login.loginBox
 
 {- Expects parameters: username -}
 delete :: OBW Response
