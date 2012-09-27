@@ -4,7 +4,7 @@
 
 -- Dumped from database version 9.1.5
 -- Dumped by pg_dump version 9.1.5
--- Started on 2012-09-26 01:16:58 CEST
+-- Started on 2012-09-27 02:30:07 CEST
 
 SET statement_timeout = 0;
 SET client_encoding = 'UTF8';
@@ -59,7 +59,7 @@ ALTER TABLE public."DiscussionChoices" OWNER TO sicarius;
 CREATE TABLE "DiscussionInfo" (
     discussionid integer NOT NULL,
     complete integer,
-    deadline timestamp without time zone DEFAULT now() NOT NULL
+    deadline timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -67,7 +67,7 @@ ALTER TABLE public."DiscussionInfo" OWNER TO sicarius;
 
 --
 -- TOC entry 167 (class 1259 OID 16483)
--- Dependencies: 6 168
+-- Dependencies: 168 6
 -- Name: DiscussionInfo_discussionid_seq; Type: SEQUENCE; Schema: public; Owner: sicarius
 --
 
@@ -123,8 +123,8 @@ ALTER TABLE public."DiscussionParticipants" OWNER TO sicarius;
 CREATE TABLE "Information" (
     informationid integer NOT NULL,
     author integer NOT NULL,
-    creation timestamp without time zone DEFAULT now() NOT NULL,
-    deletion timestamp without time zone,
+    creation timestamp with time zone DEFAULT now() NOT NULL,
+    deletion timestamp with time zone,
     description text,
     title character varying(255) NOT NULL,
     mediaid integer NOT NULL
@@ -226,8 +226,8 @@ SELECT pg_catalog.setval('"Media_mediaid_seq"', 1, false);
 CREATE TABLE "Relations" (
     relationid integer NOT NULL,
     comment character varying(255) DEFAULT NULL::character varying NOT NULL,
-    creation timestamp without time zone DEFAULT now() NOT NULL,
-    deletion timestamp without time zone,
+    creation timestamp with time zone DEFAULT now() NOT NULL,
+    deletion timestamp with time zone,
     type integer NOT NULL,
     source integer NOT NULL,
     target integer NOT NULL
@@ -281,8 +281,8 @@ CREATE TABLE "UserData" (
     username character varying(255) NOT NULL,
     password character varying(255) NOT NULL,
     karma integer DEFAULT 0 NOT NULL,
-    creation timestamp without time zone DEFAULT now() NOT NULL,
-    lastlogin timestamp without time zone,
+    creation timestamp with time zone DEFAULT now() NOT NULL,
+    lastlogin timestamp with time zone,
     isadmin boolean DEFAULT false NOT NULL,
     salt character varying(255) NOT NULL,
     actionkey character varying(255),
@@ -323,12 +323,12 @@ ALTER SEQUENCE "UserData_userid_seq" OWNED BY "UserData".userid;
 -- Name: UserData_userid_seq; Type: SEQUENCE SET; Schema: public; Owner: sicarius
 --
 
-SELECT pg_catalog.setval('"UserData_userid_seq"', 12, true);
+SELECT pg_catalog.setval('"UserData_userid_seq"', 2, true);
 
 
 --
 -- TOC entry 1927 (class 2604 OID 16488)
--- Dependencies: 167 168 168
+-- Dependencies: 168 167 168
 -- Name: discussionid; Type: DEFAULT; Schema: public; Owner: sicarius
 --
 
@@ -337,7 +337,7 @@ ALTER TABLE ONLY "DiscussionInfo" ALTER COLUMN discussionid SET DEFAULT nextval(
 
 --
 -- TOC entry 1924 (class 2604 OID 16450)
--- Dependencies: 163 164 164
+-- Dependencies: 164 163 164
 -- Name: informationid; Type: DEFAULT; Schema: public; Owner: sicarius
 --
 
@@ -346,7 +346,7 @@ ALTER TABLE ONLY "Information" ALTER COLUMN informationid SET DEFAULT nextval('"
 
 --
 -- TOC entry 1926 (class 2604 OID 16472)
--- Dependencies: 165 166 166
+-- Dependencies: 166 165 166
 -- Name: mediaid; Type: DEFAULT; Schema: public; Owner: sicarius
 --
 
@@ -355,7 +355,7 @@ ALTER TABLE ONLY "Media" ALTER COLUMN mediaid SET DEFAULT nextval('"Media_mediai
 
 --
 -- TOC entry 1931 (class 2604 OID 16530)
--- Dependencies: 171 172 172
+-- Dependencies: 172 171 172
 -- Name: relationid; Type: DEFAULT; Schema: public; Owner: sicarius
 --
 
@@ -438,6 +438,7 @@ COPY "Relations" (relationid, comment, creation, deletion, type, source, target)
 --
 
 COPY "UserData" (userid, username, password, karma, creation, lastlogin, isadmin, salt, actionkey, profile) FROM stdin;
+2	test	c7b44d3df99a8011cd363c58cd2d92c0ddfaf49df63f300bdfc0db0b053647e3753c9ff255576bd6442de13a0df2ad9127800c196094b4d02beae564c7453a43	0	2012-09-27 02:28:57.315216+02	2012-09-27 02:29:01.925255+02	f	gmcpqoteoiqr	\N	\N
 \.
 
 
@@ -493,7 +494,7 @@ ALTER TABLE ONLY "UserData"
 
 --
 -- TOC entry 1948 (class 2606 OID 16501)
--- Dependencies: 168 1940 169 1962
+-- Dependencies: 168 169 1940 1962
 -- Name: DiscussionChoices.discussionid; Type: FK CONSTRAINT; Schema: public; Owner: sicarius
 --
 
@@ -503,7 +504,7 @@ ALTER TABLE ONLY "DiscussionChoices"
 
 --
 -- TOC entry 1949 (class 2606 OID 16506)
--- Dependencies: 164 169 1936 1962
+-- Dependencies: 169 1936 164 1962
 -- Name: DiscussionChoices.informationid; Type: FK CONSTRAINT; Schema: public; Owner: sicarius
 --
 
@@ -523,7 +524,7 @@ ALTER TABLE ONLY "DiscussionParticipants"
 
 --
 -- TOC entry 1951 (class 2606 OID 16520)
--- Dependencies: 162 170 1934 1962
+-- Dependencies: 162 1934 170 1962
 -- Name: DiscussionParticipants.userid; Type: FK CONSTRAINT; Schema: public; Owner: sicarius
 --
 
@@ -533,7 +534,7 @@ ALTER TABLE ONLY "DiscussionParticipants"
 
 --
 -- TOC entry 1945 (class 2606 OID 16457)
--- Dependencies: 164 162 1934 1962
+-- Dependencies: 162 164 1934 1962
 -- Name: Information.author; Type: FK CONSTRAINT; Schema: public; Owner: sicarius
 --
 
@@ -543,7 +544,7 @@ ALTER TABLE ONLY "Information"
 
 --
 -- TOC entry 1946 (class 2606 OID 16478)
--- Dependencies: 164 166 1938 1962
+-- Dependencies: 166 1938 164 1962
 -- Name: Information.mediaid; Type: FK CONSTRAINT; Schema: public; Owner: sicarius
 --
 
@@ -553,7 +554,7 @@ ALTER TABLE ONLY "Information"
 
 --
 -- TOC entry 1947 (class 2606 OID 16492)
--- Dependencies: 168 166 1940 1962
+-- Dependencies: 1940 168 166 1962
 -- Name: Media.discussionid; Type: FK CONSTRAINT; Schema: public; Owner: sicarius
 --
 
@@ -563,7 +564,7 @@ ALTER TABLE ONLY "Media"
 
 --
 -- TOC entry 1952 (class 2606 OID 16535)
--- Dependencies: 164 1936 172 1962
+-- Dependencies: 164 172 1936 1962
 -- Name: Relations.source; Type: FK CONSTRAINT; Schema: public; Owner: sicarius
 --
 
@@ -573,7 +574,7 @@ ALTER TABLE ONLY "Relations"
 
 --
 -- TOC entry 1953 (class 2606 OID 16540)
--- Dependencies: 172 164 1936 1962
+-- Dependencies: 1936 172 164 1962
 -- Name: Relations.target; Type: FK CONSTRAINT; Schema: public; Owner: sicarius
 --
 
@@ -698,7 +699,7 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public REVOKE ALL ON TABLES
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES  TO PUBLIC;
 
 
--- Completed on 2012-09-26 01:16:58 CEST
+-- Completed on 2012-09-27 02:30:08 CEST
 
 --
 -- PostgreSQL database dump complete
