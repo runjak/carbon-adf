@@ -24,5 +24,29 @@ function initMarked(){
     $('#InformationContent').keyup(function(){
       render();
     });
+    //Savebutton of the Editor:
+    $('form#MarkdownEditor a#EditorSave').click(function(){
+      var rq = {
+        title:          $('form#MarkdownEditor input#InformationTitle').val()
+      , description:    $('form#MarkdownEditor textarea#InformationDescription').val()
+      , content:        $('form#MarkdownEditor textarea#InformationContent').val()
+      , informationId:  $('form#MarkdownEditor').attr("data-iid")
+      };
+      var gotoIid = function(reply){
+        var iid = reply.match(/.*IId \(Id (.*)\)$/);
+        document.location.href = "/information.html?display=" + iid[1];
+      };
+      if(rq.informationId){
+        console.log('Issuing update.');
+        console.log(rq);
+        $.post("/action/edit/update", rq, function(reply){
+          gotoIid(reply);
+        });
+      }else{
+        $.post("/action/edit/create", rq, function(reply){
+          gotoIid(reply);
+        });
+      }
+    });
   }
 };

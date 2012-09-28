@@ -99,10 +99,8 @@ class InformationBackend b where
   getInformationParents       :: b -> InformationId -> Types.Limit -> Types.Offset -> IO [Information] -- | youngest first
   getProfiledUsers            :: b -> InformationId -> IO [UserData]
   -- | 'Modifying' Operations:
-  updateDescription :: b -> InformationId -> Types.Description -> IO InformationId
-  updateTitle       :: b -> InformationId -> Types.Title -> IO InformationId
-  updateContent     :: b -> InformationId -> Types.Content -> IO InformationId
-  vote              :: b -> InformationId -> UserId -> IO () -- | May only target CollectionType Choice - Discussion is found because it's a parent.
+  updateContentMedia  :: b -> UserId -> InformationId -> Types.Title -> Types.Description -> Types.Content -> IO InformationId
+  vote                :: b -> InformationId -> UserId -> IO () -- | May only target CollectionType Choice - Discussion is found because it's a parent.
   -- | 'Destructive' Operations:
   deleteInformation :: b -> InformationId -> IO () -- | Sets a delete date on an Information
   removeParticipant :: b -> InformationId -> UserId -> IO () -- | May only target discussions, should not be possible when voted.

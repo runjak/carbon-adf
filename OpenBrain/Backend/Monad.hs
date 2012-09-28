@@ -139,14 +139,8 @@ getInformationParents iid limit offset = withBackend $ \b -> liftIO $ Backend.ge
 getProfiledUsers :: InformationId -> OBB [UserData]
 getProfiledUsers iid = withBackend $ \b -> liftIO $ Backend.getProfiledUsers b iid
 
-updateDescription :: InformationId -> Types.Description -> OBB InformationId
-updateDescription iid description = withBackend $ \b -> liftIO $ Backend.updateDescription b iid description
-
-updateTitle :: InformationId -> Types.Title -> OBB InformationId
-updateTitle iid title = withBackend $ \b -> liftIO $ Backend.updateTitle b iid title
-
-updateContent :: InformationId -> Types.Content -> OBB InformationId
-updateContent iid content = withBackend $ \b -> liftIO $ Backend.updateContent b iid content
+updateContentMedia :: UserId -> InformationId -> Types.Title -> Types.Description -> Types.Content -> OBB InformationId
+updateContentMedia uid iid title description content = withBackend $ \b -> liftIO $ Backend.updateContentMedia b uid iid title description content
 
 vote :: InformationId -> UserId -> OBB ()
 vote iid uid = withBackend $ \b -> liftIO $ Backend.vote b iid uid

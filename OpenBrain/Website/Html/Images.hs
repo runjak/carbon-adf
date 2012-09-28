@@ -9,7 +9,7 @@ import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 
 path :: String -> H.AttributeValue
-path = H.toValue . ("files/img/" ++)
+path = H.toValue . ("/files/img/" ++)
 
 image :: String -> H.Html
 image i = H.img ! A.src (path i)

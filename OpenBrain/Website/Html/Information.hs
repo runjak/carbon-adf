@@ -19,6 +19,7 @@ import qualified OpenBrain.Backend.Monad as OBB
 import qualified OpenBrain.Data.Information as Information
 import qualified OpenBrain.Data.User as User
 import qualified OpenBrain.Website.Html.Decorator as Decorator
+import qualified OpenBrain.Website.Html.Images as Images
 
 {- Displaying informations: -}
 viewSingle :: Information -> OBW H.Html
@@ -35,7 +36,7 @@ viewSingle i = do
       (Information.Content c) -> H.div ! A.class_ "InformationContent" $ H.toHtml c
       _ -> return () -- FIXME handle collections and discussions.
     H.hr >> "Foobar" -- FIXME display defendants and attackers
-    H.hr >> footnotes i
+    H.hr >> footnotes True i
 
 viewMany :: Count -> Limit -> Offset -> [Information] -> OBW H.Html
 viewMany count limit offset is = do
@@ -50,7 +51,7 @@ preview i = H.div ! A.class_ "InformationPreview" $ do
   let displayId = show . unwrap . toId . Information.informationId
   H.a ! A.href (toHref "information.html" ["display=" ++ displayId i]) $ do
     title i
-  description i >> H.hr >> footnotes i
+  description i >> H.hr >> footnotes False i
 
 title :: Information -> H.Html
 title i = H.h1 ! A.class_ "InformagtionTitle" $ H.toHtml $ Information.title i
@@ -58,8 +59,9 @@ title i = H.h1 ! A.class_ "InformagtionTitle" $ H.toHtml $ Information.title i
 description :: Information -> H.Html
 description i = H.div ! A.class_ "InformationDescription" $ H.toHtml $ Information.description i
 
-footnotes :: Information -> H.Html
-footnotes i = H.dl $ do
+type ShowEditLink = Bool
+footnotes :: ShowEditLink -> Information -> H.Html
+footnotes sel i = H.dl $ do
   H.dt "Created:"
   H.dd . H.toHtml $ Information.creation i
   when (isJust $ Information.deletion i) $ do
@@ -67,6 +69,10 @@ footnotes i = H.dl $ do
     H.dd . H.toHtml . fromJust $ Information.deletion i
   H.dt "Author:"
   H.dd . H.toHtml . User.username $ Information.author i
+  when sel $ do
+    H.dt "Edit:"
+    let href = H.toValue $ "/edit/" ++ (show . unwrap . toId $ Information.informationId i)
+    H.dd $ H.a ! A.href href $ Images.edit' "Edit this Information" "Edit this Information"
 
 {- Fetching parameters: -}
 getLimit :: OBW Limit

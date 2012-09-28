@@ -56,21 +56,12 @@ update = do
   content <- getContent
   -- Fetching initial Information to compare:
   handleFail "Could not lookup target Information." $ do
-    i     <- liftOBB $ OBB.getInformation iid
-    -- Looking at changes:
-    let titleChanged = title /= Information.title i
-        descChanged  = desc  /= Information.description i
-    handleFail "Information is not simply Content." $ do
-      contentChanged <- case Information.media i of
-        (Information.Content c) -> return $ content /= c
-        _ -> mzero
-      -- A list of actions to chain:
-      let actions = (titleChanged   ? ([\i -> liftOBB $ OBB.updateTitle i title],       [return]))
-                 ++ (descChanged    ? ([\i -> liftOBB $ OBB.updateDescription i desc],  [return]))
-                 ++ (contentChanged ? ([\i -> liftOBB $ OBB.updateContent i content],   [return]))
-                 :: [InformationId -> OBW InformationId]
-      iid' <- foldl (>>=) (return iid) actions
-      handleSuccess $ "Updated Information: " ++ show iid'
+    i <- liftOBB $ OBB.getInformation iid
+    handleFail "Information is not simple Content." $ do
+      guard $ Information.isContent $ Information.media i
+      handleFail "Could not update Information." $ do
+        iid' <- liftOBB $ OBB.updateContentMedia uid iid title desc content
+        handleSuccess $ "Updated Information: " ++ show iid'
 
 {- Functions to help with the deal: -}
 getInformationId  = liftM fromId $ lookRead "informationId" :: OBW InformationId

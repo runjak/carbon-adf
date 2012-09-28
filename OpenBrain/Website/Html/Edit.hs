@@ -1,17 +1,20 @@
 {-# Language OverloadedStrings #-}
 module OpenBrain.Website.Html.Edit (editor, serve) where
 
+import Data.Maybe
 import Happstack.Server as S
 import Text.Blaze ((!))
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 
+import OpenBrain.Common
 import OpenBrain.Data.Id
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import qualified OpenBrain.Backend.Monad as OBB
 import qualified OpenBrain.Data.Information as I
 import qualified OpenBrain.Website.Html.Decorator as Decorator
+import qualified OpenBrain.Website.Html.Images as Images
 
 data EditorContent = EditorContent {
     editorTitle :: String
@@ -19,20 +22,27 @@ data EditorContent = EditorContent {
   , description :: String
   , content     :: String
   , footerLinks :: [H.Html]
+  , iid         :: Maybe InformationId
   }
 emptyContent = EditorContent {
     editorTitle = "Create Information"
   , title       = ""
   , description = ""
   , content     = ""
-  , footerLinks = ["foo","bar"]
+  , footerLinks = [
+      H.a ! A.id "EditorSave" $ Images.save' "Save" "Save"
+    ]
+  , iid         = Nothing
   }
 
 {-
   Expected to be one per page for now.
 -}
 editor :: EditorContent -> H.Html
-editor eContent = H.form ! A.id "MarkdownEditor" $ do
+editor eContent = do
+  let viid    = H.toValue . show . unwrap . toId . fromJust $ iid eContent
+      addData = (isJust $ iid eContent) ? (\x -> x ! H.dataAttribute "iid" viid, id)
+  addData H.form ! A.id "MarkdownEditor" $ do
   -- Editor headline when given:
   when (not . null $ editorTitle eContent) $ H.h1 . H.toHtml $ editorTitle eContent
   -- Input field for the title:
@@ -57,6 +67,7 @@ mkEditor ec i = case I.media i of
         title       = I.title i
       , description = I.description i
       , content     = s
+      , iid         = Just $ I.informationId i
       }
     return $ editor content
   _ -> mzero

@@ -50,3 +50,7 @@ data DiscussionInfo = DiscussionInfo {        -- | If a collection is a discussi
   , participants  :: [(User.UserData, Voted)] -- | Users that take part in the discussion and if they already voted.
   } deriving (Eq, Show)
 
+isContent :: Media -> Bool
+isContent (Content _) = True
+isContent _           = False
+

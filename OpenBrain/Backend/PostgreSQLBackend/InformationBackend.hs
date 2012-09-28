@@ -36,9 +36,7 @@ instance InformationBackend PostgreSQLBackend where
   getInformationParentsCount  b = withWConn (conn b) getInformationParentsCount'
   getInformationParents       b = withWConn (conn b) getInformationParents'
   getProfiledUsers            b = withWConn (conn b) getProfiledUsers'
-  updateDescription           b = withWConn (conn b) updateDescription'
-  updateTitle                 b = withWConn (conn b) updateTitle'
-  updateContent               b = withWConn (conn b) updateContent'
+  updateContentMedia          b = withWConn (conn b) updateContentMedia'
   vote                        b = withWConn (conn b) vote'
   deleteInformation           b = withWConn (conn b) deleteInformation'
   removeParticipant           b = withWConn (conn b) removeParticipant'
@@ -53,21 +51,21 @@ clone conn iid = do
   -- Creating clone for current target:
   mkChild <- prepare conn $ "INSERT INTO \"Information\" (author, title, description, mediaid) "
                          ++ "SELECT author , title , description , mediaid "
-                         ++ "FROM Information WHERE informationid = ?"
+                         ++ "FROM \"Information\" WHERE informationid = ?"
   execute mkChild [target]
   [[clone]] <- quickQuery' conn "SELECT LASTVAL()" []
-  -- Mark clone as child of parent:
-  mkChild <- prepare conn "INSERT INTO \"Relations\" (comment, type, source, target) VALUES ('', ?, ?, ?)"
-  execute mkChild [toSql R.Parent, target, clone]
   -- Copy relations of target to clone
   cSourceRelations <- prepare conn $ "INSERT INTO \"Relations\" (comment, type, source, target) "
                                   ++ "SELECT 'Copy from parent', type, ?, target "
-                                  ++ "FROM \"Relations\" WHERE source = ?"
+                                  ++ "FROM \"Relations\" WHERE source = ? AND type != ?"
   cTargetRelations <- prepare conn $ "INSERT INTO \"Relations\" (comment, type, source, target) "
                                   ++ "SELECT 'Copy from parent', type, source, ? "
-                                  ++ "FROM \"Relations\" WHERE target = ?"
-  execute cSourceRelations [clone, target]
-  execute cTargetRelations [clone, target]
+                                  ++ "FROM \"Relations\" WHERE target = ? AND type != ?"
+  execute cSourceRelations [clone, target, toSql R.Parent]
+  execute cTargetRelations [clone, target, toSql R.Parent]
+  -- Mark clone as child of parent:
+  mkChild <- prepare conn "INSERT INTO \"Relations\" (comment, type, source, target) VALUES ('', ?, ?, ?)"
+  execute mkChild [toSql R.Parent, target, clone]
   -- And it's done:
   return . fromId $ fromSql clone
 
@@ -87,7 +85,7 @@ addContentMedia' conn cinfo content = do
   mInsert <- prepare conn "INSERT INTO \"Media\" (content) VALUES (?)"
   execute mInsert [toSql content]
   [[mediaId]] <- quickQuery' conn "SELECT LASTVAL()" []
-  iInsert <- prepare conn "INSERT INTO \"Information\" (author, description, title, mediaid) VALUES (?, ?, ?, ?)"
+  iInsert <- prepare conn "INSERT INTO \"Information\" (author, title, description, mediaid) VALUES (?, ?, ?, ?)"
   execute iInsert [toSql . toId $ Types.userId cinfo
                   , toSql $ Types.title cinfo
                   , toSql $ Types.description cinfo
@@ -283,26 +281,23 @@ getProfiledUsers' conn iid = do
   muds  <- mapM (runMaybeT . getUser' conn . fromId . fromSql . head) _uids
   return $ catMaybes muds
 
-updateDescription' :: (IConnection conn) => conn -> InformationId -> Types.Description -> IO InformationId
-updateDescription' conn iid' description = do
+updateContentMedia' :: (IConnection conn) => conn -> UserId -> InformationId -> Types.Title -> Types.Description -> Types.Content -> IO InformationId
+updateContentMedia' conn uid iid' title description content = withTransaction conn $ \conn -> do
   iid <- clone conn iid'
-  let q = "UPDATE \"Information\" SET description = ? WHERE informationid = ?"
-  quickQuery' conn q [toSql description, toSql $ toId iid]
-  commit conn >> return iid
-
-updateTitle' :: (IConnection conn) => conn -> InformationId -> Types.Title -> IO InformationId
-updateTitle' conn iid' title = do
-  iid <- clone conn iid'
-  let q = "UPDATE \"Information\" SET title = ? WHERE informationid = ?"
-  quickQuery' conn q [toSql title, toSql $ toId iid]
-  commit conn >> return iid
-
-updateContent' :: (IConnection conn) => conn -> InformationId -> Types.Content -> IO InformationId
-updateContent' conn iid' content = do
-  iid <- clone conn iid'
-  let q = "UPDATE \"Media\" AS M JOIN \"Information\" AS I USING (mediaid) SET content = ? WHERE informationid = ?"
-  quickQuery' conn q [toSql content, toSql $ toId iid]
-  commit conn >> return iid
+  let updateInformation = "UPDATE \"Information\" SET title = ?, description = ?, author = ? WHERE informationid = ?"
+  quickQuery' conn updateInformation [toSql title, toSql description, toSql $ toId uid, toSql $ toId iid]
+  let lookupOldContent = "SELECT content FROM \"Media\" JOIN \"Information\" USING (mediaid) WHERE informationid = ?"
+  cRst <- quickQuery' conn lookupOldContent [toSql $ toId iid]
+  let cChanged = case cRst of
+                    [[content']] -> content /= fromSql content'
+                    _ -> False
+  when cChanged $ do
+    insertMedia <- prepare conn "INSERT INTO \"Media\" (content) VALUES (?)"
+    execute insertMedia [toSql content]
+    [[mid]] <- quickQuery' conn "SELECT LASTVAL()" []
+    quickQuery' conn "UPDATE \"Information\" SET mediaid = ? WHERE informationid = ?" [mid, toSql $ toId iid]
+    return ()
+  return iid
 
 vote' :: (IConnection conn) => conn -> InformationId -> UserId -> IO ()
 vote' conn iid uid = do
