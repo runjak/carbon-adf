@@ -14,8 +14,9 @@ menu :: OBW H.Html
 menu = do
   login <- Login.controls
   return $ H.ul ! A.id "menu" $ do
-    mapM_ H.li ["Some", "Dummy", "Entries"]
     H.li ! A.class_ "icon" ! A.id "MenuLogin" $ do
       Images.users' "LogIn/Out" "LogIn/Out"
       login
+    H.li ! A.class_ "icon" ! A.id "MenuEditNewInformation" $ do
+      H.a ! A.href "/edit" $ Images.edit' "Create new Information" "Create new Information"
 
