@@ -29,23 +29,21 @@ import qualified OpenBrain.Website.Session as Session
   H.Html is empty if there's no session.
   Displays a Username field if client is admin.
 -}
-edit :: OBW H.Html
-edit = flip mplus (return "") $ do
-  uid <- Session.chkSession
-  ud <- liftOBB $ OBB.getUser uid
+edit :: UserId -> OBW H.Html
+edit target = flip mplus (return "") $ do
+  uid   <- Session.chkSession
+  admin <- liftM isAdmin $ liftOBB $ OBB.getUser uid
+  ud    <- liftOBB $ OBB.getUser target
+  guard $ admin || (uid == target)
   return $ do
-    H.form ! A.id "EditBox" $ do
+    H.form ! A.id "EditBox" ! H.dataAttribute "username" (H.toValue $ username ud) $ do
       H.h1 "Update Password:"
-      let style = (isAdmin ud) ? (id, \x -> x ! A.style "display: none;")
-      style H.label $ do
-        "Target Username:"
-        H.input ! A.type_ "text" ! A.value (H.toValue $ username ud) ! A.name "Username"
       H.label $ do
         "New password:"
-        H.input ! A.type_ "password" ! A.name "Password"
+        H.input ! A.class_ "Password" ! A.type_ "password" ! A.name "Password"
       H.label $ do
         "Confirm:"
-        H.input ! A.type_ "confirm" ! A.name "Confirm"
+        H.input ! A.class_ "Confirm" ! A.type_ "password" ! A.name "Confirm"
       H.button ! A.class_ "Update" ! A.type_ "button" $ "Update Passwd"
       H.button ! A.class_ "Delete" ! A.type_ "button" $ "Delete user"
 
@@ -71,6 +69,7 @@ serveSingle = do
   uid     <- getDisplay
   ud      <- liftOBB $ OBB.getUser uid
   isA     <- msum [Session.chkSession >> return True, return False]
+  editBox <- edit uid
   profile <- flip mplus (return "") $ do
     guard . isJust $ profile ud
     let iid = fromJust $ profile ud
@@ -83,6 +82,7 @@ serveSingle = do
       (H.dt ! A.class_ "Creation") "Creation" >> (H.dd . H.toHtml $ creation ud)
       when isA $ do
         (H.dt ! A.class_ "LastLogin") "Last login" >> (H.dd . H.toHtml $ lastLogin ud)
+    editBox
     profile
 
 serveList :: OBW H.Html

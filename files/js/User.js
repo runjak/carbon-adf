@@ -55,4 +55,24 @@ function initUser(){
     });
   };
   bindMenuControls();
+  //Controls in the editBox as on /user.html:
+  //Setting a new password for the user:
+  $('form#EditBox button.Update').click(function(){
+    var rq = {
+      username: $('form#EditBox').attr('data-username')
+    , password: $('form#EditBox input.Password').val()
+    };
+    var confirm = $('form#EditBox input.Confirm').val();
+    if(rq.password != confirm){
+      alert('Password didn\'t match confirmation,\nplease chk your inputs.');
+      return;
+    }
+    $.post("action/user/password", rq, function(reply){
+      alert('Password successfully updated.');
+    });
+  });
+  //Deleting the user:
+  $('form#EditBox button.Delete').click(function(){
+    alert('Delete not implemented.\nI\'m not sure how it will be.');
+  });
 };

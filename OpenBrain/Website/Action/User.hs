@@ -124,9 +124,9 @@ changePwd = handleFail "Invalid session." $ do
 {- Expects parameters: username, admin :: {1,0} -}
 admin :: OBW Response
 admin = handleFail "Invalid session." $ do
-  setA      <- liftM (=="1") $ look "admin"
-  uid       <- chkSession
-  isA       <- liftM isAdmin . liftOBB $ OBB.getUser uid
+  setA  <- liftM (=="1") $ look "admin"
+  uid   <- chkSession
+  isA   <- liftM isAdmin . liftOBB $ OBB.getUser uid
   handleFail "You need to be admin for this." $ do
     guard isA
     username <- look "username"
