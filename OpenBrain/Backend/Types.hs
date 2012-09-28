@@ -21,6 +21,8 @@ data CreateInformation = CreateInformation {
   , description :: Description
 }
 
+type Heir = UserId
+
 type Content = String
 
 data DiscussionType = AttackOnly | AttackDefense

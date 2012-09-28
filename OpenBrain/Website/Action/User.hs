@@ -36,6 +36,7 @@ serve = msum [
 create :: OBW Response
 create = handleFail "Could not register user." $ do
   username  <- look "username"
+  guard $ username /= "Nobody"
   salt      <- liftIO mkSalt
   hash      <- liftM (hash salt) $ look "password"
   userData  <- liftOBB $ OBB.register username hash salt
@@ -74,7 +75,7 @@ delete = handleFail "Invalid session." $ do
       let isA = isAdmin userData
       let isSelf = deleteId == userid userData
       guard $ isA || isSelf
-      liftOBB $ OBB.delete deleteId
+      liftOBB $ OBB.delete' deleteId
       when isSelf dropSession
       handleSuccess "Deleted requested user."
 

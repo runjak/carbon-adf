@@ -73,6 +73,9 @@ function initUser(){
   });
   //Deleting the user:
   $('form#EditBox button.Delete').click(function(){
-    alert('Delete not implemented.\nI\'m not sure how it will be.');
+    var rq = {username: $('form#EditBox').attr('data-username')};
+    $.post("/action/user/delete", rq, function(reply){
+      alert(reply);
+    });
   });
 };

@@ -53,8 +53,10 @@ hasUserWithName username = withBackend $ \b -> lift $ Backend.hasUserWithName b 
 register :: UserName -> Hash -> Salt -> OBB UserData
 register username hash salt = withBackend $ \b -> lift $ Backend.register b username hash salt
 
-delete :: UserId -> OBB Bool
-delete userid = withBackend $ \b -> liftIO $ Backend.delete b userid
+delete :: UserId -> Types.Heir -> OBB Bool
+delete userid heir = do
+  when (userid == heir) mzero
+  withBackend $ \b -> liftIO $ Backend.delete b userid heir
 
 getUserCount :: OBB Types.Count
 getUserCount = withBackend $ liftIO . Backend.getUserCount
@@ -173,3 +175,13 @@ getUserByName = hasUserWithName >=> getUser
 
 getUsers :: [UserId] -> OBB [UserData]
 getUsers = mapM getUser
+
+getNobody :: OBB UserId
+getNobody = mplus (hasUserWithName "Nobody") $ do
+  let hash = toHash "Impossible"
+  salt  <- liftIO mkSalt
+  ud    <- register "Nobody" hash salt
+  return $ userid ud
+
+delete' :: UserId -> OBB Bool
+delete' uid = delete uid =<< getNobody

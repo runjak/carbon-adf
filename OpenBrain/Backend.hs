@@ -38,7 +38,7 @@ class UserBackend u where
   hasUserWithId   :: u -> UserId -> IO Bool
   hasUserWithName :: u -> UserName -> MaybeT IO UserId
   register        :: u -> UserName -> Hash -> Salt -> MaybeT IO UserData -- The Backend will check for duplicate UserNames.
-  delete          :: u -> UserId -> IO Bool
+  delete          :: u -> UserId -> Types.Heir -> IO Bool
   getUserCount    :: u -> IO Types.Count
   getUserList     :: u -> Types.Limit -> Types.Offset -> IO [UserId]
   updateKarma     :: u -> UserId -> (Karma -> Karma) -> IO ()

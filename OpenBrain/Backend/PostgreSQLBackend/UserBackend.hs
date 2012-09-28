@@ -95,10 +95,16 @@ register' conn username hash salt = do
     commit conn
   login' conn username hash
 
-delete' :: (IConnection conn) => conn -> UserId -> IO Bool
-delete' conn uid = do
+delete' :: (IConnection conn) => conn -> UserId -> Heir -> IO Bool
+delete' conn uid heir = do
+  let uid'  = toSql $ toId uid
+      heir' = toSql $ toId heir
+  -- Letting the heir become author of all Informations owned by the User.
+  stmt  <- prepare conn "UPDATE \"Information\" SET author = ? WHERE author = ?"
+  execute stmt [heir', uid']
+  -- Deleting the User
   stmt  <- prepare conn "DELETE FROM \"UserData\" WHERE userid = ?"
-  rst   <- execute stmt [toSql $ toId uid]
+  rst   <- execute stmt [uid']
   commit conn
   return $ rst > 0
 
