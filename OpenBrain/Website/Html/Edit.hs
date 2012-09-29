@@ -30,7 +30,8 @@ emptyContent = EditorContent {
   , description = ""
   , content     = ""
   , footerLinks = [
-      H.a ! A.id "EditorSave" $ Images.save' "Save" "Save"
+      H.a ! A.id "EditorSave" $ Images.save' "Save Information" "Save Information"
+    , H.a ! A.id "EditorAdd"  $ Images.add' "Add as new Information" "Add as new Information"
     ]
   , iid         = Nothing
   }

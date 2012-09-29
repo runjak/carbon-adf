@@ -179,3 +179,4 @@ getNobody = mplus (hasUserWithName "Nobody") $ do
 
 delete' :: UserId -> OBB Bool
 delete' uid = delete uid =<< getNobody
+

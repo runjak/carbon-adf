@@ -24,21 +24,22 @@ function initMarked(){
     $('#InformationContent').keyup(function(){
       render();
     });
-    //Savebutton of the Editor:
-    $('form#MarkdownEditor a#EditorSave').click(function(){
-      var rq = {
+    var getRq = function(){
+      return {
         title:          $('form#MarkdownEditor input#InformationTitle').val()
       , description:    $('form#MarkdownEditor textarea#InformationDescription').val()
       , content:        $('form#MarkdownEditor textarea#InformationContent').val()
       , informationId:  $('form#MarkdownEditor').attr("data-iid")
       };
-      var gotoIid = function(reply){
-        var iid = reply.match(/.*IId \(Id (.*)\)$/);
-        document.location.href = "/information.html?display=" + iid[1];
-      };
+    };
+    var gotoIid = function(reply){
+      var iid = reply.match(/.*IId \(Id (.*)\)$/);
+      document.location.href = "/information.html?display=" + iid[1];
+    };
+    //Savebutton of the Editor:
+    $('form#MarkdownEditor a#EditorSave').click(function(){
+      var rq = getRq();
       if(rq.informationId){
-        console.log('Issuing update.');
-        console.log(rq);
         $.post("/action/edit/update", rq, function(reply){
           gotoIid(reply);
         });
@@ -48,5 +49,19 @@ function initMarked(){
         });
       }
     });
+    //Addbutton of the Editor:
+    if(getRq().informationId){
+      $('form#MarkdownEditor a#EditorAdd').click(function(){
+        var rq = getRq();
+        rq.split = "True";
+        console.log(rq);
+        return;
+        $.post("/action/edit/update", getRq(), function(reply){
+          gotoIid(reply);
+        });
+      });
+    }else{ //Hiding the Addbutton if not editing an existing Information:
+      $('form#MarkdownEditor a#EditorAdd').parent().hide();
+    }  
   }
 };
