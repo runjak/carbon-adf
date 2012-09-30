@@ -33,8 +33,12 @@ function initMarked(){
       };
     };
     var gotoIid = function(reply){
-      var iid = reply.match(/.*IId \(Id (.*)\)$/);
-      document.location.href = "/information.html?display=" + iid[1];
+      if(/^FAIL/.test(reply)){
+        alert(reply);
+      }else{
+        var iid = reply.match(/.*IId \(Id (.*)\)$/);
+        document.location.href = "/information.html?display=" + iid[1];
+      }
     };
     //Savebutton of the Editor:
     $('form#MarkdownEditor a#EditorSave').click(function(){
@@ -52,10 +56,8 @@ function initMarked(){
     //Addbutton of the Editor:
     if(getRq().informationId){
       $('form#MarkdownEditor a#EditorAdd').click(function(){
-        var rq = getRq();
-        rq.split = "True";
-        console.log(rq);
-        return;
+        var rq    = getRq();
+        rq.split  = "True";
         $.post("/action/edit/update", getRq(), function(reply){
           gotoIid(reply);
         });

@@ -56,13 +56,12 @@ update = do
   content <- getContent
   split   <- getSplit
   handleFail "Login required" $ do
-    uid     <- Session.chkSession
-    -- Fetching initial Information to compare:
+    uid <- Session.chkSession
     handleFail "Could not lookup target Information." $ do
       i <- liftOBB $ OBB.getInformation iid
       let iDeleted = isJust $ Information.deletion i
       handleFail "Information outdated." $ do
-        unless split . guard $ not iDeleted
+        when iDeleted . guard $ split -- iDeleted is only on allowed on split.
         handleFail "Information is not simple Content." $ do
           guard $ Information.isContent $ Information.media i
           handleFail "Could not update Information." $ do
@@ -71,11 +70,11 @@ update = do
             handleSuccess $ "Updated Information: " ++ show iid'
 
 {- Functions to help with the deal: -}
-getInformationId  = liftM fromId $ lookRead "informationId"       :: OBW InformationId
-getTitle          = look "title"                                  :: OBW Title
-getDescription    = look "description"                            :: OBW Description
-getContent        = liftM sanitize $ look "content"               :: OBW Content
-getSplit          = flip mplus (return False) $ lookRead "split"  :: OBW Bool
+getInformationId  = liftM fromId $ lookRead "informationId" :: OBW InformationId
+getTitle          = look "title"                            :: OBW Title
+getDescription    = look "description"                      :: OBW Description
+getContent        = liftM sanitize $ look "content"         :: OBW Content
+getSplit          = msum [liftM (=="True") $ look "split", return False]   :: OBW Bool
 
 sanitize :: String -> String
 sanitize = foldl1 (.) [

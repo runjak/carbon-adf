@@ -147,7 +147,7 @@ createDiscussion' conn cinfo arguments deadline dtype = do
 
 getInformationCount' :: (IConnection conn) => conn -> IO Types.Count
 getInformationCount' conn = do
-  [[c]] <- quickQuery' conn "SELECT COUNT(*) FROM \"Information\"" []  
+  [[c]] <- quickQuery' conn "SELECT COUNT(*) FROM \"Information\" WHERE deletion IS NULL" []  
   return $ fromSql c
 
 getInformation' :: (IConnection conn) => conn -> InformationId -> MaybeT IO Information
@@ -235,31 +235,31 @@ getDiscussionInfo conn did = do
 
 getInformations' :: (IConnection conn) => conn -> Types.Limit -> Types.Offset -> IO [Information]
 getInformations' conn limit offset = do
-  let q = "SELECT informationid FROM \"Information\" ORDER BY creation DESC LIMIT ? OFFSET ?"
+  let q = "SELECT informationid FROM \"Information\" WHERE deletion IS NULL ORDER BY creation DESC LIMIT ? OFFSET ?"
   rst <- quickQuery' conn q [toSql limit, toSql offset]
   mapM (liftM fromJust . runMaybeT . getInformation' conn . fromId . fromSql . head) rst
 
 getInformationCountAfter' :: (IConnection conn) => conn -> CalendarTime -> IO Types.Count
 getInformationCountAfter' conn ctime = do
-  let q = "SELECT COUNT(*) FROM \"Information\" WHERE creation > ?"
+  let q = "SELECT COUNT(*) FROM \"Information\" WHERE deletion IS NULL AND creation > ?"
   [[c]] <- quickQuery' conn q [toSql ctime]
   return $ fromSql c
 
 getInformationsAfter' :: (IConnection conn) => conn -> CalendarTime -> Types.Limit -> Types.Offset -> IO [Information]
 getInformationsAfter' conn ctime limit offset = do
-  let q = "SELECT informationid FROM \"Information\" WHERE creation > ? ORDER BY creation DESC LIMIT ? OFFSET ?"
+  let q = "SELECT informationid FROM \"Information\" WHERE deletion IS NULL AND creation > ? ORDER BY creation DESC LIMIT ? OFFSET ?"
   rst <- quickQuery' conn q [toSql ctime, toSql limit, toSql offset]
   mapM (liftM fromJust . runMaybeT . getInformation' conn . fromId . fromSql . head) rst
 
 getInformationCountBy' :: (IConnection conn) => conn -> UserId -> IO Types.Count
 getInformationCountBy' conn uid = do
-  let q = "SELECT COUNT(*) FROM \"Information\" WHERE author = ?"
+  let q = "SELECT COUNT(*) FROM \"Information\" WHERE author = ? AND deletion IS NULL"
   [[c]] <- quickQuery' conn q [toSql $ toId uid]
   return $ fromSql c
 
 getInformationBy' :: (IConnection conn) => conn -> UserId -> Types.Limit -> Types.Offset -> IO [Information]
 getInformationBy' conn uid limit offset = do
-  let q = "SELECT informationid FROM \"Information\" WHERE author = ? ORDER BY creation DESC LIMIT ? OFFSET ?"
+  let q = "SELECT informationid FROM \"Information\" WHERE author = ? AND deletion IS NULL ORDER BY creation DESC LIMIT ? OFFSET ?"
   rst <- quickQuery' conn q [toSql $ toId uid, toSql limit, toSql offset]
   mapM (liftM fromJust . runMaybeT . getInformation' conn . fromId . fromSql . head) rst
 

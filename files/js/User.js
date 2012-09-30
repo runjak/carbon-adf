@@ -28,19 +28,19 @@ function initUser(){
     };
     //The Login Button:
     $('form#LoginBox button.Login').click(function(){
-      $.post("action/user/login", getLoginVals(), function(reply){
+      $.post("/action/user/login", getLoginVals(), function(reply){
         replaceLoginBox(reply);
       });
     });
     //The Create Button:
     $('form#LoginBox button.Create').click(function(){
-      $.post("action/user/create", getLoginVals(), function(reply){
+      $.post("/action/user/create", getLoginVals(), function(reply){
         replaceLoginBox(reply);
       });
     });
     //The Logout Button:
     $('form#LoginBox button.Logout').click(function(){
-      $.post("action/user/logout", {}, function(reply){
+      $.post("/action/user/logout", {}, function(reply){
         replaceLoginBox(reply);
       });
     });
@@ -67,7 +67,7 @@ function initUser(){
       alert('Password didn\'t match confirmation,\nplease chk your inputs.');
       return;
     }
-    $.post("action/user/password", rq, function(reply){
+    $.post("/action/user/password", rq, function(reply){
       alert('Password successfully updated.');
     });
   });

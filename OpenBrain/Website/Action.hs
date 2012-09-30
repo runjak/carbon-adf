@@ -25,5 +25,5 @@ serve = do -- actions liftM commented to enable different answers than json
               , dir "user" User.serve
               ]
   --method POST FIXME uncomment to allow only post requests
-  --decodeBody (defaultBodyPolicy "/tmp/" 4096 4096 4096)
+  decodeBody (defaultBodyPolicy "/tmp/" 4096 4096 4096)
   msum [actions, badRequest "Actions are only allowed via POST requests."]
