@@ -27,6 +27,7 @@ viewSingle i = do
   -- Gathering information necessary to display:
   let deleted     = (isJust $ Information.deletion i) ? ([A.class_ "deleted"],[])
       attributes  = [A.class_ "Information"] ++ deleted
+  r <- relations i
   -- Constructing the Html:
   return $ foldl (!) H.div attributes $ do
     title i
@@ -34,9 +35,8 @@ viewSingle i = do
       description i >> H.hr
     case (Information.media i) of
       (Information.Content c) -> H.div ! A.class_ "InformationContent" $ H.toHtml c
-      _ -> return () -- FIXME handle collections and discussions.
-    H.hr >> "Foobar" -- FIXME display defendants and attackers
-    H.hr >> footnotes True i
+      _ -> "Displaying Collections and Discussions not implemented." -- FIXME handle collections and discussions.
+    r >> H.hr >> footnotes True i
 
 viewMany :: Count -> Limit -> Offset -> [Information] -> OBW H.Html
 viewMany count limit offset is = do
@@ -58,6 +58,10 @@ title i = H.h1 ! A.class_ "InformagtionTitle" $ H.toHtml $ Information.title i
 
 description :: Information -> H.Html
 description i = H.div ! A.class_ "InformationDescription" $ H.toHtml $ Information.description i
+
+relations :: Information -> OBW H.Html
+relations i = do
+  undefined
 
 type ShowEditLink = Bool
 footnotes :: ShowEditLink -> Information -> H.Html

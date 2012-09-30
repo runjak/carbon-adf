@@ -40,8 +40,11 @@ type Deadline = CalendarTime
 
 type Collection = InformationId
 
-type Target = InformationId
-type Source = InformationId
+type Target       = InformationId
+type Source       = InformationId
+data RelationEnd  = RelationSource
+                  | RelationTarget
+type AllowDeleted = Bool
+type Comment      = String
 
-type Comment = String
 type ActionKey = String

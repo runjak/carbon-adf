@@ -108,6 +108,7 @@ class InformationBackend b where
 class RelationBackend b where
   addRelation     :: b -> Types.Source -> Types.Target -> RelationType -> Types.Comment -> IO ()  
   deleteRelation  :: b -> RelationId -> IO ()
-  getRelations    :: b -> InformationId -> IO [Relation] -- | youngest first, deleted after non deleted, source = InformationId
+  -- | youngest first, deleted after non deleted
+  getRelations    :: b -> InformationId -> Types.RelationEnd -> Maybe RelationType -> Types.AllowDeleted -> IO [Relation]
   updateComment   :: b -> RelationId -> Types.Comment -> IO ()
 

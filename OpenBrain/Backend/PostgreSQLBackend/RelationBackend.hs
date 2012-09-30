@@ -27,13 +27,45 @@ deleteRelation' conn relationid = do
   stmt <- prepare conn "UPDATE \"Relations\" SET deletion = CURRENT_TIMESTAMP WHERE relationid = ?"
   execute stmt [toSql $ toId relationid] >> commit conn
 
-getRelations' :: (IConnection conn) => conn -> InformationId -> IO [Relation]
-getRelations' conn iid = do
-  let query = "SELECT relationid, comment, creation, deletion, type, source, target FROM \"Relations\" WHERE source = ?"
-            ++" ORDER BY deletion DESC, creation DESC"
-  rst <- quickQuery' conn query [toSql $ toId iid]
-  return $ map go rst
+getRelations' :: (IConnection conn) => conn -> InformationId -> Types.RelationEnd -> Maybe RelationType -> Types.AllowDeleted -> IO [Relation]
+getRelations' conn iid rEnd mRType aDeleted = do
+    rst <- query conn (toSql $ toId iid) rEnd (liftM toSql mRType) aDeleted
+    return $ map go rst
   where
+    query :: (IConnection conn) => conn -> SqlValue -> RelationEnd -> Maybe SqlValue -> Types.AllowDeleted -> IO [[SqlValue]]
+    query conn iid RelationSource (Just t) True   = do
+      let q = "SELECT relationid, comment, creation, deletion, type, source, target FROM \"Relations\" WHERE "
+           ++ "source = ? AND type = ? ORDER BY deletion DESC, creation DESC"
+      quickQuery' conn q [iid, t]
+    query conn iid RelationSource (Just t) False  = do
+      let q = "SELECT relationid, comment, creation, deletion, type, source, target FROM \"Relations\" WHERE "
+           ++ "source = ? AND type = ? AND deletion IS NULL ORDER BY creation DESC"
+      quickQuery' conn q [iid, t]
+    query conn iid RelationSource Nothing  True   = do
+      let q = "SELECT relationid, comment, creation, deletion, type, source, target FROM \"Relations\" WHERE "
+           ++ "source = ? ORDER BY deletion DESC, creation DESC"
+      quickQuery' conn q [iid]
+    query conn iid RelationSource Nothing  False  = do
+      let q = "SELECT relationid, comment, creation, deletion, type, source, target FROM \"Relations\" WHERE "
+           ++ "source = ? AND deletion IS NULL ORDER BY creation DESC"
+      quickQuery' conn q [iid]
+    query conn iid RelationTarget (Just t) True   = do
+      let q = "SELECT relationid, comment, creation, deletion, type, source, target FROM \"Relations\" WHERE "
+           ++ "target = ? AND type = ? ORDER BY deletion DESC, creation DESC"
+      quickQuery' conn q [iid, t]
+    query conn iid RelationTarget (Just t) False  = do
+      let q = "SELECT relationid, comment, creation, deletion, type, source, target FROM \"Relations\" WHERE "
+           ++ "target = ? AND type = ? AND deletion IS NULL ORDER BY creation DESC"
+      quickQuery' conn q [iid, t]
+    query conn iid RelationTarget Nothing  True   = do
+      let q = "SELECT relationid, comment, creation, deletion, type, source, target FROM \"Relations\" WHERE "
+           ++ "target = ? ODER BY deletion DESC, creation DESC"
+      quickQuery' conn q [iid]
+    query conn iid RelationTarget Nothing  False  = do
+      let q = "SELECT relationid, comment, creation, deletion, type, source, target FROM \"Relations\" WHERE "
+           ++ "target = ? AND deletion IS NULL ORDER BY creation DESC"
+      quickQuery' conn q [iid]
+
     go :: [SqlValue] -> Relation
     go [rid, comment, creation, deletion, relationid, source, target] = Relation {
         comment     = fromSql comment
