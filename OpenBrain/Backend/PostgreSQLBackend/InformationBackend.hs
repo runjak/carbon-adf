@@ -57,13 +57,13 @@ clone conn iid = do
   [[clone]] <- quickQuery' conn "SELECT LASTVAL()" []
   -- Copy relations of target to clone
   cSourceRelations <- prepare conn $ "INSERT INTO \"Relations\" (comment, type, source, target) "
-                                  ++ "SELECT 'Copy from parent', type, ?, target "
-                                  ++ "FROM \"Relations\" WHERE source = ? AND type != ?"
+                                  ++ "SELECT comment, type, ?, target "
+                                  ++ "FROM \"Relations\" WHERE source = ?"
   cTargetRelations <- prepare conn $ "INSERT INTO \"Relations\" (comment, type, source, target) "
-                                  ++ "SELECT 'Copy from parent', type, source, ? "
-                                  ++ "FROM \"Relations\" WHERE target = ? AND type != ?"
-  execute cSourceRelations [clone, target, toSql R.Parent]
-  execute cTargetRelations [clone, target, toSql R.Parent]
+                                  ++ "SELECT comment, type, source, ? "
+                                  ++ "FROM \"Relations\" WHERE target = ?"
+  execute cSourceRelations [clone, target]
+  execute cTargetRelations [clone, target]
   -- Mark clone as child of parent:
   mkChild <- prepare conn "INSERT INTO \"Relations\" (comment, type, source, target) VALUES ('', ?, ?, ?)"
   execute mkChild [toSql R.Parent, target, clone]
