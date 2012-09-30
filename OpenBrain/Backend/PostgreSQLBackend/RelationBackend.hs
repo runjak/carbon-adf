@@ -17,15 +17,15 @@ instance RelationBackend PostgreSQLBackend where
   updateComment   b = withWConn (conn b) updateComment'
 
 addRelation' :: (IConnection conn) => conn -> Types.Source -> Types.Target -> RelationType -> Types.Comment -> IO ()  
-addRelation' conn source target rtype comment = do
+addRelation' conn source target rtype comment = withTransaction conn $ \conn -> do
   stmt <- prepare conn "INSERT INTO \"Relations\" (comment, type, source, target) VALUES (?, ?, ?, ?)"
   execute stmt [toSql comment, toSql rtype, toSql $ toId source, toSql $ toId target]
-  commit conn
+  return ()
 
 deleteRelation' :: (IConnection conn) => conn -> RelationId -> IO ()
-deleteRelation' conn relationid = do
+deleteRelation' conn relationid = withTransaction conn $ \conn ->  do
   stmt <- prepare conn "UPDATE \"Relations\" SET deletion = CURRENT_TIMESTAMP WHERE relationid = ?"
-  execute stmt [toSql $ toId relationid] >> commit conn
+  execute stmt [toSql $ toId relationid] >> return ()
 
 getRelations' :: (IConnection conn) => conn -> InformationId -> Types.RelationEnd -> Maybe RelationType -> Types.AllowDeleted -> IO [Relation]
 getRelations' conn iid rEnd mRType aDeleted = do
@@ -79,7 +79,7 @@ getRelations' conn iid rEnd mRType aDeleted = do
     go _ = error "Malformed result in OpenBrain.Backend.MysqlBackend.RelationBackend.getRelations'."
 
 updateComment' :: (IConnection conn) => conn -> RelationId -> Types.Comment -> IO ()
-updateComment' conn rid comment = do
+updateComment' conn rid comment = withTransaction conn $ \conn -> do
   stmt <- prepare conn "UPDATE \"Relations\" SET comment = ? WHERE relationid = ?"
-  execute stmt [toSql comment, toSql $ toId rid] >> commit conn
+  execute stmt [toSql comment, toSql $ toId rid] >> return ()
 

@@ -19,7 +19,7 @@ instance SessionManagement PostgreSQLBackend where
   stopSession  b = withWConn (conn b) stopSession'
 
 startSession' :: (IConnection conn) => conn -> UserId -> IO ActionKey
-startSession' conn uid = do
+startSession' conn uid = withTransaction conn $ \conn -> do
   let userid = toId uid
   stmt <- prepare conn "UPDATE \"UserData\" SET actionkey = NULL WHERE userid = ?"
   execute stmt [toSql userid]
@@ -28,7 +28,7 @@ startSession' conn uid = do
   let (key :: String) = map (toEnum . (+ fromEnum 'a') . flip mod (fromEnum '~' - fromEnum 'a')) $ take l rs
   stmt <- prepare conn "UPDATE \"UserData\" SET actionkey = ? WHERE userid = ?"
   execute stmt [toSql key, toSql userid]
-  commit conn >> return key
+  return key
 
 validate' :: (IConnection conn) => conn -> UserId -> ActionKey -> IO Bool
 validate' conn uid key = do
@@ -38,7 +38,7 @@ validate' conn uid key = do
     _ -> return False
 
 stopSession' :: (IConnection conn) => conn -> UserId -> ActionKey -> IO ()
-stopSession' conn uid key = do
+stopSession' conn uid key = withTransaction conn $ \conn -> do
   stmt <- prepare conn "UPDATE \"UserData\" SET actionkey = NULL WHERE userid = ? AND actionkey = ?"
-  execute stmt [toSql $ toId uid, toSql key] >> commit conn
+  execute stmt [toSql $ toId uid, toSql key] >> return ()
 

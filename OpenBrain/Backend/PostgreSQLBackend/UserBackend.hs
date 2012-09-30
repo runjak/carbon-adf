@@ -49,7 +49,7 @@ login' conn username hash = do
         , isAdmin   = fromSql isAdmin'
         , profile   = liftM fromId $ fromSql profile'
         }
-      liftIO $ do
+      liftIO $ withTransaction conn $ \conn -> do
         quickQuery' conn "UPDATE \"UserData\" SET lastlogin = CURRENT_TIMESTAMP WHERE userid = ?" [toSql . toId $ userid userdata]
         return userdata
     _ -> mzero
@@ -89,14 +89,14 @@ register' :: (IConnection conn) => conn -> UserName -> Hash -> Salt -> MaybeT IO
 register' conn username hash salt = do
   duplicate <- liftIOM isJust . runMaybeT $ hasUserWithName' conn username
   guard $ not duplicate
-  liftIO $ do
+  liftIO $ withTransaction conn $ \conn -> do
     insert <- prepare conn "INSERT INTO \"UserData\" (username, password, salt) VALUES (?, ?, ?)"
     execute insert [toSql username, toSql hash, toSql salt]
-    commit conn
+    return ()
   login' conn username hash
 
 delete' :: (IConnection conn) => conn -> UserId -> Heir -> IO Bool
-delete' conn uid heir = do
+delete' conn uid heir = withTransaction conn $ \conn -> do
   let uid'  = toSql $ toId uid
       heir' = toSql $ toId heir
   -- Letting the heir become author of all Informations owned by the User.
@@ -105,7 +105,6 @@ delete' conn uid heir = do
   -- Deleting the User
   stmt  <- prepare conn "DELETE FROM \"UserData\" WHERE userid = ?"
   rst   <- execute stmt [uid']
-  commit conn
   return $ rst > 0
 
 getUserCount' :: (IConnection conn) => conn -> IO Int
@@ -128,25 +127,25 @@ updateKarma' conn uid f = do
   let userid = toId uid
   rst <- quickQuery' conn "SELECT karma FROM \"UserData\" WHERE userid = ?" [toSql userid]
   case rst of
-    [[k]] -> do
+    [[k]] -> withTransaction conn $ \conn -> do
       let k' = f $ fromSql k
       stmt <- prepare conn "UPDATE \"UserData\" SET karma = ? WHERE userid = ?"
-      execute stmt [toSql k', toSql userid] >> commit conn
+      execute stmt [toSql k', toSql userid] >> return ()
     _ -> return ()
 
 updatePasswd' :: (IConnection conn) => conn -> UserId -> Hash -> IO ()
-updatePasswd' conn uid hash = do
+updatePasswd' conn uid hash = withTransaction conn $ \conn -> do
   stmt <- prepare conn "UPDATE \"UserData\" SET password = ? WHERE userid = ?"
-  execute stmt [toSql hash, toSql $ toId uid] >> commit conn
+  execute stmt [toSql hash, toSql $ toId uid] >> return ()
 
 setAdmin' :: (IConnection conn) => conn -> UserId -> Bool -> IO ()
-setAdmin' conn uid admin = do
+setAdmin' conn uid admin = withTransaction conn $ \conn -> do
   stmt <- prepare conn "UPDATE \"UserData\" SET isadmin = ? WHERE userid = ?"
-  execute stmt [toSql admin, toSql $ toId uid] >> commit conn
+  execute stmt [toSql admin, toSql $ toId uid] >> return ()
 
 setProfile' :: (IConnection conn) => conn -> UserId -> Maybe InformationId -> IO ()
-setProfile' conn uid iid = do
+setProfile' conn uid iid = withTransaction conn $ \conn -> do
   let _iid  = toSql $ liftM toId iid
       q     = "UPDATE \"UserData\" SET profile = ? WHERE userid = ?"
-  quickQuery' conn q [_iid, toSql $ toId uid] >> commit conn
+  quickQuery' conn q [_iid, toSql $ toId uid] >> return ()
 

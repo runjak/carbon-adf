@@ -44,6 +44,7 @@ instance InformationBackend PostgreSQLBackend where
 {-
   Produces a new Information with the same author, title, description and mediaid
   as the original. Source- and Targetrelations are also cloned.
+  Clone is not a transaction on purpose.
 -}
 clone :: (IConnection conn) => conn -> InformationId -> IO InformationId
 clone conn iid = do
@@ -71,17 +72,17 @@ clone conn iid = do
 
 type MediaId = SqlValue
 mkSimpleInformation :: (IConnection conn) => conn -> Types.CreateInformation -> MediaId -> IO InformationId
-mkSimpleInformation conn cinfo mediaid = do
+mkSimpleInformation conn cinfo mediaid = withTransaction conn $ \conn -> do
   iInsert <- prepare conn "INSERT INTO \"Information\" (author, description, title, mediaid) VALUES (?, ?, ?, ?)"
   execute iInsert [toSql . toId $ Types.userId cinfo
                   , toSql $ Types.title cinfo
                   , toSql $ Types.description cinfo
                   , mediaid]
   [[iid]] <- quickQuery' conn "SELECT LASTVAL()" []
-  commit conn >> return (fromId $ fromSql iid)
+  return (fromId $ fromSql iid)
 
 addContentMedia' :: (IConnection conn) => conn -> Types.CreateInformation -> Types.Content -> IO InformationId
-addContentMedia' conn cinfo content = do
+addContentMedia' conn cinfo content = withTransaction conn $ \conn -> do
   mInsert <- prepare conn "INSERT INTO \"Media\" (content) VALUES (?)"
   execute mInsert [toSql content]
   [[mediaId]] <- quickQuery' conn "SELECT LASTVAL()" []
@@ -91,22 +92,20 @@ addContentMedia' conn cinfo content = do
                   , toSql $ Types.description cinfo
                   , mediaId]
   [[iid]] <- quickQuery' conn "SELECT LASTVAL()" []
-  commit conn
   return . fromId $ fromSql iid
 
 addToCollection' :: (IConnection conn) => conn -> Types.Collection -> [InformationId] -> IO InformationId
-addToCollection' conn c elems = do
+addToCollection' conn c elems = withTransaction conn $ \conn -> do
   -- We clone the collection to modify it
   c' <- clone conn c
   -- Add elems to belong to c'
   stmt <- prepare conn "INSERT INTO \"Relations\" (comment, type, source, target) VALUES ('', ?, ?, ?)"
   executeMany stmt [[toSql R.Collection, toSql $ toId c', toSql $ toId e] | e <- elems]
   -- Finish
-  commit conn
   return c'
 
 addParticipant' :: (IConnection conn) => conn -> InformationId -> UserId -> IO ()
-addParticipant' conn iid uid = do
+addParticipant' conn iid uid = withTransaction conn $ \conn -> do
   let fetchDiscussion = "SELECT discussionid FROM \"DiscussionInfo\" AS D "
                       ++ "JOIN \"Media\" USING (discussionid) "
                       ++ "JOIN \"Information\" AS I USING (mediaid) "
@@ -116,10 +115,10 @@ addParticipant' conn iid uid = do
   when (not $ null rst) $ do
     let did = head $ head rst
     stmt <- prepare conn "INSERT INTO \"DiscussionParticipants\" (discussionid, userid) VALUES (?, ?)"
-    execute stmt [did, toSql $ toId uid] >> commit conn
+    execute stmt [did, toSql $ toId uid] >> return ()
 
 createCollection' :: (IConnection conn) => conn -> Types.CreateInformation -> [InformationId] -> IO Types.Collection
-createCollection' conn cinfo elems = do
+createCollection' conn cinfo elems = withTransaction conn $ \conn -> do
   -- Insert a new media for the collection
   quickQuery' conn "INSERT INTO \"Media\" (collectiontype) VALUES (?)" [toSql SimpleCollection]
   [[mediaid]] <- quickQuery' conn "SELECT LASTVAL()" []
@@ -128,10 +127,10 @@ createCollection' conn cinfo elems = do
   -- Insert relations
   collect <- prepare conn "INSERT INTO \"Relations\" (comment, type, source, target) VALUES ('', ?, ?, ?)"
   executeMany collect [[toSql R.Collection, toSql $ toId iid, toSql $ toId e] | e <- elems]
-  commit conn >> return iid
+  return iid
 
 createDiscussion' :: (IConnection conn) => conn -> Types.CreateInformation -> [InformationId] -> Types.Deadline -> Types.DiscussionType -> IO InformationId
-createDiscussion' conn cinfo arguments deadline dtype = do
+createDiscussion' conn cinfo arguments deadline dtype = withTransaction conn $ \conn -> do
   -- Producing a new discussion:
   quickQuery' conn "INSERT INTO \"DiscussionInfo\" (deadline) VALUES (?)" [toSql deadline]
   [[did]] <- quickQuery' conn "SELECT LASTVAL()" []
@@ -300,7 +299,7 @@ updateContentMedia' conn uid iid' title description content = withTransaction co
   return iid
 
 vote' :: (IConnection conn) => conn -> InformationId -> UserId -> IO ()
-vote' conn iid uid = do
+vote' conn iid uid = withTransaction conn $ \conn -> do
   let _iid = toSql $ toId iid
       _uid = toSql $ toId uid
   -- Figure out Discussion iid belongs to:
@@ -319,15 +318,15 @@ vote' conn iid uid = do
           markChoice  = "UPDATE \"DiscussionChoices\" SET votes = votes + 1 WHERE discussionid = ? AND informationid = ?"
       quickQuery' conn markVoted [did, _uid]
       quickQuery' conn markChoice [did, _iid]
-      commit conn
+      return ()
 
 deleteInformation' :: (IConnection conn) => conn -> InformationId -> IO ()
-deleteInformation' conn iid = do
+deleteInformation' conn iid = withTransaction conn $ \conn -> do
   let q = "UPDATE \"Information\" SET deletion = CURRENT_TIMESTAMP WHERE informationid = ?"
-  quickQuery' conn q [toSql $ toId iid] >> commit conn
+  quickQuery' conn q [toSql $ toId iid] >> return ()
 
 removeParticipant' :: (IConnection conn) => conn -> InformationId -> UserId -> IO ()
-removeParticipant' conn iid uid = do
+removeParticipant' conn iid uid = withTransaction conn $ \conn -> do
   -- Find the did:
   let getDid = "SELECT discussionid FROM \"Media\" JOIN \"Information\" USING (mediaid) WHERE informationid = ?"
   [[did]] <- quickQuery' conn getDid [toSql $ toId iid]
@@ -341,5 +340,5 @@ removeParticipant' conn iid uid = do
     when (fromSql canVote) $ do
       -- Remove participant:
       let q = "DELETE FROM \"DiscussionParticipants\" WHERE discussionid = ? AND userid = ?"
-      quickQuery' conn q [did, toSql $ toId uid] >> commit conn
+      quickQuery' conn q [did, toSql $ toId uid] >> return ()
 
