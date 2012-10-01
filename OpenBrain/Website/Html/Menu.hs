@@ -14,6 +14,8 @@ menu :: OBW H.Html
 menu = do
   login <- Login.controls
   return $ H.ul ! A.id "menu" $ do
+    H.li ! A.class_ "icon" ! A.id "MenuLogo" $ do
+      H.a ! A.href "/" $ Images.openBrain' "OpenBrain" "OpenBrain"
     H.li ! A.class_ "icon" ! A.id "MenuLogin" $ do
       Images.users' "LogIn/Out" "LogIn/Out"
       login
