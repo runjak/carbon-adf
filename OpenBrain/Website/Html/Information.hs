@@ -164,6 +164,10 @@ getUser :: OBW UserId
 getUser = liftM fromId $ lookRead "user"
 
 {- May fail -}
+getItems :: OBW [InformationId]
+getItems = liftM (map (fromId . wrap) . read) $ look "items"
+
+{- May fail -}
 getDisplay :: OBW InformationId
 getDisplay = liftM fromId $ lookRead "display"
 
@@ -173,11 +177,12 @@ getDisplay = liftM fromId $ lookRead "display"
   /information.html?limit=_&offset=_
   /information.html?after=_&limit=_&offset=_
   /information.html?user=_&limit=_&offset=_
+  /information.html?items=[..]
   Displaying single information:
   /information.html?display=_
 -}
 serve :: OBW Response
-serve = msum [serveSingle, serveUser, serveAfter, serveList]
+serve = msum [serveSingle, serveUser, serveAfter, serveItems, serveList]
 
 {-
   /information.html
@@ -210,6 +215,13 @@ serveUser = do
   count   <- liftOBB $ OBB.getInformationCountBy uid
   is      <- liftOBB $ OBB.getInformationBy uid limit offset
   ok . toResponse =<< Decorator.page =<< viewMany count limit offset is
+
+{- /information.html?items=[..] -}
+serveItems :: OBW Response
+serveItems = do
+  iids <- getItems
+  is <- liftOBB $ mapM OBB.getInformation iids
+  ok . toResponse =<< Decorator.page (list is)
 
 {- /information.html?display=_ -}
 serveSingle :: OBW Response
