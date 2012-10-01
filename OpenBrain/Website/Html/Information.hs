@@ -13,6 +13,7 @@ import OpenBrain.Backend.Types as Types hiding (CreateInformation(..))
 import OpenBrain.Common
 import OpenBrain.Data.Id
 import OpenBrain.Data.Information (Information)
+import OpenBrain.Data.Relation
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import qualified OpenBrain.Backend.Monad as OBB
@@ -25,18 +26,27 @@ import qualified OpenBrain.Website.Html.Images as Images
 viewSingle :: Information -> OBW H.Html
 viewSingle i = do
   -- Gathering information necessary to display:
+  content <- mkContent i
+  rels    <- relations i
+  -- Generating the attributes for the H.div:
   let deleted     = (isJust $ Information.deletion i) ? ([A.class_ "deleted"],[])
       attributes  = [A.class_ "Information"] ++ deleted
-  r <- relations i
   -- Constructing the Html:
   return $ foldl (!) H.div attributes $ do
     title i
     when (not . null $ Information.description i) $ do
       description i >> H.hr
-    case (Information.media i) of
-      (Information.Content c) -> H.div ! A.class_ "InformationContent" $ H.toHtml c
-      _ -> "Displaying Collections and Discussions not implemented." -- FIXME handle collections and discussions.
-    r >> H.hr >> footnotes True i
+    H.table $ H.tbody $ H.tr $ do
+      H.td content
+      H.td rels
+    H.hr >> footnotes True i
+  where
+    mkContent :: Information -> OBW H.Html
+    mkContent i
+      | Information.isContent (Information.media i) = do
+          let content = H.toHtml . Information.getContent $ Information.media i
+          return $ H.div ! A.class_ "InformationContent" $ content
+      | otherwise = return $ "Displaying Collections and Discussions not implemented." -- FIXME handle collections and discussions.
 
 viewMany :: Count -> Limit -> Offset -> [Information] -> OBW H.Html
 viewMany count limit offset is = do
@@ -61,20 +71,75 @@ description i = H.div ! A.class_ "InformationDescription" $ H.toHtml $ Informati
 
 relations :: Information -> OBW H.Html
 relations i = do
-  undefined
+  let iid = Information.informationId i
+  parents'    <- liftOBB $ OBB.getRelations iid RelationTarget (Just Parent)  True
+  children'   <- liftOBB $ OBB.getRelations iid RelationSource (Just Parent)  True
+  attackers'  <- liftOBB $ OBB.getRelations iid RelationTarget (Just Attack)  False
+  supporters' <- liftOBB $ OBB.getRelations iid RelationTarget (Just Defense) False
+  victims'    <- liftOBB $ OBB.getRelations iid RelationSource (Just Attack)  False
+  protegee'   <- liftOBB $ OBB.getRelations iid RelationSource (Just Defense) False
+  let lookup = mapM $ liftOBB . OBB.getInformation
+  parents     <- lookup $ map source parents'
+  children    <- lookup $ map target children'
+  attackers   <- lookup $ map source attackers'
+  supporters  <- lookup $ map source supporters'
+  victims     <- lookup $ map target victims'
+  protegee    <- lookup $ map target protegee'
+  return $ H.div ! A.id "InformationRelations" $ do
+    unless (null parents) $ do
+      H.div ! A.id "InformationParents" $ do
+        H.h2 "Parents:"
+        mkList "Parent" $ zip parents parents'
+    unless (null children) $ do
+      H.div ! A.id "InformationChildren" $ do
+        H.h2 "Children:"
+        mkList "Child" $ zip children children'
+    unless (null attackers) $ do
+      H.div ! A.id "InformationAttackers" $ do
+        H.h2 "Attackers:"
+        mkList "Attacker" $ zip attackers attackers'
+    unless (null supporters) $ do
+      H.div ! A.id "InformationSupporters" $ do
+        H.h2 "Supporters:"
+        mkList "Supporter" $ zip supporters supporters'
+    unless (null victims) $ do
+      H.div ! A.id "InformationVictims" $ do
+        H.h2 "Victims:"
+        mkList "Victim" $ zip victims victims'
+    unless (null protegee) $ do
+      H.div ! A.id "InformationProtegee" $ do
+        H.h2 "Protegee:"
+        mkList "Protege" $ zip protegee protegee'
+  where
+    mkList :: H.AttributeValue -> [(Information, Relation)] -> H.Html
+    mkList liClass xs = H.ul ! A.class_ "RelationList" $ forM_ xs $ \(x, xRel) -> H.li ! A.class_ liClass $ do
+      let rid     = H.toValue . show $ relationId xRel
+          xHref   = H.toValue . ("/information.html?display="++). show . unwrap . toId $ Information.informationId x
+          xTitle  = H.toValue $ Information.description x
+      H.dl ! A.class_ "RelationDescription" ! H.dataAttribute "relationId" rid $ do
+        H.dt "Name"
+        H.dd $ H.a ! A.href xHref ! A.title xTitle $ H.toHtml $ Information.title x
+        unless (null $ comment xRel) $ do
+          H.dt "Comment"
+          H.dd . H.toHtml $ comment xRel
+        H.dt "Created"
+        H.dd . H.toHtml $ creation xRel
+        when (isJust $ deletion xRel) $ do
+          H.dt "Deleted"
+          H.dd . H.toHtml . fromJust $ deletion xRel
 
 type ShowEditLink = Bool
 footnotes :: ShowEditLink -> Information -> H.Html
-footnotes sel i = H.dl $ do
-  H.dt "Created:"
+footnotes sel i = H.dl ! A.class_ "InformationFootnotes" $ do
+  H.dt "Created"
   H.dd . H.toHtml $ Information.creation i
   when (isJust $ Information.deletion i) $ do
-    H.dt "Deleted:"
+    H.dt "Deleted"
     H.dd . H.toHtml . fromJust $ Information.deletion i
-  H.dt "Author:"
+  H.dt "Author"
   H.dd . H.toHtml . User.username $ Information.author i
   when sel $ do
-    H.dt "Edit:"
+    H.dt "Edit"
     let href = H.toValue $ "/edit/" ++ (show . unwrap . toId $ Information.informationId i)
     H.dd $ H.a ! A.href href $ Images.edit' "Edit this Information" "Edit this Information"
 

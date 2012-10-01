@@ -1,0 +1,44 @@
+/*Styling informations:*/
+ul.InformationList {
+  list-style:             none;
+  background:             #9cbc2c;
+  margin:                 5px;
+  -webkit-border-radius:  5px;
+  border-radius:          5px;
+}
+ul.InformationList li {display: inline; width: 50%;}
+div.Information {
+  list-style:             none;
+  background:             #9cbc2c;
+  margin:                 5px;
+  -webkit-border-radius:  5px;
+  border-radius:          5px;
+  padding:                5px;
+}
+div.Information > table {width: 100%;}
+div.Information > table td {width: 50%;}
+
+ul.RelationList {}
+dl.RelationDescription {
+  border-color:   #e3ebc3;
+  border-style:   solid;
+  border-width:   2px;
+  border-radius:  5px;
+}
+dl.RelationDescription dt {
+  float:        left;
+  clear:        left;
+  text-align:   left;
+  font-weight:  bold;
+  width:        100px;
+}
+dl.RelationDescription dt:after {content: ":";}
+
+dl.InformationFootnotes dt {
+  float:        left;
+  clear:        left;
+  text-align:   left;
+  font-weight:  bold;
+  width:        100px;
+}
+dl.InformationFootnotes dt:after {content: ":";}

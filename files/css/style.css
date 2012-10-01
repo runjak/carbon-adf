@@ -9,20 +9,4 @@ body {
   color: #111111;
   font-family: Georgia, "Times New Roman", Times, serif;
 }
-/*Styling informations:*/
-ul.InformationList {
-  list-style:             none;
-  background:             #9cbc2c;
-  margin:                 5px;
-  -webkit-border-radius:  5px;
-  border-radius:          5px;
-}
-ul.InformationList li {display: inline; width: 50%;}
-div.Information {
-  list-style:             none;
-  background:             #9cbc2c;
-  margin:                 5px;
-  -webkit-border-radius:  5px;
-  border-radius:          5px;
-  padding:                5px;
-}
+
