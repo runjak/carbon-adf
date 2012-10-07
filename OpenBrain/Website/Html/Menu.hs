@@ -21,4 +21,6 @@ menu = do
       login
     H.li ! A.class_ "icon" ! A.id "MenuEditNewInformation" $ do
       H.a ! A.href "/edit" $ Images.edit' "Create new Information" "Create new Information"
+    H.li ! A.class_ "icon" ! A.id "MenuListCollected" $ do
+      Images.book' "View collected Informations" "View collected Informations"
 

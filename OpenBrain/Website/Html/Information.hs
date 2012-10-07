@@ -64,7 +64,8 @@ preview i = H.div ! A.class_ "InformationPreview" $ do
   description i >> H.hr >> footnotes False i
 
 title :: Information -> H.Html
-title i = H.h1 ! A.class_ "InformagtionTitle" $ H.toHtml $ Information.title i
+title i = let iAttr = H.dataAttribute "InformationId" (H.toValue . show $ Information.informationId i)
+          in  H.h1 ! iAttr ! A.class_ "InformationTitle" $ H.toHtml $ Information.title i
 
 description :: Information -> H.Html
 description i = H.div ! A.class_ "InformationDescription" $ H.toHtml $ Information.description i
@@ -142,6 +143,8 @@ footnotes sel i = H.dl ! A.class_ "InformationFootnotes" $ do
     H.dt "Edit"
     let href = H.toValue $ "/edit/" ++ (show . unwrap . toId $ Information.informationId i)
     H.dd $ H.a ! A.href href $ Images.edit' "Edit this Information" "Edit this Information"
+    H.dt "Collect"
+    H.dd ! A.id "InformationBookmark" $ Images.bookmark' "Collect this Information." "Collect this Information."
 
 {- Fetching parameters: -}
 getLimit :: OBW Limit

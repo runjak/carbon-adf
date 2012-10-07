@@ -44,5 +44,5 @@ save'       = imageLabel "save.svg"
 stop        = image "stop.svg"
 stop'       = imageLabel "stop.svg"
 users       = image "users.svg"
-users'  = imageLabel "users.svg"
+users'      = imageLabel "users.svg"
 

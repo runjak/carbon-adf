@@ -20,6 +20,7 @@ nullWebsiteConfig = WebsiteConfig {
     , "marked/marked.js"
     , "Marked.js"
     , "User.js"
+    , "InformationCollection.js"
     , "Information.js"
     , "Main.js"]
   , cssFiles    = map ("/files/css/" ++) ["style.css", "editor.css", "information.css", "menu.css"]
