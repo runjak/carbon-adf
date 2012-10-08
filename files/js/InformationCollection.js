@@ -1,6 +1,23 @@
 function InformationCollection(){
   //Check if InformationCollection is working:
   this.working = (typeof(Storage)!=="undefined");
+  //Regex to match iids:
+  this.iidRegex = /.*IId \(Id (.*)\)$/;
+  //Function to check valid iids:
+  this.validIid = function(iid){
+    if(!this.iidRegex.test(iid)){
+      alert('Malformed iid:\t' + iid);
+      return false;
+    }
+    return true;
+  };
+  //Function to fetch from localStorage:
+  this.fetch = function(){
+    var iids = $.parseJSON(localStorage.iCol);
+    if(!iids)
+      iids = [];
+    return iids;
+  };
   /*
     Adds an iid to the localstorage collection.
     This allows users to later view Information as a bunch.
@@ -8,18 +25,11 @@ function InformationCollection(){
   */
   this.addInf = function(iid){
     //Checking the parameter:
-    if(!iid){
-      alert('Cannot collect iid:\t' + iid);
+    if(!this.validIid(iid))
       return;
-    }else if(! /.*IId \(Id (.*)\)$/.test(iid)){
-      alert('Malformed iid:\t' + iid);
-      return;
-    }
-    var iid = iid.match(/.*IId \(Id (.*)\)$/)[1];
+    var iid = iid.match(this.iidRegex)[1];
     //Fetching localStorage:
-    var iids = $.parseJSON(localStorage.iCol);
-    if(!iids)
-      iids = [];
+    var iids = this.fetch();
     //Updating iids:
     iids = $.grep(iids, function(e, i){return e != iid;});
     iids.unshift(iid);
@@ -32,7 +42,14 @@ function InformationCollection(){
     @param iid String followes the same notion as addInf
   */
   this.delInf = function(iid){
-    alert('Implement InformationCollection.delInf(iid) in files/js/InformationCollection.js!');
+    //Checking the parameter:
+    if(!this.validIid(iid))
+      return;
+    var iid= iid.match(this.iidRegex)[1];
+    //Removing from localStorage:
+    var iids = this.fetch();
+    iids = $.grep(iids, function(e, i){return e != iid;});
+    localStorage.iCol = "[" + iids + "]";
   };
   /*
     Makes the users browser display the current collection
@@ -41,7 +58,7 @@ function InformationCollection(){
   */
   this.display = function(){
     var iids = localStorage.iCol;
-    if(!iids){
+    if(!iids || iids == "[]"){
       alert('Collect some Information first to view them together.');
       return;
     }

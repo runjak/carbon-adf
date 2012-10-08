@@ -84,3 +84,10 @@ pages limit offset count = do
     ++ [("Current",page)]
     ++ zip (map show [(page + 1)..]) nexts
 
+{-
+  Puts given H.Html data into a one line table as cells,
+  thereby 'formatting' them as columns.
+-}
+tColumns :: [H.Html] -> H.Html
+tColumns = H.table . H.tbody . H.tr . mapM_ H.td
+

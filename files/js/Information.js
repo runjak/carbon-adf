@@ -14,4 +14,17 @@ function initInformation(){
   $('dd#InformationBookmark > img').click(function(){
     iCol.addInf($('.InformationTitle').attr('data-InformationId'));
   });
+  //Selecting Informations in custom collection:
+  $('ul.InformationList > li.selectable').toggle(
+    function(){$(this).addClass('selected');}
+  , function(){$(this).removeClass('selected');}
+  );
+  //Removing selected Information:
+  $('div#InformationRemoveSelected').click(function(){
+    $('ul.InformationList > li.selected').each(function(){
+      var iid = $('.InformationTitle', this).attr('data-InformationId');
+      iCol.delInf(iid);
+      $(this).remove();
+    });
+  });
 };

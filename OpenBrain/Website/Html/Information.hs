@@ -36,9 +36,7 @@ viewSingle i = do
     title i
     when (not . null $ Information.description i) $ do
       description i >> H.hr
-    H.table $ H.tbody $ H.tr $ do
-      H.td content
-      H.td rels
+    tColumns [content, rels]
     H.hr >> footnotes True i
   where
     mkContent :: Information -> OBW H.Html
@@ -51,10 +49,12 @@ viewSingle i = do
 viewMany :: Count -> Limit -> Offset -> [Information] -> OBW H.Html
 viewMany count limit offset is = do
   return $ do
-    "A List of informations:" >> list is
+    "A List of informations:" >> list False is
 
-list :: [Information] -> H.Html
-list is = H.ul ! A.class_ "InformationList" $ mapM_ (H.li . preview) is
+type Selectable = Bool
+list :: Selectable -> [Information] -> H.Html
+list selectable is = let item = selectable ? (H.li ! A.class_ "selectable", H.li)
+                     in  H.ul ! A.class_ "InformationList" $ mapM_ (item . preview) is
 
 preview :: Information -> H.Html
 preview i = H.div ! A.class_ "InformationPreview" $ do
@@ -224,7 +224,11 @@ serveItems :: OBW Response
 serveItems = do
   iids <- getItems
   is <- liftOBB $ mapM OBB.getInformation iids
-  ok . toResponse =<< Decorator.page (list is)
+  let relationEdit  = H.div ! A.id "RelationEditor" $ do
+        let rCaption = "Remove selected Informations from list."
+        H.div ! A.id "InformationRemoveSelected" $ Images.remove' rCaption rCaption
+      content       = H.div ! A.class_ "Information" $ tColumns [list True is, relationEdit]
+  ok . toResponse =<< Decorator.page content
 
 {- /information.html?display=_ -}
 serveSingle :: OBW Response
