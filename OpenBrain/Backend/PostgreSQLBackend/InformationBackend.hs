@@ -112,10 +112,10 @@ addParticipant' conn iid uid = withTransaction conn $ \conn -> do
                       ++ "WHERE D.deadline >= CURRENT_TIMESTAMP "
                       ++ "AND I.informationid = ?"
   rst <- quickQuery' conn fetchDiscussion [toSql $ toId iid]
-  when (not $ null rst) $ do
+  unless (null rst) $ do
     let did = head $ head rst
     stmt <- prepare conn "INSERT INTO \"DiscussionParticipants\" (discussionid, userid) VALUES (?, ?)"
-    execute stmt [did, toSql $ toId uid] >> return ()
+    void $ execute stmt [did, toSql $ toId uid]
 
 createCollection' :: (IConnection conn) => conn -> Types.CreateInformation -> [InformationId] -> IO Types.Collection
 createCollection' conn cinfo elems = withTransaction conn $ \conn -> do
@@ -178,21 +178,21 @@ getMedia conn iid = do
   [[mid, _content, _ctype, did]] <- quickQuery' conn selectMedia [iid']
   -- Two constructors for Media:
   if _content /= SqlNull
-  then return . Content $ fromSql _content
-  else do -- Media is a Collection:
-    let ctype = fromSql _ctype :: CollectionType
-    -- Fetching arguments:
-    let argQuery = "SELECT target FROM \"Relations\" WHERE source = ? AND type = ?"
-    _args <- quickQuery' conn argQuery [iid', toSql R.Collection]
-    let args = map (fromId . fromSql . head) _args
-    -- Looking for DiscussionInfo:
-    dinfo <- runMaybeT $ getDiscussionInfo conn did
-    -- Building the complete Collection:
-    return $ Collection {
-      arguments       = args
-    , collectionType  = ctype
-    , discussion      = dinfo
-    }
+    then return . Content $ fromSql _content
+    else do -- Media is a Collection:
+      let ctype = fromSql _ctype :: CollectionType
+      -- Fetching arguments:
+      let argQuery = "SELECT target FROM \"Relations\" WHERE source = ? AND type = ?"
+      _args <- quickQuery' conn argQuery [iid', toSql R.Collection]
+      let args = map (fromId . fromSql . head) _args
+      -- Looking for DiscussionInfo:
+      dinfo <- runMaybeT $ getDiscussionInfo conn did
+      -- Building the complete Collection:
+      return Collection {
+        arguments       = args
+      , collectionType  = ctype
+      , discussion      = dinfo
+      }
 
 type DiscussionId = SqlValue
 getDiscussionInfo :: (IConnection conn) => conn -> DiscussionId -> MaybeT IO DiscussionInfo
@@ -312,7 +312,7 @@ vote' conn iid uid = withTransaction conn $ \conn -> do
     -- Check that Participant hasn't already voted:
     let getVoted = "SELECT voted FROM \"DiscussionParticipants\" WHERE discussionid = ? AND userid = ?"
     [[voted]] <- quickQuery' conn getVoted [did, _uid]
-    when (not $ fromSql voted) $ do
+    unless (fromSql voted) $ do
       -- Perform the vote:
       let markVoted   = "UPDATE \"DiscussionParticipants\" SET voted = 1 WHERE discussionid = ? AND userid = ?"
           markChoice  = "UPDATE \"DiscussionChoices\" SET votes = votes + 1 WHERE discussionid = ? AND informationid = ?"
@@ -323,7 +323,7 @@ vote' conn iid uid = withTransaction conn $ \conn -> do
 deleteInformation' :: (IConnection conn) => conn -> InformationId -> IO ()
 deleteInformation' conn iid = withTransaction conn $ \conn -> do
   let q = "UPDATE \"Information\" SET deletion = CURRENT_TIMESTAMP WHERE informationid = ?"
-  quickQuery' conn q [toSql $ toId iid] >> return ()
+  void $ quickQuery' conn q [toSql $ toId iid]
 
 removeParticipant' :: (IConnection conn) => conn -> InformationId -> UserId -> IO ()
 removeParticipant' conn iid uid = withTransaction conn $ \conn -> do
@@ -340,5 +340,5 @@ removeParticipant' conn iid uid = withTransaction conn $ \conn -> do
     when (fromSql canVote) $ do
       -- Remove participant:
       let q = "DELETE FROM \"DiscussionParticipants\" WHERE discussionid = ? AND userid = ?"
-      quickQuery' conn q [did, toSql $ toId uid] >> return ()
+      void $ quickQuery' conn q [did, toSql $ toId uid]
 

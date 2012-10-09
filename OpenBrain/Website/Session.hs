@@ -40,7 +40,7 @@ chkSession :: OBW UserId
 chkSession = do
   key   <-  lookCookieValue cookieActionKey
   uid   <-  liftM read $ lookCookieValue cookieUserId
-  guard =<< (liftOBB $ OBB.validate uid key)
+  guard =<< liftOBB (OBB.validate uid key)
   return uid
 
 dropSession :: OBW ()

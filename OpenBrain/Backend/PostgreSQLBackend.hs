@@ -17,7 +17,7 @@ import qualified OpenBrain.Backend.PostgreSQLBackend.Common as Common
 
 load :: Config -> IO Backend
 load config = do
-  when (not $ validConfig config) $ error "Invalid config for PostgreSqlBackend!"
+  unless (validConfig config) $ error "Invalid config for PostgreSqlBackend!"
   let options = pgOptions $ backendType config
   putStr "Connecting to PostgreSQL database:\t"
   conn <- PSQL.connectPostgreSQL options

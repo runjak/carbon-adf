@@ -42,10 +42,10 @@ emptyContent = EditorContent {
 editor :: EditorContent -> H.Html
 editor eContent = do
   let viid    = H.toValue . show . unwrap . toId . fromJust $ iid eContent
-      addData = (isJust $ iid eContent) ? (\x -> x ! H.dataAttribute "iid" viid, id)
+      addData = isJust (iid eContent) ? (\x -> x ! H.dataAttribute "iid" viid, id)
   addData H.form ! A.id "MarkdownEditor" $ do
   -- Editor headline when given:
-  when (not . null $ editorTitle eContent) $ H.h1 . H.toHtml $ editorTitle eContent
+  unless (null $ editorTitle eContent) $ H.h1 . H.toHtml $ editorTitle eContent
   -- Input field for the title:
   H.input ! A.id "InformationTitle" ! A.type_ "text" ! A.placeholder "Place title here" ! (A.value . H.toValue $ title eContent)
   -- Textarea for the description:

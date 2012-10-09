@@ -25,7 +25,7 @@ addRelation' conn source target rtype comment = withTransaction conn $ \conn -> 
 deleteRelation' :: (IConnection conn) => conn -> RelationId -> IO ()
 deleteRelation' conn relationid = withTransaction conn $ \conn ->  do
   stmt <- prepare conn "UPDATE \"Relations\" SET deletion = CURRENT_TIMESTAMP WHERE relationid = ?"
-  execute stmt [toSql $ toId relationid] >> return ()
+  void $ execute stmt [toSql $ toId relationid]
 
 getRelations' :: (IConnection conn) => conn -> InformationId -> Types.RelationEnd -> Maybe RelationType -> Types.AllowDeleted -> IO [Relation]
 getRelations' conn iid rEnd mRType aDeleted = do
@@ -81,5 +81,5 @@ getRelations' conn iid rEnd mRType aDeleted = do
 updateComment' :: (IConnection conn) => conn -> RelationId -> Types.Comment -> IO ()
 updateComment' conn rid comment = withTransaction conn $ \conn -> do
   stmt <- prepare conn "UPDATE \"Relations\" SET comment = ? WHERE relationid = ?"
-  execute stmt [toSql comment, toSql $ toId rid] >> return ()
+  void $ execute stmt [toSql comment, toSql $ toId rid]
 

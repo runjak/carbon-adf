@@ -29,12 +29,12 @@ viewSingle i = do
   content <- mkContent i
   rels    <- relations i
   -- Generating the attributes for the H.div:
-  let deleted     = (isJust $ Information.deletion i) ? ([A.class_ "deleted"],[])
-      attributes  = [A.class_ "Information"] ++ deleted
+  let deleted     = isJust (Information.deletion i) ? ([A.class_ "deleted"],[])
+      attributes  = A.class_ "Information" : deleted
   -- Constructing the Html:
   return $ foldl (!) H.div attributes $ do
     title i
-    when (not . null $ Information.description i) $ do
+    unless (null $ Information.description i) $
       description i >> H.hr
     tColumns [content, rels]
     H.hr >> footnotes True i
@@ -44,12 +44,10 @@ viewSingle i = do
       | Information.isContent (Information.media i) = do
           let content = H.toHtml . Information.getContent $ Information.media i
           return $ H.div ! A.class_ "InformationContent" $ content
-      | otherwise = return $ "Displaying Collections and Discussions not implemented." -- FIXME handle collections and discussions.
+      | otherwise = return "Displaying Collections and Discussions not implemented." -- FIXME handle collections and discussions.
 
 viewMany :: Count -> Limit -> Offset -> [Information] -> OBW H.Html
-viewMany count limit offset is = do
-  return $ do
-    "A List of informations:" >> list False is
+viewMany count limit offset is = return $ "A List of informations:" >> list False is
 
 type Selectable = Bool
 list :: Selectable -> [Information] -> H.Html
@@ -59,8 +57,8 @@ list selectable is = let item = selectable ? (H.li ! A.class_ "selectable", H.li
 preview :: Information -> H.Html
 preview i = H.div ! A.class_ "InformationPreview" $ do
   let displayId = show . unwrap . toId . Information.informationId
-  H.a ! A.href (toHref "information.html" ["display=" ++ displayId i]) $ do
-    title i
+      link      = H.a ! A.href (toHref "information.html" ["display=" ++ displayId i])
+  link $ title i
   description i >> H.hr >> footnotes False i
 
 title :: Information -> H.Html
@@ -87,27 +85,27 @@ relations i = do
   victims     <- lookup $ map target victims'
   protegee    <- lookup $ map target protegee'
   return $ H.div ! A.id "InformationRelations" $ do
-    unless (null parents) $ do
+    unless (null parents) $
       H.div ! A.id "InformationParents" $ do
         H.h2 "Parents:"
         mkList "Parent" $ zip parents parents'
-    unless (null children) $ do
+    unless (null children) $
       H.div ! A.id "InformationChildren" $ do
         H.h2 "Children:"
         mkList "Child" $ zip children children'
-    unless (null attackers) $ do
+    unless (null attackers) $
       H.div ! A.id "InformationAttackers" $ do
         H.h2 "Attackers:"
         mkList "Attacker" $ zip attackers attackers'
-    unless (null supporters) $ do
+    unless (null supporters) $
       H.div ! A.id "InformationSupporters" $ do
         H.h2 "Supporters:"
         mkList "Supporter" $ zip supporters supporters'
-    unless (null victims) $ do
+    unless (null victims) $
       H.div ! A.id "InformationVictims" $ do
         H.h2 "Victims:"
         mkList "Victim" $ zip victims victims'
-    unless (null protegee) $ do
+    unless (null protegee) $
       H.div ! A.id "InformationProtegee" $ do
         H.h2 "Protegee:"
         mkList "Protege" $ zip protegee protegee'
@@ -195,7 +193,7 @@ serveList :: OBW Response
 serveList = do
   limit   <- getLimit
   offset  <- getOffset
-  count   <- liftOBB $ OBB.getInformationCount
+  count   <- liftOBB OBB.getInformationCount
   is      <- liftOBB $ OBB.getInformations limit offset
   ok . toResponse =<< Decorator.page =<< viewMany count limit offset is
 

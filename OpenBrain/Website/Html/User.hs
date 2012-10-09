@@ -35,7 +35,7 @@ edit target = flip mplus (return "") $ do
   admin <- liftM isAdmin $ liftOBB $ OBB.getUser uid
   ud    <- liftOBB $ OBB.getUser target
   guard $ admin || (uid == target)
-  return $ do
+  return $
     H.form ! A.id "EditBox" ! H.dataAttribute "username" (H.toValue $ username ud) $ do
       H.h1 "Update Password:"
       H.label $ do
@@ -76,11 +76,11 @@ serveSingle = do
     i <- liftOBB $ OBB.getInformation iid
     Information.viewSingle i
   Decorator.page $ do
-    H.h1 $ "User " >> (H.toHtml $ username ud) >> ":"
+    H.h1 $ "User " >> H.toHtml (username ud) >> ":"
     H.dl ! A.class_ "UserData" $ do
       (H.dt ! A.class_ "Karma")    "Karma"    >> (H.dd . H.toHtml . fromKarma $ karma ud)
       (H.dt ! A.class_ "Creation") "Creation" >> (H.dd . H.toHtml $ creation ud)
-      when isA $ do
+      when isA $
         (H.dt ! A.class_ "LastLogin") "Last login" >> (H.dd . H.toHtml $ lastLogin ud)
     editBox
     profile
@@ -93,15 +93,15 @@ serveList = do
   uds     <- liftOBB $ OBB.getUsers =<< OBB.getUserList limit offset
   Decorator.page $ do
     H.h1 "Users"
-    H.ul ! A.class_ "UserList" $ forM_ uds $ \ud -> H.li $ do
+    H.ul ! A.class_ "UserList" $ forM_ uds $ \ud -> H.li $
       H.dl ! A.class_ "UserData" $ do
         (H.dt ! A.class_ "Username") "Username"
-        let href = (toHref "user.html" ["display=" ++ (show . unwrap . toId $ userid ud)])
+        let href = toHref "user.html" ["display=" ++ (show . unwrap . toId $ userid ud)]
         H.dd $ H.a ! A.href href $ H.toHtml $ username ud
         (H.dt ! A.class_ "Karma")    "Karma"    >> (H.dd . H.toHtml . fromKarma $ karma ud)
         (H.dt ! A.class_ "Creation") "Creation" >> (H.dd . H.toHtml $ creation ud)
     H.h2 "Pages:"
     let ps = pages limit offset count
-    H.ul ! A.class_ "PageSelection" $ forM_ ps $ \(pageTitle, pageLimit) -> H.li $ do
+    H.ul ! A.class_ "PageSelection" $ forM_ ps $ \(pageTitle, pageLimit) -> H.li $
       H.a ! A.href (toHref "user.html" ["offset=" ++ show offset, "limit=" ++ show pageLimit]) $ H.toHtml pageTitle
 

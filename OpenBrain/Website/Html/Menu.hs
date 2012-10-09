@@ -14,13 +14,13 @@ menu :: OBW H.Html
 menu = do
   login <- Login.controls
   return $ H.ul ! A.id "menu" $ do
-    H.li ! A.class_ "icon" ! A.id "MenuLogo" $ do
+    H.li ! A.class_ "icon" ! A.id "MenuLogo" $
       H.a ! A.href "/" $ Images.openBrain' "OpenBrain" "OpenBrain"
     H.li ! A.class_ "icon" ! A.id "MenuLogin" $ do
       Images.users' "LogIn/Out" "LogIn/Out"
       login
-    H.li ! A.class_ "icon" ! A.id "MenuEditNewInformation" $ do
+    H.li ! A.class_ "icon" ! A.id "MenuEditNewInformation" $
       H.a ! A.href "/edit" $ Images.edit' "Create new Information" "Create new Information"
-    H.li ! A.class_ "icon" ! A.id "MenuListCollected" $ do
+    H.li ! A.class_ "icon" ! A.id "MenuListCollected" $
       Images.book' "View collected Informations" "View collected Informations"
 

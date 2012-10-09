@@ -40,5 +40,5 @@ validate' conn uid key = do
 stopSession' :: (IConnection conn) => conn -> UserId -> ActionKey -> IO ()
 stopSession' conn uid key = withTransaction conn $ \conn -> do
   stmt <- prepare conn "UPDATE \"UserData\" SET actionkey = NULL WHERE userid = ? AND actionkey = ?"
-  execute stmt [toSql $ toId uid, toSql key] >> return ()
+  void $ execute stmt [toSql $ toId uid, toSql key]
 

@@ -130,22 +130,22 @@ updateKarma' conn uid f = do
     [[k]] -> withTransaction conn $ \conn -> do
       let k' = f $ fromSql k
       stmt <- prepare conn "UPDATE \"UserData\" SET karma = ? WHERE userid = ?"
-      execute stmt [toSql k', toSql userid] >> return ()
+      void $ execute stmt [toSql k', toSql userid]
     _ -> return ()
 
 updatePasswd' :: (IConnection conn) => conn -> UserId -> Hash -> IO ()
 updatePasswd' conn uid hash = withTransaction conn $ \conn -> do
   stmt <- prepare conn "UPDATE \"UserData\" SET password = ? WHERE userid = ?"
-  execute stmt [toSql hash, toSql $ toId uid] >> return ()
+  void $ execute stmt [toSql hash, toSql $ toId uid]
 
 setAdmin' :: (IConnection conn) => conn -> UserId -> Bool -> IO ()
 setAdmin' conn uid admin = withTransaction conn $ \conn -> do
   stmt <- prepare conn "UPDATE \"UserData\" SET isadmin = ? WHERE userid = ?"
-  execute stmt [toSql admin, toSql $ toId uid] >> return ()
+  void $ execute stmt [toSql admin, toSql $ toId uid]
 
 setProfile' :: (IConnection conn) => conn -> UserId -> Maybe InformationId -> IO ()
 setProfile' conn uid iid = withTransaction conn $ \conn -> do
   let _iid  = toSql $ liftM toId iid
       q     = "UPDATE \"UserData\" SET profile = ? WHERE userid = ?"
-  quickQuery' conn q [_iid, toSql $ toId uid] >> return ()
+  void $ quickQuery' conn q [_iid, toSql $ toId uid]
 
