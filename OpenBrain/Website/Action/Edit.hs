@@ -19,8 +19,9 @@ import qualified OpenBrain.Website.Session as Session
 
 serve :: OBW Response
 serve = msum [
-    dir "create" create
-  , dir "update" update
+    dir "create"  create
+  , dir "update"  update
+  , dir "profile" setProfile
   ]
 
 {-
@@ -64,6 +65,15 @@ update = do
             iid' <- liftOBB $ OBB.updateContentMedia uid iid title desc content
             unless split $ liftOBB $ OBB.deleteInformation iid
             handleSuccess $ "Updated Information: " ++ show iid'
+
+setProfile :: OBW Response
+setProfile = do
+  iid <- getInformationId
+  handleFail "Login required" $ do
+    uid <- Session.chkSession
+    handleFail "Error during OpenBrain.Website.Action.Edit:setProfile" $ do
+      liftOBB $ OBB.setProfile uid $ Just iid
+      handleSuccess $ "Changed Profilepage: " ++ show iid
 
 {- Functions to help with the deal: -}
 getInformationId  = liftM fromId $ lookRead "informationId" :: OBW InformationId

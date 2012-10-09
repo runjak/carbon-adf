@@ -16,6 +16,7 @@ import OpenBrain.Data.Information (Information)
 import OpenBrain.Data.Relation
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
+import OpenBrain.Website.Session (chkSession)
 import qualified OpenBrain.Backend.Monad as OBB
 import qualified OpenBrain.Data.Information as Information
 import qualified OpenBrain.Data.User as User
@@ -28,6 +29,7 @@ viewSingle i = do
   -- Gathering information necessary to display:
   content <- mkContent i
   rels    <- relations i
+  loggedIn <- msum [liftM (const True) chkSession, return False]
   -- Generating the attributes for the H.div:
   let deleted     = isJust (Information.deletion i) ? ([A.class_ "deleted"],[])
       attributes  = A.class_ "Information" : deleted
@@ -37,7 +39,7 @@ viewSingle i = do
     unless (null $ Information.description i) $
       description i >> H.hr
     tColumns [content, rels]
-    H.hr >> footnotes True i
+    H.hr >> footnotes loggedIn True i
   where
     mkContent :: Information -> OBW H.Html
     mkContent i
@@ -59,7 +61,7 @@ preview i = H.div ! A.class_ "InformationPreview" $ do
   let displayId = show . unwrap . toId . Information.informationId
       link      = H.a ! A.href (toHref "information.html" ["display=" ++ displayId i])
   link $ title i
-  description i >> H.hr >> footnotes False i
+  description i >> H.hr >> footnotes False False i
 
 title :: Information -> H.Html
 title i = let iAttr = H.dataAttribute "InformationId" (H.toValue . show $ Information.informationId i)
@@ -127,9 +129,10 @@ relations i = do
           H.dt "Deleted"
           H.dd . H.toHtml . fromJust $ deletion xRel
 
-type ShowEditLink = Bool
-footnotes :: ShowEditLink -> Information -> H.Html
-footnotes sel i = H.dl ! A.class_ "InformationFootnotes" $ do
+type ShowControls = Bool
+type LoggedIn     = Bool
+footnotes :: LoggedIn -> ShowControls -> Information -> H.Html
+footnotes loggedIn sControls i = H.dl ! A.class_ "InformationFootnotes" $ do
   H.dt "Created"
   H.dd . H.toHtml $ Information.creation i
   when (isJust $ Information.deletion i) $ do
@@ -137,12 +140,18 @@ footnotes sel i = H.dl ! A.class_ "InformationFootnotes" $ do
     H.dd . H.toHtml . fromJust $ Information.deletion i
   H.dt "Author"
   H.dd . H.toHtml . User.username $ Information.author i
-  when sel $ do
+  when sControls $ do
     H.dt "Edit"
     let href = H.toValue $ "/edit/" ++ (show . unwrap . toId $ Information.informationId i)
-    H.dd $ H.a ! A.href href $ Images.edit' "Edit this Information" "Edit this Information"
+    H.dd $ H.a ! A.href href $
+      Images.edit' "Edit this Information" "Edit this Information"
     H.dt "Collect"
-    H.dd ! A.id "InformationBookmark" $ Images.bookmark' "Collect this Information." "Collect this Information."
+    H.dd ! A.id "InformationBookmark" $
+      Images.bookmark' "Collect this Information." "Collect this Information."
+    when loggedIn $ do
+      H.dt "Profile"
+      H.dd ! A.id "InformationMakeProfile" $
+        Images.favorite' "Make this Information your Profilepage" "Make this Information your Profilepage"
 
 {- Fetching parameters: -}
 getLimit :: OBW Limit
