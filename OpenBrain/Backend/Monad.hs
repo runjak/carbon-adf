@@ -157,6 +157,9 @@ addRelation source target rt comment = withBackend $ \b -> liftIO $ Backend.addR
 deleteRelation :: RelationId -> OBB ()
 deleteRelation rid = withBackend $ \b -> liftIO $ Backend.deleteRelation b rid
 
+getRelation :: RelationId -> OBB Relation
+getRelation rid = withBackend $  \b -> lift $ Backend.getRelation b rid
+
 getRelations :: InformationId -> Types.RelationEnd -> Maybe RelationType -> Types.AllowDeleted -> OBB [Relation]
 getRelations iid rEnd mRType aDeleted = withBackend $ \b -> liftIO $ Backend.getRelations b iid rEnd mRType aDeleted
 
