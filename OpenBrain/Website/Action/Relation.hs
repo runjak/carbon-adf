@@ -42,9 +42,11 @@ addRelation = do
     isAttackOrDefense t $
       handleFail "Not logged in" $ do
         uid <- Session.chkSession
-        handleFail "Problem in OpenBrain.Website.Action:addRelation" $ do
-          rid <- liftOBB $ OBB.addRelation rSource rTarget t comment
-          handleSuccess $ "Added Relation: " ++ show rid
+        handleFail ("Relation type not allowed:\t" ++ show t) $ do
+          guard $ t `elem` [Attack, Defense]
+          handleFail "Problem in OpenBrain.Website.Action:addRelation" $ do
+            rid <- liftOBB $ OBB.addRelation rSource rTarget t comment
+            handleSuccess $ "Added Relation: " ++ show rid
 
 {-
   Only allowed to delete Attack and Defense Relations.

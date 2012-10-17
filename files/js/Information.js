@@ -30,10 +30,68 @@ function initInformation(){
     iCol.addInf($('.InformationTitle').attr('data-InformationId'));
   });
   //Selecting Informations in custom collection:
-  $('ul.InformationList > li.selectable').toggle(
-    function(){$(this).addClass('selected');}
-  , function(){$(this).removeClass('selected');}
-  );
+  var selectionCallback = null;
+  $('ul.InformationList > li.selectable').click((function(){
+    var oddClick = true;
+    return function(){
+      if(selectionCallback != null){
+        selectionCallback(this);
+        selectionCallback = null;
+      }else if(oddClick){
+        $(this).addClass('selected');
+        oddClick = false;
+      }else{
+        $(this).removeClass('selected');
+        oddClick = true;
+      }
+    };
+  })());
+  //Selecting relations:
+  var selectRelation = function(item, button){
+    item = $('.InformationTitle', item);
+    button.val(item.attr('data-InformationId'));
+    button.text(item.text());
+  };
+  //Selecting a Source relation:
+  var selectSourceButton = $('button#InformationAddRelationSelectSource');
+  selectSourceButton.click(function(){
+    selectionCallback = function(source){
+      selectRelation(source, selectSourceButton);
+    };
+  });
+  //Selecting a Target relation:
+  var selectTargetButton = $('button#InformationAddRelationSelectTarget');
+  selectTargetButton.click(function(){
+    selectionCallback = function(target){
+      selectRelation(target, selectTargetButton);
+    };
+  });
+  //Creating a new Relation:
+  $('button#InformationAddRelationCreate').click(function(){
+    //Fetching source and target Id:
+    var sIid = selectSourceButton.val();
+    var tIid = selectTargetButton.val();
+    if(undefined == sIid || undefined == tIid){
+      alert('Select Target- and SourceInformation first.');
+      return;
+    }
+    sIid = sIid.match(iCol.iidRegex)[1];
+    tIid = tIid.match(iCol.iidRegex)[1];
+    if(sIid == tIid){
+      alert('Source and Target must be different Information.');
+      return;
+    }
+    //The query:
+    var q = {
+      source:  sIid
+    , target:  tIid
+    , type:    $('#InformationAddRelationRelationType').val()
+    , comment: $('#InformationAddRelationComment').val()
+    };
+    $.post("/action/relation/addRelation", q, function(data){
+      alert(data);
+    });
+  });
   //Removing selected Information:
   $('div#InformationRemoveSelected').click(function(){
     $('ul.InformationList > li.selected').each(function(){

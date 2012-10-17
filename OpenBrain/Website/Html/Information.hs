@@ -231,10 +231,28 @@ serveItems :: OBW Response
 serveItems = do
   iids <- getItems
   is <- liftOBB $ mapM OBB.getInformation iids
-  let relationEdit  = H.div ! A.id "RelationEditor" $ do
-        let rCaption = "Remove selected Informations from list."
-        H.div ! A.id "InformationRemoveSelected" $ Images.remove' rCaption rCaption
-      content       = H.div ! A.class_ "Information" $ tColumns [list True is, relationEdit]
+  let relationEdit = H.div ! A.id "RelationEditor" $ do
+        H.div ! A.id "InformationAddRelation" $ H.form $ do
+          H.h3 "Create Relations:"
+          H.label $ do
+            "Source Information:"
+            H.button ! A.id "InformationAddRelationSelectSource" ! A.type_ "button" ! A.title "Click to select!" $ ""
+          H.label $ do
+            "Target Information:"
+            H.button ! A.id "InformationAddRelationSelectTarget" ! A.type_ "button" ! A.title "Click to select!" $ ""
+          H.label $ do
+            "Relation Type:"
+            H.select ! A.id "InformationAddRelationRelationType" $ forM_ [Attack, Defense] $ \rt ->
+              H.option ! A.value (H.toValue $ show rt) $ H.toHtml $ show rt
+          H.label $ do
+            "Comment/Description:"
+            H.textarea ! A.id "InformationAddRelationComment" $ ""
+          H.button ! A.id "InformationAddRelationCreate" ! A.type_ "button" ! A.title "Create a new Relation!" $ "Create"
+        H.div ! A.id "InformationRemoveSelected" $ do
+          "Remove selected Items:"
+          let rCaption = "Remove selected Informations from list."
+          Images.remove' rCaption rCaption
+      content = H.div ! A.class_ "Information" $ tColumns [list True is, relationEdit]
   ok . toResponse =<< Decorator.page content
 
 {- /information.html?display=_ -}
