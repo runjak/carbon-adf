@@ -151,7 +151,7 @@ deleteInformation iid = withBackend $ \b -> liftIO $ Backend.deleteInformation b
 removeParticipant :: InformationId -> UserId -> OBB ()
 removeParticipant iid uid = withBackend $ \b -> liftIO $ Backend.removeParticipant b iid uid
 
-addRelation :: Types.Source -> Types.Target -> RelationType -> Types.Comment -> OBB ()
+addRelation :: Types.Source -> Types.Target -> RelationType -> Types.Comment -> OBB RelationId
 addRelation source target rt comment = withBackend $ \b -> liftIO $ Backend.addRelation b source target rt comment
 
 deleteRelation :: RelationId -> OBB ()

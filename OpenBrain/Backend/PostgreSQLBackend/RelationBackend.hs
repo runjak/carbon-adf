@@ -19,10 +19,12 @@ instance RelationBackend PostgreSQLBackend where
   getRelations    b = withWConn (conn b) getRelations'
   updateComment   b = withWConn (conn b) updateComment'
 
-addRelation' :: (IConnection conn) => conn -> Types.Source -> Types.Target -> RelationType -> Types.Comment -> IO ()  
+addRelation' :: (IConnection conn) => conn -> Types.Source -> Types.Target -> RelationType -> Types.Comment -> IO RelationId
 addRelation' conn source target rtype comment = withTransaction conn $ \conn -> do
   stmt <- prepare conn "INSERT INTO \"Relations\" (comment, type, source, target) VALUES (?, ?, ?, ?)"
-  void $ execute stmt [toSql comment, toSql rtype, toSql $ toId source, toSql $ toId target]
+  execute stmt [toSql comment, toSql rtype, toSql $ toId source, toSql $ toId target]
+  [[rid]] <- quickQuery' conn "SELECT LASTVAL()" []
+  return . fromId $ fromSql rid
 
 deleteRelation' :: (IConnection conn) => conn -> RelationId -> IO ()
 deleteRelation' conn relationid = withTransaction conn $ \conn ->  do

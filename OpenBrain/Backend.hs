@@ -106,7 +106,7 @@ class InformationBackend b where
   removeParticipant :: b -> InformationId -> UserId -> IO () -- | May only target discussions, should not be possible when voted.
 
 class RelationBackend b where
-  addRelation     :: b -> Types.Source -> Types.Target -> RelationType -> Types.Comment -> IO ()
+  addRelation     :: b -> Types.Source -> Types.Target -> RelationType -> Types.Comment -> IO RelationId
   deleteRelation  :: b -> RelationId -> IO ()
   getRelation     :: b -> RelationId -> MaybeT IO Relation
   -- | youngest first, deleted after non deleted
