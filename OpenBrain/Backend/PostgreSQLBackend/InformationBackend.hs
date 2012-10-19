@@ -22,7 +22,6 @@ import qualified OpenBrain.Backend.Types as Types
 
 instance InformationBackend PostgreSQLBackend where
   addContentMedia             b = withWConn (conn b) addContentMedia'
-  addToCollection             b = withWConn (conn b) addToCollection'
   addParticipant              b = withWConn (conn b) addParticipant'
   createCollection            b = withWConn (conn b) createCollection'
   createDiscussion            b = withWConn (conn b) createDiscussion'
@@ -37,6 +36,7 @@ instance InformationBackend PostgreSQLBackend where
   getInformationParents       b = withWConn (conn b) getInformationParents'
   getProfiledUsers            b = withWConn (conn b) getProfiledUsers'
   updateContentMedia          b = withWConn (conn b) updateContentMedia'
+  updateCollection            b = withWConn (conn b) updateCollection'
   vote                        b = withWConn (conn b) vote'
   deleteInformation           b = withWConn (conn b) deleteInformation'
   removeParticipant           b = withWConn (conn b) removeParticipant'
@@ -93,16 +93,6 @@ addContentMedia' conn cinfo content = withTransaction conn $ \conn -> do
                   , mediaId]
   [[iid]] <- quickQuery' conn "SELECT LASTVAL()" []
   return . fromId $ fromSql iid
-
-addToCollection' :: (IConnection conn) => conn -> Types.Collection -> [InformationId] -> IO InformationId
-addToCollection' conn c elems = withTransaction conn $ \conn -> do
-  -- We clone the collection to modify it
-  c' <- clone conn c
-  -- Add elems to belong to c'
-  stmt <- prepare conn "INSERT INTO \"Relations\" (comment, type, source, target) VALUES ('', ?, ?, ?)"
-  executeMany stmt [[toSql R.Collection, toSql $ toId c', toSql $ toId e] | e <- elems]
-  -- Finish
-  return c'
 
 addParticipant' :: (IConnection conn) => conn -> InformationId -> UserId -> IO ()
 addParticipant' conn iid uid = withTransaction conn $ \conn -> do
@@ -297,6 +287,18 @@ updateContentMedia' conn uid iid' title description content = withTransaction co
     quickQuery' conn "UPDATE \"Information\" SET mediaid = ? WHERE informationid = ?" [mid, toSql $ toId iid]
     return ()
   return iid
+
+updateCollection' :: (IConnection conn) => conn -> Types.Collection -> [InformationId] -> IO Types.Collection
+updateCollection' conn c items = withTransaction conn $ \conn -> do
+  -- We clone the collection to modify it
+  c' <- clone conn c
+  -- We delete the current items from c'
+  quickQuery' conn "DELETE FROM \"Relations\" WHERE type = ? AND source = ?" [toSql R.Collection, toSql $ toId c']
+  -- We add the new items to c'
+  stmt <- prepare conn "INSERT INTO \"Relations\" (comment, type, source, target) VALUES ('', ?, ?, ?)"
+  executeMany stmt [[toSql R.Collection, toSql $ toId c', toSql $ toId i] | i <- items]
+  -- Done
+  return c'
 
 vote' :: (IConnection conn) => conn -> InformationId -> UserId -> IO ()
 vote' conn iid uid = withTransaction conn $ \conn -> do

@@ -83,7 +83,6 @@ class SessionManagement s where
 class InformationBackend b where
   -- | 'Creative' Operations:
   addContentMedia   :: b -> Types.CreateInformation -> Types.Content -> IO InformationId
-  addToCollection   :: b -> Types.Collection -> [InformationId] -> IO InformationId
   addParticipant    :: b -> InformationId -> UserId -> IO () -- | May only target discussions
   createCollection  :: b -> Types.CreateInformation -> [InformationId] -> IO Types.Collection
   createDiscussion  :: b -> Types.CreateInformation -> [InformationId] -> Types.Deadline -> Types.DiscussionType -> IO InformationId
@@ -100,6 +99,7 @@ class InformationBackend b where
   getProfiledUsers            :: b -> InformationId -> IO [UserData]
   -- | 'Modifying' Operations:
   updateContentMedia  :: b -> UserId -> InformationId -> Types.Title -> Types.Description -> Types.Content -> IO InformationId
+  updateCollection    :: b -> Types.Collection -> [InformationId] -> IO Types.Collection -- | Changes the items of the collection to the given list.
   vote                :: b -> InformationId -> UserId -> IO () -- | May only target CollectionType Choice - Discussion is found because it's a parent.
   -- | 'Destructive' Operations:
   deleteInformation :: b -> InformationId -> IO () -- | Sets a delete date on an Information

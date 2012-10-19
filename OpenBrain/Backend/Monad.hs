@@ -97,9 +97,6 @@ stopSession userid actionkey = withBackend $ \b -> liftIO $ Backend.stopSession 
 addContentMedia :: Types.CreateInformation -> Types.Content -> OBB InformationId
 addContentMedia createinformation content = withBackend $ \b -> liftIO $ Backend.addContentMedia b createinformation content
 
-addToCollection :: Types.Collection -> [InformationId] -> OBB InformationId
-addToCollection collection iids = withBackend $ \b -> liftIO $ Backend.addToCollection b collection iids
-
 addParticipant :: InformationId -> UserId -> OBB ()
 addParticipant iid uid = withBackend $ \b -> liftIO $ Backend.addParticipant b iid uid
 
@@ -141,6 +138,9 @@ getProfiledUsers iid = withBackend $ \b -> liftIO $ Backend.getProfiledUsers b i
 
 updateContentMedia :: UserId -> InformationId -> Types.Title -> Types.Description -> Types.Content -> OBB InformationId
 updateContentMedia uid iid title description content = withBackend $ \b -> liftIO $ Backend.updateContentMedia b uid iid title description content
+
+updateCollection :: Types.Collection -> [InformationId] -> OBB Types.Collection
+updateCollection c items = withBackend $ \b -> liftIO $ Backend.updateCollection b c items
 
 vote :: InformationId -> UserId -> OBB ()
 vote iid uid = withBackend $ \b -> liftIO $ Backend.vote b iid uid
