@@ -40,8 +40,7 @@ addRelation = do
     rs <- liftOBB $ OBB.getRelations rSource RelationSource (Just t) False
     guard . not $ any ((== rTarget) . target) rs
     isAttackOrDefense t $
-      handleFail "Not logged in" $ do
-        uid <- Session.chkSession
+      Session.chkSession' $ \uid ->
         handleFail ("Relation type not allowed:\t" ++ show t) $ do
           guard $ t `elem` [Attack, Defense]
           handleFail "Problem in OpenBrain.Website.Action:addRelation" $ do
@@ -56,8 +55,7 @@ deleteRelation = do
   rid <- getRelationId
   r <- liftOBB $ OBB.getRelation rid
   isAttackOrDefense (relation r) $
-    handleFail "Not logged in" $ do
-      uid <- Session.chkSession
+    Session.chkSession' $ \uid ->
       handleFail "Problem in OpenBrain.Website.Action.Relation:deleteRelation" $ do
         liftOBB $ OBB.deleteRelation rid
         handleSuccess $ "Deleted relation:\t" ++ show rid
@@ -69,8 +67,7 @@ updateComment :: OBW Response
 updateComment = do
   comment <- getComment
   rid     <- getRelationId
-  handleFail "Not logged in" $ do
-    uid <- Session.chkSession
+  Session.chkSession' $ \uid ->
     handleFail "Problem in OpenBrain.Website.Action.Relation:updateComment" $ do
       liftOBB $ OBB.updateComment rid comment
       handleSuccess $ "Updated comment on relation:\t" ++ show rid

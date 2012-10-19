@@ -17,8 +17,8 @@ import Happstack.Server as S
 import OpenBrain.Config
 import OpenBrain.Backend
 import OpenBrain.Data.Id
+import OpenBrain.Website.Common
 import OpenBrain.Website.Monad as OBW
-
 import qualified OpenBrain.Backend.Monad as OBB
 
 cookieActionKey  = "actionKey"
@@ -42,6 +42,9 @@ chkSession = do
   uid   <-  liftM read $ lookCookieValue cookieUserId
   guard =<< liftOBB (OBB.validate uid key)
   return uid
+
+chkSession' :: (UserId -> OBW Response) -> OBW Response
+chkSession' f = handleFail "Login required" $ f =<< chkSession
 
 dropSession :: OBW ()
 dropSession = do

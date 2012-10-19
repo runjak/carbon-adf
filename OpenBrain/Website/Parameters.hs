@@ -15,6 +15,7 @@ getDisplay        = lookRead "display"                                    :: OBW
 getLimit          = msum [lookRead "limit", return 30]                    :: OBW Limit
 getOffset         = msum [lookRead "offset", return 0]                    :: OBW Offset
 getAfter          = lookRead "after"                                      :: OBW CalendarTime
+getDeadline       = lookRead "deadline"                                   :: OBW CalendarTime
 getUser           = liftM fromId $ lookRead "user"                        :: OBW UserId
 getItems          = liftM (map (fromId . wrap) . read) $ look "items"     :: OBW [InformationId]
 getInformationId  = liftM fromId $ lookRead "informationId"               :: OBW InformationId
@@ -23,11 +24,17 @@ getDescription    = look "description"                                    :: OBW
 getContent        = liftM sanitize $ look "content"                       :: OBW Content
 getTDC            = liftM3 (,,) getTitle getDescription getContent        :: OBW (Title, Description, Content)
 getSplit          = msum [liftM (=="True") $ look "split", return False]  :: OBW Bool
+getDiscussionType = lookRead "discussiontype"                             :: OBW DiscussionType
 
 instance FromReqURI CalendarTime where
   fromReqURI s = case reads s of
     [(ct, _)] -> Just ct
     _ -> Nothing
+
+instance FromReqURI DiscussionType where
+  fromReqURI "attackonly"     = Just AttackOnly
+  fromReqURI "attackdefense"  = Just AttackDefense
+  fromReqURI _ = Nothing
 
 sanitize :: String -> String
 sanitize = foldl1 (.) [

@@ -1,10 +1,10 @@
 module OpenBrain.Website.Action.Edit (serve) where
 {-
-  Actions necessary for OpenBrain.Website.Action.Edit
+  Actions necessary to create and update Informations
+  and set an Information a users profile.
 -}
 import Data.Maybe
 import Happstack.Server as Server
-import Text.Regex as T
 
 import OpenBrain.Backend.Types
 import OpenBrain.Common
@@ -29,9 +29,7 @@ serve = msum [
   title, description, content
 -}
 create :: OBW Response
-create = do
-  -- Gathering parameters:
-  uid     <- Session.chkSession
+create = Session.chkSession' $ \uid -> do
   (title, desc, content) <- Parameters.getTDC
   -- Creating Information:
   let ci = CreateInformation{
@@ -52,8 +50,7 @@ update = do
   iid <- Parameters.getInformationId
   (title, desc, content) <- Parameters.getTDC
   split <- Parameters.getSplit
-  handleFail "Login required" $ do
-    uid <- Session.chkSession
+  Session.chkSession' $ \uid ->
     handleFail "Could not lookup target Information." $ do
       i <- liftOBB $ OBB.getInformation iid
       let iDeleted = isJust $ Information.deletion i
@@ -69,8 +66,7 @@ update = do
 setProfile :: OBW Response
 setProfile = do
   iid <- Parameters.getInformationId
-  handleFail "Login required" $ do
-    uid <- Session.chkSession
+  Session.chkSession' $ \uid ->
     handleFail "Error during OpenBrain.Website.Action.Edit:setProfile" $ do
       liftOBB $ OBB.setProfile uid $ Just iid
       handleSuccess $ "Changed Profilepage: " ++ show iid
