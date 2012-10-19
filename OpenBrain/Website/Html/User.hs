@@ -20,6 +20,7 @@ import OpenBrain.Data.User
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import qualified OpenBrain.Backend.Monad as OBB
+import qualified OpenBrain.Website.Parameters as Parameters
 import qualified OpenBrain.Website.Html.Decorator as Decorator
 import qualified OpenBrain.Website.Html.Information as Information
 import qualified OpenBrain.Website.Session as Session
@@ -48,13 +49,6 @@ edit target = flip mplus (return "") $ do
       H.button ! A.class_ "Delete" ! A.type_ "button" $ "Delete user"
 
 {-
-  Get parameters to handle:
--}
-getDisplay  = liftM fromId $ lookRead "display"   :: OBW UserId
-getLimit    = msum [lookRead "limit", return 30]  :: OBW Limit
-getOffset   = msum [lookRead "offset", return 0]  :: OBW Offset
-
-{-
   Listing Users:
     /user.html
     /user.html?limit=_&offset=_
@@ -66,7 +60,7 @@ serve = ok . toResponse =<< msum [serveSingle, serveList]
 
 serveSingle :: OBW H.Html
 serveSingle = do
-  uid     <- getDisplay
+  uid     <- liftM fromId Parameters.getDisplay
   ud      <- liftOBB $ OBB.getUser uid
   isA     <- msum [Session.chkSession >> return True, return False]
   editBox <- edit uid
@@ -87,8 +81,8 @@ serveSingle = do
 
 serveList :: OBW H.Html
 serveList = do
-  limit   <- getLimit
-  offset  <- getOffset
+  limit   <- Parameters.getLimit
+  offset  <- Parameters.getOffset
   count   <- liftOBB OBB.getUserCount
   uds     <- liftOBB $ OBB.getUsers =<< OBB.getUserList limit offset
   Decorator.page $ do

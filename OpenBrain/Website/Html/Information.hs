@@ -20,6 +20,7 @@ import OpenBrain.Website.Session (chkSession)
 import qualified OpenBrain.Backend.Monad as OBB
 import qualified OpenBrain.Data.Information as Information
 import qualified OpenBrain.Data.User as User
+import qualified OpenBrain.Website.Parameters as Parameters
 import qualified OpenBrain.Website.Html.Decorator as Decorator
 import qualified OpenBrain.Website.Html.Images as Images
 
@@ -153,34 +154,6 @@ footnotes loggedIn sControls i = H.dl ! A.class_ "InformationFootnotes" $ do
       H.dd ! A.id "InformationMakeProfile" $
         Images.favorite' "Make this Information your Profilepage" "Make this Information your Profilepage"
 
-{- Fetching parameters: -}
-getLimit :: OBW Limit
-getLimit = msum [lookRead "limit", return 30]
-
-getOffset :: OBW Offset
-getOffset = msum [lookRead "offset", return 0]
-
-instance FromReqURI CalendarTime where
-  fromReqURI s = case reads s of
-    [(ct, _)] -> Just ct
-    _ -> Nothing
-
-{- May fail -}
-getAfter :: OBW CalendarTime
-getAfter = lookRead "after"
-
-{- May fail -}
-getUser :: OBW UserId
-getUser = liftM fromId $ lookRead "user"
-
-{- May fail -}
-getItems :: OBW [InformationId]
-getItems = liftM (map (fromId . wrap) . read) $ look "items"
-
-{- May fail -}
-getDisplay :: OBW InformationId
-getDisplay = liftM fromId $ lookRead "display"
-
 {-
   Listing informations:
   /information.html
@@ -200,8 +173,8 @@ serve = msum [serveSingle, serveUser, serveAfter, serveItems, serveList]
 -}
 serveList :: OBW Response
 serveList = do
-  limit   <- getLimit
-  offset  <- getOffset
+  limit   <- Parameters.getLimit
+  offset  <- Parameters.getOffset
   count   <- liftOBB OBB.getInformationCount
   is      <- liftOBB $ OBB.getInformations limit offset
   ok . toResponse =<< Decorator.page =<< viewMany count limit offset is
@@ -209,19 +182,19 @@ serveList = do
 {- /information.html?after=_&limit=_&offset=_ -}
 serveAfter :: OBW Response
 serveAfter = do
-  after   <- getAfter
-  limit   <- getLimit
+  after   <- Parameters.getAfter
+  limit   <- Parameters.getLimit
   count   <- liftOBB $ OBB.getInformationCountAfter after
-  offset  <- getOffset
+  offset  <- Parameters.getOffset
   is      <- liftOBB $ OBB.getInformationsAfter after limit offset
   ok . toResponse =<< Decorator.page =<< viewMany count limit offset is
 
 {- /information.html?user=_&limit=_&offset=_ -}
 serveUser :: OBW Response
 serveUser = do
-  uid     <- getUser
-  limit   <- getLimit
-  offset  <- getOffset
+  uid     <- Parameters.getUser
+  limit   <- Parameters.getLimit
+  offset  <- Parameters.getOffset
   count   <- liftOBB $ OBB.getInformationCountBy uid
   is      <- liftOBB $ OBB.getInformationBy uid limit offset
   ok . toResponse =<< Decorator.page =<< viewMany count limit offset is
@@ -229,7 +202,7 @@ serveUser = do
 {- /information.html?items=[..] -}
 serveItems :: OBW Response
 serveItems = do
-  iids <- getItems
+  iids <- Parameters.getItems
   is <- liftOBB $ mapM OBB.getInformation iids
   let relationEdit = H.div ! A.id "RelationEditor" $ do
         H.div ! A.id "InformationAddRelation" $ H.form $ do
@@ -258,7 +231,7 @@ serveItems = do
 {- /information.html?display=_ -}
 serveSingle :: OBW Response
 serveSingle = do
-  iid <- getDisplay
+  iid <- liftM fromId Parameters.getDisplay
   handleFail "Can't find requested information." $ do
     i   <- liftOBB $ OBB.getInformation iid
     ok . toResponse =<< Decorator.page =<< viewSingle i
