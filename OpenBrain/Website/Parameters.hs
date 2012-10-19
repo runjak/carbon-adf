@@ -24,6 +24,7 @@ getDescription    = look "description"                                    :: OBW
 getContent        = liftM sanitize $ look "content"                       :: OBW Content
 getTDC            = liftM3 (,,) getTitle getDescription getContent        :: OBW (Title, Description, Content)
 getSplit          = msum [liftM (=="True") $ look "split", return False]  :: OBW Bool
+getStatus         = msum [liftM (=="True") $ look "status", return False] :: OBW Bool -- | For setParticipant
 getDiscussionType = lookRead "discussiontype"                             :: OBW DiscussionType
 
 instance FromReqURI CalendarTime where

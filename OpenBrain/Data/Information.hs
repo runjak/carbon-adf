@@ -57,3 +57,8 @@ isContent _           = False
 getContent :: Media -> String
 getContent (Content c)  = c
 getContent _            = error "No content in OpenBrain.Data.Information:getContent"
+
+isDiscussion :: Media -> Bool
+isDiscussion (Content _)                = False
+isDiscussion (Collection _ _ (Just d))  = True
+
