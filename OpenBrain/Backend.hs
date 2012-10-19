@@ -100,6 +100,7 @@ class InformationBackend b where
   -- | 'Modifying' Operations:
   updateContentMedia  :: b -> UserId -> InformationId -> Types.Title -> Types.Description -> Types.Content -> IO InformationId
   updateCollection    :: b -> Types.Collection -> [InformationId] -> IO Types.Collection -- | Changes the items of the collection to the given list.
+  setParticipant      :: b -> Types.Collection -> UserId -> Bool -> IO ()
   vote                :: b -> InformationId -> UserId -> IO () -- | May only target CollectionType Choice - Discussion is found because it's a parent.
   -- | 'Destructive' Operations:
   deleteInformation :: b -> InformationId -> IO () -- | Sets a delete date on an Information

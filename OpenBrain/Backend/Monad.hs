@@ -142,6 +142,9 @@ updateContentMedia uid iid title description content = withBackend $ \b -> liftI
 updateCollection :: Types.Collection -> [InformationId] -> OBB Types.Collection
 updateCollection c items = withBackend $ \b -> liftIO $ Backend.updateCollection b c items
 
+setParticipant :: Types.Collection -> UserId -> Bool -> OBB ()
+setParticipant c uid status = withBackend $ \b -> liftIO $ Backend.setParticipant b c uid status
+
 vote :: InformationId -> UserId -> OBB ()
 vote iid uid = withBackend $ \b -> liftIO $ Backend.vote b iid uid
 

@@ -37,6 +37,7 @@ instance InformationBackend PostgreSQLBackend where
   getProfiledUsers            b = withWConn (conn b) getProfiledUsers'
   updateContentMedia          b = withWConn (conn b) updateContentMedia'
   updateCollection            b = withWConn (conn b) updateCollection'
+  setParticipant              b = withWConn (conn b) setParticipant'
   vote                        b = withWConn (conn b) vote'
   deleteInformation           b = withWConn (conn b) deleteInformation'
   removeParticipant           b = withWConn (conn b) removeParticipant'
@@ -300,6 +301,28 @@ updateCollection' conn c items = withTransaction conn $ \conn -> do
   -- Done
   return c'
 
+setParticipant' :: (IConnection conn) => conn -> Types.Collection -> UserId -> Bool -> IO ()
+setParticipant' conn c uid status = withTransaction conn $ \conn -> do
+  -- Fetching the discussionId:
+  let getDid = "SELECT discussionid FROM \"Media\" JOIN \"Information\" USING (mediaid) WHERE informationid = ?"
+  [[did]] <- quickQuery' conn getDid [toSql $ toId c]
+  -- Fetching the participant:
+  let getP = "SELECT voted, userid FROM \"DiscussionParticipants\" WHERE discussionid = ? AND userid = ?"
+  rst <- quickQuery' conn getP [did, toSql $ toId uid]
+  case rst of
+    [[voted, uid']] -> do -- Removing a participant
+      when status . error $
+        "User " ++ show uid ++ " is alread a participant of discussion " ++ show c ++ " so it cannot be added again."
+      when (fromSql voted) . error $
+        "User " ++ show uid ++ " must stay a participant of discussion " ++ show c ++ " because it already voted."
+      stmt <- prepare conn "DELETE FROM \"DiscussionParticipants\" WHERE discussionid = ? AND userid = ?"  
+      void $ execute stmt [did, uid']
+    _ -> do -- Adding a participant
+      unless status . error $
+        "User " ++ show uid ++ " is not a participant of discussion " ++ show c ++ " so it can't be removed."
+      stmt <- prepare conn "INSERT INTO \"DiscussionParticipants\" (discussionid, voted, userid) VALUES (?, ?, ?)"
+      void $ execute stmt [did, toSql False, toSql $ toId uid]
+
 vote' :: (IConnection conn) => conn -> InformationId -> UserId -> IO ()
 vote' conn iid uid = withTransaction conn $ \conn -> do
   let _iid = toSql $ toId iid
@@ -310,17 +333,19 @@ vote' conn iid uid = withTransaction conn $ \conn -> do
   -- Check that UserId belongs to a Participant:
   let pCount = "SELECT COUNT(*) FROM \"DiscussionParticipants\" WHERE discussionid = ? AND userid = ?"
   [[c]] <- quickQuery' conn pCount [did, _uid]
-  when ((fromSql c :: Types.Count) > 0) $ do
-    -- Check that Participant hasn't already voted:
-    let getVoted = "SELECT voted FROM \"DiscussionParticipants\" WHERE discussionid = ? AND userid = ?"
-    [[voted]] <- quickQuery' conn getVoted [did, _uid]
-    unless (fromSql voted) $ do
-      -- Perform the vote:
-      let markVoted   = "UPDATE \"DiscussionParticipants\" SET voted = 1 WHERE discussionid = ? AND userid = ?"
-          markChoice  = "UPDATE \"DiscussionChoices\" SET votes = votes + 1 WHERE discussionid = ? AND informationid = ?"
-      quickQuery' conn markVoted [did, _uid]
-      quickQuery' conn markChoice [did, _iid]
-      return ()
+  unless ((fromSql c :: Types.Count) > 0) . error $
+    "User " ++ show uid ++ " is not a participant of Discussion " ++ show iid
+  -- Check that Participant hasn't already voted:
+  let getVoted = "SELECT voted FROM \"DiscussionParticipants\" WHERE discussionid = ? AND userid = ?"
+  [[voted]] <- quickQuery' conn getVoted [did, _uid]
+  when (fromSql voted) . error $
+    "User " ++ show uid ++ " already voted on Discussion " ++ show iid
+  -- Perform the vote:
+  let markVoted   = "UPDATE \"DiscussionParticipants\" SET voted = 1 WHERE discussionid = ? AND userid = ?"
+      markChoice  = "UPDATE \"DiscussionChoices\" SET votes = votes + 1 WHERE discussionid = ? AND informationid = ?"
+  quickQuery' conn markVoted [did, _uid]
+  quickQuery' conn markChoice [did, _iid]
+  return ()
 
 deleteInformation' :: (IConnection conn) => conn -> InformationId -> IO ()
 deleteInformation' conn iid = withTransaction conn $ \conn -> do
