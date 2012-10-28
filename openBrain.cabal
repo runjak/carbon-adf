@@ -14,7 +14,7 @@ Build-Depends:  aeson
               , bytestring
               , containers
               , convertible
-              , happstack-server, happstack-server-tls
+              , happstack-server
               , HDBC, HDBC-postgresql
               , mtl
               , old-time

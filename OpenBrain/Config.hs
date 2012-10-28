@@ -23,7 +23,6 @@ data Config = Config {
   , allowBrowsing   :: Bool     -- | Should users be able to browse the static files directory?
   , port            :: Int      -- | The port on which openBrain will listen
   , backendType     :: BackendType
-  , useTLS          :: Bool
   , tlsKey          :: FilePath
   , tlsCert         :: FilePath
   , karmaConfig     :: KarmaConfig
@@ -35,8 +34,7 @@ nullConfig = Config {
   , allowUploads    = False
   , allowBrowsing   = True
   , port            = 8000  -- | Happstack std.
-  , backendType     = PostgreSQLBackend {pgOptions = "dbname=OpenBrain host=127.0.0.1 user=sicarius password=1234"}
-  , useTLS          = False
+  , backendType     = PostgreSQLBackend {pgOptions = "dbname=openbrain host=127.0.0.1 user=mushu password=1234"}
   , tlsKey          = ""
   , tlsCert         = ""
   , karmaConfig     = nullKarmaConfig

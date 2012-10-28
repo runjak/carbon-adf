@@ -6,10 +6,8 @@ module OpenBrain.Website (serve) where
   and to know everything to handle these requests.
 -}
 import Happstack.Server hiding (port)
-import Happstack.Server.SimpleHTTPS (nullTLSConf, simpleHTTPS)
 
 import qualified Happstack.Server as S
-import qualified Happstack.Server.SimpleHTTPS as TLS
 
 import OpenBrain.Backend
 import OpenBrain.Config (Config(..))
@@ -24,15 +22,9 @@ import qualified OpenBrain.Website.Html.Information as Information (serve)
 import qualified OpenBrain.Website.Html.User        as User(serve)
 
 serve :: Backend -> Config -> IO ()
-serve backend config = do
+serve backend config =
   let serverParts = runOBW (WebsiteState backend config) serve'
-  if useTLS config then
-    simpleHTTPS nullTLSConf{
-        TLS.tlsPort = port config
-      , TLS.tlsKey = tlsKey config
-      , TLS.tlsCert = tlsCert config
-      } serverParts
-    else simpleHTTP nullConf{S.port = port config} serverParts
+  in simpleHTTP nullConf{S.port = port config} serverParts
 
 serve' :: OBW Response
 serve' = msum [
