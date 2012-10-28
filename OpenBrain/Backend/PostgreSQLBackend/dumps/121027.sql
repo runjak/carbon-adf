@@ -29,7 +29,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: DiscussionChoices; Type: TABLE; Schema: public; Owner: sicarius; Tablespace: 
+-- Name: DiscussionChoices; Type: TABLE; Schema: public; Owner: mushu; Tablespace: 
 --
 
 CREATE TABLE "DiscussionChoices" (
@@ -39,10 +39,10 @@ CREATE TABLE "DiscussionChoices" (
 );
 
 
-ALTER TABLE public."DiscussionChoices" OWNER TO sicarius;
+ALTER TABLE public."DiscussionChoices" OWNER TO mushu;
 
 --
--- Name: DiscussionInfo; Type: TABLE; Schema: public; Owner: sicarius; Tablespace: 
+-- Name: DiscussionInfo; Type: TABLE; Schema: public; Owner: mushu; Tablespace: 
 --
 
 CREATE TABLE "DiscussionInfo" (
@@ -52,10 +52,10 @@ CREATE TABLE "DiscussionInfo" (
 );
 
 
-ALTER TABLE public."DiscussionInfo" OWNER TO sicarius;
+ALTER TABLE public."DiscussionInfo" OWNER TO mushu;
 
 --
--- Name: DiscussionInfo_discussionid_seq; Type: SEQUENCE; Schema: public; Owner: sicarius
+-- Name: DiscussionInfo_discussionid_seq; Type: SEQUENCE; Schema: public; Owner: mushu
 --
 
 CREATE SEQUENCE "DiscussionInfo_discussionid_seq"
@@ -66,24 +66,24 @@ CREATE SEQUENCE "DiscussionInfo_discussionid_seq"
     CACHE 1;
 
 
-ALTER TABLE public."DiscussionInfo_discussionid_seq" OWNER TO sicarius;
+ALTER TABLE public."DiscussionInfo_discussionid_seq" OWNER TO mushu;
 
 --
--- Name: DiscussionInfo_discussionid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sicarius
+-- Name: DiscussionInfo_discussionid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: mushu
 --
 
 ALTER SEQUENCE "DiscussionInfo_discussionid_seq" OWNED BY "DiscussionInfo".discussionid;
 
 
 --
--- Name: DiscussionInfo_discussionid_seq; Type: SEQUENCE SET; Schema: public; Owner: sicarius
+-- Name: DiscussionInfo_discussionid_seq; Type: SEQUENCE SET; Schema: public; Owner: mushu
 --
 
 SELECT pg_catalog.setval('"DiscussionInfo_discussionid_seq"', 1, false);
 
 
 --
--- Name: DiscussionParticipants; Type: TABLE; Schema: public; Owner: sicarius; Tablespace: 
+-- Name: DiscussionParticipants; Type: TABLE; Schema: public; Owner: mushu; Tablespace: 
 --
 
 CREATE TABLE "DiscussionParticipants" (
@@ -93,10 +93,10 @@ CREATE TABLE "DiscussionParticipants" (
 );
 
 
-ALTER TABLE public."DiscussionParticipants" OWNER TO sicarius;
+ALTER TABLE public."DiscussionParticipants" OWNER TO mushu;
 
 --
--- Name: Information; Type: TABLE; Schema: public; Owner: sicarius; Tablespace: 
+-- Name: Information; Type: TABLE; Schema: public; Owner: mushu; Tablespace: 
 --
 
 CREATE TABLE "Information" (
@@ -110,10 +110,10 @@ CREATE TABLE "Information" (
 );
 
 
-ALTER TABLE public."Information" OWNER TO sicarius;
+ALTER TABLE public."Information" OWNER TO mushu;
 
 --
--- Name: Information_informationid_seq; Type: SEQUENCE; Schema: public; Owner: sicarius
+-- Name: Information_informationid_seq; Type: SEQUENCE; Schema: public; Owner: mushu
 --
 
 CREATE SEQUENCE "Information_informationid_seq"
@@ -124,24 +124,24 @@ CREATE SEQUENCE "Information_informationid_seq"
     CACHE 1;
 
 
-ALTER TABLE public."Information_informationid_seq" OWNER TO sicarius;
+ALTER TABLE public."Information_informationid_seq" OWNER TO mushu;
 
 --
--- Name: Information_informationid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sicarius
+-- Name: Information_informationid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: mushu
 --
 
 ALTER SEQUENCE "Information_informationid_seq" OWNED BY "Information".informationid;
 
 
 --
--- Name: Information_informationid_seq; Type: SEQUENCE SET; Schema: public; Owner: sicarius
+-- Name: Information_informationid_seq; Type: SEQUENCE SET; Schema: public; Owner: mushu
 --
 
 SELECT pg_catalog.setval('"Information_informationid_seq"', 26, true);
 
 
 --
--- Name: Media; Type: TABLE; Schema: public; Owner: sicarius; Tablespace: 
+-- Name: Media; Type: TABLE; Schema: public; Owner: mushu; Tablespace: 
 --
 
 CREATE TABLE "Media" (
@@ -152,10 +152,10 @@ CREATE TABLE "Media" (
 );
 
 
-ALTER TABLE public."Media" OWNER TO sicarius;
+ALTER TABLE public."Media" OWNER TO mushu;
 
 --
--- Name: Media_mediaid_seq; Type: SEQUENCE; Schema: public; Owner: sicarius
+-- Name: Media_mediaid_seq; Type: SEQUENCE; Schema: public; Owner: mushu
 --
 
 CREATE SEQUENCE "Media_mediaid_seq"
@@ -166,24 +166,24 @@ CREATE SEQUENCE "Media_mediaid_seq"
     CACHE 1;
 
 
-ALTER TABLE public."Media_mediaid_seq" OWNER TO sicarius;
+ALTER TABLE public."Media_mediaid_seq" OWNER TO mushu;
 
 --
--- Name: Media_mediaid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sicarius
+-- Name: Media_mediaid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: mushu
 --
 
 ALTER SEQUENCE "Media_mediaid_seq" OWNED BY "Media".mediaid;
 
 
 --
--- Name: Media_mediaid_seq; Type: SEQUENCE SET; Schema: public; Owner: sicarius
+-- Name: Media_mediaid_seq; Type: SEQUENCE SET; Schema: public; Owner: mushu
 --
 
 SELECT pg_catalog.setval('"Media_mediaid_seq"', 15, true);
 
 
 --
--- Name: Relations; Type: TABLE; Schema: public; Owner: sicarius; Tablespace: 
+-- Name: Relations; Type: TABLE; Schema: public; Owner: mushu; Tablespace: 
 --
 
 CREATE TABLE "Relations" (
@@ -197,10 +197,10 @@ CREATE TABLE "Relations" (
 );
 
 
-ALTER TABLE public."Relations" OWNER TO sicarius;
+ALTER TABLE public."Relations" OWNER TO mushu;
 
 --
--- Name: Relations_relationid_seq; Type: SEQUENCE; Schema: public; Owner: sicarius
+-- Name: Relations_relationid_seq; Type: SEQUENCE; Schema: public; Owner: mushu
 --
 
 CREATE SEQUENCE "Relations_relationid_seq"
@@ -211,24 +211,24 @@ CREATE SEQUENCE "Relations_relationid_seq"
     CACHE 1;
 
 
-ALTER TABLE public."Relations_relationid_seq" OWNER TO sicarius;
+ALTER TABLE public."Relations_relationid_seq" OWNER TO mushu;
 
 --
--- Name: Relations_relationid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sicarius
+-- Name: Relations_relationid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: mushu
 --
 
 ALTER SEQUENCE "Relations_relationid_seq" OWNED BY "Relations".relationid;
 
 
 --
--- Name: Relations_relationid_seq; Type: SEQUENCE SET; Schema: public; Owner: sicarius
+-- Name: Relations_relationid_seq; Type: SEQUENCE SET; Schema: public; Owner: mushu
 --
 
 SELECT pg_catalog.setval('"Relations_relationid_seq"', 79, true);
 
 
 --
--- Name: UserData; Type: TABLE; Schema: public; Owner: sicarius; Tablespace: 
+-- Name: UserData; Type: TABLE; Schema: public; Owner: mushu; Tablespace: 
 --
 
 CREATE TABLE "UserData" (
@@ -245,10 +245,10 @@ CREATE TABLE "UserData" (
 );
 
 
-ALTER TABLE public."UserData" OWNER TO sicarius;
+ALTER TABLE public."UserData" OWNER TO mushu;
 
 --
--- Name: UserData_userid_seq; Type: SEQUENCE; Schema: public; Owner: sicarius
+-- Name: UserData_userid_seq; Type: SEQUENCE; Schema: public; Owner: mushu
 --
 
 CREATE SEQUENCE "UserData_userid_seq"
@@ -259,59 +259,59 @@ CREATE SEQUENCE "UserData_userid_seq"
     CACHE 1;
 
 
-ALTER TABLE public."UserData_userid_seq" OWNER TO sicarius;
+ALTER TABLE public."UserData_userid_seq" OWNER TO mushu;
 
 --
--- Name: UserData_userid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: sicarius
+-- Name: UserData_userid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: mushu
 --
 
 ALTER SEQUENCE "UserData_userid_seq" OWNED BY "UserData".userid;
 
 
 --
--- Name: UserData_userid_seq; Type: SEQUENCE SET; Schema: public; Owner: sicarius
+-- Name: UserData_userid_seq; Type: SEQUENCE SET; Schema: public; Owner: mushu
 --
 
 SELECT pg_catalog.setval('"UserData_userid_seq"', 5, true);
 
 
 --
--- Name: discussionid; Type: DEFAULT; Schema: public; Owner: sicarius
+-- Name: discussionid; Type: DEFAULT; Schema: public; Owner: mushu
 --
 
 ALTER TABLE ONLY "DiscussionInfo" ALTER COLUMN discussionid SET DEFAULT nextval('"DiscussionInfo_discussionid_seq"'::regclass);
 
 
 --
--- Name: informationid; Type: DEFAULT; Schema: public; Owner: sicarius
+-- Name: informationid; Type: DEFAULT; Schema: public; Owner: mushu
 --
 
 ALTER TABLE ONLY "Information" ALTER COLUMN informationid SET DEFAULT nextval('"Information_informationid_seq"'::regclass);
 
 
 --
--- Name: mediaid; Type: DEFAULT; Schema: public; Owner: sicarius
+-- Name: mediaid; Type: DEFAULT; Schema: public; Owner: mushu
 --
 
 ALTER TABLE ONLY "Media" ALTER COLUMN mediaid SET DEFAULT nextval('"Media_mediaid_seq"'::regclass);
 
 
 --
--- Name: relationid; Type: DEFAULT; Schema: public; Owner: sicarius
+-- Name: relationid; Type: DEFAULT; Schema: public; Owner: mushu
 --
 
 ALTER TABLE ONLY "Relations" ALTER COLUMN relationid SET DEFAULT nextval('"Relations_relationid_seq"'::regclass);
 
 
 --
--- Name: userid; Type: DEFAULT; Schema: public; Owner: sicarius
+-- Name: userid; Type: DEFAULT; Schema: public; Owner: mushu
 --
 
 ALTER TABLE ONLY "UserData" ALTER COLUMN userid SET DEFAULT nextval('"UserData_userid_seq"'::regclass);
 
 
 --
--- Data for Name: DiscussionChoices; Type: TABLE DATA; Schema: public; Owner: sicarius
+-- Data for Name: DiscussionChoices; Type: TABLE DATA; Schema: public; Owner: mushu
 --
 
 COPY "DiscussionChoices" (discussionid, informationid, votes) FROM stdin;
@@ -319,7 +319,7 @@ COPY "DiscussionChoices" (discussionid, informationid, votes) FROM stdin;
 
 
 --
--- Data for Name: DiscussionInfo; Type: TABLE DATA; Schema: public; Owner: sicarius
+-- Data for Name: DiscussionInfo; Type: TABLE DATA; Schema: public; Owner: mushu
 --
 
 COPY "DiscussionInfo" (discussionid, complete, deadline) FROM stdin;
@@ -327,7 +327,7 @@ COPY "DiscussionInfo" (discussionid, complete, deadline) FROM stdin;
 
 
 --
--- Data for Name: DiscussionParticipants; Type: TABLE DATA; Schema: public; Owner: sicarius
+-- Data for Name: DiscussionParticipants; Type: TABLE DATA; Schema: public; Owner: mushu
 --
 
 COPY "DiscussionParticipants" (discussionid, voted, userid) FROM stdin;
@@ -335,7 +335,7 @@ COPY "DiscussionParticipants" (discussionid, voted, userid) FROM stdin;
 
 
 --
--- Data for Name: Information; Type: TABLE DATA; Schema: public; Owner: sicarius
+-- Data for Name: Information; Type: TABLE DATA; Schema: public; Owner: mushu
 --
 
 COPY "Information" (informationid, author, creation, deletion, description, title, mediaid) FROM stdin;
@@ -347,7 +347,7 @@ COPY "Information" (informationid, author, creation, deletion, description, titl
 
 
 --
--- Data for Name: Media; Type: TABLE DATA; Schema: public; Owner: sicarius
+-- Data for Name: Media; Type: TABLE DATA; Schema: public; Owner: mushu
 --
 
 COPY "Media" (mediaid, content, collectiontype, discussionid) FROM stdin;
@@ -361,7 +361,7 @@ COPY "Media" (mediaid, content, collectiontype, discussionid) FROM stdin;
 
 
 --
--- Data for Name: Relations; Type: TABLE DATA; Schema: public; Owner: sicarius
+-- Data for Name: Relations; Type: TABLE DATA; Schema: public; Owner: mushu
 --
 
 COPY "Relations" (relationid, comment, creation, deletion, type, source, target) FROM stdin;
@@ -374,7 +374,7 @@ COPY "Relations" (relationid, comment, creation, deletion, type, source, target)
 
 
 --
--- Data for Name: UserData; Type: TABLE DATA; Schema: public; Owner: sicarius
+-- Data for Name: UserData; Type: TABLE DATA; Schema: public; Owner: mushu
 --
 
 COPY "UserData" (userid, username, password, karma, creation, lastlogin, isadmin, salt, actionkey, profile) FROM stdin;
@@ -383,7 +383,7 @@ COPY "UserData" (userid, username, password, karma, creation, lastlogin, isadmin
 
 
 --
--- Name: DiscussionInfo.discussionid; Type: CONSTRAINT; Schema: public; Owner: sicarius; Tablespace: 
+-- Name: DiscussionInfo.discussionid; Type: CONSTRAINT; Schema: public; Owner: mushu; Tablespace: 
 --
 
 ALTER TABLE ONLY "DiscussionInfo"
@@ -391,7 +391,7 @@ ALTER TABLE ONLY "DiscussionInfo"
 
 
 --
--- Name: Information.informationid; Type: CONSTRAINT; Schema: public; Owner: sicarius; Tablespace: 
+-- Name: Information.informationid; Type: CONSTRAINT; Schema: public; Owner: mushu; Tablespace: 
 --
 
 ALTER TABLE ONLY "Information"
@@ -399,7 +399,7 @@ ALTER TABLE ONLY "Information"
 
 
 --
--- Name: Media.mediaid; Type: CONSTRAINT; Schema: public; Owner: sicarius; Tablespace: 
+-- Name: Media.mediaid; Type: CONSTRAINT; Schema: public; Owner: mushu; Tablespace: 
 --
 
 ALTER TABLE ONLY "Media"
@@ -407,7 +407,7 @@ ALTER TABLE ONLY "Media"
 
 
 --
--- Name: Relations.relationid; Type: CONSTRAINT; Schema: public; Owner: sicarius; Tablespace: 
+-- Name: Relations.relationid; Type: CONSTRAINT; Schema: public; Owner: mushu; Tablespace: 
 --
 
 ALTER TABLE ONLY "Relations"
@@ -415,7 +415,7 @@ ALTER TABLE ONLY "Relations"
 
 
 --
--- Name: UserData.userid; Type: CONSTRAINT; Schema: public; Owner: sicarius; Tablespace: 
+-- Name: UserData.userid; Type: CONSTRAINT; Schema: public; Owner: mushu; Tablespace: 
 --
 
 ALTER TABLE ONLY "UserData"
@@ -423,7 +423,7 @@ ALTER TABLE ONLY "UserData"
 
 
 --
--- Name: DiscussionChoices.discussionid; Type: FK CONSTRAINT; Schema: public; Owner: sicarius
+-- Name: DiscussionChoices.discussionid; Type: FK CONSTRAINT; Schema: public; Owner: mushu
 --
 
 ALTER TABLE ONLY "DiscussionChoices"
@@ -431,7 +431,7 @@ ALTER TABLE ONLY "DiscussionChoices"
 
 
 --
--- Name: DiscussionChoices.informationid; Type: FK CONSTRAINT; Schema: public; Owner: sicarius
+-- Name: DiscussionChoices.informationid; Type: FK CONSTRAINT; Schema: public; Owner: mushu
 --
 
 ALTER TABLE ONLY "DiscussionChoices"
@@ -439,7 +439,7 @@ ALTER TABLE ONLY "DiscussionChoices"
 
 
 --
--- Name: DiscussionParticipants.discussionid; Type: FK CONSTRAINT; Schema: public; Owner: sicarius
+-- Name: DiscussionParticipants.discussionid; Type: FK CONSTRAINT; Schema: public; Owner: mushu
 --
 
 ALTER TABLE ONLY "DiscussionParticipants"
@@ -447,7 +447,7 @@ ALTER TABLE ONLY "DiscussionParticipants"
 
 
 --
--- Name: DiscussionParticipants.userid; Type: FK CONSTRAINT; Schema: public; Owner: sicarius
+-- Name: DiscussionParticipants.userid; Type: FK CONSTRAINT; Schema: public; Owner: mushu
 --
 
 ALTER TABLE ONLY "DiscussionParticipants"
@@ -455,7 +455,7 @@ ALTER TABLE ONLY "DiscussionParticipants"
 
 
 --
--- Name: Information.author; Type: FK CONSTRAINT; Schema: public; Owner: sicarius
+-- Name: Information.author; Type: FK CONSTRAINT; Schema: public; Owner: mushu
 --
 
 ALTER TABLE ONLY "Information"
@@ -463,7 +463,7 @@ ALTER TABLE ONLY "Information"
 
 
 --
--- Name: Information.mediaid; Type: FK CONSTRAINT; Schema: public; Owner: sicarius
+-- Name: Information.mediaid; Type: FK CONSTRAINT; Schema: public; Owner: mushu
 --
 
 ALTER TABLE ONLY "Information"
@@ -471,7 +471,7 @@ ALTER TABLE ONLY "Information"
 
 
 --
--- Name: Media.discussionid; Type: FK CONSTRAINT; Schema: public; Owner: sicarius
+-- Name: Media.discussionid; Type: FK CONSTRAINT; Schema: public; Owner: mushu
 --
 
 ALTER TABLE ONLY "Media"
@@ -479,7 +479,7 @@ ALTER TABLE ONLY "Media"
 
 
 --
--- Name: Relations.source; Type: FK CONSTRAINT; Schema: public; Owner: sicarius
+-- Name: Relations.source; Type: FK CONSTRAINT; Schema: public; Owner: mushu
 --
 
 ALTER TABLE ONLY "Relations"
@@ -487,7 +487,7 @@ ALTER TABLE ONLY "Relations"
 
 
 --
--- Name: Relations.target; Type: FK CONSTRAINT; Schema: public; Owner: sicarius
+-- Name: Relations.target; Type: FK CONSTRAINT; Schema: public; Owner: mushu
 --
 
 ALTER TABLE ONLY "Relations"
@@ -495,7 +495,7 @@ ALTER TABLE ONLY "Relations"
 
 
 --
--- Name: UserData.profile; Type: FK CONSTRAINT; Schema: public; Owner: sicarius
+-- Name: UserData.profile; Type: FK CONSTRAINT; Schema: public; Owner: mushu
 --
 
 ALTER TABLE ONLY "UserData"
@@ -503,82 +503,82 @@ ALTER TABLE ONLY "UserData"
 
 
 --
--- Name: public; Type: ACL; Schema: -; Owner: sicarius
+-- Name: public; Type: ACL; Schema: -; Owner: mushu
 --
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM sicarius;
-GRANT ALL ON SCHEMA public TO sicarius;
+REVOKE ALL ON SCHEMA public FROM mushu;
+GRANT ALL ON SCHEMA public TO mushu;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
 --
--- Name: DiscussionChoices; Type: ACL; Schema: public; Owner: sicarius
+-- Name: DiscussionChoices; Type: ACL; Schema: public; Owner: mushu
 --
 
 REVOKE ALL ON TABLE "DiscussionChoices" FROM PUBLIC;
-REVOKE ALL ON TABLE "DiscussionChoices" FROM sicarius;
-GRANT ALL ON TABLE "DiscussionChoices" TO sicarius;
+REVOKE ALL ON TABLE "DiscussionChoices" FROM mushu;
+GRANT ALL ON TABLE "DiscussionChoices" TO mushu;
 GRANT ALL ON TABLE "DiscussionChoices" TO PUBLIC;
 
 
 --
--- Name: DiscussionInfo; Type: ACL; Schema: public; Owner: sicarius
+-- Name: DiscussionInfo; Type: ACL; Schema: public; Owner: mushu
 --
 
 REVOKE ALL ON TABLE "DiscussionInfo" FROM PUBLIC;
-REVOKE ALL ON TABLE "DiscussionInfo" FROM sicarius;
-GRANT ALL ON TABLE "DiscussionInfo" TO sicarius;
+REVOKE ALL ON TABLE "DiscussionInfo" FROM mushu;
+GRANT ALL ON TABLE "DiscussionInfo" TO mushu;
 GRANT ALL ON TABLE "DiscussionInfo" TO PUBLIC;
 
 
 --
--- Name: DiscussionParticipants; Type: ACL; Schema: public; Owner: sicarius
+-- Name: DiscussionParticipants; Type: ACL; Schema: public; Owner: mushu
 --
 
 REVOKE ALL ON TABLE "DiscussionParticipants" FROM PUBLIC;
-REVOKE ALL ON TABLE "DiscussionParticipants" FROM sicarius;
-GRANT ALL ON TABLE "DiscussionParticipants" TO sicarius;
+REVOKE ALL ON TABLE "DiscussionParticipants" FROM mushu;
+GRANT ALL ON TABLE "DiscussionParticipants" TO mushu;
 GRANT ALL ON TABLE "DiscussionParticipants" TO PUBLIC;
 
 
 --
--- Name: Information; Type: ACL; Schema: public; Owner: sicarius
+-- Name: Information; Type: ACL; Schema: public; Owner: mushu
 --
 
 REVOKE ALL ON TABLE "Information" FROM PUBLIC;
-REVOKE ALL ON TABLE "Information" FROM sicarius;
-GRANT ALL ON TABLE "Information" TO sicarius;
+REVOKE ALL ON TABLE "Information" FROM mushu;
+GRANT ALL ON TABLE "Information" TO mushu;
 GRANT ALL ON TABLE "Information" TO PUBLIC;
 
 
 --
--- Name: Media; Type: ACL; Schema: public; Owner: sicarius
+-- Name: Media; Type: ACL; Schema: public; Owner: mushu
 --
 
 REVOKE ALL ON TABLE "Media" FROM PUBLIC;
-REVOKE ALL ON TABLE "Media" FROM sicarius;
-GRANT ALL ON TABLE "Media" TO sicarius;
+REVOKE ALL ON TABLE "Media" FROM mushu;
+GRANT ALL ON TABLE "Media" TO mushu;
 GRANT ALL ON TABLE "Media" TO PUBLIC;
 
 
 --
--- Name: Relations; Type: ACL; Schema: public; Owner: sicarius
+-- Name: Relations; Type: ACL; Schema: public; Owner: mushu
 --
 
 REVOKE ALL ON TABLE "Relations" FROM PUBLIC;
-REVOKE ALL ON TABLE "Relations" FROM sicarius;
-GRANT ALL ON TABLE "Relations" TO sicarius;
+REVOKE ALL ON TABLE "Relations" FROM mushu;
+GRANT ALL ON TABLE "Relations" TO mushu;
 GRANT ALL ON TABLE "Relations" TO PUBLIC;
 
 
 --
--- Name: UserData; Type: ACL; Schema: public; Owner: sicarius
+-- Name: UserData; Type: ACL; Schema: public; Owner: mushu
 --
 
 REVOKE ALL ON TABLE "UserData" FROM PUBLIC;
-REVOKE ALL ON TABLE "UserData" FROM sicarius;
-GRANT ALL ON TABLE "UserData" TO sicarius;
+REVOKE ALL ON TABLE "UserData" FROM mushu;
+GRANT ALL ON TABLE "UserData" TO mushu;
 GRANT ALL ON TABLE "UserData" TO PUBLIC;
 
 
