@@ -225,9 +225,11 @@ serveItems = do
             H.textarea ! A.id "InformationAddRelationComment" $ ""
           H.button ! A.id "InformationAddRelationCreate" ! A.type_ "button" ! A.title "Create a new Relation!" $ "Create"
         H.div ! A.id "InformationRemoveSelected" $ do
-          "Remove selected Items:"
           let rCaption = "Remove selected Informations from list."
           Images.remove' rCaption rCaption
+        H.div ! A.id "StartDiscussion" $ do
+          let dCaption = "Start a new Discussion with selected items."
+          Images.discussion' dCaption dCaption
       content = H.div ! A.class_ "Information" $ tColumns [list True is, relationEdit]
   ok . toResponse =<< Decorator.page content
 
