@@ -100,4 +100,26 @@ function initInformation(){
       $(this).remove();
     });
   });
+  //Deleting a Relation:
+  $('dd.removeRelation').click(function(){
+    var t = this;
+    var rid = $(this).parent().attr('data-relationid');
+    var q = {relationId: rid.match(/^RId \(Id (.*)\)$/)[1]};
+    $.post("/action/relation/deleteRelation", q, function(data){
+      //Check if deleteRelation worked:
+      if(/^FAIL.*/.test(data)){
+        alert(data);
+        return;
+      }
+      //Delete elements:
+      var li = $(t).closest('.RelationDescription').parent();
+      var ul = li.parent();
+      if(ul.find('li').length < 2){
+        //List would be empty, remove the whole thing.
+        ul.parent().remove();
+      }else{
+        li.remove();
+      }
+    });
+  });
 };

@@ -91,30 +91,30 @@ relations i = do
     unless (null parents) $
       H.div ! A.id "InformationParents" $ do
         H.h2 "Parents:"
-        mkList "Parent" $ zip parents parents'
+        mkList False "Parent" $ zip parents parents'
     unless (null children) $
       H.div ! A.id "InformationChildren" $ do
         H.h2 "Children:"
-        mkList "Child" $ zip children children'
+        mkList False "Child" $ zip children children'
     unless (null attackers) $
       H.div ! A.id "InformationAttackers" $ do
         H.h2 "Attackers:"
-        mkList "Attacker" $ zip attackers attackers'
+        mkList True "Attacker" $ zip attackers attackers'
     unless (null supporters) $
       H.div ! A.id "InformationSupporters" $ do
         H.h2 "Supporters:"
-        mkList "Supporter" $ zip supporters supporters'
+        mkList True "Supporter" $ zip supporters supporters'
     unless (null victims) $
       H.div ! A.id "InformationVictims" $ do
         H.h2 "Victims:"
-        mkList "Victim" $ zip victims victims'
+        mkList True "Victim" $ zip victims victims'
     unless (null protegee) $
       H.div ! A.id "InformationProtegee" $ do
         H.h2 "Protegee:"
-        mkList "Protege" $ zip protegee protegee'
+        mkList True "Protege" $ zip protegee protegee'
   where
-    mkList :: H.AttributeValue -> [(Information, Relation)] -> H.Html
-    mkList liClass xs = H.ul ! A.class_ "RelationList" $ forM_ xs $ \(x, xRel) -> H.li ! A.class_ liClass $ do
+    mkList :: Bool -> H.AttributeValue -> [(Information, Relation)] -> H.Html
+    mkList deleteable liClass xs = H.ul ! A.class_ "RelationList" $ forM_ xs $ \(x, xRel) -> H.li ! A.class_ liClass $ do
       let rid     = H.toValue . show $ relationId xRel
           xHref   = H.toValue . ("/information.html?display="++). show . unwrap . toId $ Information.informationId x
           xTitle  = H.toValue $ Information.description x
@@ -129,6 +129,9 @@ relations i = do
         when (isJust $ deletion xRel) $ do
           H.dt "Deleted"
           H.dd . H.toHtml . fromJust $ deletion xRel
+        when deleteable $ do
+          H.dt "Remove"
+          H.dd ! A.class_ "removeRelation" $ Images.remove' "Remove Relation" "Remove Relation"
 
 type ShowControls = Bool
 type LoggedIn     = Bool
