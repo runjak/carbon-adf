@@ -21,6 +21,7 @@ import qualified OpenBrain.Backend.Monad as OBB
 import qualified OpenBrain.Data.Information as Information
 import qualified OpenBrain.Data.User as User
 import qualified OpenBrain.Website.Parameters as Parameters
+import qualified OpenBrain.Website.Html.Datepicker as Datepicker
 import qualified OpenBrain.Website.Html.Decorator as Decorator
 import qualified OpenBrain.Website.Html.Images as Images
 import qualified OpenBrain.Website.Html.Relation as Relation
@@ -167,6 +168,19 @@ serveItems = do
           let rCaption = "Remove selected Informations from list."
           Images.remove' rCaption rCaption
         H.div ! A.id "StartDiscussion" $ do
+          H.h3 "Create Discussions:"
+          H.label $ do
+            "Title:"
+            H.input ! A.id "StartDiscussionTitle" ! A.type_ "text"
+          H.label $ do
+            "Description:"
+            H.textarea ! A.id "StartDiscussionDescription" $ ""
+          Datepicker.datepicker
+          H.label $ do
+            "Discussion type:"
+            H.select ! A.id "StadtDiscussionType" $ do
+              H.option ! A.value (H.toValue $ show AttackOnly)    $ "Attack only"
+              H.option ! A.value (H.toValue $ show AttackDefense) $ "Attack and defend"
           let dCaption = "Start a new Discussion with selected items."
           Images.discussion' dCaption dCaption
       content = H.div ! A.class_ "Information" $ tColumns [list True is, relationEdit]

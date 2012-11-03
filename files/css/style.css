@@ -9,4 +9,8 @@ body {
   color: #111111;
   font-family: Georgia, "Times New Roman", Times, serif;
 }
+label {
+  display: block;
+  margin-bottom: 5px;
+}
 

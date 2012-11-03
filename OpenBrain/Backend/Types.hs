@@ -25,7 +25,7 @@ type Heir = UserId
 
 type Content = String
 
-data DiscussionType = AttackOnly | AttackDefense
+data DiscussionType = AttackOnly | AttackDefense deriving (Show, Read)
 
 toCollectionType :: DiscussionType -> CollectionType
 toCollectionType AttackOnly     = DiscussionAttackOnly
