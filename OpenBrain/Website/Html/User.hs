@@ -7,10 +7,8 @@ module OpenBrain.Website.Html.User (edit, serve) where
 
 import Data.Maybe
 import Happstack.Server as S
-import Text.Blaze ((!))
-import Text.Blaze.Html (ToMarkup(..))
-import qualified Text.Blaze.Html5 as H
-import qualified Text.Blaze.Html5.Attributes as A
+import Text.Hastache
+import Text.Hastache.Context
 
 import OpenBrain.Backend.Types
 import OpenBrain.Common
@@ -19,34 +17,21 @@ import OpenBrain.Data.Karma
 import OpenBrain.Data.User
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
+import OpenBrain.Website.Template
 import qualified OpenBrain.Backend.Monad as OBB
 import qualified OpenBrain.Website.Parameters as Parameters
 import qualified OpenBrain.Website.Html.Decorator as Decorator
 import qualified OpenBrain.Website.Html.Information as Information
 import qualified OpenBrain.Website.Session as Session
 
-{-
-  Controls to change the password or delete the user,
-  H.Html is empty if there's no session.
-  Displays a Username field if client is admin.
--}
-edit :: UserId -> OBW H.Html
+edit :: UserId -> OBW HTML
 edit target = flip mplus (return "") $ do
   uid   <- Session.chkSession
   admin <- liftM isAdmin $ liftOBB $ OBB.getUser uid
   ud    <- liftOBB $ OBB.getUser target
   guard $ admin || (uid == target)
-  return $
-    H.form ! A.id "EditBox" ! H.dataAttribute "username" (H.toValue $ username ud) $ do
-      H.h1 "Update Password:"
-      H.label $ do
-        "New password:"
-        H.input ! A.class_ "Password" ! A.type_ "password" ! A.name "Password"
-      H.label $ do
-        "Confirm:"
-        H.input ! A.class_ "Confirm" ! A.type_ "password" ! A.name "Confirm"
-      H.button ! A.class_ "Update" ! A.type_ "button" $ "Update Passwd"
-      H.button ! A.class_ "Delete" ! A.type_ "button" $ "Delete user"
+  let context "username" = MuVariable $ username ud
+  liftIO $ tmpl "UserEdit.html" context
 
 {-
   Listing Users:
@@ -58,7 +43,7 @@ edit target = flip mplus (return "") $ do
 serve :: OBW Response
 serve = ok . toResponse =<< msum [serveSingle, serveList]
 
-serveSingle :: OBW H.Html
+serveSingle :: OBW HTML
 serveSingle = do
   uid     <- liftM fromId Parameters.getDisplay
   ud      <- liftOBB $ OBB.getUser uid
@@ -69,33 +54,37 @@ serveSingle = do
     let iid = fromJust $ profile ud
     i <- liftOBB $ OBB.getInformation iid
     Information.viewSingle i
-  Decorator.page $ do
-    H.h1 $ "User " >> H.toHtml (username ud) >> ":"
-    H.dl ! A.class_ "UserData" $ do
-      (H.dt ! A.class_ "Karma")    "Karma"    >> (H.dd . H.toHtml . fromKarma $ karma ud)
-      (H.dt ! A.class_ "Creation") "Creation" >> (H.dd . H.toHtml $ creation ud)
-      when isA $
-        (H.dt ! A.class_ "LastLogin") "Last login" >> (H.dd . H.toHtml $ lastLogin ud)
-    editBox
-    profile
+  let context "Username"  = MuVariable $ username ud
+      context "Karma"     = MuVariable . fromKarma $ karma ud
+      context "Creation"  = MuVariable . show $ creation ud
+      context "IsAdmin"   = MuBool isA
+      context "LastLogin" = MuVariable . show $ lastLogin ud
+  description <- liftIO $ tmpl "UserDescription.html" context
+  Decorator.page $ htmlConcat [description, editBox, profile]
 
-serveList :: OBW H.Html
+serveList :: OBW HTML
 serveList = do
   limit   <- Parameters.getLimit
   offset  <- Parameters.getOffset
   count   <- liftOBB OBB.getUserCount
   uds     <- liftOBB $ OBB.getUsers =<< OBB.getUserList limit offset
-  Decorator.page $ do
-    H.h1 "Users"
-    H.ul ! A.class_ "UserList" $ forM_ uds $ \ud -> H.li $
-      H.dl ! A.class_ "UserData" $ do
-        (H.dt ! A.class_ "Username") "Username"
-        let href = toHref "user.html" ["display=" ++ (show . unwrap . toId $ userid ud)]
-        H.dd $ H.a ! A.href href $ H.toHtml $ username ud
-        (H.dt ! A.class_ "Karma")    "Karma"    >> (H.dd . H.toHtml . fromKarma $ karma ud)
-        (H.dt ! A.class_ "Creation") "Creation" >> (H.dd . H.toHtml $ creation ud)
-    H.h2 "Pages:"
-    let ps = pages limit offset count
-    H.ul ! A.class_ "PageSelection" $ forM_ ps $ \(pageTitle, pageLimit) -> H.li $
-      H.a ! A.href (toHref "user.html" ["offset=" ++ show offset, "limit=" ++ show pageLimit]) $ H.toHtml pageTitle
+  let context "ListItems" = MuList $ map (mkStrContext . userContext) uds
+  uList   <- liftIO $ tmpl "UserList.html" context
+  pages   <- pages' limit offset count
+  Decorator.page $ htmlConcat [uList, pages]
+  where
+    userContext ud "DisplayLink" = MuVariable . ("user.html?display="++)
+                                 . show . unwrap . toId $ userid ud
+    userContext ud "Username"    = MuVariable $ username ud
+    userContext ud "Karma"       = MuVariable . fromKarma $ karma ud
+    userContext ud "Creation"    = MuVariable . show $ creation ud
+
+pages' :: Limit -> Offset -> Count -> OBW HTML
+pages' l o c = do
+  let ps = pages l o c
+      context "Pages" = MuList $ map (mkStrContext . pageContext) ps
+  liftIO $ tmpl "Pages.html" context
+  where
+    pageContext (title, _) "PageTitle" = MuVariable title
+    pageContext (_, limit) "PageLink"  = MuVariable $ "user.html?offset=" ++ show o ++ "&limit=" ++ show limit
 

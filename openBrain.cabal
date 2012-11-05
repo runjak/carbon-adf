@@ -1,5 +1,5 @@
 Name:           openBrain
-Version:        0.2
+Version:        0.3
 Synopsis:       A bachelorproject
 Description:    Interactive argumentationframeworks in a webapplication.
 License:        GPL
@@ -9,12 +9,11 @@ Maintainer:     Jakob Runge <mam09crm@studserv.uni-leipzig.de>
 Build-Type:     Simple
 Build-Depends:  aeson
               , base
-              , blaze-html
-              , blaze-markup
               , bytestring
               , containers
               , convertible
               , happstack-server
+              , hastache
               , HDBC, HDBC-postgresql
               , mtl
               , old-time
@@ -22,6 +21,7 @@ Build-Depends:  aeson
               , regex-compat
               , SHA2
               , stm
+              , syb
               , text
               , transformers
               , utf8-string

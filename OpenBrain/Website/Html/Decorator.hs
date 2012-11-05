@@ -3,55 +3,37 @@ module OpenBrain.Website.Html.Decorator (Decorator, head, page) where
 
 import Control.Monad.State
 import Prelude hiding (head)
-import Text.Blaze ((!))
-import qualified Text.Blaze.Html5 as H
-import qualified Text.Blaze.Html5.Attributes as A
+import Text.Hastache
+import Text.Hastache.Context
 
 import OpenBrain.Config
 import OpenBrain.Website.Monad
+import OpenBrain.Website.Template
 import qualified OpenBrain.Config.Website as W
 import qualified OpenBrain.Website.Html.Menu as Menu
 
-type Decorator = H.Html -> OBW H.Html
+type Decorator = HTML -> OBW HTML
 
 page :: Decorator
-page content = do
+page c = do
+  h <- head
   m <- Menu.menu
-  head . H.body $ m >> content
+  let context "head"    = htmlToMu h
+      context "menu"    = htmlToMu m
+      context "content" = htmlToMu c
+  liftIO $ tmpl "Page.html" context
 
-{-
-  Treats the target as body and adds head, html and doctype.
--}
-head :: Decorator
-head target = do
-  m     <- meta
-  js    <- jsFiles
-  css     <- cssFiles
-  title <- liftM (W.title . websiteConfig) $ gets config
-  return $ H.docTypeHtml $ do
-    H.head $ do
-      H.title $ H.toHtml title
-      m >> css >> js
-    target
-
-meta :: OBW H.Html
-meta = do
-  c <- gets config
-  return $ do
-    H.meta ! A.httpEquiv "Content-Type" ! A.content "text/html;charset=utf-8"
-    mapM_ go $ W.metaValues $ websiteConfig c
+head :: OBW HTML
+head = do
+  c <- gets (websiteConfig . config)
+  let context "title"     = MuVariable $ W.title c
+      context "metaInfos" = MuList . map (mkStrContext . metaInfoContext) $ W.metaValues c
+      context "cssFiles"  = MuList . map (mkStrContext . cssFileContext)  $ W.cssFiles c
+      context "jsFiles"   = MuList . map (mkStrContext . jsFileContext)   $ W.jsFiles c
+  liftIO $ tmpl "Head.html" context
   where
-    go (name, content) = H.meta ! A.name (H.toValue name) ! A.content (H.toValue content)
-
-jsFiles :: OBW H.Html
-jsFiles = do
-  c <- gets config
-  return $ mapM_ go $ W.jsFiles $ websiteConfig c
-  where
-    go target = H.script ! A.type_ "application/javascript" ! A.src (H.toValue target) $ ""
-
-cssFiles :: OBW H.Html
-cssFiles = do
-  c <- gets config
-  return $ forM_ (W.cssFiles $ websiteConfig c) $ \file -> H.link ! A.rel "stylesheet" ! A.type_ "text/css" ! A.href (H.toValue file)
+    metaInfoContext (metaName, metaContent) "metaName"    = MuVariable metaName
+    metaInfoContext (metaName, metaContent) "metaContent" = MuVariable metaContent
+    cssFileContext cssFile "cssFile" = MuVariable cssFile
+    jsFileContext jsFile   "jsFile"  = MuVariable jsFile
 

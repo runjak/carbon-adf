@@ -13,22 +13,17 @@ import Data.Maybe
 import Data.String (IsString(..))
 import Happstack.Server as S
 import System.Time
-import Text.Blaze ((!))
-import Text.Blaze.Html (ToMarkup(..))
-import qualified Text.Blaze.Html5 as H
-import qualified Text.Blaze.Html5.Attributes as A
+import Text.Hastache
+import Text.Hastache.Context
 
 import OpenBrain.Backend.Types
 import OpenBrain.Common
 import OpenBrain.Website.Monad
+import OpenBrain.Website.Template
 
 -- For fun with OverloadedStrings pragma
 instance IsString Response where
   fromString = toResponse
-
-instance ToMarkup CalendarTime where
-  toMarkup t =  H.toHtml $
-    show (ctHour t) ++ ":" ++ show (ctMin t) ++ " " ++ show (ctDay t) ++ "." ++ show (ctMonth t) ++ " " ++ show (ctYear t)
 
 contentNego :: String -> OBW Response
 contentNego base = do
@@ -52,9 +47,6 @@ contentNego base = do
 {- In difference to contentNego this function also matches the dir. -}
 contentNego' :: String -> OBW Response
 contentNego' base = dir base $ contentNego base
-
-toHref :: String -> [String] -> H.AttributeValue
-toHref target parameters = H.toValue $ target ++ "?" ++ intercalate "&" parameters
 
 handleFail :: String -> OBW Response -> OBW Response
 handleFail msg handle = msum [handle, doFail msg]
@@ -88,6 +80,9 @@ pages limit offset count = do
   Puts given H.Html data into a one line table as cells,
   thereby 'formatting' them as columns.
 -}
-tColumns :: [H.Html] -> H.Html
-tColumns = H.table . H.tbody . H.tr . mapM_ H.td
-
+tColumns :: [HTML] -> IO HTML
+tColumns hs = do
+  let context "Columns" = MuList $ map (mkStrContext . columnContext) hs 
+  tmpl "TabpleColumns.html" context
+  where
+    columnContext h "Column" = htmlToMu h

@@ -4,10 +4,8 @@ module OpenBrain.Website.Html.Information (serve, viewSingle) where
 import Data.Maybe
 import Happstack.Server as S
 import System.Time (CalendarTime)
-import Text.Blaze ((!))
-import qualified System.Time as Time
-import qualified Text.Blaze.Html5 as H
-import qualified Text.Blaze.Html5.Attributes as A
+import Text.Hastache
+import Text.Hastache.Context
 
 import OpenBrain.Backend.Types as Types hiding (CreateInformation(..))
 import OpenBrain.Common
@@ -17,85 +15,94 @@ import OpenBrain.Data.Relation
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import OpenBrain.Website.Session (chkSession)
+import OpenBrain.Website.Template
 import qualified OpenBrain.Backend.Monad as OBB
 import qualified OpenBrain.Data.Information as Information
 import qualified OpenBrain.Data.User as User
 import qualified OpenBrain.Website.Parameters as Parameters
 import qualified OpenBrain.Website.Html.Datepicker as Datepicker
 import qualified OpenBrain.Website.Html.Decorator as Decorator
-import qualified OpenBrain.Website.Html.Images as Images
 import qualified OpenBrain.Website.Html.Relation as Relation
 
-{- Displaying informations: -}
-viewSingle :: Information -> OBW H.Html
-viewSingle i = do
-  -- Gathering information necessary to display:
-  content <- mkContent i
-  rels    <- Relation.relations i
-  loggedIn <- msum [liftM (const True) chkSession, return False]
-  -- Generating the attributes for the H.div:
-  let deleted     = isJust (Information.deletion i) ? ([A.class_ "deleted"],[])
-      attributes  = A.class_ "Information" : deleted
-  -- Constructing the Html:
-  return $ foldl (!) H.div attributes $ do
-    title i
-    unless (null $ Information.description i) $
-      description i >> H.hr
-    tColumns [content, rels]
-    H.hr >> footnotes loggedIn True i
-  where
-    mkContent :: Information -> OBW H.Html
-    mkContent i
-      | Information.isContent (Information.media i) = do
-          let content = H.toHtml . Information.getContent $ Information.media i
-          return $ H.div ! A.class_ "InformationContent" $ content
-      | otherwise = return "Displaying Collections and Discussions not implemented." -- FIXME handle collections and discussions.
+title :: Information -> OBW HTML
+title i = do
+  let context "iid" = MuVariable . show $ Information.informationId i
+      context "InformationTitle" = MuVariable $ Information.title i
+  liftIO $ tmpl "InformationTitle.html" context
 
-viewMany :: Count -> Limit -> Offset -> [Information] -> OBW H.Html
-viewMany count limit offset is = return $ "A List of informations:" >> list False is
-
-type Selectable = Bool
-list :: Selectable -> [Information] -> H.Html
-list selectable is = let item = selectable ? (H.li ! A.class_ "selectable", H.li)
-                     in  H.ul ! A.class_ "InformationList" $ mapM_ (item . preview) is
-
-preview :: Information -> H.Html
-preview i = H.div ! A.class_ "InformationPreview" $ do
-  let displayId = show . unwrap . toId . Information.informationId
-      link      = H.a ! A.href (toHref "information.html" ["display=" ++ displayId i])
-  link $ title i
-  description i >> H.hr >> footnotes False False i
-
-title :: Information -> H.Html
-title i = let iAttr = H.dataAttribute "InformationId" (H.toValue . show $ Information.informationId i)
-          in  H.h1 ! iAttr ! A.class_ "InformationTitle" $ H.toHtml $ Information.title i
-
-description :: Information -> H.Html
-description i = H.div ! A.class_ "InformationDescription" $ H.toHtml $ Information.description i
+description :: Information -> OBW HTML
+description i = do
+  let context "InformationDescription" = MuVariable $ Information.description i
+  liftIO $ tmpl "InformationDescription.html" context
 
 type ShowControls = Bool
 type LoggedIn     = Bool
-footnotes :: LoggedIn -> ShowControls -> Information -> H.Html
-footnotes loggedIn sControls i = H.dl ! A.class_ "InformationFootnotes" $ do
-  H.dt "Created"
-  H.dd . H.toHtml $ Information.creation i
-  when (isJust $ Information.deletion i) $ do
-    H.dt "Deleted"
-    H.dd . H.toHtml . fromJust $ Information.deletion i
-  H.dt "Author"
-  H.dd . H.toHtml . User.username $ Information.author i
-  when sControls $ do
-    H.dt "Edit"
-    let href = H.toValue $ "/edit/" ++ (show . unwrap . toId $ Information.informationId i)
-    H.dd $ H.a ! A.href href $
-      Images.edit' "Edit this Information" "Edit this Information"
-    H.dt "Collect"
-    H.dd ! A.id "InformationBookmark" $
-      Images.bookmark' "Collect this Information." "Collect this Information."
-    when loggedIn $ do
-      H.dt "Profile"
-      H.dd ! A.id "InformationMakeProfile" $
-        Images.favorite' "Make this Information your Profilepage" "Make this Information your Profilepage"
+footnotes :: LoggedIn -> ShowControls -> Information -> OBW HTML
+footnotes loggedIn sControls i = do
+  let context "InformationCreated"  = MuVariable . show $ Information.creation i
+      context "IsDeleted"           = MuBool . isJust $ Information.deletion i
+      context "InformationDeletion" = MuVariable . show . fromJust $ Information.deletion i
+      context "Author"              = MuVariable . User.username $ Information.author i
+      context "DisplayControls"     = MuBool sControls
+      context "EditLink"            = MuVariable . ("/edit/"++) . show . unwrap
+                                    . toId $ Information.informationId i
+      context "LoggedIn"            = MuBool loggedIn
+  liftIO $ tmpl "InformationFootnotes.html" context
+
+preview :: Information -> OBW HTML
+preview  i = do
+  t <- title i
+  d <- description i
+  f <- footnotes False False i
+  let context "InformationLink"        = MuVariable . ("information.html?display="++)
+                                       . show . unwrap . toId $ Information.informationId i
+      context "InformationTitle"       = htmlToMu t
+      context "InformationDescription" = htmlToMu d
+      context "InformationFootnotes"   = htmlToMu f
+  liftIO $ tmpl "InformationPreview.html" context
+
+type Selectable = Bool
+list :: Selectable -> [Information] -> OBW HTML
+list selectable is = do
+  hs <- mapM preview is
+  let context "items" = MuList $ map (mkStrContext . itemContext) hs
+  liftIO $ tmpl "InformationList.html" context
+  where
+    itemContext _ "selectable" = MuBool selectable
+    itemContext h "item"       = htmlToMu h
+
+viewMany :: Count -> Limit -> Offset -> [Information] -> OBW HTML
+viewMany c l o is = do
+  l <- list False is
+  return $ htmlConcat ["A List of informations:", l]
+
+relationEditor :: OBW HTML
+relationEditor = do
+  datepicker <- liftIO $ Datepicker.datepicker
+  let context "Datepicker" = htmlToMu datepicker
+  liftIO $ tmpl "RelationEditor.html" context
+
+informationContent :: Information -> OBW HTML
+informationContent i = do
+  let context "Content" = MuVariable . Information.getContent $ Information.media i
+  liftIO $ tmpl "InformationContent.html" context
+
+{- Displaying informations: -}
+viewSingle :: Information -> OBW HTML
+viewSingle i = do
+  loggedIn <- msum [liftM (const True) chkSession, return False]
+  t        <- title i
+  d        <- description i
+  content  <- informationContent i
+  rels     <- Relation.relations i
+  cols     <- liftIO $ tColumns [content, rels]
+  f        <- footnotes loggedIn True i
+  let context "Title"          = htmlToMu t
+      context "HasDescription" = MuBool . isJust $ Information.deletion i
+      context "Description"    = htmlToMu d
+      context "Columns"        = htmlToMu cols
+      context "Footnotes"      = htmlToMu f
+  liftIO $ tmpl "InformationSingleView.html" context
 
 {-
   Listing informations:
@@ -145,45 +152,13 @@ serveUser = do
 {- /information.html?items=[..] -}
 serveItems :: OBW Response
 serveItems = do
-  iids <- Parameters.getItems
-  is <- liftOBB $ mapM OBB.getInformation iids
-  let relationEdit = H.div ! A.id "RelationEditor" $ do
-        H.div ! A.id "InformationAddRelation" $ H.form $ do
-          H.h3 "Create Relations:"
-          H.label $ do
-            "Source Information:"
-            H.button ! A.id "InformationAddRelationSelectSource" ! A.type_ "button" ! A.title "Click to select!" $ ""
-          H.label $ do
-            "Target Information:"
-            H.button ! A.id "InformationAddRelationSelectTarget" ! A.type_ "button" ! A.title "Click to select!" $ ""
-          H.label $ do
-            "Relation Type:"
-            H.select ! A.id "InformationAddRelationRelationType" $ forM_ [Attack, Defense] $ \rt ->
-              H.option ! A.value (H.toValue $ show rt) $ H.toHtml $ show rt
-          H.label $ do
-            "Comment/Description:"
-            H.textarea ! A.id "InformationAddRelationComment" $ ""
-          H.button ! A.id "InformationAddRelationCreate" ! A.type_ "button" ! A.title "Create a new Relation!" $ "Create"
-        H.div ! A.id "InformationRemoveSelected" $ do
-          let rCaption = "Remove selected Informations from list."
-          Images.remove' rCaption rCaption
-        H.div ! A.id "StartDiscussion" $ do
-          H.h3 "Create Discussions:"
-          H.label $ do
-            "Title:"
-            H.input ! A.id "StartDiscussionTitle" ! A.type_ "text"
-          H.label $ do
-            "Description:"
-            H.textarea ! A.id "StartDiscussionDescription" $ ""
-          Datepicker.datepicker
-          H.label $ do
-            "Discussion type:"
-            H.select ! A.id "StadtDiscussionType" $ do
-              H.option ! A.value (H.toValue $ show AttackOnly)    $ "Attack only"
-              H.option ! A.value (H.toValue $ show AttackDefense) $ "Attack and defend"
-          let dCaption = "Start a new Discussion with selected items."
-          Images.discussion' dCaption dCaption
-      content = H.div ! A.class_ "Information" $ tColumns [list True is, relationEdit]
+  iids    <- Parameters.getItems
+  is      <- liftOBB $ mapM OBB.getInformation iids
+  relEdit <- relationEditor
+  l       <- list True is
+  cols    <- liftIO $ tColumns [l, relEdit]
+  let context "Content" = htmlToMu cols
+  content <- liftIO $ tmpl "InformationItems.html" context
   ok . toResponse =<< Decorator.page content
 
 {- /information.html?display=_ -}

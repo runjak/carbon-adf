@@ -1,0 +1,26 @@
+<dl class="RelationDescription" data-relationId="{{rid}}">
+  <dt>Name</dt>
+  <dd>
+    <a href="{{InformationLink}}" title="{{InformationDescription}}">
+      {{InformationTitle}}
+    </a>
+  </dd>
+  {{#HasRelationComment}}
+  <dt>Comment</dt>
+  <dd>{{RelationComment}}</dd>
+  {{/HasRelationComment}}
+  <dt>Created</dt>
+  <dd>{{RelationCreated}}</dd>
+  {{#IsDeleted}}
+  <dt>Deleted</dt>
+  <dd>{{Deletion}}</dd>
+  {{/IsDeleted}}
+  {{#IsDeletable}}
+  <dt>Remove</dt>
+  <dd>
+    <a class="removeRelation">
+      <img src="/files/img/remove.svg" alt="Remove Relation" title="Remove Relation"/>
+    </a>
+  </dd>
+  {{/IsDeletable}}
+</dl>

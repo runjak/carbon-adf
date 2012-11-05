@@ -1,0 +1,11 @@
+<head>
+  <title>{{title}}</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+  {{#metaInfos}}
+  <meta name="{{metaName}}" content ="{{metaContent}}"/>
+  {{/metaInfos}}{{#cssFiles}}
+  <link rel="stylesheet" type="text/css" href="{{cssFile}}"/>
+  {{/cssFiles}}{{#jsFiles}}
+  <script type="application/javascript" src="{{jsFile}}"></script>
+  {{/jsFiles}}
+</head>

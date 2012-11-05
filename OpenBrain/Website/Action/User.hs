@@ -41,7 +41,7 @@ create = handleFail "Could not register user." $ do
   hash      <- liftM (hash salt) $ look "password"
   userData  <- liftOBB $ OBB.register username hash salt
   mkSession $ userid userData
-  ok . toResponse . Login.logoutBox $ userid userData
+  ok . toResponse =<< Login.logoutBox (userid userData)
 
 {-
   Expects parameters: username, password
@@ -56,12 +56,12 @@ login = handleFail "Login failed." $ do
     OBB.login username $ hash salt password
     return uid
   mkSession uid
-  ok . toResponse $ Login.logoutBox uid
+  ok . toResponse =<< Login.logoutBox uid
 
 logout :: OBW Response
 logout = do
   dropSession
-  ok $ toResponse Login.loginBox
+  ok . toResponse =<< Login.loginBox
 
 {- Expects parameters: username -}
 delete :: OBW Response

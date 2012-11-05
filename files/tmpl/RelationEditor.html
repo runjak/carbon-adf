@@ -1,0 +1,54 @@
+<div id="RelationEditor">
+  <div id="InformationAddRelation">
+    <form>
+      <h3>Create Relations:</h3>
+      <label>
+        Source Information:
+        <button id="InformationAddRelationSelectSource" type="button" title="Click to select!"></button>
+      </label>
+      <label>
+        Target Information:
+        <button id="InformationAddRelationSelectTarget" type="button" title="Click to select!"></button>
+      </label>
+      <label>
+        Relation Type:
+        <select id="InformationAddRelationRelationType">
+          <option value="Attack">Attack</option>
+          <option value="Defense">Defense</option>
+        </select>
+      </label>
+      <label>
+        Comment/Description:
+        <textarea id="InformationAddRelationComment"></textarea>
+      </label>
+      <button id="InformationAddRelationCreate" type="button" title="Create a new Relation!">Create</button>
+    </form>
+  </div>
+  <div id="InformationRemoveSelected">
+    <img src="/files/img/remove.svg"
+         title="Remove selected informations from list."
+         alt="Remove selected informations from list."/>
+  </div>
+  <div id="StartDiscussion">
+    <h3>Create Discussions:</h3>
+    <label>
+      Title:
+      <input id="StartDiscussionTitle" type="text"/>
+    </label>
+    <label>
+      Description:
+      <textarea id="StartDiscussionDescription"></textarea>
+    </label>
+    {{Datepicker}}
+    <label>
+      Discussion type:
+      <select id="StadtDiscussionType">
+        <option value="AttackOnly">Attack only</option>
+        <option value="AttackDefense">Attack and defend</option>
+      </select>
+    </label>
+    <img src="/files/img/discussion.svg"
+         title="Start a new Discussion with selected items."
+         alt="Start a new Discussion with selected items."/>
+  </div>
+</div>

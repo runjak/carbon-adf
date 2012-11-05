@@ -1,0 +1,17 @@
+<h1>Users</h1>
+<ul class="UserList">
+  {{#ListItems}}
+  <li>
+    <dl class="UserData">
+      <dt class="Username">Username</dt>
+      <dd>
+        <a href="{{DisplayLink}}">{{Username}}</a>
+      </dd>
+      <dt class="Karma">Karma</dt>
+      <dd>{{Karma}}</dd>
+      <dt class="Creation">Creation</dt>
+      <dd>{{Creation}}</dd>
+    </dl>
+  </li>
+  {{/ListItems}}
+</ul>
