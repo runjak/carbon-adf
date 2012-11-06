@@ -25,15 +25,17 @@ tmpldir = "files/tmpl/"
 
 newtype HTML = HTML LZ.ByteString
 
+config = defaultConfig {muEscapeFunc = id}
+
 tmpl :: FilePath -> MuContext IO -> IO HTML
 tmpl f c = do
   t <- readFile $ tmpldir ++ f
-  liftM HTML $ hastacheStr defaultConfig (encodeStr t) c
+  liftM HTML $ hastacheStr config (encodeStr t) c
 
 gtmpl :: Data a => FilePath -> a -> IO HTML
 gtmpl f c = do
   t <- readFile $ "tmpldir" ++ f
-  liftM HTML $ hastacheStr defaultConfig (encodeStr t) $ mkGenericContext c
+  liftM HTML $ hastacheStr config (encodeStr t) $ mkGenericContext c
 
 emptyContext :: MuContext IO
 emptyContext s = MuVariable $ B.concat ["Unexpected Variable:\t{{", s, "}}"]

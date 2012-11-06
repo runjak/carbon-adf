@@ -83,6 +83,6 @@ pages limit offset count = do
 tColumns :: [HTML] -> IO HTML
 tColumns hs = do
   let context "Columns" = MuList $ map (mkStrContext . columnContext) hs 
-  tmpl "TabpleColumns.html" context
+  tmpl "TableColumns.html" context
   where
     columnContext h "Column" = htmlToMu h

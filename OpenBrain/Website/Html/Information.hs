@@ -98,7 +98,8 @@ viewSingle i = do
   cols     <- liftIO $ tColumns [content, rels]
   f        <- footnotes loggedIn True i
   let context "Title"          = htmlToMu t
-      context "HasDescription" = MuBool . isJust $ Information.deletion i
+      context "Deleted"        = MuBool . isJust $ Information.deletion i
+      context "HasDescription" = MuBool . not . null $ Information.description i
       context "Description"    = htmlToMu d
       context "Columns"        = htmlToMu cols
       context "Footnotes"      = htmlToMu f
