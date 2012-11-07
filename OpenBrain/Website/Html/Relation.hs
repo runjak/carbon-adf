@@ -89,9 +89,9 @@ relationDescription deletable (i, r) = do
       context "InformationTitle"       = MuVariable $ Information.title i
       context "HasRelationComment"     = MuBool . not . null $ comment r
       context "RelationComment"        = MuVariable $ comment r
-      context "RelationCreated"        = MuVariable . show $ creation r 
+      context "RelationCreated"        = MuVariable $ creation r 
       context "IsDeleted"              = MuBool . isJust $ deletion r
-      context "Deletion"               = MuVariable . show . fromJust $ deletion r
+      context "Deletion"               = MuVariable . fromJust $ deletion r
       context "IsDeletable"            = MuBool deletable
   liftIO $ tmpl "RelationDescription.html" context
 

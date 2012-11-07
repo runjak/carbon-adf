@@ -39,9 +39,9 @@ type ShowControls = Bool
 type LoggedIn     = Bool
 footnotes :: LoggedIn -> ShowControls -> Information -> OBW HTML
 footnotes loggedIn sControls i = do
-  let context "InformationCreated"  = MuVariable . show $ Information.creation i
+  let context "InformationCreated"  = MuVariable $ Information.creation i
       context "IsDeleted"           = MuBool . isJust $ Information.deletion i
-      context "InformationDeletion" = MuVariable . show . fromJust $ Information.deletion i
+      context "InformationDeletion" = MuVariable . fromJust $ Information.deletion i
       context "Author"              = MuVariable . User.username $ Information.author i
       context "DisplayControls"     = MuBool sControls
       context "EditLink"            = MuVariable . ("/edit/"++) . show . unwrap

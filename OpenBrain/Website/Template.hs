@@ -15,11 +15,13 @@ import Data.Generics
 import Data.String
 import Control.Monad
 import Happstack.Server as S
+import System.Time (CalendarTime)
 import Text.Hastache
 import Text.Hastache.Context
 import qualified Data.ByteString       as B
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy  as LZ
+import qualified System.Time           as Time
 
 tmpldir = "files/tmpl/"
 
@@ -64,3 +66,14 @@ instance IsString HTML where
 instance ToMessage HTML where
   toContentType _    = BC.pack "text/html; charset=UTF-8"
   toMessage (HTML h) = h
+
+instance MuVar CalendarTime where
+  toLByteString t =
+    let f   = fromString . show
+        yea = f $ Time.ctYear t
+        mon = f . (+1) . fromEnum $ Time.ctMonth t
+        day = f $ Time.ctDay  t
+        hou = f $ Time.ctHour t
+        min = f $ Time.ctMin  t
+    in LZ.concat [hou,":",min," ",day,".",mon,".",yea]
+  isEmpty = const False
