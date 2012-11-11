@@ -1,10 +1,8 @@
-/*Styling informations:*/
 ul.InformationList {
-  list-style:             none;
-  background:             #9cbc2c;
-  margin:                 5px;
-  -webkit-border-radius:  5px;
-  border-radius:          5px;
+  width:                 62%;
+  float: left;
+  list-style:            none;
+  background:            #9cbc2c;
 }
 ul.InformationList li {padding: 2px;}
 ul.InformationList > li.selected {
@@ -24,8 +22,6 @@ ul.InformationList > li.selected {
   border-radius:          5px;
   padding:                5px;
 }
-div.Information > table {width: 100%;}
-div.Information > table td {width: 50%;}
 
 ul.RelationList {}
 dl.RelationDescription {
@@ -52,8 +48,10 @@ dl.InformationFootnotes dt {
 }
 dl.InformationFootnotes dt:after {content: ":";}
 
+#RelationEditor {width: 38%; float: right;}
 div#RelationEditor div {
   margin-bottom:  5px;
+  margin-right:   -5px;
   padding:        5px;
   background:     #b9cf6a;
   background:     rgba(255,255,255,.3);
