@@ -69,22 +69,14 @@ serveList = do
   count   <- liftOBB OBB.getUserCount
   uds     <- liftOBB $ OBB.getUsers =<< OBB.getUserList limit offset
   let context "ListItems" = MuList $ map (mkStrContext . userContext) uds
+      lBase = "/user.html?offset=" ++ show offset
   uList   <- liftIO $ tmpl "UserList.html" context
-  pages   <- pages' limit offset count
+  pages   <- pages limit offset count lBase
   Decorator.page $ htmlConcat [uList, pages]
   where
     userContext ud "DisplayLink" = MuVariable . ("user.html?display="++)
                                  . show . unwrap . toId $ userid ud
     userContext ud "Username"    = MuVariable $ username ud
     userContext ud "Karma"       = MuVariable . fromKarma $ karma ud
-    userContext ud "Creation"    = MuVariable . show $ creation ud
-
-pages' :: Limit -> Offset -> Count -> OBW HTML
-pages' l o c = do
-  let ps = pages l o c
-      context "Pages" = MuList $ map (mkStrContext . pageContext) ps
-  liftIO $ tmpl "Pages.html" context
-  where
-    pageContext (title, _) "PageTitle" = MuVariable title
-    pageContext (_, limit) "PageLink"  = MuVariable $ "user.html?offset=" ++ show o ++ "&limit=" ++ show limit
+    userContext ud "Creation"    = MuVariable $ creation ud
 

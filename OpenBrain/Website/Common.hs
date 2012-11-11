@@ -65,14 +65,29 @@ handleSuccess = ok . toResponse
   All pages are generated so that all Items can be listed,
   but Limit + Offset may be bigger than Count.
 -}
-pages :: Limit -> Offset -> Count -> [(String, Limit)]
-pages limit offset count = do
-  let page  = offset `div` limit
-      cutoff = take 5 . drop 1
-      mkPositive = map (\x->(x>0)?(x,0)) . (\(as,bs) -> as ++ [head bs]) . break (<=0)
-      prevs = cutoff . mkPositive $ iterate (subtract limit) offset
-      nexts = cutoff . takeWhile (< count) $ iterate (+ limit) offset
-  zip (map show . drop 1 $ iterate (subtract 1) page) prevs
-    ++ [("Current",page)]
-    ++ zip (map show [(page + 1)..]) nexts
+type LinkBase = String -- Will get ++"&limit=l"
+pages :: Limit -> Offset -> Count -> LinkBase -> OBW HTML
+pages l o c lBase = go $ pages' l o c
+  where
+    go :: [(String, Limit)] -> OBW HTML
+    go ps = do
+      let context "HasPages" = MuBool . not $ null ps
+          context "Pages"    = MuList $ map pageContext ps
+      liftIO $ tmpl "Pages.html" context
 
+    pageContext (n, l) "PageLink" = MuVariable $ lBase ++ "&limit=" ++ show l
+    pageContext (n, l) "PageTitle" = MuVariable n
+    
+    pages' :: Limit -> Offset -> Count -> [(String, Limit)]
+    pages' 0 _ _ = []
+    pages' _ _ 0 = []
+    pages' _ 0 _ = []
+    pages' limit offset count = do
+      let page       = offset `div` limit
+          cutoff     = take 5 . drop 1
+          mkPositive = map (max 0) . (\(as,bs) -> as ++ [head bs]) . break (<=0)
+          prevs      = cutoff . mkPositive $ iterate (subtract limit) offset
+          nexts      = cutoff . takeWhile (< count) $ iterate (+ limit) offset
+      zip (map show . drop 1 $ iterate (subtract 1) page) prevs
+        ++ [("Current",page)]
+        ++ zip (map show [(page + 1)..]) nexts

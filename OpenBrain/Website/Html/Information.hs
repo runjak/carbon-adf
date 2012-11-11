@@ -73,8 +73,10 @@ list selectable is = do
 
 viewMany :: Count -> Limit -> Offset -> [Information] -> OBW HTML
 viewMany c l o is = do
-  l <- list False is
-  return $ htmlConcat ["A List of informations:", l]
+  let lBase = "/information.html?offset=" ++ show o
+  content <- list False is
+  ps      <- pages l o c lBase
+  return $ htmlConcat [content, ps]
 
 relationEditor :: OBW HTML
 relationEditor = do
