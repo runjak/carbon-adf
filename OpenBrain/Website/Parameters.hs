@@ -34,11 +34,12 @@ getDiscussionType = lookRead "discussiontype"                             :: OBW
 
 fetchCalendarTime :: OBW CalendarTime
 fetchCalendarTime = do
+  guard =<< liftM or (mapM (liftM (not . null) . look) ["year", "month", "day", "hour", "minute"])
   t      <- liftIO $ Time.toCalendarTime =<< Time.getClockTime
-  year   <- msum [lookRead "year",   return $ Time.ctYear t]
-  month  <- msum [lookRead "month",  return . (+1) . fromEnum $ Time.ctMonth t]
-  day    <- msum [lookRead "day",    return $ Time.ctDay t]
-  hour   <- msum [lookRead "hour",   return $ Time.ctHour t]
+  year   <- msum [lookRead "year"  , return $ Time.ctYear t]
+  month  <- msum [lookRead "month" , return . (+1) . fromEnum $ Time.ctMonth t]
+  day    <- msum [lookRead "day"   , return $ Time.ctDay t]
+  hour   <- msum [lookRead "hour"  , return $ Time.ctHour t]
   minute <- msum [lookRead "minute", return $ Time.ctMin t]
   return $ CalendarTime {
       ctYear    = year

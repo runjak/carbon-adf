@@ -67,6 +67,9 @@ instance ToMessage HTML where
   toContentType _    = BC.pack "text/html; charset=UTF-8"
   toMessage (HTML h) = h
 
+instance Show HTML where
+  show (HTML h) = show h
+
 instance MuVar CalendarTime where
   toLByteString t =
     let f   = fromString . show
