@@ -56,9 +56,9 @@ serveSingle = do
     Information.viewSingle i
   let context "Username"  = MuVariable $ username ud
       context "Karma"     = MuVariable . fromKarma $ karma ud
-      context "Creation"  = MuVariable . show $ creation ud
+      context "Creation"  = MuVariable $ creation ud
       context "IsAdmin"   = MuBool isA
-      context "LastLogin" = MuVariable . show $ lastLogin ud
+      context "LastLogin" = MuVariable $ lastLogin ud
   description <- liftIO $ tmpl "UserDescription.html" context
   Decorator.page $ htmlConcat [description, editBox, profile]
 
