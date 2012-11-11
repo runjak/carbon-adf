@@ -24,8 +24,8 @@ getDeadline       = do
 getUser           = liftM fromId $ lookRead "user"                        :: OBW UserId
 getItems          = liftM (map (fromId . wrap) . read) $ look "items"     :: OBW [InformationId]
 getInformationId  = liftM fromId $ lookRead "informationId"               :: OBW InformationId
-getTitle          = look "title"                                          :: OBW Title
-getDescription    = look "description"                                    :: OBW Description
+getTitle          = liftM sanitize $ look "title"                         :: OBW Title
+getDescription    = liftM sanitize $ look "description"                   :: OBW Description
 getContent        = liftM sanitize $ look "content"                       :: OBW Content
 getTDC            = liftM3 (,,) getTitle getDescription getContent        :: OBW (Title, Description, Content)
 getSplit          = msum [liftM (=="True") $ look "split", return False]  :: OBW Bool
