@@ -93,15 +93,14 @@ viewSingle i = do
   loggedIn <- msum [liftM (const True) chkSession, return False]
   t        <- title i
   d        <- description i
-  content  <- informationContent i
+  ic       <- informationContent i
   rels     <- Relation.relations i
-  cols     <- liftIO $ tColumns [content, rels]
   f        <- footnotes loggedIn True i
   let context "Title"          = htmlToMu t
       context "Deleted"        = MuBool . isJust $ Information.deletion i
       context "HasDescription" = MuBool . not . null $ Information.description i
       context "Description"    = htmlToMu d
-      context "Columns"        = htmlToMu cols
+      context "Content"        = htmlToMu $ htmlConcat [ic, rels]
       context "Footnotes"      = htmlToMu f
   liftIO $ tmpl "InformationSingleView.html" context
 
@@ -157,8 +156,7 @@ serveItems = do
   is      <- liftOBB $ mapM OBB.getInformation iids
   relEdit <- relationEditor
   l       <- list True is
-  cols    <- liftIO $ tColumns [l, relEdit]
-  let context "Content" = htmlToMu cols
+  let context "Content" = htmlToMu $ htmlConcat [l, relEdit]
   content <- liftIO $ tmpl "InformationItems.html" context
   ok . toResponse =<< Decorator.page content
 

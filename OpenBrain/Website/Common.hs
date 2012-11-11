@@ -76,13 +76,3 @@ pages limit offset count = do
     ++ [("Current",page)]
     ++ zip (map show [(page + 1)..]) nexts
 
-{-
-  Puts given H.Html data into a one line table as cells,
-  thereby 'formatting' them as columns.
--}
-tColumns :: [HTML] -> IO HTML
-tColumns hs = do
-  let context "Columns" = MuList $ map (mkStrContext . columnContext) hs 
-  tmpl "TableColumns.html" context
-  where
-    columnContext h "Column" = htmlToMu h
