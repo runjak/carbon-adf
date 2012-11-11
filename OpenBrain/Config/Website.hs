@@ -18,6 +18,7 @@ nullWebsiteConfig = WebsiteConfig {
       "jquery.js"
     , "jquery.cookie.js"
     , "marked/marked.js"
+    , "Datepicker.js"
     , "Marked.js"
     , "User.js"
     , "InformationCollection.js"

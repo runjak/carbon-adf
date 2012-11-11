@@ -50,7 +50,7 @@ footnotes loggedIn sControls i = do
   liftIO $ tmpl "InformationFootnotes.html" context
 
 preview :: Information -> OBW HTML
-preview  i = do
+preview i = do
   t <- title i
   d <- description i
   f <- footnotes False False i
