@@ -92,7 +92,7 @@ function initInformation(){
       alert(data);
     });
   });
-  //Removing selected Information:
+  //Removing from selected Information:
   $('img#InformationRemove').click(function(e){
     var iid = $(this).parent().attr('data-InformationId');
     iCol.delInf(iid);
@@ -121,4 +121,38 @@ function initInformation(){
       }
     });
   });
+  //Discussions:
+  if($('#StartDiscussion').length != 0){
+    var dp = new Datepicker();
+    //Starting new discussions:
+    $('#StartDiscussionCreate').click(function(){
+      //Fetching selected information:
+      var iids = $('.InformationList > .selected .InformationTitle').map(function(i, e){
+        return $(e).attr('data-informationid').match(iCol.iidRegex)[1];
+      }).get();
+      if(iids.length  < 2){
+        alert('You need to select two or more Informations.');
+        return;
+      }
+      iids = '['+iids.join(',')+']';
+      //Fetching title, description and discussionType:
+      var data = {
+        title:          $('#StartDiscussionTitle').val()
+      , description:    $('#StartDiscussionDescription').val()
+      , discussiontype: $('#StartDiscussionType').val()
+      };
+      if(data.title == "" || data.description == ""){
+        alert("Remember to enter a title and description.");
+        return;
+      }
+      //Creating the discussion:
+      var q = $.extend({items: iids}, data, dp.val());
+      $.post("/action/discussion/create", q, function(data){
+        if(iCol.iidRegex.test(data)){
+          var iid = data.match(iCol.iidRegex)[1];
+          document.location.href = "/information.html?display=" + iid;
+        }
+      });
+    });
+  }
 };

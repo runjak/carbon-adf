@@ -67,8 +67,8 @@ instance FromReqURI CalendarTime where
     _ -> Nothing
 
 instance FromReqURI DiscussionType where
-  fromReqURI "attackonly"     = Just AttackOnly
-  fromReqURI "attackdefense"  = Just AttackDefense
+  fromReqURI "AttackOnly"     = Just AttackOnly
+  fromReqURI "AttackDefense"  = Just AttackDefense
   fromReqURI _ = Nothing
 
 sanitize :: String -> String
