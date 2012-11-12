@@ -74,7 +74,7 @@ clone conn iid = do
 type MediaId = SqlValue
 mkSimpleInformation :: (IConnection conn) => conn -> Types.CreateInformation -> MediaId -> IO InformationId
 mkSimpleInformation conn cinfo mediaid = withTransaction conn $ \conn -> do
-  iInsert <- prepare conn "INSERT INTO \"Information\" (author, description, title, mediaid) VALUES (?, ?, ?, ?)"
+  iInsert <- prepare conn "INSERT INTO \"Information\" (author, title, description, mediaid) VALUES (?, ?, ?, ?)"
   execute iInsert [toSql . toId $ Types.userId cinfo
                   , toSql $ Types.title cinfo
                   , toSql $ Types.description cinfo
