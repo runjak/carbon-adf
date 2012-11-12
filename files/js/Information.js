@@ -93,12 +93,11 @@ function initInformation(){
     });
   });
   //Removing selected Information:
-  $('div#InformationRemoveSelected').click(function(){
-    $('ul.InformationList > li.selected').each(function(){
-      var iid = $('.InformationTitle', this).attr('data-InformationId');
-      iCol.delInf(iid);
-      $(this).remove();
-    });
+  $('img#InformationRemove').click(function(e){
+    var iid = $(this).parent().attr('data-InformationId');
+    iCol.delInf(iid);
+    $(this).closest('li.selectable').remove();
+    e.preventDefault();
   });
   //Deleting a Relation:
   $('dd.removeRelation').click(function(){
