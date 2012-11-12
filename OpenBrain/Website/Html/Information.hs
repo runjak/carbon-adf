@@ -26,8 +26,10 @@ import qualified OpenBrain.Website.Html.Relation as Relation
 
 title :: Information -> OBW HTML
 title i = do
+  removeable <- msum [Parameters.getItems >> return True, return False]
   let context "iid" = MuVariable . show $ Information.informationId i
       context "InformationTitle" = MuVariable $ Information.title i
+      context "Removeable" = MuBool removeable
   liftIO $ tmpl "InformationTitle.html" context
 
 description :: Information -> OBW HTML
@@ -61,20 +63,19 @@ preview i = do
       context "InformationFootnotes"   = htmlToMu f
   liftIO $ tmpl "InformationPreview.html" context
 
-type Selectable = Bool
-list :: Selectable -> [Information] -> OBW HTML
-list selectable is = do
+list :: [Information] -> OBW HTML
+list is = do
+  selectable <- msum [Parameters.getItems >> return True, return False]
   hs <- mapM preview is
-  let context "items" = MuList $ map (mkStrContext . itemContext) hs
+  let itemContext _ "selectable" = MuBool selectable
+      itemContext h "item"       = htmlToMu h
+      context "items" = MuList $ map (mkStrContext . itemContext) hs
   liftIO $ tmpl "InformationList.html" context
-  where
-    itemContext _ "selectable" = MuBool selectable
-    itemContext h "item"       = htmlToMu h
 
 viewMany :: Count -> Limit -> Offset -> [Information] -> OBW HTML
 viewMany c l o is = do
   let lBase = "/information.html?offset=" ++ show o
-  content <- list False is
+  content <- list is
   ps      <- pages l o c lBase
   return $ htmlConcat [content, ps]
 
@@ -157,7 +158,7 @@ serveItems = do
   iids    <- Parameters.getItems
   is      <- liftOBB $ mapM OBB.getInformation iids
   relEdit <- relationEditor
-  l       <- list True is
+  l       <- list is
   let context "Content" = htmlToMu $ htmlConcat [l, relEdit]
   content <- liftIO $ tmpl "InformationItems.html" context
   ok . toResponse =<< Decorator.page content
