@@ -21,8 +21,13 @@ import qualified Control.Monad.Error as Error
 import OpenBrain.Backend
 import OpenBrain.Backend.Monad
 import OpenBrain.Config
+import qualified OpenBrain.Deadline as Deadline
 
-data WebsiteState = WebsiteState {backend :: Backend, config :: Config}
+data WebsiteState = WebsiteState {
+    backend :: Backend
+  , config :: Config
+  , deadline :: Deadline.TDState
+  }
 
 -- OBW ~ the OpenBrainWebsite Monad
 type OBW a = StateT WebsiteState (ServerPartT IO) a
@@ -36,6 +41,9 @@ liftOBB m = do
   b <- gets backend
   mRst <- liftIO $ runMaybeT $ evalStateT m b
   maybe mzero return mRst
+
+liftDeadline :: Deadline.Deadline a -> OBW a
+liftDeadline m = liftIO . evalStateT m . deadline =<< get
 
 liftMaybeT :: MaybeT IO a -> OBW a
 liftMaybeT m = do

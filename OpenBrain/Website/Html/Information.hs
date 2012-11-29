@@ -26,7 +26,6 @@ informationDisplayLink :: Information -> String
 informationDisplayLink = ("/information.html?display="++) . show
                        . unwrap . toId . Information.informationId
 
-
 title :: Information -> OBW HTML
 title i = do
   removeable <- msum [Parameters.getItems >> return True, return False]
