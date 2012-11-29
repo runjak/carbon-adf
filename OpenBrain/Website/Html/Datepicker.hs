@@ -2,8 +2,6 @@
 module OpenBrain.Website.Html.Datepicker where
 
 import System.Time (CalendarTime(..))
-import Text.Hastache
-import Text.Hastache.Context
 import qualified System.Time as Time
 
 import OpenBrain.Website.Template

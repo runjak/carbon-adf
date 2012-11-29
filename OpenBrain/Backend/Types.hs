@@ -19,7 +19,7 @@ data CreateInformation = CreateInformation {
     userId      :: UserId
   , title       :: Title
   , description :: Description
-}
+} deriving (Show)
 
 type Heir = UserId
 

@@ -7,8 +7,6 @@ module OpenBrain.Website.Html.User (edit, serve) where
 
 import Data.Maybe
 import Happstack.Server as S
-import Text.Hastache
-import Text.Hastache.Context
 
 import OpenBrain.Backend.Types
 import OpenBrain.Common

@@ -3,8 +3,6 @@ module OpenBrain.Website.Html.Decorator (Decorator, head, page) where
 
 import Control.Monad.State
 import Prelude hiding (head)
-import Text.Hastache
-import Text.Hastache.Context
 
 import OpenBrain.Config
 import OpenBrain.Website.Monad

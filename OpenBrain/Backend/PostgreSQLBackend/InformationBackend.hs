@@ -125,15 +125,16 @@ createDiscussion' conn cinfo arguments deadline dtype = withTransaction conn $ \
   -- Producing a new discussion:
   quickQuery' conn "INSERT INTO \"DiscussionInfo\" (deadline) VALUES (?)" [toSql deadline]
   [[did]] <- quickQuery' conn "SELECT LASTVAL()" []
-  -- Linking arguments to discussion:
-  mkArg <- prepare conn "INSERT INTO \"DiscussionChoices\" (discussionid, informationid) VALUES (?, ?)"
-  executeMany mkArg [[did, toSql $ toId a] | a <- arguments]
   -- Produce a media for the discussion:
   mkMedia <- prepare conn "INSERT INTO \"Media\" (collectiontype, discussionid) VALUES (?, ?)"
   execute mkMedia [toSql $ Types.toCollectionType dtype, did]
   [[mediaid]] <- quickQuery' conn "SELECT LASTVAL()" []
   -- Produce Information for the Media:
-  mkSimpleInformation conn cinfo mediaid
+  iid <- mkSimpleInformation conn cinfo mediaid
+  -- Linking arguments to discussion:
+  mkArgs <- prepare conn "INSERT INTO \"Relations\" (comment, type, source, target) VALUES ('', ?, ?, ?)"
+  executeMany mkArgs [[toSql R.Collection, toSql $ toId iid, toSql $ toId a] | a <- arguments]
+  return iid
 
 getInformationCount' :: (IConnection conn) => conn -> IO Types.Count
 getInformationCount' conn = do
@@ -194,9 +195,9 @@ getDiscussionInfo conn did = do
   [[_complete, _deadline]] <- liftIO $ quickQuery' conn q [did]
   -- Fetching complete:
   let mkComplete = liftM return . getInformation' conn . fromId $ fromSql _complete
-  complete <- (_complete /= SqlNull) ? (mkComplete, mzero)
+  complete <- (_complete /= SqlNull) ? (mkComplete, return Nothing)
   -- Fetching the choices:
-  let q = "SELECT userid, voted FROM \"DiscussionParticipants\" WHERE discussionid = ?"
+  let q = "SELECT informationid, votes FROM \"DiscussionChoices\" WHERE discussionid = ?"
   _choices  <- liftIO $ quickQuery' conn q [did]
   choices   <- mapM (mkChoice conn) _choices
   -- Fetching the participants:

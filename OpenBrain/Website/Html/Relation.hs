@@ -2,8 +2,6 @@
 module OpenBrain.Website.Html.Relation (relations) where
 
 import Data.Maybe
-import Text.Hastache
-import Text.Hastache.Context
 
 import OpenBrain.Backend.Types as Types hiding (CreateInformation(..))
 import OpenBrain.Common

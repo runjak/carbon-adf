@@ -31,6 +31,7 @@ create = Session.chkSession' $ \uid -> do
   dl  <- Parameters.getDeadline
   dt  <- Parameters.getDiscussionType
   iid <- liftOBB $ OBB.createDiscussion ci is dl dt
+  liftOBB $ OBB.addParticipant iid uid
   handleSuccess $ "Created discussion: " ++ show iid
 
 update :: OBW Response

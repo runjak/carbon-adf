@@ -2,6 +2,7 @@
 module OpenBrain.Website.Template (
     HTML, IsHTML(..), htmlToMu, htmlUnpack, htmlConcat
   , tmpl, gtmpl, emptyContext
+  , module Hastache, module HContext
 ) where
 {-
   Basics for using Hastache in OpenBrain.
@@ -22,6 +23,8 @@ import qualified Data.ByteString       as B
 import qualified Data.ByteString.Char8 as BC
 import qualified Data.ByteString.Lazy  as LZ
 import qualified System.Time           as Time
+import qualified Text.Hastache         as Hastache
+import qualified Text.Hastache.Context as HContext
 
 tmpldir = "files/tmpl/"
 

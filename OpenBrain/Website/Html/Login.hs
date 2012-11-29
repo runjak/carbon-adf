@@ -6,8 +6,6 @@ module OpenBrain.Website.Html.Login where
 
 import Data.Maybe
 import Happstack.Server as S
-import Text.Hastache
-import Text.Hastache.Context
 import qualified Data.ByteString.Lazy as LZ
 
 import OpenBrain.Common

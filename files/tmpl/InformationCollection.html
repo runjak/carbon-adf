@@ -1,0 +1,45 @@
+{{CollectionType}}
+<ul id="ArgumentList">
+Items are:
+{{#ArgumentList}}
+<li>
+  <a href="{{ArgumentLink}}">{{ArgumentTitle}}</a>
+</li>
+{{/ArgumentList}}
+</ul>
+{{#IsDiscussion}}
+<dl>
+  <dt>Deadline:</dt>
+  <dd>{{Deadline}}</dd>
+  {{#IsComplete}}
+  <dt>Result:</dt>
+  <dd>
+    <a href="{{ResultLink}}">{{ResultTitle}}</a>
+  </dd>
+  {{/IsComplete}}
+  {{#HasChoices}}
+  <dt>Choices:</dt>
+  <dd>
+    <ul id="ChoiceList">
+      {{#ChoiceList}}
+      <li>
+        <input type="radio" name="selectVote" value="{{ChoiceId}}"/>
+        <a href="ChoiceLink">{{ChoiceTitle}}</a>
+      </li>
+      {{/ChoiceList}}
+    </ul>
+    <input id="vote" type="button" value="Vote"/>
+  </dd>
+  {{/HasChoices}}
+  <dt>Participants:</dt>
+  <dd>
+    <ul id="ParticipantList">
+    {{#ParticipantList}}
+    <li>
+      <a href="{{ParticipantLink}}">{{ParticipantTitle}}</a>
+    </li>
+    {{/ParticipantList}}
+    </ul>
+  </dd>
+</dl>
+{{/IsDiscussion}}

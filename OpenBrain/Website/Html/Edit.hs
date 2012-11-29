@@ -3,8 +3,6 @@ module OpenBrain.Website.Html.Edit (editor, serve) where
 
 import Data.Maybe
 import Happstack.Server as S
-import Text.Hastache
-import Text.Hastache.Context
 
 import OpenBrain.Common
 import OpenBrain.Data.Id
