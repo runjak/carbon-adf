@@ -83,7 +83,7 @@ viewMany c l o is = do
 
 relationEditor :: OBW HTML
 relationEditor = do
-  datepicker <- liftIO $ Datepicker.datepicker
+  datepicker <- liftIO Datepicker.datepicker
   let context "Datepicker" = htmlToMu datepicker
   liftIO $ tmpl "RelationEditor.html" context
 
@@ -115,9 +115,9 @@ informationCollection i = do
       dComplete c "ResultTitle"    = MuVariable $ Information.title c
       dChoiceList c "ChoiceId"     = MuVariable . show . Information.informationId $ fst c
       dChoiceList c "ChoiceLink"   = MuVariable . informationDisplayLink $ fst c
-      dChoiceList c "ChoiceTitle"  = MuVariable $ Information.title (fst c) ++ " (" ++ (show $ snd c) ++ ")"
+      dChoiceList c "ChoiceTitle"  = MuVariable $ Information.title (fst c) ++ " (" ++ show (snd c) ++ ")"
       dPList p "ParticipantLink"   = MuVariable . ("/user.html?display="++) . show . unwrap . toId . User.userid $ fst p
-      dPList p "ParticipantTitle"  = MuVariable $ User.username (fst p) ++ ((snd p) ? (" (voted)",""))
+      dPList p "ParticipantTitle"  = MuVariable $ User.username (fst p) ++ (snd p ? (" (voted)",""))
       dContext d "Deadline"        = MuVariable $ Information.deadline d
       dContext d "IsComplete"      = MuList . map (mkStrContext . dComplete) . maybeToList $ Information.complete d
       dContext d "HasChoices"      = MuBool . not . null $ Information.choices d
@@ -128,7 +128,7 @@ informationCollection i = do
       context "ArgumentList"   = MuList $ map (mkStrContext . argumentContext) args
       context "IsDiscussion"   = MuList . map (mkStrContext . dContext) . maybeToList $ Information.discussion m
       context _ = MuNothing
-  liftIO $ putStrLn $ show i
+  liftIO $ print i
   liftIO $ tmpl "InformationCollection.html" context
 
 {- Displaying informations: -}

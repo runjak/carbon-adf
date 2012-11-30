@@ -41,7 +41,7 @@ fetchCalendarTime = do
   day    <- msum [lookRead "day"   , return $ Time.ctDay t]
   hour   <- msum [lookRead "hour"  , return $ Time.ctHour t]
   minute <- msum [lookRead "minute", return $ Time.ctMin t]
-  return $ CalendarTime {
+  return CalendarTime {
       ctYear    = year
     , ctMonth   = toEnum $ month - 1
     , ctDay     = day
