@@ -136,6 +136,9 @@ getInformationParents iid limit offset = withBackend $ \b -> liftIO $ Backend.ge
 getProfiledUsers :: InformationId -> OBB [UserData]
 getProfiledUsers iid = withBackend $ \b -> liftIO $ Backend.getProfiledUsers b iid
 
+getNextDeadline :: OBB (Maybe Information)
+getNextDeadline = withBackend $ liftIO . Backend.getNextDeadline
+
 updateContentMedia :: UserId -> InformationId -> Types.Title -> Types.Description -> Types.Content -> OBB InformationId
 updateContentMedia uid iid title description content = withBackend $ \b -> liftIO $ Backend.updateContentMedia b uid iid title description content
 

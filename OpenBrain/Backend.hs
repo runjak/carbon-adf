@@ -97,6 +97,7 @@ class InformationBackend b where
   getInformationParentsCount  :: b -> InformationId -> IO Types.Count
   getInformationParents       :: b -> InformationId -> Types.Limit -> Types.Offset -> IO [Information] -- | youngest first
   getProfiledUsers            :: b -> InformationId -> IO [UserData]
+  getNextDeadline             :: b -> IO (Maybe Information)
   -- | 'Modifying' Operations:
   updateContentMedia  :: b -> UserId -> InformationId -> Types.Title -> Types.Description -> Types.Content -> IO InformationId
   updateCollection    :: b -> Types.Collection -> [InformationId] -> IO Types.Collection -- | Changes the items of the collection to the given list.

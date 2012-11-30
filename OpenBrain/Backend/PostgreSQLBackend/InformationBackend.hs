@@ -35,6 +35,7 @@ instance InformationBackend PostgreSQLBackend where
   getInformationParentsCount  b = withWConn (conn b) getInformationParentsCount'
   getInformationParents       b = withWConn (conn b) getInformationParents'
   getProfiledUsers            b = withWConn (conn b) getProfiledUsers'
+  getNextDeadline             b = withWConn (conn b) getNextDeadline'
   updateContentMedia          b = withWConn (conn b) updateContentMedia'
   updateCollection            b = withWConn (conn b) updateCollection'
   setParticipant              b = withWConn (conn b) setParticipant'
@@ -271,6 +272,17 @@ getProfiledUsers' conn iid = do
   _uids <- quickQuery' conn "SELECT userid FROM \"UserData\" WHERE profile = ?" [toSql $ toId iid]
   muds  <- mapM (runMaybeT . getUser' conn . fromId . fromSql . head) _uids
   return $ catMaybes muds
+
+getNextDeadline' :: (IConnection conn) => conn -> IO (Maybe Information)
+getNextDeadline' conn = do
+  let q = "SELECT informationid FROM \"Information\" "
+        ++"JOIN \"Media\" USING (mediaid) "
+        ++"JOIN \"DiscussionInfo\" USING (discussionid) "
+        ++"WHERE complete IS NULL ORDER BY deadline ASC LIMIT 1";
+  rst <- liftM (listToMaybe . map (fromId . fromSql . head)) $ quickQuery' conn q []
+  case rst of
+    Nothing    -> return Nothing
+    (Just iid) -> runMaybeT $ getInformation' conn iid
 
 updateContentMedia' :: (IConnection conn) => conn -> UserId -> InformationId -> Types.Title -> Types.Description -> Types.Content -> IO InformationId
 updateContentMedia' conn uid iid' title description content = withTransaction conn $ \conn -> do
