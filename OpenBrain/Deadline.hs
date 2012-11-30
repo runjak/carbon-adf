@@ -45,7 +45,7 @@ sleepUntil t = do
   t' <- Time.getClockTime
   let diff  = Time.diffClockTimes (Time.toClockTime t) t'
       sleep = Time.tdSec diff * 1000000
-  when (sleep > 0) $ Concurrent.threadDelay sleep
+  Concurrent.threadDelay sleep
 
 perform :: IO () -> Time.CalendarTime -> Deadline ()
 perform action time = abort >> get >>= \s -> do
