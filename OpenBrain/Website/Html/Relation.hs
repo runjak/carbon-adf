@@ -20,10 +20,10 @@ relations i = do
   -- Types of Relations:
   parents'    <- liftOBB $ OBB.getRelations iid RelationTarget (Just Parent)  True
   children'   <- liftOBB $ OBB.getRelations iid RelationSource (Just Parent)  True
-  attackers'  <- liftOBB $ OBB.getRelations iid RelationTarget (Just Attack)  False
-  supporters' <- liftOBB $ OBB.getRelations iid RelationTarget (Just Defense) False
-  victims'    <- liftOBB $ OBB.getRelations iid RelationSource (Just Attack)  False
-  protegee'   <- liftOBB $ OBB.getRelations iid RelationSource (Just Defense) False
+  attackers'  <- liftOBB $ OBB.getRelations iid RelationTarget (Just $ Argumentation Attack)  False
+  supporters' <- liftOBB $ OBB.getRelations iid RelationTarget (Just $ Argumentation Defense) False
+  victims'    <- liftOBB $ OBB.getRelations iid RelationSource (Just $ Argumentation Attack)  False
+  protegee'   <- liftOBB $ OBB.getRelations iid RelationSource (Just $ Argumentation Defense) False
   -- Informations behind the Relations:
   let lookup = mapM $ liftOBB . OBB.getInformation
   parents     <- lookup $ map source parents'
