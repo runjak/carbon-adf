@@ -17,6 +17,8 @@ data Information = Information {
   } deriving (Show)
 instance Eq Information where
   (==) = (==) `on` informationId
+instance Ord Information where
+  compare = compare `on` informationId
 
 data Media =
     Content String  -- | HTML rich content

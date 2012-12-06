@@ -42,7 +42,7 @@ addRelation = do
     isAttackOrDefense t $
       Session.chkSession' $ \uid ->
         handleFail ("Relation type not allowed:\t" ++ show t) $ do
-          guard $ t `elem` [Argumentation Attack, Argumentation Defense]
+          guard $ t `elem` [Attack, Defense]
           handleFail "Problem in OpenBrain.Website.Action:addRelation" $ do
             rid <- liftOBB $ OBB.addRelation rSource rTarget t comment
             handleSuccess $ "Added Relation: " ++ show rid
@@ -77,7 +77,7 @@ updateComment = do
 -}
 isAttackOrDefense :: RelationType -> OBW Response -> OBW Response
 isAttackOrDefense r response = handleFail "Relation must be of type Attack or Defense." $
-  guard (r `elem` [Argumentation Attack, Argumentation Defense]) >> response
+  guard (r `elem` [Attack, Defense]) >> response
 
 {-
   Fetching expected parameters
