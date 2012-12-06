@@ -4,9 +4,9 @@ module OpenBrain.Argumentation.Semantics (
   , module Graph
 ) where
 
-import Data.Graph (Graph, Vertex, Edge)
-import qualified Data.Graph as Graph
-import qualified Data.Set   as Set
+import qualified Data.Set as Set
+
+import OpenBrain.Data.Graph as Graph
 
 type Argument = Vertex
 type Relation = Edge
