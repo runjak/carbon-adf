@@ -1,85 +1,63 @@
 module OpenBrain.Data.Graph(
   Vertex, Edge, Graph
-, buildG, vertices, edges
-, edgesFrom, edgesTo
-, next, prev
+, vertices, edges
+, next, next', prev, prev'
+, edgesFrom, edgesTo, hasEdge
 )where
 
-import Control.Arrow ((***))
-import Control.Monad (join, liftM2)
-import Data.BitArray (BitArray)
-import Data.Map      (Map)
-import Data.Maybe
-import qualified Data.BitArray as BA
-import qualified Data.List     as List
-import qualified Data.Map      as Map
+import Data.Array ((!))
+import Data.Graph (Vertex, Edge)
+import Data.List  (nub)
+import qualified Data.Array as A
+import qualified Data.Graph as G
 
-type Vertex = Int
-type Edge   = (Vertex, Vertex)
-
-type SqSize = Int
-data Graph  = Graph {
-    array  :: BitArray
-  , sqSize :: SqSize -- | Length of sqrt(|array|)
+data Graph = Graph {      -- | My own Graph type only encapsules two Data.Graph
+    simple     :: G.Graph -- | A Data.Graph contained in my wrapper
+  , transposed :: G.Graph -- | The transposed version of the simple field for reverse lookups.
   }
 
-{-| Converts an Edge to an Int fitting the BitArray. |-}
-fromEdge :: SqSize -> Edge -> Int
-fromEdge s (v1, v2) = v1 * s + v2
-
-fromEdge' :: Graph -> Edge -> Int
-fromEdge' = fromEdge . sqSize
-
-{-| Converts an Int from the BitArray to an Edge. |-}
-toEdge :: SqSize -> Int -> Edge
-toEdge s i = i `divMod` s
-
-toEdge' :: Graph -> Int -> Edge
-toEdge' = toEdge . sqSize
-
-{-| Builds a Graph and two map functions from a list of Edges of Ord. |-}
-buildG :: Ord a => [(a, a)] -> (Graph, Vertex -> a, a -> Maybe Vertex)
+{-| Creates a Graph from a list of edges. |-}
+buildG :: [Edge] -> Graph
 buildG edges =
-  let vs     = List.nub . List.sort $ concatMap (\(v1, v2) -> [v1, v2]) edges
-      size   = length vs
-      bounds = (0, size^2)
-      nvMap  = Map.fromList $ zip [0..] vs
-      vnMap  = Map.fromList $ zip vs [0..]
-      tBits  = flip zip (repeat True) . map (fromEdge size)
-             $ translateEdges vnMap edges
-      graph  = Graph {
-               array  = BA.bitArray bounds tBits
-             , sqSize = size}
-  in (graph, fromJust . flip Map.lookup nvMap, flip Map.lookup vnMap)
-  where
-    translateEdges :: Ord a => Map a Int -> [(a, a)] -> [(Int, Int)]
-    translateEdges m = map . join (***) $ fromJust . flip Map.lookup m
+  let vs     = concatMap (\(v1, v2) -> [v1, v2]) edges
+      bounds = (minimum vs, maximum vs)
+      graph  = G.buildG bounds edges
+  in Graph {
+    simple     = graph
+  , transposed = G.transposeG graph
+  }
 
 {-| All vertices in the graph. |-}
 vertices :: Graph -> [Vertex]
-vertices g = [0..(subtract 1 $ sqSize g)]
-
-{-| Tests if a given Edge belongs to the graph. |-}
-hasEdge :: Graph -> Edge -> Bool
-hasEdge g e = BA.lookupBit (array g) $ fromEdge' g e
+vertices = G.vertices . simple
 
 {-| All edges in the graph. |-}
 edges :: Graph -> [Edge]
-edges g = filter (hasEdge g) . join (liftM2 (,)) $ vertices g
-
-{-| All edges in the Graph that have the given Vertex as first element. |-}
-edgesFrom :: Graph -> Vertex -> [Edge]
-edgesFrom g v = filter (hasEdge g) . zip (repeat v) $ vertices g
-
-{-| All edges in the Graph that have the given Vertex as second element. |-}
-edgesTo :: Graph -> Vertex -> [Edge]
-edgesTo g v = filter (hasEdge g) . zip (vertices g) $ repeat v
+edges = G.edges . simple
 
 {-| A list of Vertices that can be reached in a Graph from a given Vertex. |-}
 next :: Graph -> Vertex -> [Vertex]
-next g = map snd . edgesFrom g
+next = (!) . simple
+
+next' :: Graph -> [Vertex] -> [Vertex]
+next' g = nub . concatMap (next g)
 
 {-| A list of Vertices that can reach a given Vertex in a Graph. |-}
 prev :: Graph -> Vertex -> [Vertex]
-prev g = map fst . edgesTo g
+prev = (!) . transposed
+
+prev' :: Graph -> [Vertex] -> [Vertex]
+prev' g = nub . concatMap (prev g)
+
+{-| All edges in the Graph that have the given Vertex as first element. |-}
+edgesFrom :: Graph -> Vertex -> [Edge]
+edgesFrom g v = zip (repeat v) $ next g v
+
+{-| All edges in the Graph that have the given Vertex as second element. |-}
+edgesTo :: Graph -> Vertex -> [Edge]
+edgesTo g v = zip (prev g v) $ repeat v
+
+{-| Tests if a given Edge belongs to the graph. |-}
+hasEdge :: Graph -> Edge -> Bool
+hasEdge g (v1, v2) = v2 `elem` (next g v1)
 
