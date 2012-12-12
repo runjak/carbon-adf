@@ -4,14 +4,20 @@ module OpenBrain.Argumentation.Semantics (
   , module Graph
 ) where
 
+import Control.Monad
 import qualified Data.Set as Set
 
+import OpenBrain.Common
 import OpenBrain.Data.Graph as Graph
 
 type Argument = Vertex
 type Relation = Edge
 
 class Monad af => ArgumentationFramework af where
+  {-|
+    Simply the list of all arguments in the framework.
+  |-}
+  arguments :: af [Argument]
   {-|
     A set of Arguments is conflict-free if there are no two Arguments a,b
     in the set so that a attacks b.
@@ -34,20 +40,24 @@ class Monad af => ArgumentationFramework af where
     each argument in the set is acceptable with respect to the set.
   |-}
   admissible :: [Argument] -> af Bool
-  {-| The set of all admissible sets. |-}
+  {-|
+    The set of all admissible sets.
+    There should be a better solution here.
+  |-}
   admissibleSets :: af [[Argument]]
+  admissibleSets = filterM admissible . powerset =<< arguments
   {-|
     A set of arguments is unattacked if there is no argument outside the set
     that attacks an argument inside the set.
   |-}
   unattacked :: [Argument] -> af Bool
-  {-| The set of all unattacked sets. |-}
-  unattackedSets :: af [[Argument]]
   {-|
-    The restriction modifies the AF so that it only
-    contains the arguments given and the relations between these arguments.
+    The set of all unattacked sets.
+    I think by using strongly connected components,
+    there should be a better solution than using powerset.
   |-}
-  restriction :: [Argument] -> af ()
+  unattackedSets :: af [[Argument]]
+  unattackedSets = filterM unattacked . powerset =<< arguments
   {-|
     A set of argument is complete if it is admissible
     and every argument that is acceptable towards this set of arguments
@@ -61,13 +71,24 @@ class Monad af => ArgumentationFramework af where
     return $ isAdmissable && hasAcceptables
   {-| The set of complete sets. |-}
   completeSets :: af [[Argument]]
+  completeSets = filterM complete . powerset =<< arguments
   {-|
     A set is grounded if it's a least complete set.
     This means the set has no subset that is complete.
   |-}
   grounded :: [Argument] -> af Bool
+  grounded args = do
+    let args' = Set.fromList args
+    completes <- liftM (map Set.fromList) completeSets
+    return . null $ filter (`Set.isProperSubsetOf` args') completes
   {-| The set of all grounded sets. |-}
   groundedSets :: af [[Argument]]
+  groundedSets = do
+    completes <- liftM (map Set.fromList) completeSets
+    return $ do
+      c <- completes
+      guard . not $ any (`Set.isProperSubsetOf` c) completes
+      return $ Set.toList c
   {-|
     A set of arguments is stable if it is conflict-free and
     all Arguments that are not in the set are attacked by the set.
@@ -79,8 +100,20 @@ class Monad af => ArgumentationFramework af where
     that s with a is admissible.
   |-}
   preferred :: [Argument] -> af Bool
+  preferred args = do
+    let args' = Set.fromList args
+    admissibles <- liftM (map Set.fromList) admissibleSets
+    return . not $ any (args' `Set.isProperSubsetOf`) admissibles
   {-| The set of all preferred sets. |-}
   preferredSets :: af [[Argument]]
+  preferredSets = do
+    admissibles <- liftM (map Set.fromList) admissibleSets
+    return $ do
+      a <- admissibles
+      guard . not $ any (a `Set.isProperSubsetOf`) admissibles
+      return $ Set.toList a
   {-|
-    Left outside: stage, semi-stable, ideal, cf2, prudent
+    Left outside, extensions: stage, semi-stable, ideal, cf2, prudent
+    Left outside, other:      restriction
   |-}
+

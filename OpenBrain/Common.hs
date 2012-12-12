@@ -12,3 +12,7 @@ liftIOMay = liftIO . runMaybeT
 
 True  ? (a, _) = a
 False ? (_, b) = b
+
+{-| O(n²) |-}
+powerset :: [a] -> [[a]]
+powerset = filterM $ const [True, False]

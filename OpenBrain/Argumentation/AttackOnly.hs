@@ -2,49 +2,55 @@
 module OpenBrain.Argumentation.AttackOnly where
 
 import Control.Monad.Reader as Reader
-import qualified Data.Set   as Set
+import Data.List ((\\))
+import qualified Data.List  as List
 
 import OpenBrain.Argumentation.Semantics as Semantics
+import OpenBrain.Common
 
-data AttackContext = AC {
-    attackgraph  :: Graph
-  , tAttackGraph :: Graph  
-  }
+newtype AttackContext = A Graph
 
 type Attack = Reader AttackContext
 
+graph :: Attack Graph
+graph = asks $ \(A g) -> g
+
+{-|
+  Reused default methods:
+    complete, grounded, groundedSets, preferred, preferredSets
+  , unattackedSets, admissibleSets, completeSets
+|-}
 instance ArgumentationFramework Attack where
+--  arguments :: af [Argument]
+  arguments = liftM vertices graph
 --  conflictFree :: [Argument] -> Attack Bool
   conflictFree args = do
-    let aSet = Set.fromList args
-    undefined
+    targets <- liftM (flip next' args) graph
+    return . null $ List.intersect args targets
 --  acceptable :: Argument -> [Argument] -> Attack Bool
-  acceptable a args = undefined
+  acceptable a args = do
+    attackers <- liftM (flip prev a) graph
+    victims   <- liftM (flip next' args) graph
+    return . null $ attackers \\ victims -- | All attackers of a are victims of args
 --  acceptables :: [Argument] -> Attack [Argument]
-  acceptables args = undefined
+  acceptables args = filterM (flip acceptable args) =<< liftM vertices graph
 --  admissible :: [Argument] -> Attack Bool
-  admissible args = undefined
---  admissibleSets :: Attack [[Argument]]
-  admissibleSets = undefined
+  admissible args = do
+    isCfree <- conflictFree args
+    areAcceptables <- liftM and $ mapM (\a -> acceptable a args) args
+    return $ isCfree && areAcceptables
 --  unattacked :: [Argument] -> Attack Bool
-  unattacked args = undefined
---  unattackedSets :: Attack [[Argument]]
-  unattackedSets = undefined
---  restriction :: [Argument] -> Attack ()
-  restriction args = undefined
---  complete :: [Argument] -> Attack Bool
---  complete args = undefined
---  complete has a default method.
---  completeSets :: Attack [[Argument]]
-  completeSets = undefined
---  grounded :: [Argument] -> Attack Bool
-  grounded args = undefined
---  groundedSets :: Attack [[Argument]]
-  groundedSets = undefined
+  unattacked args = do
+    attackers <- liftM (List.nub . concat) $
+                  mapM (\a -> liftM (flip prev a) graph) args
+    return . List.null $ attackers \\ args
 --  stable :: [Argument] -> Attack Bool
-  stable args = undefined
---  preferred :: [Argument] -> Attack Bool
-  preferred args = undefined
---  preferredSets :: Attack [[Argument]]
-  preferredSets = undefined
+  stable args = do
+    isCf <- conflictFree args
+    case isCf of
+      False -> return False
+      True  -> do
+        victims <- liftM (flip next' args) graph
+        others  <- liftM ((\\ args) . vertices) graph
+        return $ victims == others
 
