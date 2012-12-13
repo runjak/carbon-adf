@@ -1,10 +1,11 @@
 module OpenBrain.Argumentation.Semantics (
     Argument, Relation
   , ArgumentationFramework(..)
-  , module Graph
+  , wantedSets , module Graph
 ) where
 
 import Control.Monad
+import Data.List (nub)
 import qualified Data.Set as Set
 
 import OpenBrain.Common
@@ -117,3 +118,14 @@ class Monad af => ArgumentationFramework af where
     Left outside, other:      restriction
   |-}
 
+{-|
+  A simple composition of 'interesting' sets in an AF.
+|-}
+wantedSets :: ArgumentationFramework af => af [[Argument]]
+wantedSets = do
+  sets <- liftM concat $ sequence [
+            admissibleSets
+          , completeSets
+          , groundedSets
+          , preferredSets]
+  return . nub $ filter (not . null) sets

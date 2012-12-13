@@ -5,8 +5,9 @@ import Control.Monad.Reader as Reader
 import Data.List ((\\))
 import qualified Data.List  as List
 
+import OpenBrain.Argumentation.Compute     as Compute
 import OpenBrain.Argumentation.Semantics as Semantics
-import OpenBrain.Common
+import OpenBrain.Data.Relation (RelationType(..))
 
 newtype AttackContext = A Graph
 
@@ -53,4 +54,19 @@ instance ArgumentationFramework Attack where
         victims <- liftM (flip next' args) graph
         others  <- liftM ((\\ args) . vertices) graph
         return $ victims == others
+
+instance ComputeContext Attack where
+  compute' rels computation =
+    let wantedRels  = filter (\(_, rType, _) -> rType == Attack) rels
+        (mIn, mOut) = mkMapping wantedRels
+        sRels       = map (\(r1, _, r2) -> (mIn r1, mIn r2)) wantedRels
+        context     = A $ buildG sRels
+        outs        = runReader computation context
+    in map (map mOut) outs
+
+{-|
+  This specializes the type of OpenBrain.Argumentation.Semantics:wantedSets
+  to spare me some type annontations in other places.
+|-}
+wantedSets = Semantics.wantedSets :: Attack [[Argument]]
 

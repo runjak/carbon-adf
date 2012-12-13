@@ -1,5 +1,5 @@
 module OpenBrain.Data.Graph(
-  Vertex, Edge, Graph
+  Vertex, Edge, Graph, buildG
 , vertices, edges
 , next, next', prev, prev'
 , edgesFrom, edgesTo, hasEdge
