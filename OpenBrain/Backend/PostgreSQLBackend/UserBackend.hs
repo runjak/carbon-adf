@@ -1,4 +1,4 @@
-module OpenBrain.Backend.PostgreSQLBackend.UserBackend (getUser') where
+module OpenBrain.Backend.PostgreSQLBackend.UserBackend (getUser', getNobody') where
 
 import Control.Exception as Exception
 import Control.Monad
@@ -22,6 +22,7 @@ import OpenBrain.Data.Salt
 instance UserBackend PostgreSQLBackend where
   login           b = withWConn (conn b) login'
   getUser         b = withWConn (conn b) getUser'
+  getNobody       b = withWConn (conn b) getNobody'
   hasUserWithId   b = withWConn (conn b) hasUserWithId'
   hasUserWithName b = withWConn (conn b) hasUserWithName'
   register        b = withWConn (conn b) register'
@@ -70,6 +71,17 @@ getUser' conn uid = do
       , profile   = liftM fromId $ fromSql profile'
       }
     _ -> mzero
+
+getNobody' :: (IConnection conn) => conn -> IO UserId
+getNobody' conn = do
+  mUid <- runMaybeT $ hasUserWithName' conn "Nobody"
+  case mUid of
+    (Just uid) -> return uid
+    Nothing    -> do
+      let hash = toHash "Impossible"
+      salt <- mkSalt
+      runMaybeT $ register' conn "Nobody" hash salt
+      getNobody' conn
 
 hasUserWithId' :: (IConnection conn) => conn -> UserId -> IO Bool
 hasUserWithId' conn uid = do

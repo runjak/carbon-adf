@@ -151,6 +151,9 @@ setParticipant c uid status = withBackend $ \b -> liftIO $ Backend.setParticipan
 vote :: InformationId -> UserId -> OBB ()
 vote iid uid = withBackend $ \b -> liftIO $ Backend.vote b iid uid
 
+setChoices :: InformationId -> [[InformationId]] -> OBB ()
+setChoices iid choices = withBackend $ \b -> liftIO $ Backend.setChoices b iid choices
+
 deleteInformation :: InformationId -> OBB ()
 deleteInformation iid = withBackend $ \b -> liftIO $ Backend.deleteInformation b iid
 
@@ -180,11 +183,7 @@ getUsers :: [UserId] -> OBB [UserData]
 getUsers = mapM getUser
 
 getNobody :: OBB UserId
-getNobody = mplus (hasUserWithName "Nobody") $ do
-  let hash = toHash "Impossible"
-  salt  <- liftIO mkSalt
-  ud    <- register "Nobody" hash salt
-  return $ userid ud
+getNobody = withBackend $ liftIO . Backend.getNobody
 
 delete' :: UserId -> OBB Bool
 delete' uid = delete uid =<< getNobody

@@ -35,6 +35,7 @@ class GeneralBackend g where
 class UserBackend u where
   login           :: u -> UserName -> Hash -> MaybeT IO UserData -- The Backend will update the lastLogin in UserData.
   getUser         :: u -> UserId -> MaybeT IO UserData
+  getNobody       :: u -> IO UserId
   hasUserWithId   :: u -> UserId -> IO Bool
   hasUserWithName :: u -> UserName -> MaybeT IO UserId
   register        :: u -> UserName -> Hash -> Salt -> MaybeT IO UserData -- The Backend will check for duplicate UserNames.
@@ -103,6 +104,12 @@ class InformationBackend b where
   updateCollection    :: b -> Types.Collection -> [InformationId] -> IO Types.Collection -- | Changes the items of the collection to the given list.
   setParticipant      :: b -> Types.Collection -> UserId -> Bool -> IO ()
   vote                :: b -> InformationId -> UserId -> IO () -- | May only target CollectionType Choice - Discussion is found because it's a parent.
+  {-|
+    Adds the given lists of InformationId as collections to the system.
+    They are than added as choices to the discussion defined by the single InformationId.
+    This operation fails if targeted Information is no discussion or already has choices.
+  |-}
+  setChoices          :: b -> InformationId -> [[InformationId]] -> IO ()
   -- | 'Destructive' Operations:
   deleteInformation :: b -> InformationId -> IO () -- | Sets a delete date on an Information
   removeParticipant :: b -> InformationId -> UserId -> IO () -- | May only target discussions, should not be possible when voted.
