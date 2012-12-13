@@ -68,7 +68,7 @@ class Monad af => ArgumentationFramework af where
   complete args = do -- | Beautify this implementation.
     isAdmissable <- admissible args
     accs <- acceptables args
-    let hasAcceptables = (Set.fromList accs) `Set.isSubsetOf` (Set.fromList args)
+    let hasAcceptables = Set.fromList accs `Set.isSubsetOf` Set.fromList args
     return $ isAdmissable && hasAcceptables
   {-| The set of complete sets. |-}
   completeSets :: af [[Argument]]

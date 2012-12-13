@@ -59,5 +59,5 @@ edgesTo g v = zip (prev g v) $ repeat v
 
 {-| Tests if a given Edge belongs to the graph. |-}
 hasEdge :: Graph -> Edge -> Bool
-hasEdge g (v1, v2) = v2 `elem` (next g v1)
+hasEdge g (v1, v2) = v2 `elem` next g v1
 

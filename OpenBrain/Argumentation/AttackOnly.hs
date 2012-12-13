@@ -26,34 +26,33 @@ instance ArgumentationFramework Attack where
   arguments = liftM vertices graph
 --  conflictFree :: [Argument] -> Attack Bool
   conflictFree args = do
-    targets <- liftM (flip next' args) graph
+    targets <- liftM (`next'` args) graph
     return . null $ List.intersect args targets
 --  acceptable :: Argument -> [Argument] -> Attack Bool
   acceptable a args = do
-    attackers <- liftM (flip prev a) graph
-    victims   <- liftM (flip next' args) graph
+    attackers <- liftM (`prev` a) graph
+    victims   <- liftM (`next'` args) graph
     return . null $ attackers \\ victims -- | All attackers of a are victims of args
 --  acceptables :: [Argument] -> Attack [Argument]
-  acceptables args = filterM (flip acceptable args) =<< liftM vertices graph
+  acceptables args = filterM (` acceptable` args) =<< liftM vertices graph
 --  admissible :: [Argument] -> Attack Bool
   admissible args = do
     isCfree <- conflictFree args
-    areAcceptables <- liftM and $ mapM (\a -> acceptable a args) args
+    areAcceptables <- liftM and $ mapM (`acceptable` args) args
     return $ isCfree && areAcceptables
 --  unattacked :: [Argument] -> Attack Bool
   unattacked args = do
     attackers <- liftM (List.nub . concat) $
-                  mapM (\a -> liftM (flip prev a) graph) args
+                  mapM (\a -> liftM (`prev` a) graph) args
     return . List.null $ attackers \\ args
 --  stable :: [Argument] -> Attack Bool
   stable args = do
     isCf <- conflictFree args
-    case isCf of
-      False -> return False
-      True  -> do
-        victims <- liftM (flip next' args) graph
-        others  <- liftM ((\\ args) . vertices) graph
-        return $ victims == others
+    if isCf then
+      (do victims <- liftM (`next'` args) graph
+          others  <- liftM ((\\ args) . vertices) graph
+          return $ victims == others)
+      else return False
 
 instance ComputeContext Attack where
   compute' rels computation =
