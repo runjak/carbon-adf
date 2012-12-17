@@ -17,11 +17,13 @@ Build-Depends:  aeson
               , HDBC, HDBC-postgresql
               , mtl
               , old-time
+              , process
               , random
               , regex-compat
               , SHA2
               , stm
               , syb
+              , template-haskell
               , text
               , transformers
               , utf8-string

@@ -10,6 +10,7 @@ import System.Environment (getArgs)
 
 import OpenBrain.Backend.Load (loadBackend)
 import OpenBrain.Config (Config, nullConfig, readConfig, writeConfig)
+import qualified OpenBrain.Main.Reflection as Reflection
 import qualified OpenBrain.Website as Web (serve)
 
 main :: IO ()
@@ -19,6 +20,7 @@ main = do
     "--help":_  -> help
     "-help":_   -> help
     "help":_    -> help
+    "info":_    -> putStrLn Reflection.info
     "nullConfig":path:_ -> do
       putStrLn $ "Creating a nullConfig in '" ++ path ++ "'."
       writeConfig path nullConfig
@@ -32,10 +34,11 @@ main = do
 
 help :: IO ()
 help = mapM_ putStrLn [
-    "openBrain Version 0.3"
-  , "---------------------"
+    "openBrain Version " ++ Reflection.version
+  , "----------------------------------------------------"
   , "Simple start:      $ openBrain <configFile>"
   , "Create nullConfig: $ openBrain nullConfig <location>"
+  , "Misc information:  $ openrain info"
   , "Get this message:  $ openBrain {--help,-help,help}"
   ]
 
