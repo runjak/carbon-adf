@@ -32,7 +32,7 @@ main = do
 
 help :: IO ()
 help = mapM_ putStrLn [
-    "openBrain Version 0.1"
+    "openBrain Version 0.3"
   , "---------------------"
   , "Simple start:      $ openBrain <configFile>"
   , "Create nullConfig: $ openBrain nullConfig <location>"
