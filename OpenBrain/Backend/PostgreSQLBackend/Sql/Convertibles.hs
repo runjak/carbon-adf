@@ -1,5 +1,5 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
-module OpenBrain.Backend.PostgreSQLBackend.Convertibles () where
+module OpenBrain.Backend.PostgreSQLBackend.Sql.Convertibles () where
 {- Providing Convertible instances to use with toSql/fromSql. -}
 
 import Database.HDBC

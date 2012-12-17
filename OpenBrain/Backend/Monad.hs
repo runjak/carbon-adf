@@ -33,48 +33,51 @@ withBackend f = do
   (Backend b) <- get
   f b
 
+liftIOM :: IO (Maybe a) -> OBB a
+liftIOM = maybe mzero return <=< liftIO
+
 -- | Functions derived from OpenBrain.Backend classes:
 
 shutdown :: OBB ()
-shutdown = withBackend $ \x -> liftIO $ Backend.shutdown x
+shutdown = withBackend $ liftIO . Backend.shutdown
 
 login :: UserName -> Hash -> OBB UserData
-login username hash = withBackend $ \b -> lift $ Backend.login b username hash
+login username hash = withBackend $ liftIOM . Backend.login username hash
 
 getUser :: UserId -> OBB UserData
-getUser userid = withBackend $ \b -> lift $ Backend.getUser b userid
+getUser userid = withBackend $ liftIOM . Backend.getUser userid
 
 hasUserWithId :: UserId -> OBB Bool
-hasUserWithId userid = withBackend $ \b -> liftIO $ Backend.hasUserWithId b userid
+hasUserWithId userid = withBackend $ liftIO . Backend.hasUserWithId userid
 
 hasUserWithName :: UserName -> OBB UserId
-hasUserWithName username = withBackend $ \b -> lift $ Backend.hasUserWithName b username
+hasUserWithName username = withBackend $ liftIOM . Backend.hasUserWithName username
 
 register :: UserName -> Hash -> Salt -> OBB UserData
-register username hash salt = withBackend $ \b -> lift $ Backend.register b username hash salt
+register username hash salt = withBackend $ liftIOM . Backend.register username hash salt
 
 delete :: UserId -> Types.Heir -> OBB Bool
 delete userid heir = do
   when (userid == heir) mzero
-  withBackend $ \b -> liftIO $ Backend.delete b userid heir
+  withBackend $ liftIO . Backend.delete userid heir
 
 getUserCount :: OBB Types.Count
 getUserCount = withBackend $ liftIO . Backend.getUserCount
 
 getUserList :: Types.Limit -> Types.Offset -> OBB [UserId]
-getUserList limit offset = withBackend $ \b -> liftIO $ Backend.getUserList b limit offset
+getUserList limit offset = withBackend $ liftIO . Backend.getUserList limit offset
 
 updateKarma :: UserId -> (Karma -> Karma) -> OBB ()
-updateKarma userid f = withBackend $ \b -> liftIO $ Backend.updateKarma b userid f
+updateKarma userid f = withBackend $ liftIO . Backend.updateKarma userid f
 
 updatePasswd :: UserId -> Hash -> OBB ()
-updatePasswd userid hash = withBackend $ \b -> liftIO $ Backend.updatePasswd b userid hash
+updatePasswd userid hash = withBackend $ liftIO . Backend.updatePasswd userid hash
 
 setAdmin :: UserId -> Bool -> OBB ()
-setAdmin userid isadmin = withBackend $ \b -> liftIO $ Backend.setAdmin b userid isadmin
+setAdmin userid isadmin = withBackend $ liftIO . Backend.setAdmin userid isadmin
 
 setProfile :: UserId -> Maybe InformationId -> OBB ()
-setProfile uid miid = withBackend $ \b -> liftIO $ Backend.setProfile b uid miid
+setProfile uid miid = withBackend $ liftIO . Backend.setProfile uid miid
 
 karmaDeleteUser :: OBB Karma
 karmaDeleteUser = withBackend $ liftIO . Backend.karmaDeleteUser
@@ -83,97 +86,97 @@ karmaEditUser :: OBB Karma
 karmaEditUser = withBackend $ liftIO . Backend.karmaEditUser
 
 getSalt :: UserId -> OBB Salt
-getSalt userid = withBackend $ \b -> liftIO $ Backend.getSalt b userid
+getSalt userid = withBackend $ liftIO . Backend.getSalt userid
 
 startSession :: UserId -> OBB Types.ActionKey
-startSession userid = withBackend $ \b -> liftIO $ Backend.startSession b userid
+startSession userid = withBackend $ liftIO . Backend.startSession userid
 
 validate :: UserId -> Types.ActionKey -> OBB Bool
-validate userid actionkey = withBackend $ \b -> liftIO $ Backend.validate b userid actionkey
+validate userid actionkey = withBackend $ liftIO . Backend.validate userid actionkey
 
 stopSession :: UserId -> Types.ActionKey -> OBB ()
-stopSession userid actionkey = withBackend $ \b -> liftIO $ Backend.stopSession b userid actionkey
+stopSession userid actionkey = withBackend $ liftIO . Backend.stopSession userid actionkey
 
 addContentMedia :: Types.CreateInformation -> Types.Content -> OBB InformationId
-addContentMedia createinformation content = withBackend $ \b -> liftIO $ Backend.addContentMedia b createinformation content
+addContentMedia createinformation content = withBackend $ liftIO . Backend.addContentMedia createinformation content
 
 addParticipant :: InformationId -> UserId -> OBB ()
-addParticipant iid uid = withBackend $ \b -> liftIO $ Backend.addParticipant b iid uid
+addParticipant iid uid = withBackend $ liftIO . Backend.addParticipant iid uid
 
 createCollection :: Types.CreateInformation -> [InformationId] -> OBB InformationId
-createCollection ci iids = withBackend $ \b -> liftIO $ Backend.createCollection b ci iids
+createCollection ci iids = withBackend $ liftIO . Backend.createCollection ci iids
 
 createDiscussion :: Types.CreateInformation -> [InformationId] -> Types.Deadline -> Types.DiscussionType -> OBB InformationId
-createDiscussion ci iids dl dt = withBackend $ \b -> liftIO $ Backend.createDiscussion b ci iids dl dt
+createDiscussion ci iids dl dt = withBackend $ liftIO . Backend.createDiscussion ci iids dl dt
 
 getInformationCount :: OBB Types.Count
 getInformationCount = withBackend $ liftIO . Backend.getInformationCount
 
 getInformation :: InformationId -> OBB Information
-getInformation iid = withBackend $ \b -> lift $ Backend.getInformation b iid
+getInformation iid = withBackend $ liftIOM . Backend.getInformation iid
 
 getInformations :: Types.Limit -> Types.Offset -> OBB [Information]
-getInformations limit offset = withBackend $ \b -> liftIO $ Backend.getInformations b limit offset
+getInformations limit offset = withBackend $ liftIO . Backend.getInformations limit offset
 
 getInformationCountAfter :: CalendarTime -> OBB Types.Count
-getInformationCountAfter ct = withBackend $ \b -> liftIO $ Backend.getInformationCountAfter b ct
+getInformationCountAfter ct = withBackend $ liftIO . Backend.getInformationCountAfter ct
 
 getInformationsAfter :: CalendarTime -> Types.Limit -> Types.Offset -> OBB [Information]
-getInformationsAfter ct limit offset = withBackend $ \b -> liftIO $ Backend.getInformationsAfter b ct limit offset
+getInformationsAfter ct limit offset = withBackend $ liftIO . Backend.getInformationsAfter ct limit offset
 
 getInformationCountBy :: UserId -> OBB Types.Count
-getInformationCountBy uid = withBackend $ \b -> liftIO $ Backend.getInformationCountBy b uid
+getInformationCountBy uid = withBackend $ liftIO . Backend.getInformationCountBy uid
 
 getInformationBy :: UserId -> Types.Limit -> Types.Offset -> OBB [Information]
-getInformationBy uid limit offset = withBackend $ \b -> liftIO $ Backend.getInformationBy b uid limit offset
+getInformationBy uid limit offset = withBackend $ liftIO . Backend.getInformationBy uid limit offset
 
 getInformationParentsCount :: InformationId -> OBB Types.Count
-getInformationParentsCount iid = withBackend $ \b -> liftIO $ Backend.getInformationParentsCount b iid
+getInformationParentsCount iid = withBackend $ liftIO . Backend.getInformationParentsCount iid
 
 getInformationParents :: InformationId -> Types.Limit -> Types.Offset -> OBB [Information]
-getInformationParents iid limit offset = withBackend $ \b -> liftIO $ Backend.getInformationParents b iid limit offset
+getInformationParents iid limit offset = withBackend $ liftIO . Backend.getInformationParents iid limit offset
 
 getProfiledUsers :: InformationId -> OBB [UserData]
-getProfiledUsers iid = withBackend $ \b -> liftIO $ Backend.getProfiledUsers b iid
+getProfiledUsers iid = withBackend $ liftIO . Backend.getProfiledUsers iid
 
 getNextDeadline :: OBB (Maybe Information)
 getNextDeadline = withBackend $ liftIO . Backend.getNextDeadline
 
 updateContentMedia :: UserId -> InformationId -> Types.Title -> Types.Description -> Types.Content -> OBB InformationId
-updateContentMedia uid iid title description content = withBackend $ \b -> liftIO $ Backend.updateContentMedia b uid iid title description content
+updateContentMedia uid iid title description content = withBackend $ liftIO . Backend.updateContentMedia uid iid title description content
 
 updateCollection :: Types.Collection -> [InformationId] -> OBB Types.Collection
-updateCollection c items = withBackend $ \b -> liftIO $ Backend.updateCollection b c items
+updateCollection c items = withBackend $ liftIO . Backend.updateCollection c items
 
 setParticipant :: Types.Collection -> UserId -> Bool -> OBB ()
-setParticipant c uid status = withBackend $ \b -> liftIO $ Backend.setParticipant b c uid status
+setParticipant c uid status = withBackend $ liftIO . Backend.setParticipant c uid status
 
 vote :: InformationId -> UserId -> OBB ()
-vote iid uid = withBackend $ \b -> liftIO $ Backend.vote b iid uid
+vote iid uid = withBackend $ liftIO . Backend.vote iid uid
 
 setChoices :: InformationId -> [[InformationId]] -> OBB ()
-setChoices iid choices = withBackend $ \b -> liftIO $ Backend.setChoices b iid choices
+setChoices iid choices = withBackend $ liftIO . Backend.setChoices iid choices
 
 deleteInformation :: InformationId -> OBB ()
-deleteInformation iid = withBackend $ \b -> liftIO $ Backend.deleteInformation b iid
+deleteInformation iid = withBackend $ liftIO . Backend.deleteInformation iid
 
 removeParticipant :: InformationId -> UserId -> OBB ()
-removeParticipant iid uid = withBackend $ \b -> liftIO $ Backend.removeParticipant b iid uid
+removeParticipant iid uid = withBackend $ liftIO . Backend.removeParticipant iid uid
 
 addRelation :: Types.Source -> Types.Target -> RelationType -> Types.Comment -> OBB RelationId
-addRelation source target rt comment = withBackend $ \b -> liftIO $ Backend.addRelation b source target rt comment
+addRelation source target rt comment = withBackend $ liftIO . Backend.addRelation source target rt comment
 
 deleteRelation :: RelationId -> OBB ()
-deleteRelation rid = withBackend $ \b -> liftIO $ Backend.deleteRelation b rid
+deleteRelation rid = withBackend $ liftIO . Backend.deleteRelation rid
 
 getRelation :: RelationId -> OBB Relation
-getRelation rid = withBackend $  \b -> lift $ Backend.getRelation b rid
+getRelation rid = withBackend $ liftIOM . Backend.getRelation rid
 
 getRelations :: InformationId -> Types.RelationEnd -> Maybe RelationType -> Types.AllowDeleted -> OBB [Relation]
-getRelations iid rEnd mRType aDeleted = withBackend $ \b -> liftIO $ Backend.getRelations b iid rEnd mRType aDeleted
+getRelations iid rEnd mRType aDeleted = withBackend $ liftIO . Backend.getRelations iid rEnd mRType aDeleted
 
 updateComment :: RelationId -> Types.Comment -> OBB ()
-updateComment rid comment = withBackend $ \b -> liftIO $ Backend.updateComment b rid comment
+updateComment rid comment = withBackend $ liftIO . Backend.updateComment rid comment
 
 -- | Functions on top of derived ones:
 getUserByName :: UserName -> OBB UserData

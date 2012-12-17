@@ -33,19 +33,19 @@ class GeneralBackend g where
 
 {- Controls for everything userrelated. -}
 class UserBackend u where
-  login           :: u -> UserName -> Hash -> MaybeT IO UserData -- The Backend will update the lastLogin in UserData.
-  getUser         :: u -> UserId -> MaybeT IO UserData
+  login           :: UserName -> Hash -> u -> IO (Maybe UserData) -- The Backend will update the lastLogin in UserData.
+  getUser         :: UserId -> u -> IO (Maybe UserData)
   getNobody       :: u -> IO UserId
-  hasUserWithId   :: u -> UserId -> IO Bool
-  hasUserWithName :: u -> UserName -> MaybeT IO UserId
-  register        :: u -> UserName -> Hash -> Salt -> MaybeT IO UserData -- The Backend will check for duplicate UserNames.
-  delete          :: u -> UserId -> Types.Heir -> IO Bool
+  hasUserWithId   :: UserId -> u -> IO Bool
+  hasUserWithName :: UserName -> u -> IO (Maybe UserId)
+  register        :: UserName -> Hash -> Salt -> u -> IO (Maybe UserData) -- The Backend will check for duplicate UserNames.
+  delete          :: UserId -> Types.Heir -> u -> IO Bool
   getUserCount    :: u -> IO Types.Count
-  getUserList     :: u -> Types.Limit -> Types.Offset -> IO [UserId]
-  updateKarma     :: u -> UserId -> (Karma -> Karma) -> IO ()
-  updatePasswd    :: u -> UserId -> Hash -> IO ()
-  setAdmin        :: u -> UserId -> Bool -> IO ()
-  setProfile      :: u -> UserId -> Maybe InformationId -> IO ()
+  getUserList     :: Types.Limit -> Types.Offset -> u -> IO [UserId]
+  updateKarma     :: UserId -> (Karma -> Karma) -> u -> IO ()
+  updatePasswd    :: UserId -> Hash -> u -> IO ()
+  setAdmin        :: UserId -> Bool -> u -> IO ()
+  setProfile      :: UserId -> Maybe InformationId -> u -> IO ()
 
 {-
   Controls for everything karma related.
@@ -63,7 +63,7 @@ class KarmaBackend k where
   by using setId.
 -}
 class SaltShaker s where
-  getSalt     :: s -> UserId -> IO Salt
+  getSalt     :: UserId -> s -> IO Salt
 
 {-
   SessionManagement helps managing logged in clients.
@@ -74,51 +74,51 @@ class SaltShaker s where
 -}
 
 class SessionManagement s where
-  startSession  :: s -> UserId -> IO Types.ActionKey
-  validate      :: s -> UserId -> Types.ActionKey -> IO Bool
-  stopSession   :: s -> UserId -> Types.ActionKey -> IO ()
+  startSession  :: UserId -> s -> IO Types.ActionKey
+  validate      :: UserId -> Types.ActionKey -> s -> IO Bool
+  stopSession   :: UserId -> Types.ActionKey -> s -> IO ()
 
 {-
   Manages all information in the form of OpenBrain.Data.Information
 -}
 class InformationBackend b where
   -- | 'Creative' Operations:
-  addContentMedia   :: b -> Types.CreateInformation -> Types.Content -> IO InformationId
-  addParticipant    :: b -> InformationId -> UserId -> IO () -- | May only target discussions
-  createCollection  :: b -> Types.CreateInformation -> [InformationId] -> IO Types.Collection
-  createDiscussion  :: b -> Types.CreateInformation -> [InformationId] -> Types.Deadline -> Types.DiscussionType -> IO InformationId
+  addContentMedia   :: Types.CreateInformation -> Types.Content -> b -> IO InformationId
+  addParticipant    :: InformationId -> UserId -> b -> IO () -- | May only target discussions
+  createCollection  :: Types.CreateInformation -> [InformationId] -> b -> IO Types.Collection
+  createDiscussion  :: Types.CreateInformation -> [InformationId] -> Types.Deadline -> Types.DiscussionType -> b -> IO InformationId
   -- | 'Querying' Operations:
   getInformationCount         :: b -> IO Types.Count
-  getInformation              :: b -> InformationId -> MaybeT IO Information
-  getInformations             :: b -> Types.Limit -> Types.Offset -> IO [Information] -- | No parents
-  getInformationCountAfter    :: b -> CalendarTime -> IO Types.Count
-  getInformationsAfter        :: b -> CalendarTime ->Types.Limit -> Types.Offset -> IO [Information] -- | No parents
-  getInformationCountBy       :: b -> UserId -> IO Types.Count
-  getInformationBy            :: b -> UserId -> Types.Limit -> Types.Offset -> IO [Information] -- | No parents
-  getInformationParentsCount  :: b -> InformationId -> IO Types.Count
-  getInformationParents       :: b -> InformationId -> Types.Limit -> Types.Offset -> IO [Information] -- | youngest first
-  getProfiledUsers            :: b -> InformationId -> IO [UserData]
+  getInformation              :: InformationId -> b -> IO (Maybe Information)
+  getInformations             :: Types.Limit -> Types.Offset -> b -> IO [Information] -- | No parents
+  getInformationCountAfter    :: CalendarTime -> b -> IO Types.Count
+  getInformationsAfter        :: CalendarTime ->Types.Limit -> Types.Offset -> b -> IO [Information] -- | No parents
+  getInformationCountBy       :: UserId -> b -> IO Types.Count
+  getInformationBy            :: UserId -> Types.Limit -> Types.Offset -> b -> IO [Information] -- | No parents
+  getInformationParentsCount  :: InformationId -> b -> IO Types.Count
+  getInformationParents       :: InformationId -> Types.Limit -> Types.Offset -> b -> IO [Information] -- | youngest first
+  getProfiledUsers            :: InformationId -> b -> IO [UserData]
   getNextDeadline             :: b -> IO (Maybe Information)
   -- | 'Modifying' Operations:
-  updateContentMedia  :: b -> UserId -> InformationId -> Types.Title -> Types.Description -> Types.Content -> IO InformationId
-  updateCollection    :: b -> Types.Collection -> [InformationId] -> IO Types.Collection -- | Changes the items of the collection to the given list.
-  setParticipant      :: b -> Types.Collection -> UserId -> Bool -> IO ()
-  vote                :: b -> InformationId -> UserId -> IO () -- | May only target CollectionType Choice - Discussion is found because it's a parent.
+  updateContentMedia  :: UserId -> InformationId -> Types.Title -> Types.Description -> Types.Content -> b -> IO InformationId
+  updateCollection    :: Types.Collection -> [InformationId] -> b -> IO Types.Collection -- | Changes the items of the collection to the given list.
+  setParticipant      :: Types.Collection -> UserId -> Bool -> b -> IO ()
+  vote                :: InformationId -> UserId -> b -> IO () -- | May only target CollectionType Choice - Discussion is found because it's a parent.
   {-|
     Adds the given lists of InformationId as collections to the system.
     They are than added as choices to the discussion defined by the single InformationId.
     This operation fails if targeted Information is no discussion or already has choices.
   |-}
-  setChoices          :: b -> InformationId -> [[InformationId]] -> IO ()
+  setChoices          :: InformationId -> [[InformationId]] -> b -> IO ()
   -- | 'Destructive' Operations:
-  deleteInformation :: b -> InformationId -> IO () -- | Sets a delete date on an Information
-  removeParticipant :: b -> InformationId -> UserId -> IO () -- | May only target discussions, should not be possible when voted.
+  deleteInformation :: InformationId -> b -> IO () -- | Sets a delete date on an Information
+  removeParticipant :: InformationId -> UserId -> b -> IO () -- | May only target discussions, should not be possible when voted.
 
 class RelationBackend b where
-  addRelation     :: b -> Types.Source -> Types.Target -> RelationType -> Types.Comment -> IO RelationId
-  deleteRelation  :: b -> RelationId -> IO ()
-  getRelation     :: b -> RelationId -> MaybeT IO Relation
+  addRelation     :: Types.Source -> Types.Target -> RelationType -> Types.Comment -> b -> IO RelationId
+  deleteRelation  :: RelationId -> b -> IO ()
+  getRelation     :: RelationId -> b -> IO (Maybe Relation)
   -- | youngest first, deleted after non deleted
-  getRelations    :: b -> InformationId -> Types.RelationEnd -> Maybe RelationType -> Types.AllowDeleted -> IO [Relation]
-  updateComment   :: b -> RelationId -> Types.Comment -> IO ()
+  getRelations    :: InformationId -> Types.RelationEnd -> Maybe RelationType -> Types.AllowDeleted -> b -> IO [Relation]
+  updateComment   :: RelationId -> Types.Comment -> b -> IO ()
 
