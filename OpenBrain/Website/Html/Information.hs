@@ -128,7 +128,6 @@ informationCollection i = do
       context "ArgumentList"   = MuList $ map (mkStrContext . argumentContext) args
       context "IsDiscussion"   = MuList . map (mkStrContext . dContext) . maybeToList $ Information.discussion m
       context _ = MuNothing
-  liftIO $ print i
   liftIO $ tmpl "InformationCollection.html" context
 
 {- Displaying informations: -}

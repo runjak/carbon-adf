@@ -13,3 +13,4 @@ linesOfCode = (stringE . init) =<< (runIO $ Process.readProcess "./linesOfCode.s
 
 version = (stringE . init) =<< (runIO $ Process.readProcess "grep" ["Version", "openBrain.cabal"] "")
 
+date = (stringE . init) =<< (runIO $ Process.readProcess "date" [] "")
