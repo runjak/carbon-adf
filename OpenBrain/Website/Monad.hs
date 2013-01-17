@@ -24,9 +24,9 @@ import OpenBrain.Config
 import qualified OpenBrain.Deadline as Deadline
 
 data WebsiteState = WebsiteState {
-    backend :: Backend
-  , config :: Config
-  , deadline :: Deadline.TDState
+    backend       :: Backend
+  , config        :: Config
+  , deadlineState :: Deadline.TDState
   }
 
 -- OBW ~ the OpenBrainWebsite Monad
@@ -43,7 +43,7 @@ liftOBB m = do
   maybe mzero return mRst
 
 liftDeadline :: Deadline.Deadline a -> OBW a
-liftDeadline m = liftIO . evalStateT m . deadline =<< get
+liftDeadline m = liftIO . evalStateT m . deadlineState =<< get
 
 liftMaybeT :: MaybeT IO a -> OBW a
 liftMaybeT m = do

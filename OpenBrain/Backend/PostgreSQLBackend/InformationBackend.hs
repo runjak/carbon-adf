@@ -2,18 +2,12 @@
 module OpenBrain.Backend.PostgreSQLBackend.InformationBackend () where
 
 import Data.Maybe
-import System.Time (CalendarTime)
 
 import OpenBrain.Backend.PostgreSQLBackend.Common
 import OpenBrain.Backend.PostgreSQLBackend.Sql.InformationBackend
 import OpenBrain.Backend.PostgreSQLBackend.Sql.InformationBackend.Get
 import OpenBrain.Common
-import OpenBrain.Data.Id
-import OpenBrain.Data.Information
-
-import qualified OpenBrain.Data.Relation as R
-import qualified OpenBrain.Data.User as U
-import qualified OpenBrain.Backend.Types as Types
+import OpenBrain.Data
 
 instance InformationBackend PostgreSQLBackend where
   addContentMedia ci c b             = useBackend b $ addContentMedia' ci c

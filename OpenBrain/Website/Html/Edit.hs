@@ -5,28 +5,30 @@ import Data.Maybe
 import Happstack.Server as S
 
 import OpenBrain.Common
-import OpenBrain.Data.Id
+import OpenBrain.Data
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import OpenBrain.Website.Template
-import qualified OpenBrain.Backend.Monad as OBB
-import qualified OpenBrain.Data.Information as I
+import qualified OpenBrain.Backend.Monad          as OBB
 import qualified OpenBrain.Website.Html.Decorator as Decorator
 
 data EditorContent = EditorContent {
-    editorTitle :: String
-  , title       :: String
-  , description :: String
-  , content     :: String
-  , footerLinks :: [HTML]
-  , iid         :: Maybe InformationId
+    editorTitle   :: String
+  , ecTitle       :: String
+  , ecDescription :: String
+  , content       :: String
+  , footerLinks   :: [HTML]
+  , iid           :: Maybe InformationId
   }
+instance Described EditorContent where
+  title       = ecTitle
+  description = ecDescription
 emptyContent = EditorContent {
-    editorTitle = "Create Information"
-  , title       = ""
-  , description = ""
-  , content     = ""
-  , footerLinks = [
+    editorTitle   = "Create Information"
+  , ecTitle       = ""
+  , ecDescription = ""
+  , content       = ""
+  , footerLinks   = [
       "<a id=\"EditorSave\"><img src=\"/files/img/save.svg\" alt=\"Save Information\" title=\"Save Information\"/></a>"
     , "<a id=\"EditorAdd\"><img src=\"/files/img/add.svg\" alt=\"Add as new Information\" title=\"Add as new Information\"/></a>"
     ]
@@ -52,14 +54,14 @@ editor eContent = do
   where
     footerContext h "FooterLink" = htmlToMu h
 
-mkEditor :: EditorContent -> I.Information -> OBW HTML
-mkEditor ec i = case I.media i of
-  (I.Content s) -> do
+mkEditor :: EditorContent -> Information -> OBW HTML
+mkEditor ec i = case media i of
+  (Content s) -> do
     let content = ec{
-        title       = I.title i
-      , description = I.description i
-      , content     = s
-      , iid         = Just $ I.informationId i
+        ecTitle       = title i
+      , ecDescription = description i
+      , content       = s
+      , iid           = Just $ informationId i
       }
     editor content
   _ -> mzero

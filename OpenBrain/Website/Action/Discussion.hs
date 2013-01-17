@@ -5,16 +5,14 @@ module OpenBrain.Website.Action.Discussion (serve) where
 -}
 import Happstack.Server as Server
 
-import OpenBrain.Backend.Types
 import OpenBrain.Common
-import OpenBrain.Data.Id
+import OpenBrain.Data
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import OpenBrain.Website.Session
-import qualified OpenBrain.Backend.Monad as OBB
-import qualified OpenBrain.Data.Information as Information
+import qualified OpenBrain.Backend.Monad      as OBB
 import qualified OpenBrain.Website.Parameters as Parameters
-import qualified OpenBrain.Website.Session as Session
+import qualified OpenBrain.Website.Session    as Session
 
 serve :: OBW Response
 serve = msum [
@@ -38,7 +36,7 @@ update :: OBW Response
 update = Session.chkSession' $ \uid -> do
   iid <- Parameters.getInformationId
   is  <- Parameters.getItems
-  isDiscussion iid $ do
+  ensureDiscussion iid $ do
     iid' <- liftOBB $ OBB.updateCollection iid is
     handleSuccess $ "Updated discussion: " ++ show iid'
 
@@ -46,7 +44,7 @@ setParticipant :: OBW Response
 setParticipant = Session.chkSession' $ \uid -> do
   iid    <- Parameters.getInformationId
   status <- Parameters.getStatus
-  isDiscussion iid $ do
+  ensureDiscussion iid $ do
     liftOBB $ OBB.setParticipant iid uid status
     handleSuccess "Participant status updated."
 
@@ -57,9 +55,9 @@ vote = Session.chkSession' $ \uid -> do
   handleSuccess $ show uid ++ " voted on " ++ show iid
 
 -- Helper functions:
-isDiscussion :: InformationId -> OBW Response -> OBW Response
-isDiscussion i f = do
-  isD <- liftM (Information.isDiscussion . Information.media) . liftOBB $ OBB.getInformation i
+ensureDiscussion :: InformationId -> OBW Response -> OBW Response
+ensureDiscussion i f = do
+  isD <- liftM (isDiscussion . media) . liftOBB $ OBB.getInformation i
   handleFail "Given Information is no discussion." $
     guard isD >> f
 

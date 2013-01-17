@@ -3,20 +3,16 @@ module OpenBrain.Website.Html.Relation (relations) where
 
 import Data.Maybe
 
-import OpenBrain.Backend.Types as Types hiding (CreateInformation(..))
 import OpenBrain.Common
-import OpenBrain.Data.Id
-import OpenBrain.Data.Information (Information)
-import OpenBrain.Data.Relation
+import OpenBrain.Data
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import OpenBrain.Website.Template
-import qualified OpenBrain.Data.Information as Information
 import qualified OpenBrain.Backend.Monad as OBB
 
 relations :: Information -> OBW HTML
 relations i = do
-  let iid = Information.informationId i
+  let iid = informationId i
   -- Types of Relations:
   parents'    <- liftOBB $ OBB.getRelations iid RelationTarget (Just Parent)  True
   children'   <- liftOBB $ OBB.getRelations iid RelationSource (Just Parent)  True
@@ -82,9 +78,9 @@ relationDescription :: Bool -> (Information, Relation) -> OBW HTML
 relationDescription deletable (i, r) = do
   let context "rid"                    = MuVariable . show $ relationId r
       context "InformationLink"        = MuVariable . ("/information.html?display="++) 
-                                       . show . unwrap . toId $ Information.informationId i
-      context "InformationDescription" = MuVariable $ Information.description i
-      context "InformationTitle"       = MuVariable $ Information.title i
+                                       . show . unwrap . toId $ informationId i
+      context "InformationDescription" = MuVariable $ description i
+      context "InformationTitle"       = MuVariable $ title i
       context "HasRelationComment"     = MuBool . not . null $ comment r
       context "RelationComment"        = MuVariable $ comment r
       context "RelationCreated"        = MuVariable $ creation r 

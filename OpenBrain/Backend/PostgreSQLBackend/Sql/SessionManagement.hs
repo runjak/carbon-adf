@@ -4,8 +4,7 @@ module OpenBrain.Backend.PostgreSQLBackend.Sql.SessionManagement where
 import System.Random
 
 import OpenBrain.Backend.PostgreSQLBackend.Common
-import OpenBrain.Backend.Types
-import OpenBrain.Data.Id
+import OpenBrain.Data
 
 startSession' :: (IConnection conn) => UserId -> conn -> IO ActionKey
 startSession' uid conn = do

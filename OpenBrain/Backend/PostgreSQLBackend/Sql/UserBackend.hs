@@ -4,12 +4,7 @@ import Data.Maybe
 import System.Time as T
 
 import OpenBrain.Backend.PostgreSQLBackend.Common
-import OpenBrain.Backend.Types
-import OpenBrain.Data.Id
-import OpenBrain.Data.User
-import OpenBrain.Data.Hash
-import OpenBrain.Data.Karma
-import OpenBrain.Data.Salt
+import OpenBrain.Data
 
 login' :: (IConnection conn) => UserName -> Hash -> conn -> IO (Maybe UserData)
 login' username hash conn = do
@@ -18,14 +13,14 @@ login' username hash conn = do
   case rst of
     [[userid', karma', creation', lastLogin', isAdmin', profile']] -> do
       let userdata = UserData {
-          userid    = fromId $ fromSql userid'
-        , username  = username
-        , password  = hash
-        , karma     = fromSql karma'
-        , creation  = fromSql creation'
-        , lastLogin = fromSql lastLogin'
-        , isAdmin   = fromSql isAdmin'
-        , profile   = liftM fromId $ fromSql profile'
+          userid       = fromId $ fromSql userid'
+        , username     = username
+        , password     = hash
+        , karma        = fromSql karma'
+        , userCreation = fromSql creation'
+        , lastLogin    = fromSql lastLogin'
+        , isAdmin      = fromSql isAdmin'
+        , profile      = liftM fromId $ fromSql profile'
         }
       liftIO $ do
         quickQuery' conn "UPDATE \"UserData\" SET lastlogin = CURRENT_TIMESTAMP WHERE userid = ?" [toSql . toId $ userid userdata]
@@ -38,14 +33,14 @@ getUser' uid conn = do
   rst <- liftIO $ quickQuery' conn q [toSql $ toId uid]
   case rst of
     [[username', password', karma', creation', lastLogin', isAdmin', profile']] -> return $ Just UserData {
-        userid    = uid
-      , username  = fromSql username'
-      , password  = fromSql password'
-      , karma     = fromSql karma'
-      , creation  = fromSql creation'
-      , lastLogin = fromSql lastLogin'
-      , isAdmin   = fromSql isAdmin'
-      , profile   = liftM fromId $ fromSql profile'
+        userid       = uid
+      , username     = fromSql username'
+      , password     = fromSql password'
+      , karma        = fromSql karma'
+      , userCreation = fromSql creation'
+      , lastLogin    = fromSql lastLogin'
+      , isAdmin      = fromSql isAdmin'
+      , profile      = liftM fromId $ fromSql profile'
       }
     _ -> return Nothing
 

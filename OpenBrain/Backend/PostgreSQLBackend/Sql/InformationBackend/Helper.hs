@@ -1,7 +1,7 @@
 module OpenBrain.Backend.PostgreSQLBackend.Sql.InformationBackend.Helper where
 
 import OpenBrain.Backend.PostgreSQLBackend.Common hiding (clone)
-import qualified OpenBrain.Data.Relation as R
+import OpenBrain.Data
 
 {-
   Produces a new Information with the same author, title, description and mediaid
@@ -28,7 +28,7 @@ clone conn iid = do
   execute cTargetRelations [clone, target]
   -- Mark clone as child of parent:
   mkChild <- prepare conn "INSERT INTO \"Relations\" (comment, type, source, target) VALUES ('', ?, ?, ?)"
-  execute mkChild [toSql R.Parent, target, clone]
+  execute mkChild [toSql Parent, target, clone]
   -- And it's done:
   return . fromId $ fromSql clone
 

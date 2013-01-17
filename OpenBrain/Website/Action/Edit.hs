@@ -6,16 +6,14 @@ module OpenBrain.Website.Action.Edit (serve) where
 import Data.Maybe
 import Happstack.Server as Server
 
-import OpenBrain.Backend.Types
 import OpenBrain.Common
-import OpenBrain.Data.Id
+import OpenBrain.Data
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import OpenBrain.Website.Session
-import qualified OpenBrain.Backend.Monad as OBB
-import qualified OpenBrain.Data.Information as Information
+import qualified OpenBrain.Backend.Monad      as OBB
 import qualified OpenBrain.Website.Parameters as Parameters
-import qualified OpenBrain.Website.Session as Session
+import qualified OpenBrain.Website.Session    as Session
 
 serve :: OBW Response
 serve = msum [
@@ -33,9 +31,9 @@ create = Session.chkSession' $ \uid -> do
   (title, desc, content) <- Parameters.getTDC
   -- Creating Information:
   let ci = CreateInformation{
-      userId      = uid
-    , title       = title
-    , description = desc
+      userId        = uid
+    , ciTitle       = title
+    , ciDescription = desc
     }
   iid <- liftOBB $ OBB.addContentMedia ci content
   handleSuccess $ "Created Information: " ++ show iid
@@ -51,14 +49,14 @@ update = do
   (title, desc, content) <- Parameters.getTDC
   split <- Parameters.getSplit
   Session.chkSession' $ \uid ->
-    handleFail "Could not lookup target Information." $ do
+    handleFail "Could not lookup target " $ do
       i <- liftOBB $ OBB.getInformation iid
-      let iDeleted = isJust $ Information.deletion i
+      let iDeleted = isJust $ deletion i
       handleFail "Information outdated." $ do
         when iDeleted . guard $ split -- iDeleted is only on allowed on split.
         handleFail "Information is not simple Content." $ do
-          guard $ Information.isContent $ Information.media i
-          handleFail "Could not update Information." $ do
+          guard $ isContent $ media i
+          handleFail "Could not update " $ do
             iid' <- liftOBB $ OBB.updateContentMedia uid iid title desc content
             unless split $ liftOBB $ OBB.deleteInformation iid
             handleSuccess $ "Updated Information: " ++ show iid'

@@ -8,6 +8,7 @@ Author:         Jakob Runge
 Maintainer:     Jakob Runge <mam09crm@studserv.uni-leipzig.de>
 Build-Type:     Simple
 Build-Depends:  aeson
+              , array
               , base
               , bytestring
               , containers

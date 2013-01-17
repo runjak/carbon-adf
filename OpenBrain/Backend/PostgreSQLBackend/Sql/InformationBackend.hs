@@ -7,33 +7,28 @@ import OpenBrain.Backend.PostgreSQLBackend.Common hiding (clone)
 import OpenBrain.Backend.PostgreSQLBackend.Sql.InformationBackend.Helper
 import OpenBrain.Backend.PostgreSQLBackend.Sql.InformationBackend.Get as IGet
 import OpenBrain.Backend.PostgreSQLBackend.Sql.UserBackend (getUser', getNobody')
-import OpenBrain.Data.Id
-import OpenBrain.Data.Information
-
-import qualified OpenBrain.Data.Relation as R
-import qualified OpenBrain.Data.User as U
-import qualified OpenBrain.Backend.Types as Types
+import OpenBrain.Data
 
 type MediaId = SqlValue
-mkSimpleInformation :: (IConnection conn) => Types.CreateInformation -> MediaId -> conn -> IO InformationId
+mkSimpleInformation :: (IConnection conn) => CreateInformation -> MediaId -> conn -> IO InformationId
 mkSimpleInformation cinfo mediaid conn = do
   iInsert <- prepare conn "INSERT INTO \"Information\" (author, title, description, mediaid) VALUES (?, ?, ?, ?)"
-  execute iInsert [toSql . toId $ Types.userId cinfo
-                  , toSql $ Types.title cinfo
-                  , toSql $ Types.description cinfo
+  execute iInsert [toSql . toId $ userId cinfo
+                  , toSql $ title cinfo
+                  , toSql $ description cinfo
                   , mediaid]
   [[iid]] <- quickQuery' conn "SELECT LASTVAL()" []
   return (fromId $ fromSql iid)
 
-addContentMedia' :: (IConnection conn) => Types.CreateInformation -> Types.Content -> conn -> IO InformationId
+addContentMedia' :: (IConnection conn) => CreateInformation -> Content -> conn -> IO InformationId
 addContentMedia' cinfo content conn = do
   mInsert <- prepare conn "INSERT INTO \"Media\" (content) VALUES (?)"
   execute mInsert [toSql content]
   [[mediaId]] <- quickQuery' conn "SELECT LASTVAL()" []
   iInsert <- prepare conn "INSERT INTO \"Information\" (author, title, description, mediaid) VALUES (?, ?, ?, ?)"
-  execute iInsert [toSql . toId $ Types.userId cinfo
-                  , toSql $ Types.title cinfo
-                  , toSql $ Types.description cinfo
+  execute iInsert [toSql . toId $ userId cinfo
+                  , toSql $ title cinfo
+                  , toSql $ description cinfo
                   , mediaId]
   [[iid]] <- quickQuery' conn "SELECT LASTVAL()" []
   return . fromId $ fromSql iid
@@ -51,7 +46,7 @@ addParticipant' iid uid conn = do
     stmt <- prepare conn "INSERT INTO \"DiscussionParticipants\" (discussionid, userid) VALUES (?, ?)"
     void $ execute stmt [did, toSql $ toId uid]
 
-createCollection' :: (IConnection conn) => Types.CreateInformation -> [InformationId] -> conn -> IO Types.Collection
+createCollection' :: (IConnection conn) => CreateInformation -> [InformationId] -> conn -> IO Collection
 createCollection' cinfo elems conn = do
   -- Insert a new media for the collection
   quickQuery' conn "INSERT INTO \"Media\" (collectiontype) VALUES (?)" [toSql SimpleCollection]
@@ -60,12 +55,12 @@ createCollection' cinfo elems conn = do
   iid <- mkSimpleInformation cinfo mediaid conn
   -- Insert relations
   collect <- prepare conn "INSERT INTO \"Relations\" (comment, type, source, target) VALUES ('', ?, ?, ?)"
-  executeMany collect [[toSql R.Collection, toSql $ toId iid, toSql $ toId e] | e <- elems]
+  executeMany collect [[toSql Collection, toSql $ toId iid, toSql $ toId e] | e <- elems]
   return iid
 
-createDiscussion' :: (IConnection conn) => Types.CreateInformation
-                                        -> [InformationId] -> Types.Deadline
-                                        -> Types.DiscussionType -> conn
+createDiscussion' :: (IConnection conn) => CreateInformation
+                                        -> [InformationId] -> Deadline
+                                        -> DiscussionType -> conn
                                         -> IO InformationId
 createDiscussion' cinfo arguments deadline dtype conn = do
   -- Producing a new discussion:
@@ -73,18 +68,18 @@ createDiscussion' cinfo arguments deadline dtype conn = do
   [[did]] <- quickQuery' conn "SELECT LASTVAL()" []
   -- Produce a media for the discussion:
   mkMedia <- prepare conn "INSERT INTO \"Media\" (collectiontype, discussionid) VALUES (?, ?)"
-  execute mkMedia [toSql $ Types.toCollectionType dtype, did]
+  execute mkMedia [toSql $ toCollectionType dtype, did]
   [[mediaid]] <- quickQuery' conn "SELECT LASTVAL()" []
   -- Produce Information for the Media:
   iid <- mkSimpleInformation cinfo mediaid conn
   -- Linking arguments to discussion:
   mkArgs <- prepare conn "INSERT INTO \"Relations\" (comment, type, source, target) VALUES ('', ?, ?, ?)"
-  executeMany mkArgs [[toSql R.Collection, toSql $ toId iid, toSql $ toId a] | a <- arguments]
+  executeMany mkArgs [[toSql Collection, toSql $ toId iid, toSql $ toId a] | a <- arguments]
   return iid
 
 updateContentMedia' :: (IConnection conn) => UserId -> InformationId
-                                          -> Types.Title -> Types.Description
-                                          -> Types.Content -> conn
+                                          -> Title -> Description
+                                          -> Content -> conn
                                           -> IO InformationId
 updateContentMedia' uid iid' title description content conn = do
   iid <- clone conn iid'
@@ -103,19 +98,19 @@ updateContentMedia' uid iid' title description content conn = do
     return ()
   return iid
 
-updateCollection' :: (IConnection conn) => Types.Collection -> [InformationId] -> conn -> IO Types.Collection
+updateCollection' :: (IConnection conn) => Collection -> [InformationId] -> conn -> IO Collection
 updateCollection' c items conn = do
   -- We clone the collection to modify it
   c' <- clone conn c
   -- We delete the current items from c'
-  quickQuery' conn "DELETE FROM \"Relations\" WHERE type = ? AND source = ?" [toSql R.Collection, toSql $ toId c']
+  quickQuery' conn "DELETE FROM \"Relations\" WHERE type = ? AND source = ?" [toSql Collection, toSql $ toId c']
   -- We add the new items to c'
   stmt <- prepare conn "INSERT INTO \"Relations\" (comment, type, source, target) VALUES ('', ?, ?, ?)"
-  executeMany stmt [[toSql R.Collection, toSql $ toId c', toSql $ toId i] | i <- items]
+  executeMany stmt [[toSql Collection, toSql $ toId c', toSql $ toId i] | i <- items]
   -- Done
   return c'
 
-setParticipant' :: (IConnection conn) => Types.Collection -> UserId -> Bool -> conn -> IO ()
+setParticipant' :: (IConnection conn) => Collection -> UserId -> Bool -> conn -> IO ()
 setParticipant' c uid status conn = do
   -- Fetching the discussionId:
   let getDid = "SELECT discussionid FROM \"Media\" JOIN \"Information\" USING (mediaid) WHERE informationid = ?"
@@ -147,7 +142,7 @@ vote' iid uid conn = do
   -- Check that UserId belongs to a Participant:
   let pCount = "SELECT COUNT(*) FROM \"DiscussionParticipants\" WHERE discussionid = ? AND userid = ?"
   [[c]] <- quickQuery' conn pCount [did, _uid]
-  unless ((fromSql c :: Types.Count) > 0) . error $
+  unless ((fromSql c :: Count) > 0) . error $
     "User " ++ show uid ++ " is not a participant of Discussion " ++ show iid
   -- Check that Participant hasn't already voted:
   let getVoted = "SELECT voted FROM \"DiscussionParticipants\" WHERE discussionid = ? AND userid = ?"
@@ -178,10 +173,10 @@ setChoices' iid choices conn = do
     ++ show iid ++ " in OpenBrain.Backend.PostgreSqlBackend:setChoices'"
   -- | Create choices as Information:
   nobody <- getNobody' conn
-  let ci = Types.CreateInformation {
-      Types.userId      = nobody
-    , Types.title       = "Autogenerated choice"
-    , Types.description = "A choice to a discussion that was generated by OpenBrain."
+  let ci = CreateInformation {
+      userId        = nobody
+    , ciTitle       = "Autogenerated choice"
+    , ciDescription = "A choice to a discussion that was generated by OpenBrain."
     }
   cIds <- mapM (\c -> createCollection' ci c conn) choices
   -- | Link choices in "DiscussionChoices":

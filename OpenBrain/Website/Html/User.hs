@@ -8,19 +8,16 @@ module OpenBrain.Website.Html.User (edit, serve) where
 import Data.Maybe
 import Happstack.Server as S
 
-import OpenBrain.Backend.Types
 import OpenBrain.Common
-import OpenBrain.Data.Id
-import OpenBrain.Data.Karma
-import OpenBrain.Data.User
+import OpenBrain.Data
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import OpenBrain.Website.Template
-import qualified OpenBrain.Backend.Monad as OBB
-import qualified OpenBrain.Website.Parameters as Parameters
-import qualified OpenBrain.Website.Html.Decorator as Decorator
+import qualified OpenBrain.Backend.Monad            as OBB
+import qualified OpenBrain.Website.Parameters       as Parameters
+import qualified OpenBrain.Website.Html.Decorator   as Decorator
 import qualified OpenBrain.Website.Html.Information as Information
-import qualified OpenBrain.Website.Session as Session
+import qualified OpenBrain.Website.Session          as Session
 
 edit :: UserId -> OBW HTML
 edit target = flip mplus (return "") $ do

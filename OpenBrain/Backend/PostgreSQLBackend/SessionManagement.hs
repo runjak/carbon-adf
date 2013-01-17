@@ -5,8 +5,7 @@ import System.Random
 
 import OpenBrain.Backend.PostgreSQLBackend.Common
 import OpenBrain.Backend.PostgreSQLBackend.Sql.SessionManagement
-import OpenBrain.Backend.Types
-import OpenBrain.Data.Id
+import OpenBrain.Data
 
 instance SessionManagement PostgreSQLBackend where
   startSession uid b   = useBackend b $ startSession' uid

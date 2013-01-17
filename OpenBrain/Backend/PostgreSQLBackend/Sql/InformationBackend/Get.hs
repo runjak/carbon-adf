@@ -5,12 +5,9 @@ import System.Time
 
 import OpenBrain.Backend.PostgreSQLBackend.Common hiding (clone)
 import OpenBrain.Backend.PostgreSQLBackend.Sql.UserBackend (getUser', getNobody')
-import OpenBrain.Data.Information
-import qualified OpenBrain.Backend.Types as Types
-import qualified OpenBrain.Data.Relation as R
-import qualified OpenBrain.Data.User     as U
+import OpenBrain.Data
 
-getInformationCount' :: (IConnection conn) => conn -> IO Types.Count
+getInformationCount' :: (IConnection conn) => conn -> IO Count
 getInformationCount' conn = do
   [[c]] <- quickQuery' conn "SELECT COUNT(*) FROM \"Information\" WHERE deletion IS NULL" []  
   return $ fromSql c
@@ -28,13 +25,13 @@ getInformation' iid conn = do
         (Just user) -> do
           media <- liftIO $ getMedia iid conn
           return $ Just Information{
-            author        = user
-          , creation      = fromSql _creation
-          , deletion      = fromSql _deletion
-          , description   = fromSql _description
-          , informationId = iid
-          , media         = media
-          , title         = fromSql _title
+            author              = user
+          , informationCreation = fromSql _creation
+          , informationDeletion = fromSql _deletion
+          , iDescription         = fromSql _description
+          , informationId       = iid
+          , media               = media
+          , iTitle               = fromSql _title
           }
     _ -> return Nothing
 
@@ -52,12 +49,12 @@ getMedia iid conn = do
       let ctype = fromSql _ctype :: CollectionType
       -- Fetching arguments:
       let argQuery = "SELECT target FROM \"Relations\" WHERE source = ? AND type = ?"
-      _args <- quickQuery' conn argQuery [iid', toSql R.Collection]
+      _args <- quickQuery' conn argQuery [iid', toSql Collection]
       let args = map (fromId . fromSql . head) _args
       -- Looking for DiscussionInfo:
       dinfo <- getDiscussionInfo did conn
       -- Building the complete Collection:
-      return Collection {
+      return ICollection {
         arguments       = args
       , collectionType  = ctype
       , discussion      = dinfo
@@ -95,55 +92,55 @@ getDiscussionInfo did conn = do
       maybe (return Nothing) (\i -> return $ Just (i, fromSql v)) mInf
     mkChoice _ _            = mzero
     
-    mkPart :: (IConnection conn) => conn -> [SqlValue] -> IO (Maybe (U.UserData, Voted))
+    mkPart :: (IConnection conn) => conn -> [SqlValue] -> IO (Maybe (UserData, Voted))
     mkPart conn [_uid, v] = do
       mUdata <- flip getUser' conn . fromId $ fromSql _uid
       maybe (return Nothing) (\u -> return $ Just (u, fromSql v)) mUdata
     mkPart _ _            = mzero
 
-getInformations' :: (IConnection conn) => Types.Limit -> Types.Offset -> conn -> IO [Information]
+getInformations' :: (IConnection conn) => Limit -> Offset -> conn -> IO [Information]
 getInformations' limit offset conn = do
   let q = "SELECT informationid FROM \"Information\" WHERE deletion IS NULL ORDER BY creation DESC LIMIT ? OFFSET ?"
   rst <- quickQuery' conn q [toSql limit, toSql offset]
   liftM catMaybes $ mapM (flip getInformation' conn . fromId . fromSql . head) rst
 
-getInformationCountAfter' :: (IConnection conn) => CalendarTime -> conn -> IO Types.Count
+getInformationCountAfter' :: (IConnection conn) => CalendarTime -> conn -> IO Count
 getInformationCountAfter' ctime conn = do
   let q = "SELECT COUNT(*) FROM \"Information\" WHERE deletion IS NULL AND creation > ?"
   [[c]] <- quickQuery' conn q [toSql ctime]
   return $ fromSql c
 
-getInformationsAfter' :: (IConnection conn) => CalendarTime -> Types.Limit -> Types.Offset -> conn -> IO [Information]
+getInformationsAfter' :: (IConnection conn) => CalendarTime -> Limit -> Offset -> conn -> IO [Information]
 getInformationsAfter' ctime limit offset conn = do
   let q = "SELECT informationid FROM \"Information\" WHERE deletion IS NULL AND creation > ? ORDER BY creation DESC LIMIT ? OFFSET ?"
   rst <- quickQuery' conn q [toSql ctime, toSql limit, toSql offset]
   liftM catMaybes $ mapM (flip getInformation' conn . fromId . fromSql . head) rst
 
-getInformationCountBy' :: (IConnection conn) => UserId -> conn -> IO Types.Count
+getInformationCountBy' :: (IConnection conn) => UserId -> conn -> IO Count
 getInformationCountBy' uid conn = do
   let q = "SELECT COUNT(*) FROM \"Information\" WHERE author = ? AND deletion IS NULL"
   [[c]] <- quickQuery' conn q [toSql $ toId uid]
   return $ fromSql c
 
-getInformationBy' :: (IConnection conn) => UserId -> Types.Limit -> Types.Offset -> conn -> IO [Information]
+getInformationBy' :: (IConnection conn) => UserId -> Limit -> Offset -> conn -> IO [Information]
 getInformationBy' uid limit offset conn = do
   let q = "SELECT informationid FROM \"Information\" WHERE author = ? AND deletion IS NULL ORDER BY creation DESC LIMIT ? OFFSET ?"
   rst <- quickQuery' conn q [toSql $ toId uid, toSql limit, toSql offset]
   liftM catMaybes $ mapM (flip getInformation' conn . fromId . fromSql . head) rst
 
-getInformationParentsCount' :: (IConnection conn) => InformationId -> conn -> IO Types.Count
+getInformationParentsCount' :: (IConnection conn) => InformationId -> conn -> IO Count
 getInformationParentsCount' iid conn = do
   let q = "SELECT COUNT(*) FROM \"Relations\" WHERE type = ? AND target = ?"
-  [[c]] <- quickQuery' conn q [toSql R.Parent, toSql $ toId iid]
+  [[c]] <- quickQuery' conn q [toSql Parent, toSql $ toId iid]
   return $ fromSql c
 
-getInformationParents' :: (IConnection conn) => InformationId -> Types.Limit -> Types.Offset -> conn -> IO [Information]
+getInformationParents' :: (IConnection conn) => InformationId -> Limit -> Offset -> conn -> IO [Information]
 getInformationParents' iid limit offset conn = do
   let q = "SELECT source FROM \"Relations\" WHERE target = ? ORDER BY creation DESC LIMIT ? OFFSET ?"
   rst <- quickQuery' conn q [toSql $ toId iid, toSql limit, toSql offset]
   liftM catMaybes $ mapM (flip getInformation' conn . fromId . fromSql . head) rst
 
-getProfiledUsers' :: (IConnection conn) => InformationId -> conn -> IO [U.UserData]
+getProfiledUsers' :: (IConnection conn) => InformationId -> conn -> IO [UserData]
 getProfiledUsers' iid conn = do
   _uids <- quickQuery' conn "SELECT userid FROM \"UserData\" WHERE profile = ?" [toSql $ toId iid]
   muds  <- mapM (flip getUser' conn . fromId . fromSql . head) _uids

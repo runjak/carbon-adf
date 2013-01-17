@@ -5,61 +5,56 @@ import Data.Maybe
 import Happstack.Server as S
 import System.Time (CalendarTime)
 
-import OpenBrain.Backend.Types as Types hiding (CreateInformation(..))
 import OpenBrain.Common
-import OpenBrain.Data.Id
-import OpenBrain.Data.Information (Information)
-import OpenBrain.Data.Relation
+import OpenBrain.Data
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import OpenBrain.Website.Session (chkSession)
 import OpenBrain.Website.Template
-import qualified OpenBrain.Backend.Monad as OBB
-import qualified OpenBrain.Data.Information as Information
-import qualified OpenBrain.Data.User as User
-import qualified OpenBrain.Website.Parameters as Parameters
+import qualified OpenBrain.Backend.Monad           as OBB
+import qualified OpenBrain.Website.Parameters      as Parameters
 import qualified OpenBrain.Website.Html.Datepicker as Datepicker
-import qualified OpenBrain.Website.Html.Decorator as Decorator
-import qualified OpenBrain.Website.Html.Relation as Relation
+import qualified OpenBrain.Website.Html.Decorator  as Decorator
+import qualified OpenBrain.Website.Html.Relation   as Relation
 
 informationDisplayLink :: Information -> String
 informationDisplayLink = ("/information.html?display="++) . show
-                       . unwrap . toId . Information.informationId
+                       . unwrap . toId . informationId
 
-title :: Information -> OBW HTML
-title i = do
+renderTitle :: Information -> OBW HTML
+renderTitle i = do
   removeable <- msum [Parameters.getItems >> return True, return False]
-  let context "iid" = MuVariable . show $ Information.informationId i
-      context "InformationTitle" = MuVariable $ Information.title i
+  let context "iid" = MuVariable . show $ informationId i
+      context "InformationTitle" = MuVariable $ title i
       context "Removeable" = MuBool removeable
   liftIO $ tmpl "InformationTitle.html" context
 
-description :: Information -> OBW HTML
-description i = do
-  let context "InformationDescription" = MuVariable $ Information.description i
+renderDescription :: Information -> OBW HTML
+renderDescription i = do
+  let context "InformationDescription" = MuVariable $ description i
   liftIO $ tmpl "InformationDescription.html" context
 
 type ShowControls = Bool
 type LoggedIn     = Bool
 footnotes :: LoggedIn -> ShowControls -> Information -> OBW HTML
 footnotes loggedIn sControls i = do
-  let context "InformationCreated"  = MuVariable $ Information.creation i
-      context "IsDeleted"           = MuBool . isJust $ Information.deletion i
-      context "InformationDeletion" = MuVariable . fromJust $ Information.deletion i
-      context "Author"              = MuVariable . User.username $ Information.author i
+  let context "InformationCreated"  = MuVariable $ creation i
+      context "IsDeleted"           = MuBool . isJust $ deletion i
+      context "InformationDeletion" = MuVariable . fromJust $ deletion i
+      context "Author"              = MuVariable . username $ author i
       context "DisplayControls"     = MuBool sControls
       context "EditLink"            = MuVariable . ("/edit/"++) . show . unwrap
-                                    . toId $ Information.informationId i
+                                    . toId $ informationId i
       context "LoggedIn"            = MuBool loggedIn
   liftIO $ tmpl "InformationFootnotes.html" context
 
 preview :: Information -> OBW HTML
 preview i = do
-  t <- title i
-  d <- description i
+  t <- renderTitle i
+  d <- renderDescription i
   f <- footnotes False False i
   let context "InformationLink"        = MuVariable . ("information.html?display="++)
-                                       . show . unwrap . toId $ Information.informationId i
+                                       . show . unwrap . toId $ informationId i
       context "InformationTitle"       = htmlToMu t
       context "InformationDescription" = htmlToMu d
       context "InformationFootnotes"   = htmlToMu f
@@ -88,45 +83,45 @@ relationEditor = do
   liftIO $ tmpl "RelationEditor.html" context
 
 informationMain :: Information -> OBW HTML
-informationMain i = let isC = Information.isContent $ Information.media i
+informationMain i = let isC = isContent $ media i
                     in  isC ? (informationContent i, informationCollection i)
 
 informationContent :: Information -> OBW HTML
 informationContent i = do
-  let context "Content" = MuVariable . Information.getContent $ Information.media i
+  let context "Content" = MuVariable . getContent $ media i
   liftIO $ tmpl "InformationContent.html" context
 
 informationCollection :: Information -> OBW HTML
 informationCollection i = do
-  let m = Information.media i
+  let m = media i
   -- Describing the Collection:
-  let collectionType =
-        case Information.collectionType m of
-             Information.Choice                  -> "This is a choice to a discussion." :: String
-             Information.Decision                -> "This is a decision from a discussion."
-             Information.DiscussionAttackOnly    -> "This is a discussion that allowes only attack relations."
-             Information.DiscussionAttackDefense -> "This is a discussion with attack and defense relations."
-  args <- liftOBB . mapM OBB.getInformation $ Information.arguments m
+  let cType =
+        case collectionType m of
+             Choice                  -> "This is a choice to a discussion." :: String
+             Decision                -> "This is a decision from a discussion."
+             DiscussionAttackOnly    -> "This is a discussion that allowes only attack relations."
+             DiscussionAttackDefense -> "This is a discussion with attack and defense relations."
+  args <- liftOBB . mapM OBB.getInformation $ arguments m
   -- Displaying the Arguments:
   let argumentContext i "ArgumentLink"  = MuVariable $ informationDisplayLink i
-      argumentContext i "ArgumentTitle" = MuVariable $ Information.title i
+      argumentContext i "ArgumentTitle" = MuVariable $ title i
   -- Handling Discussions:
   let dComplete c "ResultLink"     = MuVariable $ informationDisplayLink c
-      dComplete c "ResultTitle"    = MuVariable $ Information.title c
-      dChoiceList c "ChoiceId"     = MuVariable . show . Information.informationId $ fst c
+      dComplete c "ResultTitle"    = MuVariable $ title c
+      dChoiceList c "ChoiceId"     = MuVariable . show . informationId $ fst c
       dChoiceList c "ChoiceLink"   = MuVariable . informationDisplayLink $ fst c
-      dChoiceList c "ChoiceTitle"  = MuVariable $ Information.title (fst c) ++ " (" ++ show (snd c) ++ ")"
-      dPList p "ParticipantLink"   = MuVariable . ("/user.html?display="++) . show . unwrap . toId . User.userid $ fst p
-      dPList p "ParticipantTitle"  = MuVariable $ User.username (fst p) ++ (snd p ? (" (voted)",""))
-      dContext d "Deadline"        = MuVariable $ Information.deadline d
-      dContext d "IsComplete"      = MuList . map (mkStrContext . dComplete) . maybeToList $ Information.complete d
-      dContext d "HasChoices"      = MuBool . not . null $ Information.choices d
-      dContext d "ChoiceList"      = MuList . map (mkStrContext . dChoiceList) $ Information.choices d
-      dContext d "ParticipantList" = MuList . map (mkStrContext . dPList) $ Information.participants d
+      dChoiceList c "ChoiceTitle"  = MuVariable $ title (fst c) ++ " (" ++ show (snd c) ++ ")"
+      dPList p "ParticipantLink"   = MuVariable . ("/user.html?display="++) . show . unwrap . toId . userid $ fst p
+      dPList p "ParticipantTitle"  = MuVariable $ username (fst p) ++ (snd p ? (" (voted)",""))
+      dContext d "Deadline"        = MuVariable $ deadline d
+      dContext d "IsComplete"      = MuList . map (mkStrContext . dComplete) . maybeToList $ complete d
+      dContext d "HasChoices"      = MuBool . not . null $ choices d
+      dContext d "ChoiceList"      = MuList . map (mkStrContext . dChoiceList) $ choices d
+      dContext d "ParticipantList" = MuList . map (mkStrContext . dPList) $ participants d
   -- Getting it all together:
-  let context "CollectionType" = MuVariable collectionType
+  let context "CollectionType" = MuVariable cType
       context "ArgumentList"   = MuList $ map (mkStrContext . argumentContext) args
-      context "IsDiscussion"   = MuList . map (mkStrContext . dContext) . maybeToList $ Information.discussion m
+      context "IsDiscussion"   = MuList . map (mkStrContext . dContext) . maybeToList $ discussion m
       context _ = MuNothing
   liftIO $ tmpl "InformationCollection.html" context
 
@@ -134,14 +129,14 @@ informationCollection i = do
 viewSingle :: Information -> OBW HTML
 viewSingle i = do
   loggedIn <- msum [liftM (const True) chkSession, return False]
-  t        <- title i
-  d        <- description i
+  t        <- renderTitle i
+  d        <- renderDescription i
   ic       <- informationMain i
   rels     <- Relation.relations i
   f        <- footnotes loggedIn True i
   let context "Title"          = htmlToMu t
-      context "Deleted"        = MuBool . isJust $ Information.deletion i
-      context "HasDescription" = MuBool . not . null $ Information.description i
+      context "Deleted"        = MuBool . isJust $ deletion i
+      context "HasDescription" = MuBool . not . null $ description i
       context "Description"    = htmlToMu d
       context "Content"        = htmlToMu $ htmlConcat [ic, rels]
       context "Footnotes"      = htmlToMu f

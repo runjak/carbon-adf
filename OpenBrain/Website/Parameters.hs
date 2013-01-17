@@ -8,8 +8,7 @@ import System.Time (CalendarTime(..))
 import Text.Regex as T
 import qualified System.Time as Time
 
-import OpenBrain.Backend.Types
-import OpenBrain.Data.Id
+import OpenBrain.Data hiding (getContent)
 import OpenBrain.Website.Monad
 
 getDisplay        = lookRead "display"                                    :: OBW Id

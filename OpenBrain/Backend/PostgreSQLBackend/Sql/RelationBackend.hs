@@ -1,11 +1,9 @@
 module OpenBrain.Backend.PostgreSQLBackend.Sql.RelationBackend where
 
 import OpenBrain.Backend.PostgreSQLBackend.Common
-import OpenBrain.Backend.Types as Types
-import OpenBrain.Data.Id
-import OpenBrain.Data.Relation
+import OpenBrain.Data
 
-addRelation' :: (IConnection conn) => Types.Source -> Types.Target -> RelationType -> Types.Comment -> conn -> IO RelationId
+addRelation' :: (IConnection conn) => Source -> Target -> RelationType -> Comment -> conn -> IO RelationId
 addRelation' source target rtype comment conn = do
   stmt <- prepare conn "INSERT INTO \"Relations\" (comment, type, source, target) VALUES (?, ?, ?, ?)"
   execute stmt [toSql comment, toSql rtype, toSql $ toId source, toSql $ toId target]
@@ -24,14 +22,14 @@ getRelation' rid conn = do
   guard . not $ null rst
   return . Just . mkRelation $ head rst
 
-getRelations' :: (IConnection conn) => InformationId -> Types.RelationEnd
-                                    -> Maybe RelationType -> Types.AllowDeleted
+getRelations' :: (IConnection conn) => InformationId -> RelationEnd
+                                    -> Maybe RelationType -> AllowDeleted
                                     -> conn -> IO [Relation]
 getRelations' iid rEnd mRType aDeleted conn = do
     rst <- query conn (toSql $ toId iid) rEnd (liftM toSql mRType) aDeleted
     return $ map mkRelation rst
   where
-    query :: (IConnection conn) => conn -> SqlValue -> RelationEnd -> Maybe SqlValue -> Types.AllowDeleted -> IO [[SqlValue]]
+    query :: (IConnection conn) => conn -> SqlValue -> RelationEnd -> Maybe SqlValue -> AllowDeleted -> IO [[SqlValue]]
     query conn iid RelationSource (Just t) True   = do
       let q = "SELECT relationid, comment, creation, deletion, type, source, target FROM \"Relations\" WHERE "
            ++ "source = ? AND type = ? ORDER BY deletion DESC, creation DESC"
@@ -65,19 +63,19 @@ getRelations' iid rEnd mRType aDeleted conn = do
            ++ "target = ? AND deletion IS NULL ORDER BY creation DESC"
       quickQuery' conn q [iid]
 
-updateComment' :: (IConnection conn) => RelationId -> Types.Comment -> conn -> IO ()
+updateComment' :: (IConnection conn) => RelationId -> Comment -> conn -> IO ()
 updateComment' rid comment conn = do
   stmt <- prepare conn "UPDATE \"Relations\" SET comment = ? WHERE relationid = ?"
   void $ execute stmt [toSql comment, toSql $ toId rid]
 
 mkRelation :: [SqlValue] -> Relation
 mkRelation [rid, comment, creation, deletion, relationid, source, target] = Relation {
-    comment     = fromSql comment
-  , creation    = fromSql creation
-  , deletion    = fromSql deletion
-  , relation    = fromSql relationid
-  , relationId  = fromId $ fromSql rid
-  , source      = fromId $ fromSql source
-  , target      = fromId $ fromSql target
+    comment          = fromSql comment
+  , relationCreation = fromSql creation
+  , relationDeletion = fromSql deletion
+  , relation         = fromSql relationid
+  , relationId       = fromId $ fromSql rid
+  , source           = fromId $ fromSql source
+  , target           = fromId $ fromSql target
   }
 mkRelation _ = error "Malformed result in OpenBrain.Backend.MysqlBackend.RelationBackend:mkRelation"

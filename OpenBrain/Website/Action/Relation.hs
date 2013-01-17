@@ -5,16 +5,13 @@ module OpenBrain.Website.Action.Relation (serve) where
 -}
 import Happstack.Server as Server
 
-import OpenBrain.Backend.Types
 import OpenBrain.Common
-import OpenBrain.Data.Id
-import OpenBrain.Data.Relation
+import OpenBrain.Data
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import OpenBrain.Website.Session
 
-import qualified OpenBrain.Backend.Monad as OBB
-import qualified OpenBrain.Data.Information as Information
+import qualified OpenBrain.Backend.Monad   as OBB
 import qualified OpenBrain.Website.Session as Session
 
 serve :: OBW Response
