@@ -1,35 +1,42 @@
 module OpenBrain.Data.Information where
 
 import Data.Function (on)
-import System.Time (CalendarTime)
 
+import OpenBrain.Data.Described
 import OpenBrain.Data.Id
+import OpenBrain.Data.TimeFrame
 import qualified OpenBrain.Data.User as User
 
 data Information = Information {
-    author        :: User.UserData      -- | Every information has an author.
-  , creation      :: CalendarTime       -- | The time of creation for the information.
-  , deletion      :: Maybe CalendarTime -- | The time of deletion for the information
-  , description   :: String             -- | A short description of what the information is about.
-  , informationId :: InformationId
-  , media         :: Media              -- | The real content
-  , title         :: String             -- | A title for the information
+    author              :: User.UserData      -- | Every information has an author.
+  , informationCreation :: CalendarTime       -- | The time of creation for the information.
+  , informationDeletion :: Maybe CalendarTime -- | The time of deletion for the information
+  , iDescription        :: String             -- | A short description of what the information is about.
+  , informationId       :: InformationId
+  , media               :: Media              -- | The real content
+  , iTitle              :: String             -- | A title for the information
   } deriving (Show)
+instance Described Information where
+  title       = iTitle
+  description = iDescription
 instance Eq Information where
   (==) = (==) `on` informationId
 instance Ord Information where
   compare = compare `on` informationId
+instance TimeFrame Information where
+  creation = informationCreation
+  deletion = informationDeletion
 
 data Media =
-    Content String  -- | HTML rich content
-  | Collection {    -- | Everything that is not a single information
+    Content String -- | HTML rich content
+  | ICollection {  -- | Everything that is not a single information
     arguments       :: [InformationId]      -- | Informations that are grouped by this Collection.
   , collectionType  :: CollectionType       -- | The nature of this Collection.
   , discussion      :: Maybe DiscussionInfo -- | Additional Information if the Collection is a Discussiontype.
   }
 instance Show Media where
   show (Content s)                = "Content " ++ show s
-  show (Collection args ctype d)  = "Collection {"
+  show (ICollection args ctype d)  = "Collection {"
                                  ++ "arguments = [" ++ replicate (length args) '.' ++ "]"
                                  ++ ", collectionType = " ++ show ctype
                                  ++ ", discussion = " ++ show d
@@ -61,6 +68,6 @@ getContent (Content c)  = c
 getContent _            = error "No content in OpenBrain.Data.Information:getContent"
 
 isDiscussion :: Media -> Bool
-isDiscussion (Collection _ _ (Just d)) = True
+isDiscussion (ICollection _ _ (Just d)) = True
 isDiscussion _                         = False
 

@@ -1,25 +1,25 @@
-module OpenBrain.Backend.Types where
+module OpenBrain.Data.Misc where
 {-
   Types used in OpenBrain.Backend
 -}
 
-import System.Time (CalendarTime)
-
+import OpenBrain.Data.Described as Described
 import OpenBrain.Data.Id
 import OpenBrain.Data.Information (CollectionType(..))
+import OpenBrain.Data.TimeFrame as TimeFrame
 
 type Limit  = Int
 type Offset = Int
 type Count  = Int
 
-type Title = String
-type Description = String
-
 data CreateInformation = CreateInformation {
-    userId      :: UserId
-  , title       :: Title
-  , description :: Description
+    userId        :: UserId
+  , ciTitle       :: Title
+  , ciDescription :: Description
 } deriving (Show)
+instance Described CreateInformation where
+  title       = ciTitle
+  description = ciDescription
 
 type Heir = UserId
 

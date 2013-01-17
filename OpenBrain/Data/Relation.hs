@@ -6,24 +6,27 @@ module OpenBrain.Data.Relation(
 import Data.Char
 import Data.Function (on)
 import Happstack.Server as S
-import System.Time (CalendarTime)
 
 import OpenBrain.Data.Id
-import OpenBrain.Data.Information hiding (Collection)
+import OpenBrain.Data.Information
+import OpenBrain.Data.TimeFrame
 
 data Relation = Relation {
-    comment     :: String
-  , creation    :: CalendarTime
-  , deletion    :: Maybe CalendarTime
-  , relation    :: RelationType
-  , relationId  :: RelationId
-  , source      :: InformationId
-  , target      :: InformationId
+    comment          :: String
+  , relationCreation :: CalendarTime
+  , relationDeletion :: Maybe CalendarTime
+  , relation         :: RelationType
+  , relationId       :: RelationId
+  , source           :: InformationId
+  , target           :: InformationId
   } deriving (Show)
 instance Eq Relation where
   (==) = (==) `on` relationId
 instance Ord Relation where
   compare = compare `on` relationId
+instance TimeFrame Relation where
+  creation = relationCreation
+  deletion = relationDeletion
 
 data RelationType = Parent     -- | Source = Child, Target = Parent
                   | Collection -- | Source = Information that bundles, Target = Element of the collection
