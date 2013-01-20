@@ -5,13 +5,12 @@ import Data.Maybe
 import Happstack.Server as S
 import System.Time (CalendarTime)
 
+import OpenBrain.Backend
 import OpenBrain.Common
-import OpenBrain.Data
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import OpenBrain.Website.Session (chkSession)
 import OpenBrain.Website.Template
-import qualified OpenBrain.Backend.Monad           as OBB
 import qualified OpenBrain.Website.Parameters      as Parameters
 import qualified OpenBrain.Website.Html.Datepicker as Datepicker
 import qualified OpenBrain.Website.Html.Decorator  as Decorator
@@ -101,7 +100,7 @@ informationCollection i = do
              Decision                -> "This is a decision from a discussion."
              DiscussionAttackOnly    -> "This is a discussion that allowes only attack relations."
              DiscussionAttackDefense -> "This is a discussion with attack and defense relations."
-  args <- liftOBB . mapM OBB.getInformation $ arguments m
+  args <- noMaybes . mapM (\i -> liftOBB $ GetInformation i) $ arguments m
   -- Displaying the Arguments:
   let argumentContext i "ArgumentLink"  = MuVariable $ informationDisplayLink i
       argumentContext i "ArgumentTitle" = MuVariable $ title i
@@ -163,8 +162,8 @@ serveList :: OBW Response
 serveList = do
   limit   <- Parameters.getLimit
   offset  <- Parameters.getOffset
-  count   <- liftOBB OBB.getInformationCount
-  is      <- liftOBB $ OBB.getInformations limit offset
+  count   <- liftOBB GetInformationCount
+  is      <- liftOBB $ GetInformations limit offset
   ok . toResponse =<< Decorator.page =<< viewMany count limit offset is
 
 {- /information.html?after=_&limit=_&offset=_ -}
@@ -172,9 +171,9 @@ serveAfter :: OBW Response
 serveAfter = do
   after   <- Parameters.getAfter
   limit   <- Parameters.getLimit
-  count   <- liftOBB $ OBB.getInformationCountAfter after
+  count   <- liftOBB $ GetInformationCountAfter after
   offset  <- Parameters.getOffset
-  is      <- liftOBB $ OBB.getInformationsAfter after limit offset
+  is      <- liftOBB $ GetInformationsAfter after limit offset
   ok . toResponse =<< Decorator.page =<< viewMany count limit offset is
 
 {- /information.html?user=_&limit=_&offset=_ -}
@@ -183,15 +182,15 @@ serveUser = do
   uid     <- Parameters.getUser
   limit   <- Parameters.getLimit
   offset  <- Parameters.getOffset
-  count   <- liftOBB $ OBB.getInformationCountBy uid
-  is      <- liftOBB $ OBB.getInformationBy uid limit offset
+  count   <- liftOBB $ GetInformationCountBy uid
+  is      <- liftOBB $ GetInformationBy uid limit offset
   ok . toResponse =<< Decorator.page =<< viewMany count limit offset is
 
 {- /information.html?items=[..] -}
 serveItems :: OBW Response
 serveItems = do
   iids    <- Parameters.getItems
-  is      <- liftOBB $ mapM OBB.getInformation iids
+  is      <- noMaybes $ mapM (\i -> liftOBB $ GetInformation i) iids
   relEdit <- relationEditor
   l       <- list is
   let context "Content" = htmlToMu $ htmlConcat [l, relEdit]
@@ -203,5 +202,5 @@ serveSingle :: OBW Response
 serveSingle = do
   iid <- liftM fromId Parameters.getDisplay
   handleFail "Can't find requested information." $ do
-    i   <- liftOBB $ OBB.getInformation iid
+    i   <- noMaybe . liftOBB $ GetInformation iid
     ok . toResponse =<< Decorator.page =<< viewSingle i

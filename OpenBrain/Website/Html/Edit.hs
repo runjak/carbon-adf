@@ -4,12 +4,11 @@ module OpenBrain.Website.Html.Edit (editor, serve) where
 import Data.Maybe
 import Happstack.Server as S
 
+import OpenBrain.Backend
 import OpenBrain.Common
-import OpenBrain.Data
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import OpenBrain.Website.Template
-import qualified OpenBrain.Backend.Monad          as OBB
 import qualified OpenBrain.Website.Html.Decorator as Decorator
 
 data EditorContent = EditorContent {
@@ -74,7 +73,8 @@ serve = mplus (path lookupInformation) $ do
 
 lookupInformation :: Id -> OBW Response
 lookupInformation i' = handleFail "Can't find requested Information." $ do
-  i <- liftOBB . OBB.getInformation $ fromId i'
+  i <- liftOBB . GetInformation $ fromId i'
+  when (isNothing i) mzero
   handleFail "Information is not simple content - can't edit that." $ do
-    p <- Decorator.page =<< mkEditor emptyContent{editorTitle = "Edit Information"} i
+    p <- Decorator.page =<< mkEditor emptyContent{editorTitle = "Edit Information"} (fromJust i)
     ok $ toResponse p

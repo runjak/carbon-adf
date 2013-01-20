@@ -14,12 +14,10 @@ import Control.Monad.Trans.Maybe
 import Data.Maybe
 import Happstack.Server as S
 
-import OpenBrain.Config
 import OpenBrain.Backend
-import OpenBrain.Data.Id
+import OpenBrain.Config
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad as OBW
-import qualified OpenBrain.Backend.Monad as OBB
 
 cookieActionKey  = "actionKey"
 cookieUserId     = "userid"
@@ -30,7 +28,7 @@ cookieUserId     = "userid"
 |-}
 mkSession :: UserId -> OBW ()
 mkSession uid = do
-  key <- liftOBB $ OBB.startSession uid
+  key <- liftOBB $ StartSession uid
   addCookies $ map ((,) Session) [mkCookie cookieUserId $ show uid, mkCookie cookieActionKey key]
 
 {-|
@@ -40,7 +38,7 @@ chkSession :: OBW UserId
 chkSession = do
   key   <-  lookCookieValue cookieActionKey
   uid   <-  liftM read $ lookCookieValue cookieUserId
-  guard =<< liftOBB (OBB.validate uid key)
+  guard =<< liftOBB (Validate uid key)
   return uid
 
 chkSession' :: (UserId -> OBW Response) -> OBW Response
@@ -50,6 +48,6 @@ dropSession :: OBW ()
 dropSession = do
   key <- lookCookieValue cookieActionKey
   uid <- liftM read $ lookCookieValue cookieUserId
-  liftOBB $ OBB.stopSession uid key
+  liftOBB $ StopSession uid key
   mapM_ expireCookie [cookieActionKey, cookieUserId]
 

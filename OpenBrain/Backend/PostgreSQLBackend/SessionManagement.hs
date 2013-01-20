@@ -1,14 +1,13 @@
-{-# LANGUAGE ScopedTypeVariables #-}
-module OpenBrain.Backend.PostgreSQLBackend.SessionManagement () where
+{-# LANGUAGE GADTs #-}
+module OpenBrain.Backend.PostgreSQLBackend.SessionManagement where
 
 import System.Random
 
+import OpenBrain.Backend hiding (processSession)
 import OpenBrain.Backend.PostgreSQLBackend.Common
 import OpenBrain.Backend.PostgreSQLBackend.Sql.SessionManagement
-import OpenBrain.Data
 
-instance SessionManagement PostgreSQLBackend where
-  startSession uid b   = useBackend b $ startSession' uid
-  validate uid ak b    = useBackend b $ validate' uid ak
-  stopSession uid ak b = useBackend b $ stopSession' uid ak
-
+processSession :: PostgreSQLBackend -> SManagementReq r -> IO r
+processSession b (StartSession uid)   = useBackend b $ startSession' uid
+processSession b (Validate uid ak)    = useBackend b $ validate' uid ak
+processSession b (StopSession uid ak) = useBackend b $ stopSession' uid ak

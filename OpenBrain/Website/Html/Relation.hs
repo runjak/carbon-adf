@@ -3,25 +3,24 @@ module OpenBrain.Website.Html.Relation (relations) where
 
 import Data.Maybe
 
+import OpenBrain.Backend
 import OpenBrain.Common
-import OpenBrain.Data
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import OpenBrain.Website.Template
-import qualified OpenBrain.Backend.Monad as OBB
 
 relations :: Information -> OBW HTML
 relations i = do
   let iid = informationId i
   -- Types of Relations:
-  parents'    <- liftOBB $ OBB.getRelations iid RelationTarget (Just Parent)  True
-  children'   <- liftOBB $ OBB.getRelations iid RelationSource (Just Parent)  True
-  attackers'  <- liftOBB $ OBB.getRelations iid RelationTarget (Just Attack)  False
-  supporters' <- liftOBB $ OBB.getRelations iid RelationTarget (Just Defense) False
-  victims'    <- liftOBB $ OBB.getRelations iid RelationSource (Just Attack)  False
-  protegee'   <- liftOBB $ OBB.getRelations iid RelationSource (Just Defense) False
+  parents'    <- liftOBB $ GetRelations iid RelationTarget (Just Parent)  True
+  children'   <- liftOBB $ GetRelations iid RelationSource (Just Parent)  True
+  attackers'  <- liftOBB $ GetRelations iid RelationTarget (Just Attack)  False
+  supporters' <- liftOBB $ GetRelations iid RelationTarget (Just Defense) False
+  victims'    <- liftOBB $ GetRelations iid RelationSource (Just Attack)  False
+  protegee'   <- liftOBB $ GetRelations iid RelationSource (Just Defense) False
   -- Informations behind the Relations:
-  let lookup = mapM $ liftOBB . OBB.getInformation
+  let lookup = noMaybes . mapM (liftOBB . GetInformation)
   parents     <- lookup $ map source parents'
   children    <- lookup $ map target children'
   attackers   <- lookup $ map source attackers'
@@ -30,13 +29,13 @@ relations i = do
   protegee    <- lookup $ map target protegee'
   -- Building the content:
   let buildInfos = concat [
-                     null parents    ? ([], [RLBI "Parents"    "InformationParents"    False "Parent"    $ zip parents parents'])
-                   , null children   ? ([], [RLBI "Children"   "InformationChildren"   False "Child"     $ zip children children'])
-                   , null attackers  ? ([], [RLBI "Attackers"  "InformationAttackers"  True  "Attacker"  $ zip attackers attackers'])
-                   , null supporters ? ([], [RLBI "Supporters" "InformationSupporters" True  "Supporter" $ zip supporters supporters'])
-                   , null victims    ? ([], [RLBI "Victims"    "InformationVictims"    True  "Victim"    $ zip victims victims'])
-                   , null protegee   ? ([], [RLBI "Protegee"   "InformationProtegee"   True  "Protege"   $ zip protegee protegee'])
-                   ]
+          null parents    ? ([], [RLBI "Parents"    "InformationParents"    False "Parent"    $ zip parents parents'])
+        , null children   ? ([], [RLBI "Children"   "InformationChildren"   False "Child"     $ zip children children'])
+        , null attackers  ? ([], [RLBI "Attackers"  "InformationAttackers"  True  "Attacker"  $ zip attackers attackers'])
+        , null supporters ? ([], [RLBI "Supporters" "InformationSupporters" True  "Supporter" $ zip supporters supporters'])
+        , null victims    ? ([], [RLBI "Victims"    "InformationVictims"    True  "Victim"    $ zip victims victims'])
+        , null protegee   ? ([], [RLBI "Protegee"   "InformationProtegee"   True  "Protege"   $ zip protegee protegee'])
+        ]
   contextInfos <- mapM buildToContextInfo buildInfos
   let context "Relation" = MuList $ map (mkStrContext . relationContext) contextInfos
   liftIO $ tmpl "Relations.html" context

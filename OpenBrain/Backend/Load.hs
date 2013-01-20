@@ -11,7 +11,7 @@ import OpenBrain.Config
 import OpenBrain.Common
 import qualified OpenBrain.Backend.PostgreSQLBackend as Psql
 
-loadBackend :: Config -> MaybeT IO Backend
+loadBackend :: Config -> MaybeT IO CBackend
 loadBackend c
   | Psql.validConfig c = liftIO $ Psql.load c
   | otherwise = mzero

@@ -1,13 +1,13 @@
-module OpenBrain.Backend.PostgreSQLBackend.RelationBackend () where
+{-# LANGUAGE GADTs #-}
+module OpenBrain.Backend.PostgreSQLBackend.RelationBackend where
 
+import OpenBrain.Backend hiding (processRelation)
 import OpenBrain.Backend.PostgreSQLBackend.Common
 import OpenBrain.Backend.PostgreSQLBackend.Sql.RelationBackend
-import OpenBrain.Data
 
-instance RelationBackend PostgreSQLBackend where
-  addRelation source target rtype comment b = useBackend b $ addRelation' source target rtype comment
-  deleteRelation rid b                      = useBackend b $ deleteRelation' rid
-  getRelation rid b                         = useBackend b $ getRelation' rid
-  getRelations iid rEnd rType aDeleted b    = useBackend b $ getRelations' iid rEnd rType aDeleted
-  updateComment rid comment b               = useBackend b $ updateComment' rid comment
-
+processRelation :: PostgreSQLBackend -> RBackendReq r -> IO r
+processRelation b (AddRelation s t rt c)                 = useBackend b $ addRelation' s t rt c
+processRelation b (DeleteRelation rid)                   = useBackend b $ deleteRelation' rid
+processRelation b (GetRelation rid)                      = useBackend b $ getRelation' rid
+processRelation b (GetRelations iid rEnd rType aDeleted) = useBackend b $ getRelations' iid rEnd rType aDeleted
+processRelation b (UpdateComment rid c)                  = useBackend b $ updateComment' rid c 

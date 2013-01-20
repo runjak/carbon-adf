@@ -3,7 +3,6 @@ module OpenBrain.Backend.PostgreSQLBackend.Common(
   PostgreSQLBackend(..)
 , mkBackend, useBackend
 -- | openBrain modules
-, module Backend
 , module Convertibles
 , module Common
 , module DId
@@ -16,7 +15,6 @@ import Control.Monad as CMonad
 import Control.Monad.Trans as CMTrans
 import Database.HDBC as HDBC
 
-import OpenBrain.Backend as Backend
 import OpenBrain.Config (Config)
 import OpenBrain.Common  as Common
 import OpenBrain.Data.Id as DId

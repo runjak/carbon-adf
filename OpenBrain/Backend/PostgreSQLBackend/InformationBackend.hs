@@ -1,35 +1,32 @@
-{-# LANGUAGE DoAndIfThenElse #-}
-module OpenBrain.Backend.PostgreSQLBackend.InformationBackend () where
+{-# LANGUAGE GADTs #-}
+module OpenBrain.Backend.PostgreSQLBackend.InformationBackend where
 
-import Data.Maybe
-
+import OpenBrain.Backend hiding (processInformation)
 import OpenBrain.Backend.PostgreSQLBackend.Common
-import OpenBrain.Backend.PostgreSQLBackend.Sql.InformationBackend
-import OpenBrain.Backend.PostgreSQLBackend.Sql.InformationBackend.Get
+import OpenBrain.Backend.PostgreSQLBackend.Sql.InformationBackend     as IBackend
+import OpenBrain.Backend.PostgreSQLBackend.Sql.InformationBackend.Get as IBackendG
 import OpenBrain.Common
-import OpenBrain.Data
 
-instance InformationBackend PostgreSQLBackend where
-  addContentMedia ci c b             = useBackend b $ addContentMedia' ci c
-  addParticipant iid uid b           = useBackend b $ addParticipant' iid uid
-  createCollection ci iids b         = useBackend b $ createCollection' ci iids
-  createDiscussion ci iids dl dt b   = useBackend b $ createDiscussion' ci iids dl dt
-  getInformationCount b              = useBackend b getInformationCount'
-  getInformation iid b               = useBackend b $ getInformation' iid
-  getInformations l o b              = useBackend b $ getInformations' l o
-  getInformationCountAfter t b       = useBackend b $ getInformationCountAfter' t
-  getInformationsAfter t l o b       = useBackend b $ getInformationsAfter' t l o
-  getInformationCountBy uid b        = useBackend b $ getInformationCountBy' uid
-  getInformationBy uid l o b         = useBackend b $ getInformationBy' uid l o
-  getInformationParentsCount iid b   = useBackend b $ getInformationParentsCount' iid
-  getInformationParents iid l o b    = useBackend b $ getInformationParents' iid l o
-  getProfiledUsers iid b             = useBackend b $ getProfiledUsers' iid
-  getNextDeadline b                  = useBackend b getNextDeadline'
-  updateContentMedia uid iid t d c b = useBackend b $ updateContentMedia' uid iid t d c
-  updateCollection c iids b          = useBackend b $ updateCollection' c iids
-  setParticipant c uid p b           = useBackend b $ setParticipant' c uid p
-  vote iid uid b                     = useBackend b $ vote' iid uid
-  setChoices iid iids b              = useBackend b $ setChoices' iid iids
-  deleteInformation iid b            = useBackend b $ deleteInformation' iid
-  removeParticipant iid uid b        = useBackend b $ removeParticipant' iid uid
-
+processInformation :: PostgreSQLBackend -> IBackendReq r -> IO r
+processInformation b (AddContentMedia ci c)             = useBackend b $ addContentMedia' ci c
+processInformation b (AddParticipant iid uid)           = useBackend b $ addParticipant' iid uid
+processInformation b (CreateCollection ci iids)         = useBackend b $ createCollection' ci iids
+processInformation b (CreateDiscussion ci iids dl dt)   = useBackend b $ createDiscussion' ci iids dl dt
+processInformation b GetInformationCount                = useBackend b getInformationCount'
+processInformation b (GetInformation iid)               = useBackend b $ getInformation' iid
+processInformation b (GetInformations l o)              = useBackend b $ getInformations' l o
+processInformation b (GetInformationCountAfter ct)      = useBackend b $ getInformationCountAfter' ct
+processInformation b (GetInformationsAfter ct l o)      = useBackend b $ getInformationsAfter' ct l o
+processInformation b (GetInformationCountBy uid)        = useBackend b $ getInformationCountBy' uid
+processInformation b (GetInformationBy uid l o)         = useBackend b $ getInformationBy' uid l o
+processInformation b (GetInformationParentsCount iid)   = useBackend b $ getInformationParentsCount' iid
+processInformation b (GetInformationParents iid l o)    = useBackend b $ getInformationParents' iid l o
+processInformation b (GetProfiledUsers iid)             = useBackend b $ getProfiledUsers' iid
+processInformation b GetNextDeadline                    = useBackend b getNextDeadline'
+processInformation b (UpdateContentMedia uid iid t d c) = useBackend b $ updateContentMedia' uid iid t d c
+processInformation b (UpdateCollection c iids)          = useBackend b $ updateCollection' c iids
+processInformation b (SetParticipant c uid p)           = useBackend b $ setParticipant' c uid p
+processInformation b (Vote iid uid)                     = useBackend b $ vote' iid uid
+processInformation b (SetChoices iid iids)              = useBackend b $ setChoices' iid iids
+processInformation b (DeleteInformation iid)            = useBackend b $ deleteInformation' iid
+processInformation b (RemoveParticipant iid uid)        = useBackend b $ removeParticipant' iid uid

@@ -1,9 +1,9 @@
-module OpenBrain.Backend.PostgreSQLBackend.SaltShaker () where
+{-# LANGUAGE GADTs #-}
+module OpenBrain.Backend.PostgreSQLBackend.SaltShaker where
 
+import OpenBrain.Backend hiding (processSalt)
 import OpenBrain.Backend.PostgreSQLBackend.Common
 import OpenBrain.Backend.PostgreSQLBackend.Sql.SaltShaker
-import OpenBrain.Data.Id
-import OpenBrain.Data.Salt
 
-instance SaltShaker PostgreSQLBackend where
-  getSalt uid b = useBackend b $ getSalt' uid
+processSalt :: PostgreSQLBackend -> SaltShakerReq r -> IO r
+processSalt b (GetSalt uid) = useBackend b $ getSalt' uid

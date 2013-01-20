@@ -1,23 +1,24 @@
-module OpenBrain.Backend.PostgreSQLBackend.UserBackend (getUser', getNobody') where
+{-# LANGUAGE GADTs #-}
+module OpenBrain.Backend.PostgreSQLBackend.UserBackend where
 
 import Data.Maybe
 import System.Time as T
 
+import OpenBrain.Backend hiding (delete')
 import OpenBrain.Backend.PostgreSQLBackend.Common
 import OpenBrain.Backend.PostgreSQLBackend.Sql.UserBackend
 
-instance UserBackend PostgreSQLBackend where
-  login uname hash b         = useBackend b $ login' uname hash
-  getUser uid b              = useBackend b $ getUser' uid
-  getNobody b                = useBackend b getNobody'
-  hasUserWithId uid b        = useBackend b $ hasUserWithId' uid
-  hasUserWithName uname b    = useBackend b $ hasUserWithName' uname
-  register uname hash salt b = useBackend b $ register' uname hash salt
-  delete uid heir b          = useBackend b $ delete' uid heir
-  getUserCount b             = useBackend b getUserCount'
-  getUserList l o b          = useBackend b $ getUserList' l o
-  updateKarma uid f b        = useBackend b $ updateKarma' uid f
-  updatePasswd uid hash b    = useBackend b $ updatePasswd' uid hash
-  setAdmin uid state b       = useBackend b $ setAdmin' uid state
-  setProfile uid miid b      = useBackend b $ setProfile' uid miid
-
+processUser :: PostgreSQLBackend -> UBackendReq r -> IO r
+processUser b (Login uname hash)          = useBackend b $ login' uname hash
+processUser b (GetUser uid)               = useBackend b $ getUser' uid
+processUser b GetNobody                   = useBackend b getNobody'
+processUser b (HasUserWithId uid)         = useBackend b $ hasUserWithId' uid
+processUser b (HasUserWithName uname)     = useBackend b $ hasUserWithName' uname
+processUser b (Register uname hash salt)  = useBackend b $ register' uname hash salt
+processUser b (Delete uid heir)           = useBackend b $ delete' uid heir
+processUser b GetUserCount                = useBackend b getUserCount'
+processUser b (GetUserList l o)           = useBackend b $ getUserList' l o
+processUser b (UpdateKarma uid f)         = useBackend b $ updateKarma' uid f
+processUser b (UpdatePasswd uid hash)     = useBackend b $ updatePasswd' uid hash
+processUser b (SetAdmin uid t)            = useBackend b $ setAdmin' uid t
+processUser b (SetProfile uid miid)       = useBackend b $ setProfile' uid miid

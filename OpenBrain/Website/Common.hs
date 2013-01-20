@@ -16,7 +16,7 @@ import System.Time
 import Text.Hastache
 import Text.Hastache.Context
 
-import OpenBrain.Data
+import OpenBrain.Backend
 import OpenBrain.Common
 import OpenBrain.Website.Monad
 import OpenBrain.Website.Template

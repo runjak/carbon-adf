@@ -20,7 +20,7 @@ import qualified OpenBrain.Website.Html.Index       as Index (serve)
 import qualified OpenBrain.Website.Html.Information as Information (serve)
 import qualified OpenBrain.Website.Html.User        as User(serve)
 
-serve :: Backend -> Config -> IO ()
+serve :: CBackend -> Config -> IO ()
 serve backend config = do
   deadline <- Deadline.newState
   let serverParts = runOBW (WebsiteState backend config deadline) serve'

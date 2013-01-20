@@ -3,22 +3,20 @@ module OpenBrain.Website.Action.Relation (serve) where
   Actions concerning Relations between Informations.
   All Actions here require users to be logged in.
 -}
+import Data.Maybe
 import Happstack.Server as Server
 
+import OpenBrain.Backend
 import OpenBrain.Common
-import OpenBrain.Data
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
-import OpenBrain.Website.Session
-
-import qualified OpenBrain.Backend.Monad   as OBB
-import qualified OpenBrain.Website.Session as Session
+import OpenBrain.Website.Session as Session
 
 serve :: OBW Response
 serve = msum [
-    dir "addRelation"     addRelation
-  , dir "deleteRelation"  deleteRelation
-  , dir "updateComment"   updateComment
+    dir "addRelation"    addRelation
+  , dir "deleteRelation" deleteRelation
+  , dir "updateComment"  updateComment
   ]
 
 {-
@@ -34,14 +32,14 @@ addRelation = do
   t       <- getType
   comment <- getComment
   handleFail "Relation already exists." $ do
-    rs <- liftOBB $ OBB.getRelations rSource RelationSource (Just t) False
+    rs <- liftOBB $ GetRelations rSource RelationSource (Just t) False
     guard . not $ any ((== rTarget) . target) rs
     isAttackOrDefense t $
       Session.chkSession' $ \uid ->
         handleFail ("Relation type not allowed:\t" ++ show t) $ do
           guard $ t `elem` [Attack, Defense]
           handleFail "Problem in OpenBrain.Website.Action:addRelation" $ do
-            rid <- liftOBB $ OBB.addRelation rSource rTarget t comment
+            rid <- liftOBB $ AddRelation rSource rTarget t comment
             handleSuccess $ "Added Relation: " ++ show rid
 
 {-
@@ -50,11 +48,11 @@ addRelation = do
 deleteRelation :: OBW Response
 deleteRelation = do
   rid <- getRelationId
-  r <- liftOBB $ OBB.getRelation rid
+  r <- noMaybe . liftOBB $ GetRelation rid
   isAttackOrDefense (relation r) $
     Session.chkSession' $ \uid ->
       handleFail "Problem in OpenBrain.Website.Action.Relation:deleteRelation" $ do
-        liftOBB $ OBB.deleteRelation rid
+        liftOBB $ DeleteRelation rid
         handleSuccess $ "Deleted relation:\t" ++ show rid
 
 {-
@@ -66,7 +64,7 @@ updateComment = do
   rid     <- getRelationId
   Session.chkSession' $ \uid ->
     handleFail "Problem in OpenBrain.Website.Action.Relation:updateComment" $ do
-      liftOBB $ OBB.updateComment rid comment
+      liftOBB $ UpdateComment rid comment
       handleSuccess $ "Updated comment on relation:\t" ++ show rid
 
 {-

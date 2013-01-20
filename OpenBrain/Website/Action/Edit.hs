@@ -6,12 +6,11 @@ module OpenBrain.Website.Action.Edit (serve) where
 import Data.Maybe
 import Happstack.Server as Server
 
+import OpenBrain.Backend
 import OpenBrain.Common
-import OpenBrain.Data
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import OpenBrain.Website.Session
-import qualified OpenBrain.Backend.Monad      as OBB
 import qualified OpenBrain.Website.Parameters as Parameters
 import qualified OpenBrain.Website.Session    as Session
 
@@ -35,7 +34,7 @@ create = Session.chkSession' $ \uid -> do
     , ciTitle       = title
     , ciDescription = desc
     }
-  iid <- liftOBB $ OBB.addContentMedia ci content
+  iid <- liftOBB $ AddContentMedia ci content
   handleSuccess $ "Created Information: " ++ show iid
 
 {-
@@ -50,15 +49,15 @@ update = do
   split <- Parameters.getSplit
   Session.chkSession' $ \uid ->
     handleFail "Could not lookup target " $ do
-      i <- liftOBB $ OBB.getInformation iid
+      i <- liftM fromJust . liftOBB $ GetInformation iid
       let iDeleted = isJust $ deletion i
       handleFail "Information outdated." $ do
         when iDeleted . guard $ split -- iDeleted is only on allowed on split.
         handleFail "Information is not simple Content." $ do
           guard $ isContent $ media i
           handleFail "Could not update " $ do
-            iid' <- liftOBB $ OBB.updateContentMedia uid iid title desc content
-            unless split $ liftOBB $ OBB.deleteInformation iid
+            iid' <- liftOBB $ UpdateContentMedia uid iid title desc content
+            unless split $ liftOBB $ DeleteInformation iid
             handleSuccess $ "Updated Information: " ++ show iid'
 
 setProfile :: OBW Response
@@ -66,6 +65,6 @@ setProfile = do
   iid <- Parameters.getInformationId
   Session.chkSession' $ \uid ->
     handleFail "Error during OpenBrain.Website.Action.Edit:setProfile" $ do
-      liftOBB $ OBB.setProfile uid $ Just iid
+      liftOBB $ SetProfile uid $ Just iid
       handleSuccess $ "Changed Profilepage: " ++ show iid
 

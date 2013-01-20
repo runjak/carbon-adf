@@ -8,12 +8,11 @@ module OpenBrain.Website.Html.User (edit, serve) where
 import Data.Maybe
 import Happstack.Server as S
 
+import OpenBrain.Backend
 import OpenBrain.Common
-import OpenBrain.Data
 import OpenBrain.Website.Common
 import OpenBrain.Website.Monad
 import OpenBrain.Website.Template
-import qualified OpenBrain.Backend.Monad            as OBB
 import qualified OpenBrain.Website.Parameters       as Parameters
 import qualified OpenBrain.Website.Html.Decorator   as Decorator
 import qualified OpenBrain.Website.Html.Information as Information
@@ -22,8 +21,8 @@ import qualified OpenBrain.Website.Session          as Session
 edit :: UserId -> OBW HTML
 edit target = flip mplus (return "") $ do
   uid   <- Session.chkSession
-  admin <- liftM isAdmin $ liftOBB $ OBB.getUser uid
-  ud    <- liftOBB $ OBB.getUser target
+  admin <- liftM isAdmin $ noMaybe . liftOBB $ GetUser uid
+  ud    <- noMaybe . liftOBB $ GetUser target
   guard $ admin || (uid == target)
   let context "username" = MuVariable $ username ud
   liftIO $ tmpl "UserEdit.html" context
@@ -41,13 +40,13 @@ serve = ok . toResponse =<< msum [serveSingle, serveList]
 serveSingle :: OBW HTML
 serveSingle = do
   uid     <- liftM fromId Parameters.getDisplay
-  ud      <- liftOBB $ OBB.getUser uid
+  ud      <- noMaybe . liftOBB $ GetUser uid
   isA     <- msum [Session.chkSession >> return True, return False]
   editBox <- edit uid
   profile <- flip mplus (return "") $ do
     guard . isJust $ profile ud
     let iid = fromJust $ profile ud
-    i <- liftOBB $ OBB.getInformation iid
+    i <- noMaybe . liftOBB $ GetInformation iid
     Information.viewSingle i
   let context "Username"  = MuVariable $ username ud
       context "Karma"     = MuVariable . fromKarma $ karma ud
@@ -61,8 +60,8 @@ serveList :: OBW HTML
 serveList = do
   limit   <- Parameters.getLimit
   offset  <- Parameters.getOffset
-  count   <- liftOBB OBB.getUserCount
-  uds     <- liftOBB $ OBB.getUsers =<< OBB.getUserList limit offset
+  count   <- liftOBB GetUserCount
+  uds     <- liftOBB $ getUsers =<< (liftB $ GetUserList limit offset)
   let context "ListItems" = MuList $ map (mkStrContext . userContext) uds
       lBase = "/user.html?offset=" ++ show offset
   uList   <- liftIO $ tmpl "UserList.html" context
