@@ -17,7 +17,6 @@ import Happstack.Server as S
 import OpenBrain.Backend
 import OpenBrain.Config
 import OpenBrain.Website.Common
-import OpenBrain.Website.Monad as OBW
 
 cookieActionKey  = "actionKey"
 cookieUserId     = "userid"

@@ -3,8 +3,7 @@ module OpenBrain.Website.Html.Index (serve) where
 
 import Happstack.Server as S
 
-import OpenBrain.Website.Monad
-import OpenBrain.Website.Template
+import OpenBrain.Website.Common
 import qualified OpenBrain.Website.Html.Decorator as Decorator
 
 serve :: OBW Response

@@ -7,10 +7,7 @@ import Data.Aeson
 import Data.Maybe
 import Happstack.Server as Server
 
-import OpenBrain.Backend hiding (delete)
-import OpenBrain.Common
-import OpenBrain.Website.Common
-import OpenBrain.Website.Monad
+import OpenBrain.Website.Common hiding (delete)
 import OpenBrain.Website.Session
 import qualified OpenBrain.Backend as Backend
 import qualified OpenBrain.Website.Html.Login as Login

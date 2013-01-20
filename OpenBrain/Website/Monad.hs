@@ -6,6 +6,8 @@ module OpenBrain.Website.Monad (
   , module ControlMonadState
   , module ControlMonadTrans
   , module ControlMonadTransMaybe
+  , module Backend
+  , module Config
 ) where
 {-
   Definition of a Website Monad that will help me doing things with more ease.
@@ -18,8 +20,8 @@ import Control.Monad.Trans.Maybe     as ControlMonadTransMaybe
 import Data.Maybe
 import Happstack.Server              as Server
 
-import OpenBrain.Backend
-import OpenBrain.Config
+import OpenBrain.Backend            as Backend
+import OpenBrain.Config             as Config
 import qualified OpenBrain.Deadline as Deadline
 
 data WebsiteState = WebsiteState {

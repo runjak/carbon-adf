@@ -8,8 +8,8 @@ import System.Time (CalendarTime(..))
 import Text.Regex as T
 import qualified System.Time as Time
 
-import OpenBrain.Data hiding (getContent)
-import OpenBrain.Website.Monad
+import OpenBrain.Data          hiding (getContent)
+import OpenBrain.Website.Monad hiding (getContent)
 
 getDisplay        = lookRead "display"                                    :: OBW Id
 getLimit          = msum [lookRead "limit", return 30]                    :: OBW Limit

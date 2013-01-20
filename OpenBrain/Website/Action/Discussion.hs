@@ -6,10 +6,7 @@ module OpenBrain.Website.Action.Discussion (serve) where
 import Data.Maybe
 import Happstack.Server as Server
 
-import OpenBrain.Backend
-import OpenBrain.Common
 import OpenBrain.Website.Common
-import OpenBrain.Website.Monad
 import OpenBrain.Website.Session
 import qualified OpenBrain.Website.Parameters as Parameters
 import qualified OpenBrain.Website.Session    as Session

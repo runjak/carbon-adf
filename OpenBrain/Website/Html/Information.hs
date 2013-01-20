@@ -5,12 +5,8 @@ import Data.Maybe
 import Happstack.Server as S
 import System.Time (CalendarTime)
 
-import OpenBrain.Backend
-import OpenBrain.Common
 import OpenBrain.Website.Common
-import OpenBrain.Website.Monad
 import OpenBrain.Website.Session (chkSession)
-import OpenBrain.Website.Template
 import qualified OpenBrain.Website.Parameters      as Parameters
 import qualified OpenBrain.Website.Html.Datepicker as Datepicker
 import qualified OpenBrain.Website.Html.Decorator  as Decorator

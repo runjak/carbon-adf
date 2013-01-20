@@ -4,9 +4,7 @@ module OpenBrain.Website.Html.Decorator (Decorator, head, page) where
 import Control.Monad.State
 import Prelude hiding (head)
 
-import OpenBrain.Config
-import OpenBrain.Website.Monad
-import OpenBrain.Website.Template
+import OpenBrain.Website.Common
 import qualified OpenBrain.Config.Website as W
 import qualified OpenBrain.Website.Html.Menu as Menu
 

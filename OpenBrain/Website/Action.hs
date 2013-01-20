@@ -11,7 +11,6 @@ import Control.Monad.State
 import Happstack.Server as S
 
 import OpenBrain.Website.Common
-import OpenBrain.Website.Monad
 import OpenBrain.Website.Session
 import qualified OpenBrain.Website.Action.Discussion as Discussion
 import qualified OpenBrain.Website.Action.Edit as Edit

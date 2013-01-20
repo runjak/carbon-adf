@@ -1,5 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
-module OpenBrain.Website.Common where
+module OpenBrain.Website.Common(
+    module Common, module Monad, module Template
+  , contentNego, contentNego'
+  , handleFail, doFail, handleSuccess
+  , LinkBase
+  , pages
+)where
 {-
   Stuff to be included in various OpenBrain.Website modules.
 -}
@@ -16,10 +22,9 @@ import System.Time
 import Text.Hastache
 import Text.Hastache.Context
 
-import OpenBrain.Backend
-import OpenBrain.Common
-import OpenBrain.Website.Monad
-import OpenBrain.Website.Template
+import OpenBrain.Common           as Common
+import OpenBrain.Website.Monad    as Monad
+import OpenBrain.Website.Template as Template
 
 -- For fun with OverloadedStrings pragma
 instance IsString Response where

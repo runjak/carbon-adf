@@ -3,11 +3,7 @@ module OpenBrain.Website.Html.Relation (relations) where
 
 import Data.Maybe
 
-import OpenBrain.Backend
-import OpenBrain.Common
 import OpenBrain.Website.Common
-import OpenBrain.Website.Monad
-import OpenBrain.Website.Template
 
 relations :: Information -> OBW HTML
 relations i = do

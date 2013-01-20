@@ -8,10 +8,7 @@ import Data.Maybe
 import Happstack.Server as S
 import qualified Data.ByteString.Lazy as LZ
 
-import OpenBrain.Common
-import OpenBrain.Data.Id
-import OpenBrain.Website.Monad
-import OpenBrain.Website.Template
+import OpenBrain.Website.Common
 import qualified OpenBrain.Website.Session as Session
 
 controls :: OBW HTML

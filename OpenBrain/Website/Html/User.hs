@@ -8,11 +8,7 @@ module OpenBrain.Website.Html.User (edit, serve) where
 import Data.Maybe
 import Happstack.Server as S
 
-import OpenBrain.Backend
-import OpenBrain.Common
 import OpenBrain.Website.Common
-import OpenBrain.Website.Monad
-import OpenBrain.Website.Template
 import qualified OpenBrain.Website.Parameters       as Parameters
 import qualified OpenBrain.Website.Html.Decorator   as Decorator
 import qualified OpenBrain.Website.Html.Information as Information
