@@ -1,5 +1,5 @@
 {-# LANGUAGE GADTs #-}
-module OpenBrain.Data.Request.GeneralBackend where
+module OpenBrain.Data.Backend.GeneralBackend where
 
 import OpenBrain.Data
 

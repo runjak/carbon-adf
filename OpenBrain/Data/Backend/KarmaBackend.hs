@@ -1,5 +1,5 @@
 {-# LANGUAGE GADTs #-}
-module OpenBrain.Data.Request.KarmaBackend where
+module OpenBrain.Data.Backend.KarmaBackend where
 
 import OpenBrain.Data
 

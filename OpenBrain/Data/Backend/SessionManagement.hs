@@ -1,5 +1,5 @@
 {-# LANGUAGE GADTs #-}
-module OpenBrain.Data.Request.SessionManagement where
+module OpenBrain.Data.Backend.SessionManagement where
 
 import OpenBrain.Data
 

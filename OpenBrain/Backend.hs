@@ -8,8 +8,8 @@ module OpenBrain.Backend(
   This module provides the Backend class that will be used to generate the website.
   The Backend will provide things like Userdata :P
 -}
-import OpenBrain.Config               as Config
-import OpenBrain.Data.Request.Backend as BReq
+import OpenBrain.Config       as Config
+import OpenBrain.Data.Backend as BReq
 
 class Backend b where
   process            :: b -> BackendReq     r -> IO r

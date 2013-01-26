@@ -1,5 +1,5 @@
 {-# LANGUAGE GADTs #-}
-module OpenBrain.Data.Request.SaltShaker where
+module OpenBrain.Data.Backend.SaltShaker where
 
 import OpenBrain.Data
 

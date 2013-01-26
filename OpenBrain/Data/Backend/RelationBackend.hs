@@ -1,5 +1,5 @@
 {-# LANGUAGE GADTs #-}
-module OpenBrain.Data.Request.RelationBackend where
+module OpenBrain.Data.Backend.RelationBackend where
 
 import OpenBrain.Data
 

@@ -1,5 +1,5 @@
 {-# LANGUAGE GADTs #-}
-module OpenBrain.Data.Request.Backend(
+module OpenBrain.Data.Backend(
     BackendReq(..)
   , LiftBackend(..)
   , delete, delete'
@@ -18,13 +18,13 @@ import Control.Monad
 import Data.Maybe
 
 import OpenBrain.Data                            as Data
-import OpenBrain.Data.Request.GeneralBackend     as GBackend
-import OpenBrain.Data.Request.InformationBackend as IBackend
-import OpenBrain.Data.Request.KarmaBackend       as KBackend
-import OpenBrain.Data.Request.RelationBackend    as RBackend
-import OpenBrain.Data.Request.SaltShaker         as SShaker
-import OpenBrain.Data.Request.SessionManagement  as SManagement
-import OpenBrain.Data.Request.UserBackend        as UBackend
+import OpenBrain.Data.Backend.GeneralBackend     as GBackend
+import OpenBrain.Data.Backend.InformationBackend as IBackend
+import OpenBrain.Data.Backend.KarmaBackend       as KBackend
+import OpenBrain.Data.Backend.RelationBackend    as RBackend
+import OpenBrain.Data.Backend.SaltShaker         as SShaker
+import OpenBrain.Data.Backend.SessionManagement  as SManagement
+import OpenBrain.Data.Backend.UserBackend        as UBackend
 
 data BackendReq r where
   GeneralBackend     :: GBackendReq    r -> BackendReq r
