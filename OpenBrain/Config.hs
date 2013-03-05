@@ -14,7 +14,6 @@ import Control.Monad (liftM)
 import Data.Maybe (listToMaybe)
 
 import OpenBrain.Config.Karma
-import OpenBrain.Config.Website
 
 type Seconds = Int
 data Config = Config {
@@ -26,7 +25,6 @@ data Config = Config {
   , tlsKey          :: FilePath
   , tlsCert         :: FilePath
   , karmaConfig     :: KarmaConfig
-  , websiteConfig   :: WebsiteConfig
 } deriving (Eq, Read, Show)
 
 nullConfig = Config {
@@ -38,7 +36,6 @@ nullConfig = Config {
   , tlsKey          = ""
   , tlsCert         = ""
   , karmaConfig     = nullKarmaConfig
-  , websiteConfig   = nullWebsiteConfig
 }
 
 readConfig :: FilePath -> IO (Maybe Config)
@@ -52,8 +49,3 @@ data BackendType = MissingBackend
                    pgOptions :: String -- As described in http://www.postgresql.org/docs/8.1/static/libpq.html#LIBPQ-CONNECT
                  }
                  deriving (Eq, Read, Show)
-
-{-
-MysqlBackend {mysqlHost = "127.0.0.1", mysqlUser = "root", mysqlPassword = "1234", mysqlDatabase = "OpenBrain", mysqlPort = 3306, mysqlSchemaUpdate = Nothing}
--}
-
