@@ -1,0 +1,100 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>OpenBrain v.0.3 remake</title>
+    <meta charset="utf-8">
+    <link href="css/humanity/jquery-ui-1.10.1.custom.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <script src="js/jquery-1.9.1.js"></script>
+    <script src="js/jquery-ui-1.10.1.custom.js"></script>
+    <script src="js/log.js"></script>
+    <script>
+      $(function(){
+        $("#main").tabs();
+        $('body').tooltip();
+        $('.paging').buttonset();
+      });
+    </script>
+  </head>
+  <body>
+    <div id="main">
+      <ul id="topmenu">
+        <li><a href="#view">View</a></li>
+        <li><a href="#create" title="Create new Information">Create</a></li>
+        <li><a href="#login">Login</a></li>
+        <li><a href="#profile">Profile</a></li>
+        <li><a href="#admin">Admin</a></li>
+        <li><a href="#about">About</a></li>
+      </ul>
+      <div id="view">
+      </div>
+      <div id="create">
+        <input id="CreateTitle" type="text" placeholder="Title" title="Title for the new Information">
+        <textarea id="CreateDescription" placeholder="Description" title="Description of the new Information"></textarea>
+        <textarea id="CreateContent" placeholder="The content in markdown synta."></textarea>
+        <div id="CreatePreview" class="ui-widget-content ui-corner-all" title="Content preview">Nothing to preview.</div>
+        <button id="CreateNew" title="Create the new Information.">
+          <span class="ui-icon ui-icon-disk"></span>
+        </button>
+        <button id="CreateHelp" title="Get help with writing the content in markdown.">
+          <span class="ui-icon ui-icon-help"></span>
+        </button>
+      </div>
+      <div id="login">
+        <label for="Username">Username:</label>
+        <input id="Username" type="text">
+        <label for="Password">Password:</label>
+        <input id="Password" type="password">
+        <button id="LoginButton" title="Login"><span class="ui-icon ui-icon-locked"></span></button>
+        <button id="RegisterButton" title="Register"><span class="ui-icon ui-icon-key"></span></button>
+      </div>
+      <div id="profile">
+        <h3>Update Password:</h3>
+        <label for="NewPassword">New Password:</label>
+        <input id="NewPassword" type="password">
+        <label for="ConfirmPassword">Confirm Password:</label>
+        <input id="ConfirmPassword" type="password">
+        <button id="UpdatePasswordButton" title="Update Password"><span class="ui-icon ui-icon-disk"></span></button>
+        <button id="DeleteUserButton" title="Delete User"><span class="ui-icon ui-icon-trash"></span></button>
+        <h3>Statistics:</h3>
+        <dl id="ProfileStatistics">
+          <dt>Karma:</dt><dd>0</dd>
+          <dt>Creation:</dt><dd>23.5.1337</dd>
+          <dt>Last login:</dt><dd>Today :P</dd>
+        </dl>
+      </div>
+      <div id="admin">
+        <table id="AdminUserTable">
+          <tr><th>Id</th><th>Username</th><th>Password</th><th>Karma</th><th>Action</th></tr>
+          <tr class="AdminUserEntry">
+            <td>1</td>
+            <td><input class="AdminUserEntryName" value="Test"></td>
+            <td><input class="AdminUserEntryPassword" placeholder="Set new Password"></td>
+            <td><input class="AdminUserEntryKarma" value="0"></td>
+            <td>
+              <button class="AdminUserEntryUpdate" title="Update Data"><span class="ui-icon ui-icon-disk"></span></button>
+              <button class="AdminUserEntryDelete" title="Delete User"><span class="ui-icon ui-icon-trash"></span></button>
+            </td>
+          </tr>
+        </table>
+        <div class="paging">
+          <input type="radio" name="radio" id="AdminPagingPrev" class="PagingPrev">
+          <label for="AdminPagingPrev" title="Switch to the previous page.">
+            <span class="ui-icon ui-icon-triangle-1-w"></span></label>
+          <input type="radio" name="radio" id="AdminPagingCurr" class="PagingCurr">
+          <label for="AdminPagingCurr" title="Refresh the current page.">1</label>
+          <input type="radio" name="radio" id="AdminPagingNext" class="PagingNext">
+          <label for="AdminPagingNext" title="Switch to the next page.">
+            <span class="ui-icon ui-icon-triangle-1-e"></span></label>
+        </div>
+      </div>
+      <div id="about">
+        Welcome to the OpenBrain about page.<br>
+        This application has been under development for some time now,
+        and I'd like it to finish asap.<br>
+        My Version count is at V.0.3.
+      </div>
+    </div>
+    <div id="log"></div>
+  </body>
+</html>
