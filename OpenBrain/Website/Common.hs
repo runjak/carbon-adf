@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module OpenBrain.Website.Common(
-    module Common, module Monad, module Template
+    module Common, module Monad
   , contentNego, contentNego'
   , handleFail, doFail, handleSuccess
   , LinkBase
@@ -19,12 +19,9 @@ import Data.Maybe
 import Data.String (IsString(..))
 import Happstack.Server as S
 import System.Time
-import Text.Hastache
-import Text.Hastache.Context
 
 import OpenBrain.Common           as Common
 import OpenBrain.Website.Monad    as Monad
-import OpenBrain.Website.Template as Template
 
 -- For fun with OverloadedStrings pragma
 instance IsString Response where
@@ -71,28 +68,7 @@ handleSuccess = ok . toResponse
   but Limit + Offset may be bigger than Count.
 -}
 type LinkBase = String -- Will get ++"&limit=l"
-pages :: Limit -> Offset -> Count -> LinkBase -> OBW HTML
-pages l o c lBase = go $ pages' l o c
-  where
-    go :: [(String, Limit)] -> OBW HTML
-    go ps = do
-      let context "HasPages" = MuBool . not $ null ps
-          context "Pages"    = MuList $ map pageContext ps
-      liftIO $ tmpl "Pages.html" context
-
-    pageContext (n, l) "PageLink" = MuVariable $ lBase ++ "&limit=" ++ show l
-    pageContext (n, l) "PageTitle" = MuVariable n
-    
-    pages' :: Limit -> Offset -> Count -> [(String, Limit)]
-    pages' 0 _ _ = []
-    pages' _ _ 0 = []
-    pages' _ 0 _ = []
-    pages' limit offset count = do
-      let page       = offset `div` limit
-          cutoff     = take 5 . drop 1
-          mkPositive = map (max 0) . (\(as,bs) -> as ++ [head bs]) . break (<=0)
-          prevs      = cutoff . mkPositive $ iterate (subtract limit) offset
-          nexts      = cutoff . takeWhile (< count) $ iterate (+ limit) offset
-      zip (map show . drop 1 $ iterate (subtract 1) page) prevs
-        ++ [("Current",page)]
-        ++ zip (map show [(page + 1)..]) nexts
+pages :: Limit -> Count -> [Offset]
+pages l c
+  | c <= l    = [0]
+  | otherwise = map (*l) [0..(c `div` l)]

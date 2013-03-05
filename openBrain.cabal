@@ -14,7 +14,6 @@ Build-Depends:  aeson
               , containers
               , convertible
               , happstack-server
-              , hastache
               , HDBC, HDBC-postgresql
               , mtl
               , old-time

@@ -10,7 +10,6 @@ import Happstack.Server as Server
 import OpenBrain.Website.Common hiding (delete)
 import OpenBrain.Website.Session
 import qualified OpenBrain.Backend as Backend
-import qualified OpenBrain.Website.Html.Login as Login
 
 serve :: OBW Response
 serve = msum [
@@ -34,7 +33,7 @@ create = handleFail "Could not register user." $ do
   hash      <- liftM (hash salt) $ look "password"
   userData  <- noMaybe . liftOBB $ Register username hash salt
   mkSession $ userid userData
-  ok . toResponse =<< Login.logoutBox (userid userData)
+  undefined
 
 {-
   Expects parameters: username, password
@@ -52,12 +51,12 @@ login = handleFail "Login failed." $ do
         liftB . Login username $ hash salt password
         return $ Just uid
   mkSession uid
-  ok . toResponse =<< Login.logoutBox uid
+  undefined
 
 logout :: OBW Response
 logout = do
   dropSession
-  ok . toResponse =<< Login.loginBox
+  undefined
 
 {- Expects parameters: username -}
 delete :: OBW Response

@@ -15,8 +15,6 @@ import OpenBrain.Website.Monad
 import qualified OpenBrain.Deadline                 as Deadline
 import qualified OpenBrain.Website.Action           as Action (serve)
 import qualified OpenBrain.Website.Files            as Files (serve)
-import qualified OpenBrain.Website.Html.Edit        as Edit (serve)
-import qualified OpenBrain.Website.Html.Index       as Index (serve)
 import qualified OpenBrain.Website.Html.Information as Information (serve)
 import qualified OpenBrain.Website.Html.User        as User(serve)
 
@@ -29,12 +27,11 @@ serve backend config = do
 serve' :: OBW Response
 serve' = msum [
       dir "action" Action.serve
-    , dir "edit" Edit.serve
     , dir "files" Files.serve
     , dir "information.html" Information.serve
     , contentNego' "information"
     , dir "user.html" User.serve
     , contentNego' "user"
-    , Index.serve
+    , undefined
     ]
 
