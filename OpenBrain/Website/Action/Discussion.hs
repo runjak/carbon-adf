@@ -27,7 +27,7 @@ create = Session.chkSession' $ \uid -> do
   dt  <- Parameters.getDiscussionType
   iid <- liftOBB $ CreateDiscussion ci is dl dt
   liftOBB $ AddParticipant iid uid
-  handleSuccess $ "Created discussion: " ++ show iid
+  jsonSuccess $ "Created discussion: " ++ show iid
 
 update :: OBW Response
 update = Session.chkSession' $ \uid -> do
@@ -35,7 +35,7 @@ update = Session.chkSession' $ \uid -> do
   is  <- Parameters.getItems
   ensureDiscussion iid $ do
     iid' <- liftOBB $ UpdateCollection iid is
-    handleSuccess $ "Updated discussion: " ++ show iid'
+    jsonSuccess $ "Updated discussion: " ++ show iid'
 
 setParticipant :: OBW Response
 setParticipant = Session.chkSession' $ \uid -> do
@@ -43,13 +43,13 @@ setParticipant = Session.chkSession' $ \uid -> do
   status <- Parameters.getStatus
   ensureDiscussion iid $ do
     liftOBB $ SetParticipant iid uid status
-    handleSuccess "Participant status updated."
+    jsonSuccess "Participant status updated."
 
 vote :: OBW Response
 vote = Session.chkSession' $ \uid -> do
   iid <- Parameters.getInformationId
   liftOBB $ Vote iid uid
-  handleSuccess $ show uid ++ " voted on " ++ show iid
+  jsonSuccess $ show uid ++ " voted on " ++ show iid
 
 -- Helper functions:
 ensureDiscussion :: InformationId -> OBW Response -> OBW Response

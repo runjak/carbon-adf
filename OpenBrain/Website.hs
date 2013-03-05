@@ -15,8 +15,8 @@ import OpenBrain.Website.Monad
 import qualified OpenBrain.Deadline                 as Deadline
 import qualified OpenBrain.Website.Action           as Action (serve)
 import qualified OpenBrain.Website.Files            as Files (serve)
-import qualified OpenBrain.Website.Html.Information as Information (serve)
-import qualified OpenBrain.Website.Html.User        as User(serve)
+import qualified OpenBrain.Website.Json.Information as Information (serve)
+import qualified OpenBrain.Website.Json.User        as User(serve)
 
 serve :: CBackend -> Config -> IO ()
 serve backend config = do

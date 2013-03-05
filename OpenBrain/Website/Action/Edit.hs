@@ -32,7 +32,7 @@ create = Session.chkSession' $ \uid -> do
     , ciDescription = desc
     }
   iid <- liftOBB $ AddContentMedia ci content
-  handleSuccess $ "Created Information: " ++ show iid
+  jsonSuccess $ "Created Information: " ++ show iid
 
 {-
   Parameters:
@@ -55,7 +55,7 @@ update = do
           handleFail "Could not update " $ do
             iid' <- liftOBB $ UpdateContentMedia uid iid title desc content
             unless split $ liftOBB $ DeleteInformation iid
-            handleSuccess $ "Updated Information: " ++ show iid'
+            jsonSuccess $ "Updated Information: " ++ show iid'
 
 setProfile :: OBW Response
 setProfile = do
@@ -63,5 +63,5 @@ setProfile = do
   Session.chkSession' $ \uid ->
     handleFail "Error during OpenBrain.Website.Action.Edit:setProfile" $ do
       liftOBB $ SetProfile uid $ Just iid
-      handleSuccess $ "Changed Profilepage: " ++ show iid
+      jsonSuccess $ "Changed Profilepage: " ++ show iid
 

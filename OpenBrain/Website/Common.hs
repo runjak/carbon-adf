@@ -2,11 +2,10 @@
 module OpenBrain.Website.Common(
     module Common, module Monad
   , contentNego, contentNego'
-  , handleFail, doFail, handleSuccess
+  , handleFail, jsonSuccess, jsonFail, jsonResponse
   , LinkBase
   , pages
   , responseHTML
-  , responseJSON
 )where
 {-
   Stuff to be included in various OpenBrain.Website modules.
@@ -22,8 +21,9 @@ import Data.String (IsString(..))
 import Happstack.Server as S
 import System.Time
 
-import OpenBrain.Common           as Common
-import OpenBrain.Website.Monad    as Monad
+import OpenBrain.Common        as Common
+import OpenBrain.Data.Json     as Json
+import OpenBrain.Website.Monad as Monad
 
 -- For fun with OverloadedStrings pragma
 instance IsString Response where
@@ -53,13 +53,11 @@ contentNego' :: String -> OBW Response
 contentNego' base = dir base $ contentNego base
 
 handleFail :: String -> OBW Response -> OBW Response
-handleFail msg handle = msum [handle, doFail msg]
+handleFail msg handle = msum [handle, jsonFail msg]
 
-doFail :: String -> OBW Response
-doFail = ok . toResponse . ("FAIL: " ++)
-
-handleSuccess :: String -> OBW Response
-handleSuccess = ok . toResponse
+jsonSuccess, jsonFail :: String -> OBW Response
+jsonSuccess = ok . jsonResponse . ActionStatus True
+jsonFail = ok . jsonResponse . ActionStatus False
 
 {-
   Calculates pages as names and offsets for a given combination
@@ -75,6 +73,5 @@ pages l c
   | c <= l    = [0]
   | otherwise = map (*l) [0..(c `div` l)]
 
-responseHTML, responseJSON :: Response -> Response
+responseHTML :: Response -> Response
 responseHTML = setHeader "Content-Type" "text/html"
-responseJSON = setHeader "Content-Type" "application/json"

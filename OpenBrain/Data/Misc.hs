@@ -48,3 +48,9 @@ type AllowDeleted = Bool
 type Comment      = String
 
 type ActionKey = String
+
+-- | Answer when calling an Action on the website
+data ActionStatus = ActionStatus {
+    actionSuccess :: Bool
+  , actionMessage :: String
+  } deriving (Show, Read, Eq)

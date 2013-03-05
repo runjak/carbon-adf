@@ -33,30 +33,25 @@ create = handleFail "Could not register user." $ do
   hash      <- liftM (hash salt) $ look "password"
   userData  <- noMaybe . liftOBB $ Register username hash salt
   mkSession $ userid userData
-  undefined
+  return $ jsonResponse userData
 
 {-
   Expects parameters: username, password
 -}
 login :: OBW Response
 login = handleFail "Login failed." $ do
-  username  <- look "username"
-  password  <- look "password"
-  uid       <- noMaybe . liftOBB $ do
-    muid <- liftB $ HasUserWithName username
-    case muid of
-      Nothing -> return Nothing
-      (Just uid) -> do
-        salt <- liftB $ GetSalt uid
-        liftB . Login username $ hash salt password
-        return $ Just uid
-  mkSession uid
-  undefined
+  username <- look "username"
+  password <- look "password"
+  handleFail "Incorrect Login/Password." $ do
+    muid <- liftOBB $ HasUserWithName username
+    guard $ isJust muid
+    salt <- liftOBB . GetSalt $ fromJust muid
+    mud  <- liftOBB . Login username $ hash salt password
+    guard $ isJust mud
+    return . jsonResponse $ fromJust mud
 
 logout :: OBW Response
-logout = do
-  dropSession
-  undefined
+logout = dropSession >> jsonSuccess "Logged out."
 
 {- Expects parameters: username -}
 delete :: OBW Response
@@ -72,7 +67,7 @@ delete = handleFail "Invalid session." $ do
       guard $ isA || isSelf
       liftOBB $ delete' deleteId
       when isSelf dropSession
-      handleSuccess "Deleted requested user."
+      jsonSuccess "Deleted requested user."
 
 {-
   Expects parameters: userid, karma :: Int
@@ -95,7 +90,7 @@ changeKarma = handleFail "Invalid session." $ do
       liftOBB $ UpdateKarma target change
       -- Delete from clients karma:
       liftOBB $ UpdateKarma uid burn
-      handleSuccess "Updated karma."
+      jsonSuccess "Updated karma."
   where
     karmaUpdate :: Int -> Karma -> Karma
     karmaUpdate x y
@@ -115,7 +110,7 @@ changePwd = handleFail "Invalid session." $ do
     target  <- noMaybe . liftOBB $ HasUserWithName username
     salt    <- liftOBB $ GetSalt target
     liftOBB . UpdatePasswd target $ hash salt password
-    handleSuccess "Password changed."
+    jsonSuccess "Password changed."
 
 {- Expects parameters: username, admin :: {1,0} -}
 admin :: OBW Response
@@ -129,5 +124,5 @@ admin = handleFail "Invalid session." $ do
     handleFail "Username doesn't exist." $ do
       target <- noMaybe . liftOBB $ HasUserWithName username
       liftOBB $ SetAdmin target setA
-      handleSuccess "Changed admin status."
+      jsonSuccess "Changed admin status."
 

@@ -37,7 +37,7 @@ addRelation = do
           guard $ t `elem` [Attack, Defense]
           handleFail "Problem in OpenBrain.Website.Action:addRelation" $ do
             rid <- liftOBB $ AddRelation rSource rTarget t comment
-            handleSuccess $ "Added Relation: " ++ show rid
+            jsonSuccess $ "Added Relation: " ++ show rid
 
 {-
   Only allowed to delete Attack and Defense Relations.
@@ -50,7 +50,7 @@ deleteRelation = do
     Session.chkSession' $ \uid ->
       handleFail "Problem in OpenBrain.Website.Action.Relation:deleteRelation" $ do
         liftOBB $ DeleteRelation rid
-        handleSuccess $ "Deleted relation:\t" ++ show rid
+        jsonSuccess $ "Deleted relation:\t" ++ show rid
 
 {-
   Takes RelationId and Comment as parameters.
@@ -62,7 +62,7 @@ updateComment = do
   Session.chkSession' $ \uid ->
     handleFail "Problem in OpenBrain.Website.Action.Relation:updateComment" $ do
       liftOBB $ UpdateComment rid comment
-      handleSuccess $ "Updated comment on relation:\t" ++ show rid
+      jsonSuccess $ "Updated comment on relation:\t" ++ show rid
 
 {-
   Helper functions for above actions.
