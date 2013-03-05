@@ -32,6 +32,6 @@ serve' = msum [
     , contentNego' "information"
     , dir "user.html" User.serve
     , contentNego' "user"
-    , undefined
+    , liftM responseHTML $ S.serveFile return "files/index.html"
     ]
 

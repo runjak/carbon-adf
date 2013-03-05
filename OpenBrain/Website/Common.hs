@@ -5,6 +5,8 @@ module OpenBrain.Website.Common(
   , handleFail, doFail, handleSuccess
   , LinkBase
   , pages
+  , responseHTML
+  , responseJSON
 )where
 {-
   Stuff to be included in various OpenBrain.Website modules.
@@ -72,3 +74,7 @@ pages :: Limit -> Count -> [Offset]
 pages l c
   | c <= l    = [0]
   | otherwise = map (*l) [0..(c `div` l)]
+
+responseHTML, responseJSON :: Response -> Response
+responseHTML = setHeader "Content-Type" "text/html"
+responseJSON = setHeader "Content-Type" "application/json"
