@@ -32,7 +32,8 @@ create = Session.chkSession' $ \uid -> do
     , ciDescription = desc
     }
   iid <- liftOBB $ AddContentMedia ci content
-  jsonSuccess $ "Created Information: " ++ show iid
+  i <- liftM fromJust . liftOBB $ GetInformation iid
+  jsonSuccess' "Information created." i
 
 {-
   Parameters:
@@ -52,10 +53,11 @@ update = do
         when iDeleted . guard $ split -- iDeleted is only on allowed on split.
         handleFail "Information is not simple Content." $ do
           guard $ isContent $ media i
-          handleFail "Could not update " $ do
+          handleFail "Could not update information." $ do
             iid' <- liftOBB $ UpdateContentMedia uid iid title desc content
             unless split $ liftOBB $ DeleteInformation iid
-            jsonSuccess $ "Updated Information: " ++ show iid'
+            i <- liftM fromJust . liftOBB $ GetInformation iid'
+            jsonSuccess' "Information updated." i
 
 setProfile :: OBW Response
 setProfile = do

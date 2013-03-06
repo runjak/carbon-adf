@@ -2,7 +2,7 @@
 module OpenBrain.Website.Common(
     module Common, module Monad
   , contentNego, contentNego'
-  , handleFail, jsonSuccess, jsonFail, jsonResponse
+  , handleFail, jsonSuccess, jsonSuccess', jsonFail, jsonResponse
   , LinkBase
   , pages
   , responseHTML
@@ -13,6 +13,7 @@ module OpenBrain.Website.Common(
 
 import Control.Monad
 import Control.Monad.Trans
+import Data.Aeson (ToJSON)
 import Data.ByteString (ByteString, isInfixOf)
 import qualified Data.ByteString as B
 import Data.List (intercalate, isSuffixOf)
@@ -52,12 +53,17 @@ contentNego base = do
 contentNego' :: String -> OBW Response
 contentNego' base = dir base $ contentNego base
 
+jsonSuccess :: String -> OBW Response
+jsonSuccess = ok . jsonResponse . ActionStatus True
+
+jsonSuccess' :: (ToJSON j) => String -> j -> OBW Response
+jsonSuccess' msg = ok . jsonResponse . merge (ActionStatus True msg)
+
+jsonFail :: String -> OBW Response
+jsonFail = ok . jsonResponse . ActionStatus False
+
 handleFail :: String -> OBW Response -> OBW Response
 handleFail msg handle = msum [handle, jsonFail msg]
-
-jsonSuccess, jsonFail :: String -> OBW Response
-jsonSuccess = ok . jsonResponse . ActionStatus True
-jsonFail = ok . jsonResponse . ActionStatus False
 
 {-
   Calculates pages as names and offsets for a given combination

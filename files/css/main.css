@@ -7,3 +7,4 @@
   padding: .5em;
   width: 100%;
 }
+#TopmenuCreate, #TopmenuProfile, #TopmenuAdmin{display: none;}

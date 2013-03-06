@@ -33,7 +33,7 @@ create = handleFail "Could not register user." $ do
   hash      <- liftM (hash salt) $ look "password"
   userData  <- noMaybe . liftOBB $ Register username hash salt
   mkSession $ userid userData
-  return $ jsonResponse userData
+  jsonSuccess' "Successfully registered." userData
 
 {-
   Expects parameters: username, password
@@ -48,7 +48,7 @@ login = handleFail "Login failed." $ do
     salt <- liftOBB . GetSalt $ fromJust muid
     mud  <- liftOBB . Login username $ hash salt password
     guard $ isJust mud
-    return . jsonResponse $ fromJust mud
+    jsonSuccess' "Login successfull." $ fromJust mud
 
 logout :: OBW Response
 logout = dropSession >> jsonSuccess "Logged out."
@@ -56,8 +56,8 @@ logout = dropSession >> jsonSuccess "Logged out."
 {- Expects parameters: username -}
 delete :: OBW Response
 delete = handleFail "Invalid session." $ do
-  deletename  <- look "username"
-  uid         <- chkSession
+  deletename <- look "username"
+  uid        <- chkSession
   handleFail "Data for deletion not found." $ do
     userData <- noMaybe . liftOBB $ GetUser uid
     deleteId <- noMaybe . liftOBB $ HasUserWithName deletename

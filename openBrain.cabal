@@ -26,6 +26,7 @@ Build-Depends:  aeson
               , template-haskell
               , text
               , transformers
+              , unordered-containers
               , utf8-string
 Executable:     openBrain
 Main-is:        OpenBrain/Main.hs
