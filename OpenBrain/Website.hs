@@ -26,12 +26,10 @@ serve backend config = do
 
 serve' :: OBW Response
 serve' = msum [
-      dir "action" Action.serve
-    , dir "files" Files.serve
-    , dir "information.html" Information.serve
-    , contentNego' "information"
-    , dir "user.html" User.serve
-    , contentNego' "user"
+      dir "action"      Action.serve
+    , dir "files"       Files.serve
+    , dir "information" Information.serve
+    , dir "user"        User.serve
     , liftM responseHTML $ S.serveFile return "files/index.html"
     ]
 

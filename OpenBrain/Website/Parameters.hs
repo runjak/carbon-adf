@@ -11,7 +11,6 @@ import qualified System.Time as Time
 import OpenBrain.Data          hiding (getContent)
 import OpenBrain.Website.Monad hiding (getContent)
 
-getDisplay        = lookRead "display"                                    :: OBW Id
 getLimit          = msum [lookRead "limit", return 30]                    :: OBW Limit
 getOffset         = msum [lookRead "offset", return 0]                    :: OBW Offset
 getAfter          = fetchCalendarTime
@@ -30,6 +29,9 @@ getTDC            = liftM3 (,,) getTitle getDescription getContent        :: OBW
 getSplit          = msum [liftM (=="True") $ look "split", return False]  :: OBW Bool
 getStatus         = msum [liftM (=="True") $ look "status", return False] :: OBW Bool -- | For setParticipant
 getDiscussionType = lookRead "discussiontype"                             :: OBW DiscussionType
+
+withId :: (Id -> OBW Response) -> OBW Response
+withId = path
 
 fetchCalendarTime :: OBW CalendarTime
 fetchCalendarTime = do
