@@ -72,12 +72,12 @@ hasUserWithName' username conn = do
 register' :: (IConnection conn) => UserName -> Hash -> Salt -> conn -> IO (Maybe UserData)
 register' username hash salt conn = do
   duplicate <- liftM isJust $ hasUserWithName' username conn
-  guard $ not duplicate
-  liftIO $ do
-    insert <- prepare conn "INSERT INTO \"UserData\" (username, password, salt) VALUES (?, ?, ?)"
-    execute insert [toSql username, toSql hash, toSql salt]
-    return ()
-  login' username hash conn
+  case not duplicate of
+    False -> return Nothing
+    True -> do
+      insert <- prepare conn "INSERT INTO \"UserData\" (username, password, salt) VALUES (?, ?, ?)"
+      execute insert [toSql username, toSql hash, toSql salt]
+      login' username hash conn
 
 delete' :: (IConnection conn) => UserId -> Heir -> conn -> IO Bool
 delete' uid heir conn = do

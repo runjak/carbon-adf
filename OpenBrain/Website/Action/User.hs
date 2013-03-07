@@ -26,20 +26,22 @@ serve = msum [
   Expects parameters: username, password
 -}
 create :: OBW Response
-create = handleFail "Could not register user." $ do
-  username  <- look "username"
-  guard $ username /= "Nobody"
-  salt      <- liftIO mkSalt
-  hash      <- liftM (hash salt) $ look "password"
-  userData  <- noMaybe . liftOBB $ Register username hash salt
-  mkSession $ userid userData
-  jsonSuccess' "Successfully registered." userData
+create = handleFail "Missing parameter[s], need: [username, password]" $ do
+  username <- look "username"
+  password <- look "password"
+  handleFail "Could not register." $ do
+    guard $ username /= "Nobody"
+    salt <- liftIO mkSalt
+    let h = hash salt password
+    userData <- noMaybe . liftOBB $ Register username h salt
+    mkSession $ userid userData
+    jsonSuccess' "Successfully registered." userData
 
 {-
   Expects parameters: username, password
 -}
 login :: OBW Response
-login = handleFail "Login failed." $ do
+login = handleFail "Missing parameter[s], need: [username, password]" $ do
   username <- look "username"
   password <- look "password"
   handleFail "Incorrect Login/Password." $ do

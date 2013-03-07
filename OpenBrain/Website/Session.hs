@@ -18,8 +18,8 @@ import OpenBrain.Backend
 import OpenBrain.Config
 import OpenBrain.Website.Common
 
-cookieActionKey  = "actionKey"
-cookieUserId     = "userid"
+cookieActionKey = "actionKey"
+cookieUserId    = "userid"
 
 {-|
   Initializes a session for a given UserId
@@ -35,8 +35,8 @@ mkSession uid = do
 |-}
 chkSession :: OBW UserId
 chkSession = do
-  key   <-  lookCookieValue cookieActionKey
-  uid   <-  liftM read $ lookCookieValue cookieUserId
+  key <-  lookCookieValue cookieActionKey
+  uid <-  liftM read $ lookCookieValue cookieUserId
   guard =<< liftOBB (Validate uid key)
   return uid
 
