@@ -1,9 +1,6 @@
-var LoginView = Backbone.View.extend({
-  defaults: {
-    logger: null
-  }
-, initialize: function(){
-  }
+var LoginView = TopMenuChild.extend({
+  initialize: function(){}
+, render: function(){}
 , events: {
     "click #LoginButton":    "login"
   , "click #RegisterButton": "register"
@@ -38,5 +35,7 @@ var LoginView = Backbone.View.extend({
 , gotUserData: function(data){
     this.options.logger.log('gotUserData!');
     console.log(data);
+    this.options.topMenu.displayTabs([this], false);
   }
+, getTabId: function(){ return "#TopmenuLogin"; }
 });

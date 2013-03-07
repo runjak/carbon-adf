@@ -7,7 +7,10 @@ router.on('route:defaultRoute', function(actions){
 Backbone.history.start();
 
 var logger = new Logger({el: $('#log')});
-console.log(logger);
-var loginView = new LoginView({el: $('#login'), 'logger': logger});
-console.log(loginView);
+var loginView = new LoginView({el: $('#login')});
+var topMenuView = new TopMenuView({
+    el: $('#topmenu')
+  , 'logger': logger
+  , children: [loginView]
+  });
 });
