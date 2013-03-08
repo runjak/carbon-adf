@@ -7,3 +7,9 @@
   padding: .5em;
   width: 100%;
 }
+#LogoutButton {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  display: none;
+}

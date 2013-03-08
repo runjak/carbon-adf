@@ -1,10 +1,14 @@
 var LoginView = TopMenuChild.extend({
-  initialize: function(){}
+  initialize: function(){
+    var t = this;
+    $('#LogoutButton').click(function(){ t.logout(); });
+  }
 , render: function(){}
 , events: {
     "click #LoginButton":    "login"
   , "click #RegisterButton": "register"
   , "keypress #Password":    "login_"
+//, "click #LogoutButton":   "logout"
   }
 , getInputs: function(){
     return {
@@ -32,7 +36,20 @@ var LoginView = TopMenuChild.extend({
         t.gotUserData(data);
     });
   }
+, logout: function(){
+    var t = this;
+    $.post("/action/user/logout", function(data){
+      t.logger.logAction(data);
+      t.loggedOut();
+    });
+  }
+, loggedOut: function(){
+    $('#LogoutButton').hide();
+    this.pView.setUserData(null);
+    this.topMenu.showTabs([this]).hideTabs([this.pView]).selectTab(this);
+  }
 , gotUserData: function(data){
+    $('#LogoutButton').show();
     this.pView.setUserData(data);
     this.topMenu.hideTabs([this]).showTabs([this.pView]).selectTab(this.pView);
   }

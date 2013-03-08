@@ -18,6 +18,7 @@ var ProfileView = TopMenuChild.extend({
   }
 , render: function(){
     $('#ProfileStatistics').html('');
+    if(!this.userData) return;
     var displayFields = [{field: 'username', title: 'Username:'}
                         ,{field: 'userCreation', title: 'Created:'}
                         ,{field: 'lastLogin', title: 'Last login:'}
@@ -56,6 +57,7 @@ var ProfileView = TopMenuChild.extend({
     $.post("/action/user/delete", {username: t.userData.username}, function(data){
       t.dialogEl.dialog('close');
       t.logger.logAction(data);
+      t.lView.loggedOut();
     });
   }
 , setUserData: function(userData){
