@@ -15,7 +15,7 @@ var LoginView = TopMenuChild.extend({
 , login: function(){
     var t = this;
     $.post('/action/user/login', this.getInputs(), function(data){
-      t.options.logger.logAction(data);
+      t.logger.logAction(data);
       if(data.actionSuccess)
         t.gotUserData(data);
     });
@@ -27,15 +27,16 @@ var LoginView = TopMenuChild.extend({
 , register: function(){
     var t = this;
     $.post('/action/user/create', this.getInputs(), function(data){
-      t.options.logger.logAction(data);
+      t.logger.logAction(data);
       if(data.actionSuccess)
         t.gotUserData(data);
     });
   }
 , gotUserData: function(data){
-    this.options.logger.log('gotUserData!');
-    console.log(data);
-    this.options.topMenu.displayTabs([this], false);
+    this.logger.log('gotUserData!');
+    this.topMenu.displayTabs([this], false);
+    this.topMenu.displayTabs([this.pView], true);
   }
 , getTabId: function(){ return "#TopmenuLogin"; }
+, setProfileView: function(pView){ this.pView = pView; }
 });

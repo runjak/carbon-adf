@@ -13,10 +13,10 @@
     <script src="files/js/views/Logger.js"></script>
     <script src="files/js/views/TopMenuView.js"></script>
     <script src="files/js/views/LoginView.js"></script>
+    <script src="files/js/views/ProfileView.js"></script>
     <script src="files/js/main.js"></script>
     <script>
       $(function(){
-        $("#main").tabs();
         $('body').tooltip();
         $('.paging').buttonset();
       });
@@ -25,12 +25,19 @@
   <body>
     <div id="main">
       <ul id="topmenu">
-        <li id="TopmenuView"><a href="#view">View</a></li>
-        <li id="TopmenuCreate"><a href="#create" title="Create new Information">Create</a></li>
-        <li id="TopmenuLogin"><a href="#login">Login</a></li>
-        <li id="TopmenuProfile"><a href="#profile">Profile</a></li>
-        <li id="TopmenuAdmin"><a href="#admin">Admin</a></li>
-        <li id="TopmenuAbout"><a href="#about">About</a></li>
+        <li data-tabindex="0" id="TopmenuView">
+          <a href="#view">View</a>
+        </li><li data-tabindex="1" id="TopmenuCreate">
+          <a href="#create" title="Create new Information">Create</a>
+        </li><li data-tabindex="2" id="TopmenuLogin">
+          <a href="#login" title="Login or register">Login</a>
+        </li><li data-tabindex="3" id="TopmenuProfile">
+          <a href="#profile" title="View your profile">Profile</a>
+        </li><li data-tabindex="4" id="TopmenuAdmin">
+          <a href="#admin" title="Perform administration tasks">Admin</a>
+        </li><li data-tabindex="5" id="TopmenuAbout">
+          <a href="#about">About</a>
+        </li>
       </ul>
       <div id="view">
       </div>

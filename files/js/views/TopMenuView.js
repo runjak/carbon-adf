@@ -2,9 +2,12 @@
 var TopMenuView = Backbone.View.extend({
   defaults: {
     children: []
+  , hidden: []
   , logger: null
   }
 , initialize: function(){
+    //Setting up the children:
+    this.children = this.options.children;
     var t = this;
     $(this.options.children).each(function(i, e){
       if(e.setTopMenu)
@@ -12,30 +15,35 @@ var TopMenuView = Backbone.View.extend({
       if(e.setLogger)
         e.setLogger(t.options.logger);
     });
+    //Gathering hidden tabs:
+    var dis = $.map(t.options.hidden, function(e,i){
+      return parseInt($(e.getTabId()).attr('data-tabindex'));
+    });
+    //Setting up the tabs:
+    $(t.el).tabs({
+      disabled: dis
+    });
   }
-, hideTabId: function(tabId){ $(tabId, this.el).fadeOut(); }
-, showTabId: function(tabId){ $(tabId, this.el).fadeIn(); }
 , displayTabs: function(tabs, show){
     var t = this;
     $(tabs).each(function(i, e){
-      var tid = e.getTabId();
-      if(tid !== null)
-        if(show){
-          t.showTabId(tid);
-          e.render();
-        }else{
-          t.hideTabId(tid);
-        }
+      var tix = $(e.getTabId()).attr('data-tabindex');
+      if(show){
+        $(t.el).parent().tabs('enable', tix);
+        e.render();
+      }else{
+        $(t.el).parent().tabs('disable', tix);
+      }
     });
   }
 });
 /***/
 var TopMenuChild = Backbone.View.extend({
   setTopMenu: function(topMenu){
-    this.options.topMenu = topMenu;
+    this.topMenu = topMenu;
   }
 , setLogger: function(logger){
-    this.options.logger = logger;
+    this.logger = logger;
   }
 , getTabId: function(){
     console.log("TopMenuChild:getTabId should be overwritten by it\'s children.");
