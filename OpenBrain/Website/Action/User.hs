@@ -50,6 +50,7 @@ login = handleFail "Missing parameter[s], need: [username, password]" $ do
     salt <- liftOBB . GetSalt $ fromJust muid
     mud  <- liftOBB . Login username $ hash salt password
     guard $ isJust mud
+    mkSession . userid $ fromJust mud
     jsonSuccess' "Login successfull." $ fromJust mud
 
 logout :: OBW Response

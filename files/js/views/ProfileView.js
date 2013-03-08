@@ -2,8 +2,17 @@ var ProfileView = TopMenuChild.extend({
   getTabId: function(){ return "#TopmenuProfile"; }
 , initialize: function(){}
 , render: function(){
-    //FIXME implement
-    this.logger.log('ProfileView:render()');
+    $('#ProfileStatistics').html('');
+    var displayFields = [{field: 'username', title: 'Username:'}
+                        ,{field: 'userCreation', title: 'Created:'}
+                        ,{field: 'lastLogin', title: 'Last login:'}
+                        ,{field: 'karma', title: 'Karma:'}];
+    var ud = this.userData;
+    $(displayFields).each(function(i,e){
+      var content = "<dt>" + e.title + "</dt>"
+                  + "<dd>" + ud[e.field] + "</dd>";
+      $('#ProfileStatistics').append(content);
+    });
   }
 , events: {
     "click #UpdatePasswordButton": "updatePassword"
@@ -14,10 +23,21 @@ var ProfileView = TopMenuChild.extend({
     var nP = $('#NewPassword').val();
     var cP = $('#ConfirmPassword').val();
     if(cP == nP){
+      var logger = this.logger;
+      var q = { username: this.userData.username
+              , password: nP };
+      $.post("/action/user/password", q, function(data){
+        logger.logAction(data);
+      });
     }else{
       this.logger.log("Passwords mismatch, can't update.", true);
     }
   }
-, deleteUser: function(){}
-, setUserData: function(userData){ this.userData = userData; }
+, deleteUser: function(){
+  }
+, setUserData: function(userData){
+    console.log(userData);
+    this.userData = userData;
+    this.render();
+  }
 });
