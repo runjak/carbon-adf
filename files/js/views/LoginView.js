@@ -2,6 +2,14 @@ var LoginView = TopMenuChild.extend({
   initialize: function(){
     var t = this;
     $('#LogoutButton').click(function(){ t.logout(); });
+    //Check if we've got a running session:
+    var uid = $.cookie('userid');
+    if(uid){
+      var uid = /^\"UId \(Id (.*)\)\"$/.exec(uid)[1];
+      $.get("/user/"+uid, function(data){
+        t.gotUserData(data);
+      });
+    }
   }
 , render: function(){}
 , events: {
