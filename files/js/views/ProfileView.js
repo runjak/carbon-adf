@@ -1,6 +1,21 @@
 var ProfileView = TopMenuChild.extend({
   getTabId: function(){ return "#TopmenuProfile"; }
-, initialize: function(){}
+, initialize: function(){
+    this.dialogEl = $('#ProfileDeleteDialog');
+    var t = this;
+    t.dialogEl.dialog({
+      autoOpen: false
+    , width: 400
+    , buttons: [
+        {text: 'Delete'
+        ,click: function(){ t.deleteUser_(); }
+        }
+      , {text: 'Cancel'
+        ,click: function(){ t.dialogEl.dialog('close'); }
+        }
+      ]
+    });
+  }
 , render: function(){
     $('#ProfileStatistics').html('');
     var displayFields = [{field: 'username', title: 'Username:'}
@@ -34,6 +49,14 @@ var ProfileView = TopMenuChild.extend({
     }
   }
 , deleteUser: function(){
+    this.dialogEl.dialog('open');
+  }
+, deleteUser_: function(){
+    var t = this;
+    $.post("/action/user/delete", {username: t.userData.username}, function(data){
+      t.dialogEl.dialog('close');
+      t.logger.logAction(data);
+    });
   }
 , setUserData: function(userData){
     console.log(userData);
