@@ -102,15 +102,15 @@ changeKarma = handleFail "Invalid session." $ do
 {- Expects parameters: username, password -}
 changePwd :: OBW Response
 changePwd = handleFail "Invalid session." $ do
-  uid       <- chkSession
-  username  <- look "username"
-  password  <- look "password"
-  isAdmin   <- liftM isAdmin . noMaybe . liftOBB  $ GetUser uid
-  isSelf    <- liftM (uid ==) . noMaybe . liftOBB $ HasUserWithName username
+  uid      <- chkSession
+  username <- look "username"
+  password <- look "password"
+  isAdmin  <- liftM isAdmin . noMaybe . liftOBB  $ GetUser uid
+  isSelf   <- liftM (uid ==) . noMaybe . liftOBB $ HasUserWithName username
   handleFail "Can't update password of another user." $ do
     guard $ isAdmin || isSelf
-    target  <- noMaybe . liftOBB $ HasUserWithName username
-    salt    <- liftOBB $ GetSalt target
+    target <- noMaybe . liftOBB $ HasUserWithName username
+    salt   <- liftOBB $ GetSalt target
     liftOBB . UpdatePasswd target $ hash salt password
     jsonSuccess "Password changed."
 

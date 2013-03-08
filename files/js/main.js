@@ -13,7 +13,7 @@ loginView.setProfileView(profileView);
 var topMenuView = new TopMenuView({
     el: $('#main')
   , 'logger': logger
-  , children: [loginView]
+  , children: [loginView, profileView]
   , hidden: [profileView]
   });
 });

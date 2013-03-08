@@ -33,9 +33,8 @@ var LoginView = TopMenuChild.extend({
     });
   }
 , gotUserData: function(data){
-    this.logger.log('gotUserData!');
-    this.topMenu.displayTabs([this], false);
-    this.topMenu.displayTabs([this.pView], true);
+    this.pView.setUserData(data);
+    this.topMenu.hideTabs([this]).showTabs([this.pView]).selectTab(this.pView);
   }
 , getTabId: function(){ return "#TopmenuLogin"; }
 , setProfileView: function(pView){ this.pView = pView; }
