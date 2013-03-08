@@ -14,6 +14,8 @@ var TopMenuView = Backbone.View.extend({
         e.setTopMenu(t);
       if(e.setLogger)
         e.setLogger(t.options.logger);
+      if(e.setRouter)
+        e.setRouter(t.options.router);
     });
     //Building tOptions:
     t.tOptions = {
@@ -57,6 +59,9 @@ var TopMenuChild = Backbone.View.extend({
   }
 , setLogger: function(logger){
     this.logger = logger;
+  }
+, setRouter: function(router){
+    this.router = router;
   }
 , getTabId: function(){
     console.log("TopMenuChild:getTabId should be overwritten by it\'s children.");

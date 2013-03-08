@@ -1,19 +1,24 @@
 $(function(){
 var router = new Router;
-router.on('route:defaultRoute', function(actions){
-  console.log('router with actions:\t' + actions);
-});
-Backbone.history.start();
 //View setup:
 var logger      = new Logger({el: $('#log')});
 var loginView   = new LoginView({el: $('#login')});
 var profileView = new ProfileView({el: $('#profile')});
+var adminView   = new AdminView({el: $('#admin')});
 loginView.setProfileView(profileView);
 profileView.setLoginView(loginView);
 var topMenuView = new TopMenuView({
     el: $('#main')
   , 'logger': logger
-  , children: [loginView, profileView]
+  , 'router': router
+  , children: [loginView, profileView, adminView]
   , hidden: [profileView]
   });
+//Router setup:
+router.on('route:defaultRoute', function(actions){
+  console.log('router with actions:\t' + actions);
+});
+router.on('route:loginView', function(){ loginView.render(); });
+router.on('route:profileView', function(){ profileView.render(); });
+Backbone.history.start();
 });
