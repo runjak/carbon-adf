@@ -3,8 +3,6 @@ module OpenBrain.Website.Common(
     module Common, module Monad
   , contentNego, contentNego'
   , handleFail, jsonSuccess, jsonSuccess', jsonFail, jsonResponse
-  , LinkBase
-  , pages
   , responseHTML
 )where
 {-
@@ -64,20 +62,6 @@ jsonFail = ok . jsonResponse . ActionStatus False
 
 handleFail :: String -> OBW Response -> OBW Response
 handleFail msg handle = msum [handle, jsonFail msg]
-
-{-
-  Calculates pages as names and offsets for a given combination
-  of Limit, Offset and Count.
-  Up to 5 pages precede the "Current" page,
-  up to 5 follow it.
-  All pages are generated so that all Items can be listed,
-  but Limit + Offset may be bigger than Count.
--}
-type LinkBase = String -- Will get ++"&limit=l"
-pages :: Limit -> Count -> [Offset]
-pages l c
-  | c <= l    = [0]
-  | otherwise = map (*l) [0..(c `div` l)]
 
 responseHTML :: Response -> Response
 responseHTML = setHeader "Content-Type" "text/html"

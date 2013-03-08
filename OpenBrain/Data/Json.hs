@@ -28,8 +28,8 @@ merge a b = merge' (toJSON a) (toJSON b)
   where
     merge' :: Value -> Value -> Value
     merge' (Object o1) (Object o2) = Object $ HashMap.union o1 o2
-    merge' o1@(Object _) _ = o1
-    merge' _ o2@(Object _) = o2
+    merge' (Object o1) v = Object $ HashMap.insert "carry" v o1
+    merge' o1 o2@(Object _) = merge' o2 o1
     merge' x _ = x
 
 {-| This will look close to the ISO norm for dates. |-}

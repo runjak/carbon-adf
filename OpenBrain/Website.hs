@@ -17,6 +17,7 @@ import qualified OpenBrain.Website.Action           as Action (serve)
 import qualified OpenBrain.Website.Files            as Files (serve)
 import qualified OpenBrain.Website.Json.Information as Information (serve)
 import qualified OpenBrain.Website.Json.User        as User(serve)
+import qualified OpenBrain.Website.Json.Pages       as Pages(serve)
 
 serve :: CBackend -> Config -> IO ()
 serve backend config = do
@@ -30,6 +31,7 @@ serve' = msum [
     , dir "files"       Files.serve
     , dir "information" Information.serve
     , dir "user"        User.serve
+    , dir "pages"       Pages.serve
     , liftM responseHTML $ S.serveFile return "files/index.html"
     ]
 
