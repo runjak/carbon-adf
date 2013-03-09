@@ -67,7 +67,7 @@ delete = handleFail "Invalid session." $ do
     handleFail "Not allowed to delete user." $ do
       let isA = isAdmin userData
       let isSelf = deleteId == userid userData
-      guard $ isA || isSelf
+      guard $ (isA && not isSelf)||(isSelf && not isA)
       liftOBB $ delete' deleteId
       when isSelf dropSession
       jsonSuccess "Deleted requested user."

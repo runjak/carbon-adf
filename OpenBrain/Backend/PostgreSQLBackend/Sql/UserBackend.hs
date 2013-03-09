@@ -84,11 +84,14 @@ delete' uid heir conn = do
   let uid'  = toSql $ toId uid
       heir' = toSql $ toId heir
   -- Letting the heir become author of all Informations owned by the User.
-  stmt  <- prepare conn "UPDATE \"Information\" SET author = ? WHERE author = ?"
+  stmt <- prepare conn "UPDATE \"Information\" SET author = ? WHERE author = ?"
   execute stmt [heir', uid']
+  -- Deleting the User from all discussions:
+  stmt <- prepare conn "DELETE FROM \"DiscussionParticipants\" WHERE userid = ?"
+  execute stmt [uid']
   -- Deleting the User
-  stmt  <- prepare conn "DELETE FROM \"UserData\" WHERE userid = ?"
-  rst   <- execute stmt [uid']
+  stmt <- prepare conn "DELETE FROM \"UserData\" WHERE userid = ?"
+  rst  <- execute stmt [uid']
   return $ rst > 0
 
 getUserCount' :: (IConnection conn) => conn -> IO Int
