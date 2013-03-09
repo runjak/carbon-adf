@@ -20,7 +20,7 @@ var TopMenuView = Backbone.View.extend({
     //Building tOptions:
     t.tOptions = {
       activate: function(e,ui){
-        t.options.router.navigate(ui.newTab.find('a').attr('href'));
+        t.options.router.navigate(ui.newTab.find('a').attr('href'), {trigger: true});
       }
     , disabled: $.map(t.options.hidden, function(e,i){
         $(e.getTabId()).hide();
