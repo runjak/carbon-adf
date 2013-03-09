@@ -28,9 +28,26 @@ var AdminView = TopMenuChild.extend({
                 + '<span class="ui-icon ui-icon-disk"></span></button>'
                 + '<button class="AdminUserEntryDelete" title="Delete User">'
                 + '<span class="ui-icon ui-icon-trash"></span></button></td></tr>';
-        $('#AdminUserTable tbody', t.el).append(row);
+        $(row).appendTo('#AdminUserTable tbody', t.el).data('userData', e);
       });
     });
   }
-, events: {}
+, events: {
+    "click .AdminUserEntryUpdate": "updateUser"
+  , "click .AdminUserEntryDelete": "deleteUser"
+  }
+, updateUser: function(e){
+    var row = this.rowFromEvent(e);
+    console.log(row);
+  }
+, deleteUser: function(e){
+    var t = this;
+    var row = t.rowFromEvent(e);
+    var q = { username: row.data('userData').username };
+    $.post('/action/user/delete', q, function(data){
+      t.logger.logAction(data);
+      row.remove();
+    });
+  }
+, rowFromEvent: function(e){ return $(e.currentTarget).closest('.AdminUserEntry'); }
 });

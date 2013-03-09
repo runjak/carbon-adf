@@ -14,9 +14,7 @@ var LoginView = TopMenuChild.extend({
     }
   }
 , render: function(){
-    console.log('In Render');
     if(this.userData){
-      console.log('Got ud!');
       this.topMenu.hideTabs([this]).showTabs([this.pView]);
       this.router.navigate('profile', {trigger: true});
     }else{
