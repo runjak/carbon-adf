@@ -51,7 +51,6 @@ var Pager = Backbone.View.extend({
     var t = this;
     $.get(t.url, {limit: t.limit}, function(data){
       t.pages = data.carry;
-//    t.pages = [0,30,60,90,120]; // FIXME DEBUG
       t.render();
     });
   }
@@ -60,5 +59,10 @@ var Pager = Backbone.View.extend({
     if(this.pages.length > this.currentPage)
       return this.pages[this.currentPage];
     return 0;
+  }
+, getPage: function(){ return this.currentPage + 1; }
+, setPage: function(p){
+    if(p <= 0) return;
+    this.currentPage = p - 1;
   }
 });

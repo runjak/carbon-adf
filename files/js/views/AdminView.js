@@ -4,7 +4,9 @@ var AdminView = TopMenuChild.extend({
     this.pager = new Pager({
       el: $('.pager', t.el)
     , url: '/pages/user'
-    , onSelection: function(){ t.render(); }
+    , onSelection: function(){
+        t.router.navigate('#admin/'+t.pager.getPage(), {trigger: true});
+      }
     });
   }
 , render: function(){

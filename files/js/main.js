@@ -20,6 +20,10 @@ router.on('route:defaultRoute', function(actions){
 });
 router.on('route:loginView', function(){ loginView.render(); });
 router.on('route:profileView', function(){ profileView.render(); });
-router.on('route:adminView', function(){ adminView.render(); });
+router.on('route:adminView', function(page){
+  if(page)
+    adminView.pager.setPage(page);
+  adminView.render();
+});
 Backbone.history.start();
 });
