@@ -20,7 +20,7 @@ var AdminView = TopMenuChild.extend({
         var admin = e.isAdmin ? ' checked="checked"' : '';
         var row = '<tr class="AdminUserEntry">'
                 + '<td>'+e.id+'</td>'
-                + '<td><input class="AdminUserEntryName" value="'+e.username+'"></td>'
+                + '<td>'+e.username+'</td>'
                 + '<td><input class="AdminUserEntryPassword" placeholder="Set new Password"></td>'
                 + '<td><input class="AdminUserEntryKarma" value="'+e.karma+'"></td>'
                 + '<td><input class="AdminUserEntryIsAdmin" type="checkbox"'+admin+'></td>'
@@ -38,7 +38,27 @@ var AdminView = TopMenuChild.extend({
   }
 , updateUser: function(e){
     var row = this.rowFromEvent(e);
-    console.log(row);
+    var u = row.data('userData');
+    var p = row.find('.AdminUserEntryPassword').val();
+    var k = row.find('.AdminUserEntryKarma').val();
+    var a = row.find('.AdminUserEntryIsAdmin').is(':checked');
+    var logger = this.logger;
+    if(p !== ''){
+      var q = {username: u.username, password: p};
+      $.post('/action/user/password', q, function(data){
+        logger.logAction(data);
+        row.find('.AdminUserEntryPassword').val('');
+      });
+    }
+    if(k != u.karma){
+      logger.log('Updating karma not implemented yet.');
+    }
+    if(a != u.isAdmin){
+      var q = {username: u.username, admin: a};
+      $.post('/action/user/admin', q, function(data){
+        logger.logAction(data);
+      });
+    }
   }
 , deleteUser: function(e){
     var t = this;

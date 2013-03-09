@@ -82,8 +82,8 @@ changeKarma = handleFail "Invalid session." $ do
   uid     <- chkSession
   target  <- liftM (fromId . wrap . read) $ look "userid"
   k       <- lookRead "karma"
-  let change  = karmaUpdate k
-  let burn    = karmaUpdate . negate $ abs k
+  let change = karmaUpdate k
+  let burn   = karmaUpdate . negate $ abs k
   userdata <- noMaybe . liftOBB $ GetUser uid
   handleFail "Can't give yourself karma." $ do
     guard $ target /= uid
@@ -113,14 +113,16 @@ changePwd = handleFail "Invalid session." $ do
     target <- noMaybe . liftOBB $ HasUserWithName username
     salt   <- liftOBB $ GetSalt target
     liftOBB . UpdatePasswd target $ hash salt password
-    jsonSuccess "Password changed."
+    let selfResponse = jsonSuccess "Password changed."
+        elseResponse = jsonSuccess $ "Password changed for user:\t" ++ username
+    isSelf ? (selfResponse, elseResponse)
 
 {- Expects parameters: username, admin :: {1,0} -}
 admin :: OBW Response
 admin = handleFail "Invalid session." $ do
-  setA  <- liftM (=="1") $ look "admin"
-  uid   <- chkSession
-  isA   <- liftM isAdmin . noMaybe . liftOBB $ GetUser uid
+  setA <- liftM (=="1") $ look "admin"
+  uid  <- chkSession
+  isA  <- liftM isAdmin . noMaybe . liftOBB $ GetUser uid
   handleFail "You need to be admin for this." $ do
     guard isA
     username <- look "username"
