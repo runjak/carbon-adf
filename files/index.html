@@ -12,6 +12,7 @@
     <script src="files/js/extern/backbone.js"></script>
     <script src="files/js/router.js"></script>
     <script src="files/js/views/Logger.js"></script>
+    <script src="files/js/views/Pager.js"></script>
     <script src="files/js/views/TopMenuView.js"></script>
     <script src="files/js/views/LoginView.js"></script>
     <script src="files/js/views/ProfileView.js"></script>
@@ -46,7 +47,7 @@
       <div id="create">
         <input id="CreateTitle" type="text" placeholder="Title" title="Title for the new Information">
         <textarea id="CreateDescription" placeholder="Description" title="Description of the new Information"></textarea>
-        <textarea id="CreateContent" placeholder="The content in markdown synta."></textarea>
+        <textarea id="CreateContent" placeholder="The content in markdown syntax."></textarea>
         <div id="CreatePreview" class="ui-widget-content ui-corner-all" title="Content preview">Nothing to preview.</div>
         <button id="CreateNew" title="Create the new Information.">
           <span class="ui-icon ui-icon-disk"></span>
@@ -83,28 +84,12 @@
       </div>
       <div id="admin">
         <table id="AdminUserTable">
-          <tr><th>Id</th><th>Username</th><th>Password</th><th>Karma</th><th>Action</th></tr>
-          <tr class="AdminUserEntry">
-            <td>1</td>
-            <td><input class="AdminUserEntryName" value="Test"></td>
-            <td><input class="AdminUserEntryPassword" placeholder="Set new Password"></td>
-            <td><input class="AdminUserEntryKarma" value="0"></td>
-            <td>
-              <button class="AdminUserEntryUpdate" title="Update Data"><span class="ui-icon ui-icon-disk"></span></button>
-              <button class="AdminUserEntryDelete" title="Delete User"><span class="ui-icon ui-icon-trash"></span></button>
-            </td>
-          </tr>
+          <thead>
+            <tr><th>Id</th><th>Username</th><th>Password</th><th>Karma</th><th>Admin</th><th>Action</th></tr>
+          </thead>
+          <tbody></tbody>
         </table>
-        <div class="paging">
-          <input type="radio" name="radio" id="AdminPagingPrev" class="PagingPrev">
-          <label for="AdminPagingPrev" title="Switch to the previous page.">
-            <span class="ui-icon ui-icon-triangle-1-w"></span></label>
-          <input type="radio" name="radio" id="AdminPagingCurr" class="PagingCurr">
-          <label for="AdminPagingCurr" title="Refresh the current page.">1</label>
-          <input type="radio" name="radio" id="AdminPagingNext" class="PagingNext">
-          <label for="AdminPagingNext" title="Switch to the next page.">
-            <span class="ui-icon ui-icon-triangle-1-e"></span></label>
-        </div>
+        <ul class="pager"></ul>
       </div>
       <div id="about">
         Welcome to the OpenBrain about page.<br>

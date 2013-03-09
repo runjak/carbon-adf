@@ -13,3 +13,8 @@
   top: 20px;
   display: none;
 }
+.pager li {
+  display: inline;
+  padding: .25em;
+}
+.pager li.current {font-weight: bold;}
