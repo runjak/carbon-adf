@@ -1,30 +1,22 @@
-var LoginView = TopMenuChild.extend({
+LoginView = Backbone.View.extend({
   initialize: function(){
-    var t = this;
-    $('#LogoutButton').click(function(){ t.logout(); });
-    //Check if we've got a running session:
-    var uid = $.cookie('userid');
-    if(uid){
-      var uid = /^\"UId \(Id (.*)\)\"$/.exec(uid)[1];
-      $.get("/user/"+uid, function(data){
-        t.gotUserData(data);
-        if(t.router.routes[Backbone.history.fragment] === 'loginView')
-          t.render();
-      });
-    }
+    this.login = this.options.login;
+    var login  = this.login;
+    $('#LogoutButton').click(function(){ login.logout(); });
+    login.on("change:loggedIn", function(login){
+      var loggedIn = login.get('loggedIn');
+      if(loggedIn){
+        $('#LogoutButton').show();
+      }else{
+        $('#LogoutButton').hide();
+      }
+    });
   }
-, render: function(){
-    if(this.userData){
-      this.topMenu.hideTabs([this]).showTabs([this.pView]);
-      this.router.navigate('profile', {trigger: true});
-    }else{
-      this.topMenu.showTabs([this]).hideTabs([this.pView]).selectTab(this);
-    }
-  }
+, render: function(){}
 , events: {
-    "click #LoginButton":    "login"
+    "click #LoginButton":    "onLogin"
   , "click #RegisterButton": "register"
-  , "keypress #Password":    "login_"
+  , "keypress #Password":    "onLogin_"
   }
 , getInputs: function(){
     return {
@@ -32,48 +24,14 @@ var LoginView = TopMenuChild.extend({
     , password: $('#Password').val()
     };
   }
-, login: function(){
-    var t = this;
-    $.post('/action/user/login', this.getInputs(), function(data){
-      t.logger.logAction(data);
-      if(data.actionSuccess){
-        t.gotUserData(data);
-        t.render();
-      }
-    });
+, onLogin: function(){
+    this.login.login(this.getInputs());
   }
-, login_: function(event){
+, onLogin_: function(event){
     if(event.keyCode === 13)
-      this.login();
+      this.onLogin();
   }
 , register: function(){
-    var t = this;
-    $.post('/action/user/create', this.getInputs(), function(data){
-      t.logger.logAction(data);
-      if(data.actionSuccess){
-        t.gotUserData(data);
-        t.render();
-      }
-    });
+    this.login.register(this.getInputs());
   }
-, logout: function(){
-    var t = this;
-    $.post("/action/user/logout", function(data){
-      t.logger.logAction(data);
-      t.loggedOut();
-    });
-  }
-, loggedOut: function(){
-    $('#LogoutButton').hide();
-    this.userData = null;
-    this.pView.setUserData(null);
-    this.router.navigate('login', {trigger: true});
-  }
-, gotUserData: function(data){
-    $('#LogoutButton').show();
-    this.userData = data;
-    this.pView.setUserData(data);
-  }
-, getTabId: function(){ return "#TopmenuLogin"; }
-, setProfileView: function(pView){ this.pView = pView; }
 });

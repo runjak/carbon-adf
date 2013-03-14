@@ -1,4 +1,4 @@
-var Logger = Backbone.View.extend({
+Logger = Backbone.View.extend({
   initialize: function(){}
 , log: function(message, warning){
     var icon = warning ? 'ui-icon-alert' : 'ui-icon-info';
@@ -19,5 +19,21 @@ var Logger = Backbone.View.extend({
   }
 , logAction: function(action){
     this.log(action.actionMessage, !action.actionSuccess);
+  }
+, watch: function(w){
+    var logger = this;
+    if(Object.prototype.toString.call(w) === '[object Array]'){
+      $(w).each(function(i, w_){
+        logger.watch(w_);
+      });
+    }else if(w instanceof Backbone.Model){
+      w.on("change:actionMessage", function(m){
+        var action = {
+          actionMessage: m.get('actionMessage')
+        , actionSuccess: m.get('actionSuccess')
+        };
+        logger.logAction(action);
+      });
+    }
   }
 });

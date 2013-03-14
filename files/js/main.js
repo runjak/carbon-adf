@@ -1,18 +1,17 @@
 $(function(){
 var router = new Router;
+//Model setup:
+var login = new Login();
 //View setup:
-var logger      = new Logger({el: $('#log')});
-var loginView   = new LoginView({el: $('#login')});
-var profileView = new ProfileView({el: $('#profile')});
-var adminView   = new AdminView({el: $('#admin')});
-loginView.setProfileView(profileView);
-profileView.setLoginView(loginView);
-var topMenuView = new TopMenuView({
+var logger = new Logger({el: $('#log')});
+logger.watch([login]);
+var loginView   = new LoginView({el: $('#login'),     login: login});
+var profileView = new ProfileView({el: $('#profile'), login: login});
+var adminView   = new AdminView({el: $('#admin'),     login: login, router: router, logger: logger});
+var topmenuView = new TopmenuView({
     el: $('#main')
-  , 'logger': logger
-  , 'router': router
-  , children: [loginView, profileView, adminView]
-  , hidden: [profileView]
+  , login:  login
+  , router: router
   });
 //Router setup:
 router.on('route:defaultRoute', function(actions){

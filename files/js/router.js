@@ -1,4 +1,4 @@
-var Router = Backbone.Router.extend({
+Router = Backbone.Router.extend({
   routes: {
     "create":      "createView"
   , "login":       "loginView"

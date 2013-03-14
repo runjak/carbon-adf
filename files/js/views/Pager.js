@@ -1,4 +1,4 @@
-var Pager = Backbone.View.extend({
+Pager = Backbone.View.extend({
   initialize: function(){
     var o = this.options;
     this.limit       = o.limit ? o.limit : 30;
