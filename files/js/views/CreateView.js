@@ -2,9 +2,9 @@ CreateView = Backbone.View.extend({
   initialize: function(){
     this.logger = this.options.logger;
     this.i      = new Information();
-    this.iView  = new RenderInformationView({
+    this.iView  = new InformationContentView({
       el: $('#CreatePreview')
-    , information: this.i
+    , model: this.i
     });
     this.logger.watch(this.i);
     var t = this;
@@ -75,7 +75,7 @@ CreateView = Backbone.View.extend({
       //FIXME maybe we want to display that information nao?
       $('#CreateTitle, #CreateDescription, #CreateContent').val('');
       t.i = new Information();
-      t.iView.watch(t.i);
+      t.iView.setModel(t.i);
       t.logger.watch(t.i);
     });
   }
