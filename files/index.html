@@ -10,22 +10,20 @@
     <script src="files/js/extern/jquery.cookie.js"></script>
     <script src="files/js/extern/underscore.js"></script>
     <script src="files/js/extern/backbone.js"></script>
+    <script src="files/js/extern/marked.js"></script>
     <script src="files/js/router.js"></script>
+    <script src="files/js/models/Information.js"></script>
     <script src="files/js/models/User.js"></script>
     <script src="files/js/models/Login.js"></script>
     <script src="files/js/views/Logger.js"></script>
     <script src="files/js/views/Pager.js"></script>
     <script src="files/js/views/TopmenuView.js"></script>
+    <script src="files/js/views/CreateView.js"></script>
     <script src="files/js/views/LoginView.js"></script>
     <script src="files/js/views/ProfileView.js"></script>
     <script src="files/js/views/AdminView.js"></script>
+    <script src="files/js/views/RenderInformationView.js"></script>
     <script src="files/js/main.js"></script>
-    <script>
-      $(function(){
-        $('body').tooltip();
-        $('.paging').buttonset();
-      });
-    </script>
   </head>
   <body>
     <div id="main">
@@ -49,14 +47,44 @@
       <div id="create">
         <input id="CreateTitle" type="text" placeholder="Title" title="Title for the new Information">
         <textarea id="CreateDescription" placeholder="Description" title="Description of the new Information"></textarea>
-        <textarea id="CreateContent" placeholder="The content in markdown syntax."></textarea>
-        <div id="CreatePreview" class="ui-widget-content ui-corner-all" title="Content preview">Nothing to preview.</div>
         <button id="CreateNew" title="Create the new Information.">
           <span class="ui-icon ui-icon-disk"></span>
+        </button>
+        <button id="CreateAddLinkB" title="Add a link at the current cursor position.">
+          <span class="ui-icon ui-icon-link"></span>
+        </button>
+        <button id="CreateAddImageB" title="Add an image at the current cursor position.">
+          <span class="ui-icon ui-icon-image"></span>
         </button>
         <button id="CreateHelp" title="Get help with writing the content in markdown.">
           <span class="ui-icon ui-icon-help"></span>
         </button>
+        <textarea id="CreateContent" placeholder="The content in markdown syntax."></textarea>
+        <div id="CreatePreview" class="ui-widget-content ui-corner-all" title="Content preview">Nothing to preview.</div>
+        <div id="CreateAddLinkD" title="Add a link">
+          <p>
+            <label for="CreateAddLinkAlt">Alt:</label>
+            <input id="CreateAddLinkAlt" type="text">
+            <br>
+            <label for="CreateAddLinkText">Text:</label>
+            <input id="CreateAddLinkText" type="text">
+            <br>
+            <label for="CreateAddLinkUrl">Url:</label>
+            <input id="CreateAddLinkUrl" type="text">
+          </p>
+        </div>
+        <div id="CreateAddImageD" title="Add an image">
+          <p>
+            <label for="CreateAddImageAlt">Alt:</label>
+            <input id="CreateAddImageAlt" type="text">
+            <br>
+            <label for="CreateAddImageTitle">Title:</label>
+            <input id="CreateAddImageTitle" type="text">
+            <br>
+            <label for="CreateAddImageUrl">Url:</label>
+            <input id="CreateAddImageUrl" type="text">
+          </p>
+        </div>
       </div>
       <div id="login">
         <label for="Username">Username:</label>

@@ -5,6 +5,7 @@ var login = new Login();
 //View setup:
 var logger = new Logger({el: $('#log')});
 logger.watch([login]);
+var createView  = new CreateView({el: $('#create'),   logger: logger});
 var loginView   = new LoginView({el: $('#login'),     login: login});
 var profileView = new ProfileView({el: $('#profile'), login: login});
 var adminView   = new AdminView({el: $('#admin'),     login: login, router: router, logger: logger});
@@ -25,4 +26,6 @@ router.on('route:adminView', function(page){
   adminView.render();
 });
 Backbone.history.start();
+//Tooltips:
+$('body').tooltip();
 });

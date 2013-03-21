@@ -35,8 +35,8 @@ mkSession uid = do
 |-}
 chkSession :: OBW UserId
 chkSession = do
-  key <-  lookCookieValue cookieActionKey
-  uid <-  liftM read $ lookCookieValue cookieUserId
+  key <- lookCookieValue cookieActionKey
+  uid <- liftM read $ lookCookieValue cookieUserId
   guard =<< liftOBB (Validate uid key)
   return uid
 
