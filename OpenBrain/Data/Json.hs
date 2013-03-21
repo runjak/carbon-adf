@@ -87,3 +87,17 @@ instance ToJSON DiscussionInfo where
              , "deadline"     .= deadline d
              , "participants" .= participants d
              ]
+
+instance ToJSON Relation where
+  toJSON r = object [
+               "comment"  .= comment r
+             , "creation" .= relationCreation r
+             , "deletion" .= relationDeletion r
+             , "type"     .= relation r
+             , "id"       .= relationId r
+             , "source"   .= source r
+             , "target"   .= target r
+             ]
+
+instance ToJSON RelationType where
+  toJSON = toJSON . show
