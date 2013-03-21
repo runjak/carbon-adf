@@ -1,10 +1,7 @@
 Information = Backbone.Model.extend({
   urlRoot: '/information/'
 , defaults: {}
-, initialize: function(){
-    if(this.get('id'))
-      this.fetch();
-  }
+, initialize: function(){}
 , isContent: function(){ return (typeof this.get('media')) === 'string'; }
 , isCollection: function(){} //FIXME implement
 , isDiscussion: function(){} //FIXME implement
