@@ -1,5 +1,6 @@
 CreateView = Backbone.View.extend({
   initialize: function(){
+    this.cInf   = this.options.currentInformation;
     this.logger = this.options.logger;
     this.i      = new Information();
     this.iView  = new InformationContentView({
@@ -72,7 +73,7 @@ CreateView = Backbone.View.extend({
     }
     var t = this;
     t.i.create(function(){
-      //FIXME maybe we want to display that information nao?
+      t.cInf.set(t.i.attributes);
       $('#CreateTitle, #CreateDescription, #CreateContent').val('');
       t.i = new Information();
       t.iView.setModel(t.i);

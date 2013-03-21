@@ -1,7 +1,7 @@
 Router = Backbone.Router.extend({
   routes: {
-    "view":        "mainView"
-  , "view/:inf":   "mainView"
+    "view/:inf":   "mainView"
+  , "view":        "mainView"
   , "create":      "createView"
   , "login":       "loginView"
   , "profile":     "profileView"
