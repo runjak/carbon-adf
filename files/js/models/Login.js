@@ -1,13 +1,14 @@
 Login = User.extend({
   urlRoot: '/user/'
-, defaults: { loggedIn: false }
+, defaults: { loggedIn:   false
+            , fromCookie: true }
 , initialize: function(){
     var uid = $.cookie('userid');
     if(uid){
       var uid = /^\"UId \(Id (.*)\)\"$/.exec(uid)[1];
       this.set({id: uid});
       this.fetch({success: function(login){
-        login.set({loggedIn: true});
+        login.set({loggedIn: true, fromCookie: true});
       }});
     }
   }
@@ -38,10 +39,10 @@ Login = User.extend({
     $.post("/action/user/delete", {username: this.get('username')}, function(d){l.onLoggedOut(d);});
   }
 , onLoggedIn: function(data){
-    this.set($.extend(data, {loggedIn: true}));
+    this.set($.extend(data, {loggedIn: true, fromCookie: false}));
   }
 , onLoggedOut: function(data){
     this.attributes = {};
-    this.set($.extend(data, {loggedIn: false}));
+    this.set($.extend(data, {loggedIn: false, fromCookie: false}));
   }
 });

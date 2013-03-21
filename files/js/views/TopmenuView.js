@@ -27,17 +27,17 @@ TopmenuView = Backbone.View.extend({
       var options = {
         disabled: _.difference(this.tabOptions.disabled
           , $.map(showTabs, function(e){ return e[0]; }))
-      , active: active[0]
       };
-      this.tabOptions = $.extend(this.tabOptions, options);
+      active = this.login.get('fromCookie') ? {} : {active: active[0]};
+      this.tabOptions = $.extend(this.tabOptions, options, active);
       $.map(showTabs, function(e){ $(e[1]).show(); });
     }else{
       var disable = _.union([this.adminTab], this.loginTabs);
       var options = {
         disabled: $.map(disable, function(e){ return e[0]; })
-      , active: this.loginTab[0]
       };
-      this.tabOptions = $.extend(this.tabOptions, options);
+      var active = this.login.get('fromCookie') ? {} : {active: this.loginTab[0]}
+      this.tabOptions = $.extend(this.tabOptions, options, active);
       $(this.loginTab[1]).show();
       $.map(disable, function(e){ $(e[1]).hide(); });
     }
