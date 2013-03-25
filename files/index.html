@@ -15,7 +15,9 @@
     <script src="files/js/models/Information.js"></script>
     <script src="files/js/models/CurrentInformation.js"></script>
     <script src="files/js/models/User.js"></script>
+    <script src="files/js/models/Relation.js"></script>
     <script src="files/js/models/Login.js"></script>
+    <script src="files/js/collections/RelationCollection.js"></script>
     <script src="files/js/views/Logger.js"></script>
     <script src="files/js/views/Pager.js"></script>
     <script src="files/js/views/TopmenuView.js"></script>
@@ -30,20 +32,26 @@
   <body>
     <div id="main">
       <ul id="topmenu">
-        <li data-tabindex="0" id="TopmenuView">
+        <li data-tabindex="0" id="TopmenuBrowse">
+          <a href="#browse">Browse</a>
+        </li><li data-tabindex="1" id="TopmenuView">
           <a href="#view">View</a>
-        </li><li data-tabindex="1" id="TopmenuCreate">
+        </li><li data-tabindex="2" id="TopmenuCreate">
           <a href="#create" title="Create new Information">Create</a>
-        </li><li data-tabindex="2" id="TopmenuLogin">
+        </li><li data-tabindex="3" id="TopmenuLogin">
           <a href="#login" title="Login or register">Login</a>
-        </li><li data-tabindex="3" id="TopmenuProfile">
+        </li><li data-tabindex="4" id="TopmenuProfile">
           <a href="#profile" title="View your profile">Profile</a>
-        </li><li data-tabindex="4" id="TopmenuAdmin">
+        </li><li data-tabindex="5" id="TopmenuUsers">
+          <a href="#users" title="View your profile">Users</a>
+        </li><li data-tabindex="6" id="TopmenuAdmin">
           <a href="#admin" title="Perform administration tasks">Admin</a>
-        </li><li data-tabindex="5" id="TopmenuAbout">
+        </li><li data-tabindex="7" id="TopmenuAbout">
           <a href="#about">About</a>
         </li>
       </ul>
+      <div id="browse">
+      </div>
       <div id="view">
       </div>
       <div id="create">
@@ -113,6 +121,8 @@
         <div id="ProfileDeleteDialog" title="Delete user permanently?">
           <p>Do you want to permanently delete your user on this page?</p>
         </div>
+      </div>
+      <div id="users">
       </div>
       <div id="admin">
         <table id="AdminUserTable">

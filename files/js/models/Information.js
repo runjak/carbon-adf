@@ -14,5 +14,15 @@ Information = Backbone.Model.extend({
       $.post('/action/edit/create', q, function(d){ t.set(d); callback(); });
     }
   }
+, fetchRelations: function(callback){
+    var t = this;
+    var q = {informationId: this.get('id')}
+    $.get('/relation', q, function(data){
+      var rs = new RelationCollection(data);
+      t.set({relations: rs});
+      if(callback) callback(rs, t);
+    });
+  }
+, getRelations: function(){return this.get('relations');}
 });
 var i = new Information({id: 28});
