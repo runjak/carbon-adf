@@ -10,7 +10,7 @@ Pager = Backbone.View.extend({
   }
 , render: function(){
     var p = this;
-    $(p.el).html('');
+    p.$el.html('');
     if(p.pages.length <= 1)
       return;
     var c = 0;
