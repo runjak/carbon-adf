@@ -17,22 +17,10 @@ ProfileView = Backbone.View.extend({
       ]
     });
   }
+, statView: new UserStatisticsView({el: $('#ProfileStatistics')})
 , render: function(){
-    $('#ProfileStatistics').html('');
-    if(this.login.get("loggedIn")){
-      var displayFields = [
-        {field: 'username',     title: 'Username:'}
-      , {field: 'userCreation', title: 'Created:'}
-      , {field: 'lastLogin',    title: 'Last login:'}
-      , {field: 'karma',        title: 'Karma:'}];
-      var ud = this.login.attributes;
-      $(displayFields).each(function(i,e){
-        var content = "<dt>" + e.title + "</dt>"
-                    + "<dd>" + ud[e.field] + "</dd>";
-        $('#ProfileStatistics').append(content);
-      });
-    }else{
-    }
+    var m = this.login.get('loggedIn') ? this.login : null;
+    this.statView.setModel(m);
   }
 , events: {
     "click #UpdatePasswordButton": "updatePassword"

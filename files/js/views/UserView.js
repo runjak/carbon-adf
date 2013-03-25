@@ -1,0 +1,2 @@
+UserView = Backbone.View.extend({
+});
