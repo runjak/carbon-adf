@@ -25,4 +25,3 @@ Information = Backbone.Model.extend({
   }
 , getRelations: function(){return this.get('relations');}
 });
-var i = new Information({id: 28});

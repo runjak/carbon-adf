@@ -6,7 +6,7 @@ AdminView = Backbone.View.extend({
     this.login  = this.options.login;
     this.login.on("change:loggedIn", function(){t.render();});
     this.pager = new Pager({
-      el: $('.pager', t.el)
+      el: t.$('.pager')
     , url: '/pages/user'
     , onSelection: function(){
         t.router.navigate('#admin/'+t.pager.getPage(), {trigger: true});
