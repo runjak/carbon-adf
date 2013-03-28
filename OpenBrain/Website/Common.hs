@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module OpenBrain.Website.Common(
-    module Common, module Monad
+    module Common, module Crud, module Monad
   , contentNego, contentNego'
   , handleFail, jsonSuccess, jsonSuccess', jsonFail, jsonResponse
   , responseHTML
@@ -22,6 +22,7 @@ import System.Time
 
 import OpenBrain.Common        as Common
 import OpenBrain.Data.Json     as Json
+import OpenBrain.Website.Crud  as Crud 
 import OpenBrain.Website.Monad as Monad
 
 -- For fun with OverloadedStrings pragma
