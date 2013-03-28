@@ -1,3 +1,4 @@
+{-# LANGUAGE DoAndIfThenElse #-}
 module OpenBrain.Backend.PostgreSQLBackend.Sql.UserBackend where
 
 import Data.Maybe
@@ -72,12 +73,12 @@ hasUserWithName' username conn = do
 register' :: (IConnection conn) => UserName -> Hash -> Salt -> conn -> IO (Maybe UserData)
 register' username hash salt conn = do
   duplicate <- liftM isJust $ hasUserWithName' username conn
-  case not duplicate of
-    False -> return Nothing
-    True -> do
+  if not duplicate
+    then do
       insert <- prepare conn "INSERT INTO \"UserData\" (username, password, salt) VALUES (?, ?, ?)"
       execute insert [toSql username, toSql hash, toSql salt]
       login' username hash conn
+    else return Nothing
 
 delete' :: (IConnection conn) => UserId -> Heir -> conn -> IO Bool
 delete' uid heir conn = do

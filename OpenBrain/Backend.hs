@@ -36,11 +36,11 @@ class Backend b where
 -- | A container for instances of Backend
 data CBackend = forall b . Backend b => CBackend b
 instance Backend CBackend where
-  process            (CBackend b) p = process            b p
-  processGeneral     (CBackend b) p = processGeneral     b p
-  processInformation (CBackend b) p = processInformation b p
-  processKarma       (CBackend b) p = processKarma       b p
-  processRelation    (CBackend b) p = processRelation    b p
-  processSalt        (CBackend b) p = processSalt        b p
-  processSession     (CBackend b) p = processSession     b p
-  processUser        (CBackend b) p = processUser        b p
+  process            (CBackend b) = process            b
+  processGeneral     (CBackend b) = processGeneral     b
+  processInformation (CBackend b) = processInformation b
+  processKarma       (CBackend b) = processKarma       b
+  processRelation    (CBackend b) = processRelation    b
+  processSalt        (CBackend b) = processSalt        b
+  processSession     (CBackend b) = processSession     b
+  processUser        (CBackend b) = processUser        b

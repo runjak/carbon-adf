@@ -34,5 +34,5 @@ serveList = do
   limit  <- Parameters.getLimit
   offset <- Parameters.getOffset
   count  <- liftOBB GetUserCount
-  uds    <- liftOBB $ getUsers =<< (liftB $ GetUserList limit offset)
+  uds    <- liftOBB $ getUsers =<< liftB (GetUserList limit offset)
   ok $ jsonResponse uds

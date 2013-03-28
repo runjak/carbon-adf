@@ -31,10 +31,10 @@ validConfig c = case backendType c of
                   _ -> False
 
 instance Backend Common.PostgreSQLBackend where
-  processGeneral     b p = GBackend.processGeneral b p
-  processInformation b p = IBackend.processInformation b p
-  processKarma       b p = KBackend.processKarma b p
-  processRelation    b p = RBackend.processRelation b p
-  processSalt        b p = SShaker.processSalt b p
-  processSession     b p = SManagement.processSession b p
-  processUser        b p = UBackend.processUser b p
+  processGeneral     = GBackend.processGeneral
+  processInformation = IBackend.processInformation
+  processKarma       = KBackend.processKarma
+  processRelation    = RBackend.processRelation
+  processSalt        = SShaker.processSalt
+  processSession     = SManagement.processSession
+  processUser        = UBackend.processUser

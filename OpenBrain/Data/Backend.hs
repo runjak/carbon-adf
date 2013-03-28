@@ -76,7 +76,7 @@ getUserByName uname = do
     (Just uid) -> liftB $ GetUser uid
 
 getUsers :: [UserId] -> BackendReq [UserData]
-getUsers = liftM catMaybes . sequence . map (liftB . GetUser)
+getUsers = liftM catMaybes . mapM (liftB . GetUser)
 
 delete' :: UserId -> BackendReq Bool
 delete' uid = liftB . Delete uid =<< liftB GetNobody

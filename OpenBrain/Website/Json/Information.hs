@@ -58,7 +58,7 @@ serveUser = do
 serveItems :: OBW Response
 serveItems = do
   iids <- Parameters.getItems
-  is   <- noMaybes $ mapM (\i -> liftOBB $ GetInformation i) iids
+  is   <- noMaybes $ mapM (liftOBB . GetInformation) iids
   ok $ jsonResponse is
 
 {- information/_ -}

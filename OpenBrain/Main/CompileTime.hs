@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 module OpenBrain.Main.CompileTime where
 {-|
   This module gathers information related to OpenBrain at compile time.
@@ -7,10 +6,10 @@ module OpenBrain.Main.CompileTime where
 import Language.Haskell.TH      as TH
 import qualified System.Process as Process
 
-authors = (stringE . init) =<< (runIO $ Process.readProcess "darcs" ["show", "authors"] "")
+authors = (stringE . init) =<< runIO (Process.readProcess "darcs" ["show", "authors"] "")
 
-linesOfCode = (stringE . init) =<< (runIO $ Process.readProcess "./linesOfCode.sh" [] "")
+linesOfCode = (stringE . init) =<< runIO (Process.readProcess "./linesOfCode.sh" [] "")
 
-version = (stringE . init) =<< (runIO $ Process.readProcess "grep" ["Version", "openBrain.cabal"] "")
+version = (stringE . init) =<< runIO (Process.readProcess "grep" ["Version", "openBrain.cabal"] "")
 
-date = (stringE . init) =<< (runIO $ Process.readProcess "date" [] "")
+date = (stringE . init) =<< runIO (Process.readProcess "date" [] "")
