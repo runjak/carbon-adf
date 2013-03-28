@@ -16,3 +16,6 @@ False ? (_, b) = b
 {-| O(n²) |-}
 powerset :: [a] -> [[a]]
 powerset = filterM $ const [True, False]
+
+plusm :: MonadPlus m => m a -> m a -> m a
+plusm = flip mplus

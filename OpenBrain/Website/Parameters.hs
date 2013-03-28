@@ -29,6 +29,11 @@ getTDC            = liftM3 (,,) getTitle getDescription getContent        :: OBW
 getSplit          = msum [liftM (=="True") $ look "split", return False]  :: OBW Bool
 getStatus         = msum [liftM (=="True") $ look "status", return False] :: OBW Bool -- | For setParticipant
 getDiscussionType = lookRead "discussiontype"                             :: OBW DiscussionType
+getComment        = look "comment"                                        :: OBW Comment
+getRelationId     = liftM fromId $ lookRead "relationId"                  :: OBW RelationId
+getSource         = liftM fromId $ lookRead "source"                      :: OBW InformationId
+getTarget         = liftM fromId $ lookRead "target"                      :: OBW InformationId
+getType           = lookRead "type"                                       :: OBW RelationType
 
 withId :: (Id -> OBW Response) -> OBW Response
 withId = path
