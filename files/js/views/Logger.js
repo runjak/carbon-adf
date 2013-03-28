@@ -27,7 +27,7 @@ Logger = Backbone.View.extend({
         logger.watch(w_);
       });
     }else if(w instanceof Backbone.Model){
-      w.on("change:actionMessage", function(m){
+      this.listenTo(w, "change:actionMessage", function(m){
         var action = {
           actionMessage: m.get('actionMessage')
         , actionSuccess: m.get('actionSuccess')

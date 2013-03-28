@@ -1,10 +1,10 @@
 AdminView = Backbone.View.extend({
   initialize: function(){
-    var t       = this;
     this.router = this.options.router;
     this.logger = this.options.logger;
     this.login  = this.options.login;
-    this.login.on("change:loggedIn", function(){t.render();});
+    this.listenTo(this.login, "change:loggedIn", this.render);
+    var t = this;
     this.pager = new Pager({
       el: t.$('.pager')
     , url: '/pages/user'

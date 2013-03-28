@@ -1,9 +1,9 @@
 ProfileView = Backbone.View.extend({
   initialize: function(){
-    var t      = this;
     this.login = this.options.login;
-    this.login.on('change:loggedIn', function(){t.render();});
+    this.listenTo(this.login, "change:loggedIn", this.render);
     this.dialogEl = $('#ProfileDeleteDialog');
+    var t = this;
     t.dialogEl.dialog({
       autoOpen: false
     , width: 400

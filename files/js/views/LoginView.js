@@ -3,16 +3,16 @@ LoginView = Backbone.View.extend({
     this.login = this.options.login;
     var login  = this.login;
     $('#LogoutButton').click(function(){ login.logout(); });
-    login.on("change:loggedIn", function(login){
-      var loggedIn = login.get('loggedIn');
-      if(loggedIn){
-        $('#LogoutButton').show();
-      }else{
-        $('#LogoutButton').hide();
-      }
-    });
+    this.listenTo(login, "change:loggedIn", this.render);
   }
-, render: function(){}
+, render: function(){
+    var loggedIn = this.login.get('loggedIn');
+    if(loggedIn){
+      $('#LogoutButton').show();
+    }else{
+      $('#LogoutButton').hide();
+    }
+  }
 , events: {
     "click #LoginButton":    "onLogin"
   , "click #RegisterButton": "register"

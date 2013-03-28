@@ -17,7 +17,7 @@ TopmenuView = Backbone.View.extend({
     , disabled: $.map(t.loginTabs, function(e){ return e[0]; })
     };
     //Events:
-    t.login.on("change:loggedIn", function(){ t.render(); });
+    this.listenTo(this.login, "change:loggedIn", this.render);
     //First.render:
     t.render();
   }
