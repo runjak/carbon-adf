@@ -15,7 +15,7 @@ serve :: OBW Response
 serve = msum [searchRelations, createRelation, readRelation, updateRelation, deleteRelation]
 
 searchRelations :: OBW Response
-searchRelations = crudRead . relationEndFromPath $ \rEnd -> do
+searchRelations = crudRead . relationEndFromPath $ \rEnd ->
   informationIdFromPath $ \iid -> do
     rs <- liftOBB $ GetRelations iid rEnd Nothing False
     respOk $ jsonResponse rs
@@ -47,7 +47,7 @@ updateRelation = crudUpdate . relationFromPath $ \r -> do
     upFail = respInternalServerError "Could not update Comment for Relation due to internal issues."
 
 deleteRelation :: OBW Response
-deleteRelation = crudDelete . relationFromPath $ \r -> do
+deleteRelation = crudDelete . relationFromPath $ \r ->
   attackOrDefense (relation r) . chkSession' $ \_ -> plusm delFail $ do
     liftOBB . DeleteRelation $ relationId r
     respOk "Relation deleted."
