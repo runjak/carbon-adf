@@ -14,14 +14,17 @@ Information = Backbone.Model.extend({
       $.post('/action/edit/create', q, function(d){ t.set(d); callback(); });
     }
   }
-, fetchRelations: function(callback){
-    var t = this;
-    var q = {informationId: this.get('id')}
-    $.get('/relation', q, function(data){
-      var rs = new RelationCollection(data);
-      t.set({relations: rs});
-      if(callback) callback(rs, t);
+, fetchRelations: function(relationEnd, callback){
+    var url = this.urlRoot + relationEnd + this.get('id');
+    $.get(url, function(data){
+      var rs = new RelationColleciont(data);
+      callback(rs);
     });
   }
-, getRelations: function(){return this.get('relations');}
+, fetchTargets: function(callback){
+    this.fetchRelations('target', callback);
+  }
+, fetchSources: function(callback){
+    this.fetchRelations('source', callback);
+  }
 });

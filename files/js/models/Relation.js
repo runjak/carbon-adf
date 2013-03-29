@@ -14,32 +14,22 @@ Relation = Backbone.Model.extend({
 , isCollection: function(){return this.getType() === 'Collection';}
 , isAttack:     function(){return this.getType() === 'Attack';}
 , isDefense:    function(){return this.getType() === 'Defense';}
+, isTarget: function(i){return i.get('id') === this.get('target');}
+, isSource: function(i){return i.get('id') === this.get('source');}
 //Changes:
-, create: function(options, callback){
+, create: function(attributes, options){
     var defaults = { source:  null
                    , target:  null
                    , type:    null
                    , comment: null };
+    attributes = $.extend(attributes, defaults);
+    var defaults = {wait: true, success: null, error: null};
     options = $.extend(options, defaults);
-    $.post('/action/relation/addRelation', options, function(data){
-      if(callback) callback(data);
-    });
+    this.save(attributes, defaults);
   }
-, delete: function(callback, refetch){
-    var t = this;
-    var q = {relationId: this.get('id')};
-    $.post('/action/relation/deleteRelation', q, function(data){
-      if(callback) callback(data);
-      if(refetch)  t.fetch();
-    });
-  }
-, setComment: function(comment, callback){
-    var t = this;
-    var q = {relationId: this.get('id')
-            , comment: comment };
-    $.post('/action/relation/updateComment', q, function(data){
-      t.set({comment: comment});
-      if(callback) callback(data);
-    });
-  }
+, setComment: function(comment, options){
+    var attributes = {comment: comment};
+    var defaults = {wait: true, success: null, error: null};
+    options = $.extend(options, defaults);
+    this.save(attributes, options);
 });
