@@ -86,11 +86,13 @@ fetchRelation rid f = plusm (fetchFail rid) $ do
     fetchFail r = respInternalServerError  . toResponse $ "Could not fetch Relation from the Backend:\t" ++ show r
 
 relationEndFromPath :: (RelationEnd -> OBW Response) -> OBW Response
-relationEndFromPath f = path $ \rPath -> case rPath of
-  "target" -> f RelationTarget
-  "source" -> f RelationSource
-  _        -> respBadRequest . toResponse $
-    ("RelationEnd must be either target|source, not permitted:\t" ++ rPath :: String)
+relationEndFromPath = path . go
+  where
+    go :: (RelationEnd -> OBW Response) -> String -> OBW Response
+    go f rPath = case rPath of
+      "target" -> f RelationTarget
+      "source" -> f RelationSource
+      _        -> mzero
 
 -- | Doesn't check for existence.
 informationIdFromPath :: (InformationId -> OBW Response) -> OBW Response

@@ -18,7 +18,7 @@ import qualified OpenBrain.Website.Files            as Files (serve)
 import qualified OpenBrain.Website.Json.Information as Information (serve)
 import qualified OpenBrain.Website.Json.User        as User(serve)
 import qualified OpenBrain.Website.Json.Pages       as Pages(serve)
-import qualified OpenBrain.Website.Json.Relation    as Relation(serve)
+import qualified OpenBrain.Website.Crud.Relation    as Relation(serve)
 
 serve :: CBackend -> Config -> IO ()
 serve backend config = do
