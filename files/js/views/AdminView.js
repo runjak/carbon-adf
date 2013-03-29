@@ -1,15 +1,12 @@
 AdminView = Backbone.View.extend({
   initialize: function(){
-    this.router = this.options.router;
-    this.logger = this.options.logger;
-    this.login  = this.options.login;
-    this.listenTo(this.login, "change:loggedIn", this.render);
+    this.listenTo(this.model, "change:loggedIn", this.render);
     var t = this;
     this.pager = new Pager({
       el: t.$('.pager')
     , url: '/pages/user'
     , onSelection: function(){
-        t.router.navigate('#admin/'+t.pager.getPage(), {trigger: true});
+        window.App.router.navigate('#admin/'+t.pager.getPage(), {trigger: true});
       }
     });
   }
@@ -22,7 +19,7 @@ AdminView = Backbone.View.extend({
       $('#AdminUserTable tbody', t.el).html('');
       $(data).each(function(i,e){
         var u = new User(e);
-        t.logger.watch(u);
+        window.App.logger.watch(u);
         var admin = u.get('isAdmin') ? ' checked="checked"' : '';
         var row = '<tr class="AdminUserEntry">'
                 + '<td>'+u.get('id')+'</td>'

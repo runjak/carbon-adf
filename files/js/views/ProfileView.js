@@ -1,7 +1,6 @@
 ProfileView = Backbone.View.extend({
   initialize: function(){
-    this.login = this.options.login;
-    this.listenTo(this.login, "change:loggedIn", this.render);
+    this.listenTo(this.model, "change:loggedIn", this.render);
     this.dialogEl = $('#ProfileDeleteDialog');
     var t = this;
     t.dialogEl.dialog({
@@ -19,7 +18,7 @@ ProfileView = Backbone.View.extend({
   }
 , statView: new UserStatisticsView({el: $('#ProfileStatistics')})
 , render: function(){
-    var m = this.login.get('loggedIn') ? this.login : null;
+    var m = this.model.get('loggedIn') ? this.model : null;
     this.statView.setModel(m);
   }
 , events: {
@@ -29,11 +28,11 @@ ProfileView = Backbone.View.extend({
 , updatePassword: function(){
     var nP = $('#NewPassword').val();
     var cP = $('#ConfirmPassword').val();
-    this.login.update(nP, cP);
+    this.model.update(nP, cP);
   }
 , deleteUser: function(){ this.dialogEl.dialog('open'); }
 , deleteUser_: function(){
     this.dialogEl.dialog('close');
-    this.login.delete();
+    this.model.delete();
   }
 });

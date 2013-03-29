@@ -1,12 +1,11 @@
 LoginView = Backbone.View.extend({
   initialize: function(){
-    this.login = this.options.login;
-    var login  = this.login;
+    var login = this.model;
     $('#LogoutButton').click(function(){ login.logout(); });
     this.listenTo(login, "change:loggedIn", this.render);
   }
 , render: function(){
-    var loggedIn = this.login.get('loggedIn');
+    var loggedIn = this.model.get('loggedIn');
     if(loggedIn){
       $('#LogoutButton').show();
     }else{
@@ -25,13 +24,13 @@ LoginView = Backbone.View.extend({
     };
   }
 , onLogin: function(){
-    this.login.login(this.getInputs());
+    this.model.login(this.getInputs());
   }
 , onLogin_: function(event){
     if(event.keyCode === 13)
       this.onLogin();
   }
 , register: function(){
-    this.login.register(this.getInputs());
+    this.model.register(this.getInputs());
   }
 });
