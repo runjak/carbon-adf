@@ -32,4 +32,5 @@ Relation = Backbone.Model.extend({
     var defaults = {wait: true, success: null, error: null};
     options = $.extend(options, defaults);
     this.save(attributes, options);
+  }
 });
