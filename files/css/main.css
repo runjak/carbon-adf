@@ -18,3 +18,9 @@
   padding: .25em;
 }
 .pager li.current {font-weight: bold;}
+#ViewInformationTitle{margin: 0px;}
+#ViewInformationDesc{
+  border-bottom: 1px solid #E0CFC2;
+  margin-bottom: 1em;
+}
+#ViewInformationRelations{width: 33%; float: right;}
