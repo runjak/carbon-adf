@@ -30,4 +30,8 @@ CallbackAnd = Backbone.Model.extend({
     if(f) f(this.get('data'));
     this.set({count: this.get('origCount'), data: []});
   }
+, bump: function(){
+    this.set({ count:     this.get('count')     + 1
+             , origCount: this.get('origCount') + 1});
+  }
 });
