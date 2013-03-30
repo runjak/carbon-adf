@@ -33,4 +33,19 @@ Relation = Backbone.Model.extend({
     options = $.extend(options, defaults);
     this.save(attributes, options);
   }
+//Fetching the ends:
+, _fetchEnd: function(endName, endStore, callback){
+    var i = this.get(endStore);
+    if(i) return i;
+    i = new Information({id: this.get(endName)});
+    i.fetch({success: callback});
+    this.set({endStore: i});
+    return i;
+  }
+, fetchSource: function(callback){
+    return this._fetchEnd('source', 'sourceInformation', callback);
+  }
+, fetchTarget: function(callback){
+    return this._fetchEnd('target', 'targetInformation', callback);
+  }
 });
