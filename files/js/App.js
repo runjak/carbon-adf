@@ -4,9 +4,10 @@ $(function(){
     http://benhowdle.im/2013/03/24/patterns-for-managing-large-scale-backbone-applications/
   */
   window.App = {
-    currentInformation:  new CurrentInformation()
+    currentInformation:    new CurrentInformation()
+  , collectedInformations: new CollectedInformations()
   , logger: new Logger({el: $('#log')})
-  , login: new Login()
+  , login:  new Login()
   , router: new Router()
   , views: {}
   };
