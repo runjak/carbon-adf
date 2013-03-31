@@ -43,7 +43,7 @@ router.on('route:userView', function(uid){
   if(uid){
     var u = new User({id: uid});
     u.fetch({success: function(u){
-      app.views.userView.setSpecific(u);
+      app.views.userView.setUser(u);
     }});
   }
 });
