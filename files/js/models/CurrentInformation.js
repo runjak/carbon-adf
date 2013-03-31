@@ -11,8 +11,12 @@ CurrentInformation = Information.extend({
 , setId:   function(id){
     var t = this;
     var i = new Information({id: id});
-    i.fetch().done(function(data){
-      t.set(i.attributes);
+    i.fetch().done(function(){
+      t.replaceWith(i);
     });
+  }
+, replaceWith: function(i){
+    this.attributes = {};
+    this.set(i.attributes);
   }
 });
