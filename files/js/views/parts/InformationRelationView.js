@@ -1,10 +1,11 @@
 InformationRelationView = Backbone.View.extend({
   initialize: function(){
-    this.relations = {sources: null, targets: null};
     this.$el.accordion();
     this.listenTo(this.model, "change", this.fetchRelations);
   }
 , fetchRelations: function(){
+    this.relations = {sources: null, targets: null};
+    this.$el.html('');
     var t = this;
     this.model.fetchRelations(function(relations){
       t.relations = relations;
@@ -16,19 +17,17 @@ InformationRelationView = Backbone.View.extend({
     var cAnd = new CallbackAnd({callback: function(){t.render();}});
     var sources = this.relations.sources;
     var targets = this.relations.targets;
+    if(sources) cAnd.bump(sources.length);
+    if(targets) cAnd.bump(targets.length);
     if(sources) sources.each(function(r){
-      cAnd.bump();
       r.fetchTarget(cAnd.getCall());
     });
     if(targets) targets.each(function(r){
-      cAnd.bump();
       r.fetchSource(cAnd.getCall());
     });
   }
 , render: function(){
-    //Clearing the old data:
-    this.$el.accordion("destroy").html('');
-    //Filling in new data:
+    this.$el.accordion("destroy");
     var t = this;
     var rSource = function(r){return t.renderRelation(r, r.fetchTarget());};
     var rTarget = function(r){return t.renderRelation(r, r.fetchSource());};
