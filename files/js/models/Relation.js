@@ -41,9 +41,8 @@ Relation = Backbone.Model.extend({
   }
 , fetchSource: function(callback){
     var i = this.get('sourceInformation');
-    if(i) return i;
+    if(i){if(callback) callback(i); return i;}
     var t = this;
-    t.set({sourceInformation: i});
     return this._fetchEnd('source', function(i){
       t.set({sourceInformation: i});
       if(callback) callback(i);
@@ -51,9 +50,8 @@ Relation = Backbone.Model.extend({
   }
 , fetchTarget: function(callback){
     var i = this.get('targetInformation');
-    if(i) return i;
+    if(i){if(callback) callback(i); return i;}
     var t = this;
-    t.set({targetInformation: i});
     return this._fetchEnd('target', function(i){
       t.set({targetInformation: i});
       if(callback) callback(i);
