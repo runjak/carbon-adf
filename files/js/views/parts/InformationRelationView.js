@@ -50,6 +50,10 @@ InformationRelationView = Backbone.View.extend({
       t.$el.append('<h3>' + i + '</h3><div><dl class="relationList">' + e + '</dl></div>');
     });
     this.$el.accordion();
+    this.$('a').click(function(){
+      var target = $(this).attr('href');
+      window.App.router.navigate(target, {trigger: true});
+    });
   }
 , renderRelation: function(r, i){
 //getSource, getTarget, getType, getComment, getCreated, getDeleted

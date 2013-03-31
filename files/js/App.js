@@ -32,7 +32,7 @@ router.on('route:defaultRoute', function(actions){
   console.log('router with actions:\t' + actions);
 });
 router.on('route:mainView', function(inf){
-  if(inf) app.currentInformation.set({id: inf});
+  if(inf) app.currentInformation.setId(inf);
 });
 router.on('route:loginView', function(){ app.views.loginView.render(); });
 router.on('route:profileView', function(){ app.views.profileView.render(); });
