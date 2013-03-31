@@ -5,8 +5,7 @@ InformationContentView = Backbone.View.extend({
     , pedantic: false
     , sanitize: true
     });
-    if(this.model)
-      this.listenModel();
+    if(this.model) this.listenModel();
     this.render();
   }
 , render: function(){
