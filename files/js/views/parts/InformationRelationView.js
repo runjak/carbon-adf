@@ -46,16 +46,17 @@ InformationRelationView = Backbone.View.extend({
       data.Supporter = targets.where({type: 'Defense'}).map(rTarget);
     }
     $.each(data, function(i, e){
+      if(e.length === 0) return;
       t.$el.append('<h3>' + i + '</h3><div><dl class="relationList">' + e + '</dl></div>');
     });
     this.$el.accordion();
   }
 , renderRelation: function(r, i){
 //getSource, getTarget, getType, getComment, getCreated, getDeleted
-    var i = r.fetchTarget();
-    var dt = "<dt><a href='#view/"+ i.get('id') + "' "
-           + "title='" + i.get('description') + "'>"
-           + i.get('title') + "</a></dt>";
+    var id    = i.get('id')
+      , desc  = i.get('description')
+      , title = i.get('title');
+    var dt = "<dt><a href='#view/"+ id + "' title='" + desc + "'>" + title + "</a></dt>";
     var dd = "<dd>" + r.getComment() + "</dd>";
     return dt+dd;
   }
