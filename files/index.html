@@ -18,6 +18,7 @@
     <script src="files/js/models/User.js"></script>
     <script src="files/js/models/Relation.js"></script>
     <script src="files/js/models/Login.js"></script>
+    <script src="files/js/collections/InformationCollection.js"></script>
     <script src="files/js/collections/RelationCollection.js"></script>
     <script src="files/js/collections/UserCollection.js"></script>
     <script src="files/js/views/parts/UserStatisticsView.js"></script>
@@ -26,6 +27,7 @@
     <script src="files/js/views/parts/Pager.js"></script>
     <script src="files/js/views/Logger.js"></script>
     <script src="files/js/views/TopmenuView.js"></script>
+    <script src="files/js/views/BrowseView.js"></script>
     <script src="files/js/views/MainView.js"></script>
     <script src="files/js/views/CreateView.js"></script>
     <script src="files/js/views/LoginView.js"></script>
@@ -56,6 +58,13 @@
         </li>
       </ul>
       <div id="browse">
+        <table>
+          <thead>
+            <tr><th>Title</th><th>Description</th><th>Author</th><th>Creation</th><th>Deletion</th></tr>
+          </thead>
+          <tbody id="BrowseDisplay"></tbody>
+        </table>
+        <ul class="pager"></ul>
       </div>
       <div id="view">
         <div id="ViewInformationRelations"></div>

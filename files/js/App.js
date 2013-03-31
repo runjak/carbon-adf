@@ -13,6 +13,8 @@ $(function(){
   //Inizializing the App:
   var app = window.App;
   app.logger.watch(app.login);
+  app.views.browseView = new BrowseView({
+    el: $('#browse')});
   app.views.mainView = new MainView({
     el: $('#view'), model: app.currentInformation});
   app.views.createView = new CreateView({
@@ -31,6 +33,7 @@ var router = app.router;
 router.on('route:defaultRoute', function(actions){
   console.log('router with actions:\t' + actions);
 });
+router.on('route:browseView', function(){app.views.browseView.fetch();});
 router.on('route:mainView', function(inf){
   if(inf) app.currentInformation.setId(inf);
 });
