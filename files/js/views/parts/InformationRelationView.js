@@ -47,6 +47,7 @@ InformationRelationView = Backbone.View.extend({
     }
     $.each(data, function(i, e){
       if(e.length === 0) return;
+      e = _.reduce(e, function(m, e){return m+e;}, '');
       t.$el.append('<h3>' + i + '</h3><div><dl class="relationList">' + e + '</dl></div>');
     });
     this.$el.accordion();
