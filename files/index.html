@@ -15,6 +15,7 @@
     <script src="files/js/models/helper/CallbackAnd.js"></script>
     <script src="files/js/models/Information.js"></script>
     <script src="files/js/models/CurrentInformation.js"></script>
+    <script src="files/js/models/InformationCheckSet.js"></script>
     <script src="files/js/models/User.js"></script>
     <script src="files/js/models/Relation.js"></script>
     <script src="files/js/models/Login.js"></script>
@@ -31,6 +32,7 @@
     <script src="files/js/views/BrowseView.js"></script>
     <script src="files/js/views/MainView.js"></script>
     <script src="files/js/views/CreateView.js"></script>
+    <script src="files/js/views/DiscussionView.js"></script>
     <script src="files/js/views/LoginView.js"></script>
     <script src="files/js/views/ProfileView.js"></script>
     <script src="files/js/views/UserView.js"></script>
@@ -46,15 +48,17 @@
           <a href="#view">View</a>
         </li><li data-tabindex="2" id="TopmenuCreate">
           <a href="#create" title="Create new Information">Create</a>
-        </li><li data-tabindex="3" id="TopmenuLogin">
+        </li><li data-tabindex="3" id="TopmenuDiscussion">
+          <a href="#discussion" title="Create new Discussion">Discussion</a>
+        </li><li data-tabindex="4" id="TopmenuLogin">
           <a href="#login" title="Login or register">Login</a>
-        </li><li data-tabindex="4" id="TopmenuProfile">
+        </li><li data-tabindex="5" id="TopmenuProfile">
           <a href="#profile" title="View your profile">Profile</a>
-        </li><li data-tabindex="5" id="TopmenuUsers">
+        </li><li data-tabindex="6" id="TopmenuUsers">
           <a href="#users" title="View your profile">Users</a>
-        </li><li data-tabindex="6" id="TopmenuAdmin">
+        </li><li data-tabindex="7" id="TopmenuAdmin">
           <a href="#admin" title="Perform administration tasks">Admin</a>
-        </li><li data-tabindex="7" id="TopmenuAbout">
+        </li><li data-tabindex="8" id="TopmenuAbout">
           <a href="#about">About</a>
         </li>
       </ul>
@@ -115,6 +119,10 @@
             <input id="CreateAddImageUrl" type="text">
           </p>
         </div>
+      </div>
+      <div id="discussion">
+        <input id="DiscussionTitle" type="text" placeholder="Title" title="Title for the new Discussion">
+        <textarea id="DiscussionDescription" placeholder="Description" title="Description of the new Discussion"></textarea>
       </div>
       <div id="login">
         <label for="Username">Username:</label>

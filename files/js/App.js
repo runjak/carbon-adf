@@ -20,6 +20,8 @@ $(function(){
     el: $('#view'), model: app.currentInformation});
   app.views.createView = new CreateView({
     el: $('#create'), model: app.currentInformation});
+  app.views.discussionView = new DiscussionView({
+    el: $('#discussion')});
   app.views.loginView = new LoginView({
     el: $('#login'), model: app.login});
   app.views.profileView = new ProfileView({
@@ -38,6 +40,7 @@ router.on('route:browseView', function(){app.views.browseView.fetch();});
 router.on('route:mainView', function(inf){
   if(inf) app.currentInformation.setId(inf);
 });
+router.on('route:discussionView', function(){ app.views.discussionView.render(); });
 router.on('route:loginView', function(){ app.views.loginView.render(); });
 router.on('route:profileView', function(){ app.views.profileView.render(); });
 router.on('route:userView', function(uid){

@@ -1,11 +1,12 @@
 TopmenuView = Backbone.View.extend({
   initialize: function(){
     var t    = this;
-    t.adminTab   = [6,'#TopmenuAdmin'];
-    t.loginTab   = [3,'#TopmenuLogin'];
-    t.profileTab = [4,'#TopmenuProfile']
+    t.adminTab   = [7,'#TopmenuAdmin'];
+    t.loginTab   = [4,'#TopmenuLogin'];
+    t.profileTab = [5,'#TopmenuProfile']
     t.loginTabs  = [ [2,'#TopmenuCreate']
-                   , [5,'#TopmenuUsers']
+                   , [3,'#TopmenuDiscussion']
+                   , [6,'#TopmenuUsers']
                    , t.profileTab];
     //Building tOptions:
     t.tabOptions = {
