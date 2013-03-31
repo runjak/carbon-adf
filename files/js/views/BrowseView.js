@@ -50,7 +50,7 @@ BrowseView = Backbone.View.extend({
       var div = display.find('div[data-iid="'+i.get('id')+'"]');
       var cI = div.find('button.collectInformation');
       var uI = div.find('button.uncollectInformation');
-      if(col.contains(i)){ cI.hide(); }else{ uI.hide(); }
+      if(col.where({id: i.get('id')}).length){ cI.hide(); }else{ uI.hide(); }
       cI.click(function(){
         cI.hide(); col.add(i); uI.show();
       });
