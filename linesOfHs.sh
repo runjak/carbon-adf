@@ -1,4 +1,4 @@
 #!/bin/sh
 # This script is called by OpenBrain/Main/CompileTime.hs on compilation.
 # It allows OpenBrain to know how many lines of Haskell it's long.
-find . -regex ".*hs" | xargs wc -l| sort -n
+find OpenBrain/ -type f -regex .*hs | xargs wc -l | sort -n

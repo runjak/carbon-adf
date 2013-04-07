@@ -1,9 +1,9 @@
 InformationCheckSet = Backbone.Model.extend({
-  defaults: { watchCollection: null
+  defaults: { watchCollection: null //Must be set
             , checkedSet: {}}
 , initialize: function(){
-    if(this.get('watchCollection') === null)
-      this.set({watchCollection: window.App.collectedInformations});
+    var t = this;
+    this.get('watchCollection').on("change reset add remove", function(){t.trigger("change");});
   }
 , check: function(i){
     var set = this.get('checkedSet');
@@ -22,6 +22,9 @@ InformationCheckSet = Backbone.Model.extend({
 , isChecked: function(i){
     var set = this.get('checkedSet');
     return (set[i.get('id')] === true);
+  }
+, toggle: function(i){
+    this.setChecked(i, !this.isChecked(i));
   }
 , collection: function(){return this.get('watchCollection');}
 });

@@ -15,8 +15,12 @@ info = unlines $
   [ "------------------"
   , "Commits -> Author:"] ++
     lines $( CTime.authors ) ++
-  [ "--------------------"
-  , "Total lines of code:\t"
-  ++ linesOfCode]
+  [ "-----------------------"
+  , "Total lines of Haskell:\t\t"
+  ++ linesOfHs
+  , "Total lines of JavaScript:\t"
+  ++ linesOfJs]
 
-linesOfCode = head . words . last $ lines $( CTime.linesOfCode )
+linesOfHs = lHelp $( CTime.linesOfHs )
+linesOfJs = lHelp $( CTime.linesOfJs )
+lHelp = head . words . last . lines

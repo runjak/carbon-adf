@@ -123,6 +123,18 @@
       <div id="discussion">
         <input id="DiscussionTitle" type="text" placeholder="Title" title="Title for the new Discussion">
         <textarea id="DiscussionDescription" placeholder="Description" title="Description of the new Discussion"></textarea>
+        <button id="DiscussionCreate"><span class="ui-icon ui-icon-close"></span></button>
+        <h3>Arguments:</h3>
+        <div id="DiscussionType">
+          <input type="radio" name="radio" id="DiscussionTAttack">
+          <label for="DiscussionTAttack">Attack only</label>
+          <input type="radio" name="radio" id="DiscussionTDefense" checked="checked">
+          <label for="DiscussionTDefense">Attack/Defense</label>
+        </div>
+        <table>
+          <thead><tr><th>Include?</th><th>Title</th><th>Description</th></tr></thead>
+          <tbody id="DiscussionArgumentTable"></tbody>
+        </table>
       </div>
       <div id="login">
         <label for="Username">Username:</label>

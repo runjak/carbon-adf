@@ -8,7 +8,8 @@ import qualified System.Process as Process
 
 authors = (stringE . init) =<< runIO (Process.readProcess "darcs" ["show", "authors"] "")
 
-linesOfCode = (stringE . init) =<< runIO (Process.readProcess "./linesOfCode.sh" [] "")
+linesOfHs = (stringE . init) =<< runIO (Process.readProcess "./linesOfHs.sh" [] "")
+linesOfJs = (stringE . init) =<< runIO (Process.readProcess "./linesOfJs.sh" [] "")
 
 version = (stringE . init) =<< runIO (Process.readProcess "grep" ["Version", "openBrain.cabal"] "")
 
