@@ -1,36 +1,36 @@
 InformationRelationView = Backbone.View.extend({
   initialize: function(){
+    this.relations = {sources: null, targets: null};
     this.$el.accordion();
     this.listenTo(this.model, "change", this.fetchRelations);
   }
 , fetchRelations: function(){
-    this.relations = {sources: null, targets: null};
     this.$el.html('');
     var t = this;
-    this.model.fetchRelations(function(relations){
-      t.relations = relations;
+    this.model.fetchRelations().done(function(r){
+      t.relations = r;
       t.readyRelations();
     });
   }
 , readyRelations: function(){
-    var t    = this;
-    var cAnd = new CallbackAnd({callback: function(){t.render();}});
     var sources = this.relations.sources;
     var targets = this.relations.targets;
-    if(sources) cAnd.bump(sources.length);
-    if(targets) cAnd.bump(targets.length);
+    var queue = [];
     if(sources) sources.each(function(r){
-      r.fetchTarget(cAnd.getCall());
+      queue.push(r.fetchTarget());
     });
     if(targets) targets.each(function(r){
-      r.fetchSource(cAnd.getCall());
+      queue.push(r.fetchSource());
     });
+    var t = this;
+    $.when.apply($, queue).done(function(){ t.render(); });
   }
 , render: function(){
+    console.log('InformationRelationView:render()');
     this.$el.accordion("destroy");
     var t = this;
-    var rSource = function(r){return t.renderRelation(r, r.fetchTarget());};
-    var rTarget = function(r){return t.renderRelation(r, r.fetchSource());};
+    var rSource = function(r){return t.renderRelation(r, r.getTargetI());};
+    var rTarget = function(r){return t.renderRelation(r, r.getSourceI());};
     var data = {}; 
     var sources = this.relations.sources;
     if(sources){
@@ -56,7 +56,6 @@ InformationRelationView = Backbone.View.extend({
     });
   }
 , renderRelation: function(r, i){
-//getSource, getTarget, getType, getComment, getCreated, getDeleted
     var id    = i.get('id')
       , desc  = i.get('description')
       , title = i.get('title');

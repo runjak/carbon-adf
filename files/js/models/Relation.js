@@ -4,7 +4,9 @@ Relation = Backbone.Model.extend({
 , initialize: function(){}
 //Expected getters:
 , getSource:  function(){return this.get('source');}
+, getSourceI: function(){return this.get('sourceI');}
 , getTarget:  function(){return this.get('target');}
+, getTargetI: function(){return this.get('targetI');}
 , getType:    function(){return this.get('type');}
 , getComment: function(){return this.get('comment');}
 , getCreated: function(){return this.get('creation');}
@@ -34,27 +36,27 @@ Relation = Backbone.Model.extend({
     this.save(attributes, options);
   }
 //Fetching the ends:
-, _fetchEnd: function(end, callback){
-    var i = new Information({id: this.get(end)});
-    i.fetch({success: callback});
-    return i;
+, _fetchEnd: function(end){
+    return (new Information({id: this.get(end)})).fetch();
   }
 , fetchSource: function(callback){
-    var i = this.get('sourceInformation');
-    if(i){if(callback) callback(i); return i;}
     var t = this;
-    return this._fetchEnd('source', function(i){
-      t.set({sourceInformation: i});
-      if(callback) callback(i);
+    var d = $.Deferred();
+    this._fetchEnd('source').done(function(i){
+      i = new Information(i);
+      t.set({sourceI: i});
+      d.resolve(i);
     });
+    return d;
   }
 , fetchTarget: function(callback){
-    var i = this.get('targetInformation');
-    if(i){if(callback) callback(i); return i;}
     var t = this;
-    return this._fetchEnd('target', function(i){
-      t.set({targetInformation: i});
-      if(callback) callback(i);
+    var d = $.Deferred();
+    this._fetchEnd('target').done(function(i){
+      i = new Information(i);
+      t.set({targetI: i});
+      d.resolve(i);
     });
+    return d;
   }
 });

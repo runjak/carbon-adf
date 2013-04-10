@@ -14,26 +14,35 @@ Information = Backbone.Model.extend({
       $.post('/action/edit/create', q, function(d){ t.set(d); callback(); });
     }
   }
-, _fetchRelations: function(relationEnd, callback){
+, _fetchRelations: function(relationEnd){
     var url = 'relation/' + relationEnd  + '/' + this.get('id');
-    $.get(url, function(data){
-      var rs = new RelationCollection(data);
-      callback(rs);
+    var def = $.Deferred();
+    $.get(url).done(function(d){
+      def.resolve(new RelationCollection(d));
+    }).fail(function(e){
+      window.App.logger.log(e, true);
+      def.resolve();
     });
+    return def;
   }
-, fetchTargets: function(callback){
-    this._fetchRelations('target', callback);
+, fetchTargets: function(){
+    return this._fetchRelations('target');
   }
-, fetchSources: function(callback){
-    this._fetchRelations('source', callback);
+, fetchSources: function(){
+    return this._fetchRelations('source');
   }
-, fetchRelations: function(callback){
-    var options = {count: 2, callback: function(x){
-                    x = $.extend(x[0], x[1]);
-                    callback(x);
-                  }};
-    var cAnd = new CallbackAnd(options);
-    this.fetchTargets(function(d){cAnd.call({targets: d});});
-    this.fetchSources(function(d){cAnd.call({sources: d});});
+, fetchRelations: function(){
+    var rDef = $.Deferred();
+    var tDef = this.fetchTargets();
+    var sDef = this.fetchSources();
+    tDef.done(function(t){
+      sDef.done(function(s){
+        rDef.resolve({
+          targets: t
+        , sources: s
+        });
+      });
+    });
+    return rDef;
   }
 });
