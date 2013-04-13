@@ -26,7 +26,6 @@ InformationRelationView = Backbone.View.extend({
     $.when.apply($, queue).done(function(){ t.render(); });
   }
 , render: function(){
-    console.log('InformationRelationView:render()');
     this.$el.accordion("destroy");
     var t = this;
     var rSource = function(r){return t.renderRelation(r, r.getTargetI());};

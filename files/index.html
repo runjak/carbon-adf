@@ -122,7 +122,14 @@
       <div id="discussion">
         <input id="DiscussionTitle" type="text" placeholder="Title" title="Title for the new Discussion">
         <textarea id="DiscussionDescription" placeholder="Description" title="Description of the new Discussion"></textarea>
-        <button id="DiscussionCreate"><span class="ui-icon ui-icon-close"></span></button>
+        <button id="DiscussionCreate" title="Create a new discussion">
+          <span class="ui-icon ui-icon-disk"></span>
+        </button>
+        <label>
+          Deadline:
+          <input type="text" id="DiscussionPickDate">
+          <input type="text" id="DiscussionPickTime" placeholder="hh:mm" title="Enter a time in 24hour format.">
+        </label>
         <h3>Arguments:</h3>
         <div id="DiscussionType">
           <input type="radio" name="radio" id="DiscussionTAttack">

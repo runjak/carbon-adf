@@ -9,6 +9,7 @@
 }
 #DiscussionTitle, #DiscussionDescription {width: 100%;}
 #DiscussionDescription {resize: vertical;}
+#DiscussionPickTime {width: 5em};
 #LogoutButton {
   position: absolute;
   right: 20px;

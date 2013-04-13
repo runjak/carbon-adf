@@ -1,6 +1,7 @@
 DiscussionView = Backbone.View.extend({
   initialize: function(){
     this.$('#DiscussionType').buttonset();
+    this.$('#DiscussionPickDate').datepicker();
     this.checkset = new InformationCheckSet({
       watchCollection: window.App.collectedInformations
     });
