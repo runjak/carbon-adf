@@ -1,0 +1,13 @@
+DROP TABLE IF EXISTS articles          CASCADE;
+DROP TABLE IF EXISTS children          CASCADE;
+DROP TABLE IF EXISTS choices           CASCADE;
+DROP TABLE IF EXISTS collectedarticles CASCADE;
+DROP TABLE IF EXISTS collections       CASCADE;
+DROP TABLE IF EXISTS descriptions      CASCADE;
+DROP TABLE IF EXISTS discussions       CASCADE;
+DROP TABLE IF EXISTS participants      CASCADE;
+DROP TABLE IF EXISTS relations         CASCADE;
+DROP TABLE IF EXISTS results           CASCADE;
+DROP TABLE IF EXISTS users             CASCADE;
+DROP TABLE IF EXISTS voters            CASCADE;
+DROP TABLE IF EXISTS weights           CASCADE;
