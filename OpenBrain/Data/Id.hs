@@ -2,7 +2,7 @@
 module OpenBrain.Data.Id (
     Id, wrap, unwrap
   , IdType(..)
-  , InformationId, RelationId, UserId
+  , ArticleId, CollectionId, DescriptionId, NewDescriptionId, DiscussionId, RelationId, ResultId, UserId          
 ) where
 
 import Data.Aeson (ToJSON, FromJSON)
@@ -21,26 +21,15 @@ class IdType i where
   fromId  :: Id -> i
   toId    :: i -> Id
 
-newtype InformationId = IId Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
-newtype RelationId    = RId Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
-newtype UserId        = UId Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
-
-instance IdType InformationId where
-  fromId        = IId
-  toId (IId i)  = i
-
-instance IdType RelationId where
-  fromId        = RId
-  toId (RId i)  = i
-
-instance IdType UserId where
-  fromId        = UId
-  toId (UId i)  = i
-
--- | To make generic handling of IdType easier
-instance IdType Id where
-  fromId  = id
-  toId    = id
+-- | Id Types:
+newtype ArticleId        = AId   Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
+newtype CollectionId     = CId   Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
+newtype DescriptionId    = DeId  Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
+newtype NewDescriptionId = NId   Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
+newtype DiscussionId     = DiId  Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
+newtype RelationId       = RelId Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
+newtype ResultId         = ResId Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
+newtype UserId           = UId   Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
 
 -- | Instances for external classes:
 instance FromReqURI Id where
