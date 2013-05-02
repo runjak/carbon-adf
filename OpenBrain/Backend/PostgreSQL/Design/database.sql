@@ -111,6 +111,7 @@ WITH (OIDS=TRUE);
 -- object: public.relations | type: TABLE -- 
 CREATE TABLE public.relations(
 	relationid serial NOT NULL,
+	"descriptionId" serial NOT NULL,
 	source serial NOT NULL,
 	target serial NOT NULL,
 	type varchar(255) NOT NULL,
@@ -235,6 +236,13 @@ ON DELETE CASCADE ON UPDATE NO ACTION NOT DEFERRABLE;
 ALTER TABLE public.weights ADD CONSTRAINT weights_discussionid FOREIGN KEY (discussionid)
 REFERENCES public.discussions (discussionid) MATCH FULL
 ON DELETE CASCADE ON UPDATE NO ACTION NOT DEFERRABLE;
+-- ddl-end --
+
+
+-- object: relations_description | type: CONSTRAINT -- 
+ALTER TABLE public.relations ADD CONSTRAINT relations_description FOREIGN KEY ("descriptionId")
+REFERENCES public.descriptions (descriptionid) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION NOT DEFERRABLE;
 -- ddl-end --
 
 

@@ -1,4 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-|
+  This is the Haskell implementation of the Datatypes
+  described in the UML-class-diagram from storedData.pdf.
+  It is also converted into a .pdf and included into storedData.pdf.
+|-}
 module OpenBrain.Data where
 
 import Data.Aeson ((.=), ToJSON(..), object)
@@ -10,7 +15,6 @@ import OpenBrain.Data.Hash
 import OpenBrain.Data.Json
 import OpenBrain.Data.Salt
 
-{-| ADTs as described in the UML-class-diagram from storedData.pdf |-}
 data Description = Description {
   descriptionId :: DescriptionId
 , author        :: Author
@@ -69,7 +73,6 @@ data User = User {
 } deriving (Show)
 
 {-| Type aliases: |-}
-
 type Author       = UserId
 type Count        = Int
 type Headline     = String

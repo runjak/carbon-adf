@@ -140,7 +140,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="collectedarticles" oids="true">
 	<schema name="public"/>
-	<position x="588.571" y="168.571"/>
+	<position x="594.571" y="145.571"/>
 	<column name="collectionid" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -239,6 +239,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="public"/>
 	<position x="741.429" y="305.714"/>
 	<column name="relationid" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="descriptionId" not-null="true">
 		<type name="serial"/>
 	</column>
 	<column name="source" not-null="true">
@@ -452,5 +455,16 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 src-required="false" dst-required="false"
 	 src-table="public.discussions"
 	 dst-table="public.results"/>
+
+<constraint name="relations_description" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.descriptions" table="public.relations">
+	<columns names="descriptionId" ref-type="src-columns"/>
+	<columns names="descriptionid" ref-type="dst-columns"/>
+</constraint>
+<relationship name="rel_relations_descriptions"
+	 type="relfk"
+	 src-required="false" dst-required="false"
+	 src-table="public.relations"
+	 dst-table="public.descriptions"/>
 
 </dbmodel>
