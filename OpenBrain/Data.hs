@@ -13,8 +13,8 @@ import OpenBrain.Data.Salt
 {-| ADTs as described in the UML-class-diagram from storedData.pdf |-}
 data Description = Description {
   descriptionId :: DescriptionId
-, author        :: UserId
-, headline      :: String
+, author        :: Author
+, headline      :: Headline
 , description   :: String
 , creationTime  :: Timestamp
 , deletionTime  :: Timestamp
@@ -70,9 +70,17 @@ data User = User {
 
 {-| Type aliases: |-}
 
+type Author       = UserId
+type Count        = Int
+type Headline     = String
+type Heir         = UserId
+type IsAdmin      = Bool
+type Limit        = Int
+type Offset       = Int
 type RelationType = String
 type SessionKey   = String
 type Timestamp    = Integer 
+type Username     = String
 type Voted        = Bool
 type Votes        = Int
 type Weight       = Int 
