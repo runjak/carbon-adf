@@ -241,7 +241,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="relationid" not-null="true">
 		<type name="serial"/>
 	</column>
-	<column name="descriptionId" not-null="true">
+	<column name="descriptionid" not-null="true">
 		<type name="serial"/>
 	</column>
 	<column name="source" not-null="true">
@@ -458,7 +458,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <constraint name="relations_description" type="fk-constr"	 comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.descriptions" table="public.relations">
-	<columns names="descriptionId" ref-type="src-columns"/>
+	<columns names="descriptionid" ref-type="src-columns"/>
 	<columns names="descriptionid" ref-type="dst-columns"/>
 </constraint>
 <relationship name="rel_relations_descriptions"

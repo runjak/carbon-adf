@@ -1,6 +1,5 @@
 module OpenBrain.Config (
     Config(..)
-  , KarmaConfig(..)
   , nullConfig
   , readConfig
   , writeConfig
@@ -13,29 +12,19 @@ module OpenBrain.Config (
 import Control.Monad (liftM)
 import Data.Maybe (listToMaybe)
 
-import OpenBrain.Config.Karma
-
 type Seconds = Int
 data Config = Config {
-    fileStorage     :: FilePath -- | Directory to place uploads in and serve static files from
-  , allowUploads    :: Bool     -- | Should users be allowed to upload files?
-  , allowBrowsing   :: Bool     -- | Should users be able to browse the static files directory?
-  , port            :: Int      -- | The port on which openBrain will listen
-  , backendType     :: BackendType
-  , tlsKey          :: FilePath
-  , tlsCert         :: FilePath
-  , karmaConfig     :: KarmaConfig
+    fileStorage   :: FilePath    -- | Directory to serve static files from
+  , allowBrowsing :: Bool        -- | Should users be able to browse the static files directory?
+  , port          :: Int         -- | The port on which openBrain will listen
+  , backendType   :: BackendType -- | Which backend will be used
 } deriving (Eq, Read, Show)
 
 nullConfig = Config {
-    fileStorage     = "files/"
-  , allowUploads    = False
-  , allowBrowsing   = True
-  , port            = 8000  -- | Happstack std.
-  , backendType     = PostgreSQLBackend {pgOptions = "dbname=openbrain host=127.0.0.1 user=mushu password=1234"}
-  , tlsKey          = ""
-  , tlsCert         = ""
-  , karmaConfig     = nullKarmaConfig
+    fileStorage   = "files/"
+  , allowBrowsing = True
+  , port          = 8000  -- | Happstack std.
+  , backendType   = PostgreSQLBackend {pgOptions = "dbname=openbrain host=127.0.0.1 user=mushu password=1234"}
 }
 
 readConfig :: FilePath -> IO (Maybe Config)

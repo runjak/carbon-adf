@@ -111,7 +111,7 @@ WITH (OIDS=TRUE);
 -- object: public.relations | type: TABLE -- 
 CREATE TABLE public.relations(
 	relationid serial NOT NULL,
-	"descriptionId" serial NOT NULL,
+	descriptionid serial NOT NULL,
 	source serial NOT NULL,
 	target serial NOT NULL,
 	type varchar(255) NOT NULL,
@@ -240,7 +240,7 @@ ON DELETE CASCADE ON UPDATE NO ACTION NOT DEFERRABLE;
 
 
 -- object: relations_description | type: CONSTRAINT -- 
-ALTER TABLE public.relations ADD CONSTRAINT relations_description FOREIGN KEY ("descriptionId")
+ALTER TABLE public.relations ADD CONSTRAINT relations_description FOREIGN KEY (descriptionid)
 REFERENCES public.descriptions (descriptionid) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION NOT DEFERRABLE;
 -- ddl-end --

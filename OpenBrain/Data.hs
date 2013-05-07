@@ -39,6 +39,9 @@ data Relation = Relation {
 , rDescription :: Description
 } deriving (Show) 
 
+data RelationType = RelationAttack | RelationDefense
+  deriving (Show, Read, Eq, Ord, Enum)
+
 data Collection = Collection {
   collectionId :: CollectionId
 , articles     :: [ArticleId]
@@ -80,7 +83,6 @@ type Heir         = UserId
 type IsAdmin      = Bool
 type Limit        = Int
 type Offset       = Int
-type RelationType = String
 type SessionKey   = String
 type Timestamp    = Integer 
 type Username     = String
@@ -147,6 +149,8 @@ instance ToJSON Relation where
         , "target"     .= target     r
         , "rType"      .= rType      r
         ]
+instance ToJSON RelationType where
+  toJSON = toJSON . show
 instance ToJSON Collection where
   toJSON c = merge (toJSON $ cDescription c) o
     where
