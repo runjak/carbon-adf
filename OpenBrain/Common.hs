@@ -1,8 +1,17 @@
-module OpenBrain.Common where
+module OpenBrain.Common(
+  liftIOM
+, liftIOMay
+, (?), powerset, plusm
+, module ControlMonad
+, module ControlMonadState
+, module ControlMonadTrans
+, module ControlMonadTransMaybe
+)where
 
-import Control.Monad
-import Control.Monad.Trans
-import Control.Monad.Trans.Maybe
+import Control.Monad                 as ControlMonad
+import Control.Monad.State           as ControlMonadState
+import Control.Monad.Trans           as ControlMonadTrans
+import Control.Monad.Trans.Maybe     as ControlMonadTransMaybe
 
 liftIOM :: MonadIO m => (a -> b) -> IO a -> m b
 liftIOM f = liftIO . liftM f

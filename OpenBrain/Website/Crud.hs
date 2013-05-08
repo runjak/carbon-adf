@@ -2,8 +2,6 @@ module OpenBrain.Website.Crud where
 {-|
   Inspired by http://devo.ps/blog/2013/03/22/designing-a-restful-api-that-doesn-t-suck.html
 |-}
-import Happstack.Server as S
-
 import OpenBrain.Website.Monad as Monad
 
 crudCreate = (>>) $ method POST   :: OBW a -> OBW a

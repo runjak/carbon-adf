@@ -8,7 +8,7 @@ import Control.Monad.Trans.Maybe
 import Data.Maybe (isJust, fromJust)
 import System.Environment (getArgs)
 
-import OpenBrain.Backend.Load (loadBackend)
+import OpenBrain.Backend (loadBackend)
 import OpenBrain.Config (Config, nullConfig, readConfig, writeConfig)
 import qualified OpenBrain.Main.Reflection as Reflection
 import qualified OpenBrain.Website as Web (serve)

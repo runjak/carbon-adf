@@ -1,31 +1,30 @@
 module OpenBrain.Website.Monad (
-    WebsiteState(..), OBW
-  , runOBW, noMaybe, noMaybes
-  , liftOBB, liftMaybe
-  , module ControlMonad
-  , module ControlMonadState
-  , module ControlMonadTrans
-  , module ControlMonadTransMaybe
-  , module Backend
-  , module Config
+  module Server
+, WebsiteState(..), OBW
+, runOBW, noMaybe, noMaybes
+, liftB, liftMaybe
+, module Backend
+, module BackendDSL
+, module Config
+, module Common
+, module Data
 ) where
 {-
   Definition of a Website Monad that will help me doing things with more ease.
 -}
 
-import Control.Monad                 as ControlMonad
-import Control.Monad.State           as ControlMonadState
-import Control.Monad.Trans           as ControlMonadTrans
-import Control.Monad.Trans.Maybe     as ControlMonadTransMaybe
 import Data.Maybe
-import Happstack.Server              as Server
+import Happstack.Server as Server hiding (port, result)
 
-import OpenBrain.Backend            as Backend
-import OpenBrain.Config             as Config
+import OpenBrain.Backend     as Backend
+import OpenBrain.Backend.DSL as BackendDSL
+import OpenBrain.Config      as Config
+import OpenBrain.Common      as Common
+import OpenBrain.Data        as Data
 import qualified OpenBrain.Deadline as Deadline
 
 data WebsiteState = WebsiteState {
-    backend       :: CBackend
+    backend       :: CBackendProcessor
   , config        :: Config
   , deadlineState :: Deadline.TDState
   }
@@ -47,10 +46,10 @@ noMaybes :: OBW [Maybe a] -> OBW [a]
 noMaybes = liftM catMaybes
 
 -- Some lift operations:
-liftOBB :: (LiftBackend b) => b a -> OBW a
-liftOBB m = do
+liftB :: BackendDSL a -> OBW a
+liftB m = do
   b <- gets backend
-  liftIO . process b $ liftB m
+  liftIO $ process b m
 
 liftDeadline :: Deadline.Deadline a -> OBW a
 liftDeadline m = liftIO . evalStateT m . deadlineState =<< get
