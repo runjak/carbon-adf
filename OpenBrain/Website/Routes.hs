@@ -73,4 +73,5 @@ route = msum [
     , crudRead $ undefined
     , crudCreate $ undefined
     ]
+--, liftM responseHTML $ S.serveFile return "files/index.html"
   ]
