@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 module OpenBrain.Website.Session where
 {-
   Session management for clients.
@@ -25,10 +26,10 @@ cookieUserId    = "userid"
   Initializes a session for a given UserId
   and sets a cookie for the client.
 |-}
-mkSession :: UserId -> OBW ()
-mkSession uid = do
-  key <- liftOBB $ StartSession uid
-  addCookies $ map ((,) Session) [mkCookie cookieUserId $ show uid, mkCookie cookieActionKey key]
+mkSession :: UserId -> SessionKey -> OBW ()
+mkSession uid key = addCookies $ map ((,) Session) [
+    mkCookie cookieUserId $ show uid
+  , mkCookie cookieActionKey key]
 
 {-|
   mzero on invalid session.
@@ -37,16 +38,18 @@ chkSession :: OBW UserId
 chkSession = do
   key <- lookCookieValue cookieActionKey
   uid <- liftM read $ lookCookieValue cookieUserId
-  guard =<< liftOBB (Validate uid key)
+  guard =<< liftB (Validate uid key)
   return uid
 
 chkSession' :: (UserId -> OBW Response) -> OBW Response
-chkSession' f = handleFail "Login required" $ f =<< chkSession
+chkSession' f = plusm loginReq $ f =<< chkSession
+  where
+    loginReq = respUnauthorized $ responseJSON "Login required"
 
 dropSession :: OBW ()
 dropSession = do
   key <- lookCookieValue cookieActionKey
   uid <- liftM read $ lookCookieValue cookieUserId
-  liftOBB $ StopSession uid key
+  liftB $ Logout uid
   mapM_ expireCookie [cookieActionKey, cookieUserId]
 

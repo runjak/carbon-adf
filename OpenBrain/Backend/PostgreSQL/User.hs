@@ -1,4 +1,4 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables, RankNTypes #-}
 module OpenBrain.Backend.PostgreSQL.User where
 
 import System.Random
@@ -82,7 +82,7 @@ validate uid sKey conn = do
   let q = "SELECT sessionkey FROM users WHERE userid = ?"
   rst <- quickQuery' conn q [toSql $ toId uid]
   case rst of
-    [[s]] -> return $ sKey == (fromSql s)
+    [[s]] -> return $ sKey == fromSql s
     _ -> return False
 
 logout :: UserId -> Query ()
@@ -104,4 +104,4 @@ setPasswd uid f conn = do
 setProfile :: UserId -> Maybe ArticleId -> Query ()
 setProfile uid mA conn =
   let q = "UPDATE users SET profile = ? WHERE userid = ?"
-  in void $ quickQuery' conn q [toSql $ liftM (toId) mA, toSql $ toId uid]
+  in void $ quickQuery' conn q [toSql $ liftM toId mA, toSql $ toId uid]

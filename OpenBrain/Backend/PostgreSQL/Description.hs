@@ -1,3 +1,4 @@
+{-# LANGUAGE RankNTypes #-}
 module OpenBrain.Backend.PostgreSQL.Description where
 
 import OpenBrain.Backend.PostgreSQL.Common

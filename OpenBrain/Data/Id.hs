@@ -1,10 +1,11 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving, OverloadedStrings #-}
 module OpenBrain.Data.Id (
     Id, wrap, unwrap
   , IdType(..)
   , ArticleId, CollectionId, NewCollectionId, DescriptionId, NewDescriptionId, DiscussionId, RelationId, ResultId, UserId          
 ) where
 
+import Control.Monad (liftM)
 import Data.Aeson (ToJSON, FromJSON)
 import Happstack.Server as S
 
@@ -36,6 +37,11 @@ newtype UserId           = UId   Id deriving (Eq, Ord, Enum, Read, Show, ToJSON,
 instance FromReqURI Id where
   fromReqURI = return . wrap . read
 
+instance ToMessage Id where
+  toContentType = const "application/json"
+  toMessage     = toMessage . show . unwrap
+  toResponse    = toResponse . show . unwrap
+
 instance IdType ArticleId where
   fromId = AId
   toId (AId i) = i
@@ -63,3 +69,22 @@ instance IdType ResultId where
 instance IdType UserId where
   fromId = UId
   toId (UId i) = i
+
+instance FromReqURI ArticleId where
+  fromReqURI = liftM fromId . fromReqURI
+instance FromReqURI CollectionId where
+  fromReqURI = liftM fromId . fromReqURI
+instance FromReqURI NewCollectionId where
+  fromReqURI = liftM fromId . fromReqURI
+instance FromReqURI DescriptionId where
+  fromReqURI = liftM fromId . fromReqURI
+instance FromReqURI NewDescriptionId where
+  fromReqURI = liftM fromId . fromReqURI
+instance FromReqURI DiscussionId where
+  fromReqURI = liftM fromId . fromReqURI
+instance FromReqURI RelationId where
+  fromReqURI = liftM fromId . fromReqURI
+instance FromReqURI ResultId where
+  fromReqURI = liftM fromId . fromReqURI
+instance FromReqURI UserId where
+  fromReqURI = liftM fromId . fromReqURI

@@ -1,3 +1,4 @@
+{-# LANGUAGE RankNTypes #-}
 module OpenBrain.Backend.PostgreSQL.Article where
 
 import OpenBrain.Backend.PostgreSQL.Common
@@ -11,12 +12,12 @@ addArticle ndid content conn = do
   [[i]] <- quickQuery' conn q [toSql $ toId ndid, toSql content]
   return . fromId $ fromSql i
 
-clone :: ArticleId -> Query ArticleId
-clone aid conn = do
+clone :: ArticleId -> Author -> Query ArticleId
+clone aid uid conn = do
   -- | Copy Article and Description to new rows:
   a <- getArticle aid conn
   let d = aDescription a
-  ndid <- addDescription (author d) (headline d) (description d) conn
+  ndid <- addDescription uid (headline d) (description d) conn
   aid' <- addArticle ndid (content a) conn
   -- | Copy children from original:
   copyChildren <- prepare conn "INSERT INTO children (parent, child) VALUES (?, ?)"
@@ -31,7 +32,7 @@ clone aid conn = do
       copies     = "SELECT relationid FROM relations WHERE target = ? OR source = ?"
   mapM_ (\q -> quickQuery' conn q [toSql $ toId aid', toSql $ toId aid]) [copyTarget, copySource]
   rids <- quickQuery' conn copies [toSql $ toId aid', toSql $ toId aid']
-  mapM_ (\r -> forkD r conn) $ map (fromId . fromSql . head) rids
+  forM_ rids $ (`forkD` conn) . fromId . fromSql . head
   -- | Done:
   return aid'
   where

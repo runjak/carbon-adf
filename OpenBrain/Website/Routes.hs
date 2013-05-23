@@ -1,77 +1,79 @@
-{-# LANGUAGE ScopedTypeVariables #-}
 module OpenBrain.Website.Routes where
 
 import OpenBrain.Website.Common
+import qualified OpenBrain.Website.Article     as Article
+import qualified OpenBrain.Website.Collection  as Collection
+import qualified OpenBrain.Website.Description as Description
+import qualified OpenBrain.Website.Discussion  as Discussion
+import qualified OpenBrain.Website.Files       as Files
+import qualified OpenBrain.Website.Login       as Login
+import qualified OpenBrain.Website.Relation    as Relation
+import qualified OpenBrain.Website.Result      as Result
+import qualified OpenBrain.Website.User        as User
 
 route :: OBW Response
 route = msum [
     dir "article" $ msum [
-      (path $ \(aid :: Integer) -> msum [
-        crudRead $ undefined
-      , crudUpdate $ undefined
-      , crudDelete $ undefined
-      ])
-    , crudRead $ undefined
-    , crudCreate $ undefined
+      path $ \aid -> msum [
+        crudRead   $ Article.readArticle   aid
+      , crudUpdate $ Article.updateArticle aid
+      , crudDelete $ Article.deleteArticle aid
+      ]
+    , crudRead   Article.pageArticles
+    , crudCreate Article.createArticle
     ]
   , dir "collection" $ msum [
-      (path $ \(cid :: Integer) -> path $ \(aid :: Integer) -> msum [
-        crudUpdate $ undefined
-      , crudDelete $ undefined
-      ])
-    , (path $ \(cid :: Integer) -> crudRead $ undefined)
-    , crudRead $ undefined
+      path $ \cid -> path $ \aid -> msum [
+        crudUpdate $ Collection.addToCollection cid aid
+      , crudDelete $ Collection.delFromCollection cid aid
+      ]
+    , path $ crudRead . Collection.readCollection
+    , crudRead Collection.pageCollections
     ]
   , dir "description" $ msum [
-      (path $ \(did :: Integer) -> msum [
-        crudRead $ undefined
-      , crudUpdate $ undefined
-      , crudDelete $ undefined
-      ])
-    , crudRead $ undefined
+      path $ \did -> msum [
+        crudRead   $ Description.readDescription   did
+      , crudDelete $ Description.deleteDescription did
+      ]
+    , crudRead Description.pageDescriptions
     ]
   , dir "discussion" $ msum [
-      (path $ \(did :: Integer) -> msum [
+      path $ \did -> msum [
         dir "participate" $ msum [
-          crudCreate $ undefined
-        , crudDelete $ undefined
+          crudCreate $ Discussion.joinDiscussion did
+        , crudDelete $ Discussion.leaveDiscussion did
         ]
-      , dir "weight" $ (path $ \(rid :: Integer) -> crudCreate $ undefined)
-      , crudRead $ undefined
-      ])
-    , crudCreate $ undefined
-    , crudRead $ undefined
+      , dir "weight" . path $ crudCreate . Discussion.weightRelation did
+      , crudRead $ Discussion.readDiscussion did
+      ]
+    , crudCreate Discussion.createDiscussion
+    , crudRead   Discussion.pageDiscussions
     ]
-  , dir "files" $ undefined
+  , dir "files" Files.serve
   , dir "login" $ msum [
-      crudCreate $ undefined
-    , crudUpdate $ undefined
-    , crudDelete $ undefined
+      crudCreate Login.login
+    , crudDelete Login.logout
     ]
   , dir "relation" $ msum [
-      (path $ \(rid :: Integer) -> msum [
-        crudRead $ undefined
-      , crudUpdate $ undefined
-      , crudDelete $ undefined
-      ])
-    , crudRead $ undefined
-    , crudCreate $ undefined
+      path $ crudRead . Relation.readRelation
+    , crudRead   Relation.pageRelations
+    , crudCreate Relation.createRelation
     ]
   , dir "result" $ msum [
-      (path $ \(rid :: Integer) -> msum [
-        dir "vote" $ crudCreate $ undefined
-      , crudRead $ undefined
-      ])
-    , crudRead $ undefined
+      path $ \rid -> msum [
+        dir "vote" . crudCreate $ Result.vote rid
+      , crudRead $ Result.readResult rid
+      ]
+    , crudRead Result.pageResults
     ]
   , dir "user" $ msum [
-      (path $ \(uid :: Integer) -> msum [
-        crudRead $ undefined
-      , crudUpdate $ undefined
-      , crudDelete $ undefined
-      ])
-    , crudRead $ undefined
-    , crudCreate $ undefined
+      path $ \uid -> msum [
+        crudRead   $ User.readUser   uid
+      , crudUpdate $ User.updateUser uid
+      , crudDelete $ User.deleteUser uid
+      ]
+    , crudRead   User.pageUsers
+    , crudCreate User.createUser
     ]
---, liftM responseHTML $ S.serveFile return "files/index.html"
+  , liftM responseHTML $ serveFile return "files/index.html"
   ]

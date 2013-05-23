@@ -8,6 +8,7 @@ module OpenBrain.Data where
 
 import Data.Aeson ((.=), ToJSON(..), object)
 import Data.Function (on)
+import Happstack.Server (FromReqURI(..))
 import qualified Data.Aeson as Aeson
 
 import OpenBrain.Data.Id
@@ -180,3 +181,8 @@ instance ToJSON User where
     , "isAdmin"      .= isAdmin      u
     , "profile"      .= profile      u
     ]
+{-| Instances of FromReqURI |-}
+instance FromReqURI RelationType where
+  fromReqURI "RelationAttack"  = Just RelationAttack
+  fromReqURI "RelationDefense" = Just RelationDefense
+  fromReqURI _ = Nothing

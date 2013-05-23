@@ -32,7 +32,7 @@ data BackendDSL r where
   SetDescription    :: DescriptionId -> String -> BackendDSL ()
   -- | Article related:
   AddArticle :: NewDescriptionId -> String -> BackendDSL ArticleId
-  Clone      :: ArticleId -> BackendDSL ArticleId
+  Clone      :: ArticleId -> Author -> BackendDSL ArticleId
   GetArticle :: ArticleId -> BackendDSL Article
   SetContent :: ArticleId -> String -> BackendDSL ()
   -- | Relation related:

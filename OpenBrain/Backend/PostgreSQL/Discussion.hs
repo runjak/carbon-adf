@@ -1,3 +1,4 @@
+{-# LANGUAGE RankNTypes #-}
 module OpenBrain.Backend.PostgreSQL.Discussion where
 
 import OpenBrain.Backend.PostgreSQL.Collection (getCollection)

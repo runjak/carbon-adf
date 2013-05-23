@@ -1,4 +1,4 @@
-{-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE NoMonomorphismRestriction, RankNTypes #-}
 module OpenBrain.Backend.PostgreSQL.Paging(
   articleCount, collectionCount, descriptionCount, discussionCount, relationCount, resultCount, userCount
 , pageArticles, pageCollections, pageDescriptions, pageDiscussions, pageRelations, pageResults, pageUsers
@@ -13,7 +13,7 @@ articleCount     = getCount $ "SELECT COUNT(*) "
 collectionCount  = getCount $ "SELECT COUNT(*) "
   ++ "FROM collections INNER JOIN descriptions d USING (descriptionid) "
   ++ "WHERE d.deletion IS NULL"
-descriptionCount = getCount $ "SELECT COUNT(*) FROM descriptions WHERE deletion IS NULL"
+descriptionCount = getCount "SELECT COUNT(*) FROM descriptions WHERE deletion IS NULL"
 discussionCount  = getCount $ "SELECT COUNT(*) "
   ++ "FROM discussions INNER JOIN collections USING (collectionid) "
   ++ "INNER JOIN descriptions d USING (descriptionid) WHERE d.deletion IS NULL"
@@ -55,6 +55,6 @@ pageResults      = idQ pageResults'      :: Limit -> Offset -> Query [ResultId]
 pageUsers        = idQ pageUsers'        :: Limit -> Offset -> Query [UserId]
 
 idQ :: IdType i => String -> Limit -> Offset -> Query [i]
-idQ q l o = \conn -> do
+idQ q l o conn = do
   rst <- quickQuery' conn q [toSql l, toSql o] 
   return $ map (\[i] -> fromId $ fromSql i) rst
