@@ -24,7 +24,8 @@ nullConfig = Config {
     fileStorage   = "files/"
   , allowBrowsing = True
   , port          = 8000  -- | Happstack std.
-  , backendType   = PostgreSQLBackend {pgOptions = "dbname=openbrain host=127.0.0.1 user=mushu password=1234"}
+  , backendType   = PostgreSQLBackend {pgOptions = "dbname=openbrain host=127.0.0.1 user=mushu"}
+--, backendType   = PostgreSQLBackend {pgOptions = "dbname=openbrain host=127.0.0.1 user=mushu password=1234"}
 }
 
 readConfig :: FilePath -> IO (Maybe Config)
