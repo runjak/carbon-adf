@@ -3,14 +3,14 @@
   <head>
     <title>OpenBrain v.0.5 remake</title>
     <meta charset="utf-8">
-    <link href="files/css/humanity/jquery-ui-1.10.1.custom.css" rel="stylesheet">
+    <link href="files/css/bootstrap/bootstrap.css" rel="stylesheet">
     <link href="files/css/main.css" rel="stylesheet">
     <script src="files/js/extern/jquery-1.9.1.js"></script>
-    <script src="files/js/extern/jquery-ui-1.10.1.custom.js"></script>
-    <script src="files/js/extern/jquery.cookie.js"></script>
     <script src="files/js/extern/underscore.js"></script>
     <script src="files/js/extern/backbone.js"></script>
     <script src="files/js/extern/marked.js"></script>
+    <script src="files/js/extern/bootstrap.js"></script>
+    <!-- Adjust .js below -->
     <script src="files/js/Router.js"></script>
     <script src="files/js/models/Information.js"></script>
     <script src="files/js/models/CurrentInformation.js"></script>
@@ -39,155 +39,6 @@
     <script src="files/js/App.js"></script>
   </head>
   <body>
-    <div id="main">
-      <ul id="topmenu">
-        <li data-tabindex="0" id="TopmenuBrowse">
-          <a href="#browse">Browse</a>
-        </li><li data-tabindex="1" id="TopmenuView">
-          <a href="#view">View</a>
-        </li><li data-tabindex="2" id="TopmenuCreate">
-          <a href="#create" title="Create new Information">Create</a>
-        </li><li data-tabindex="3" id="TopmenuDiscussion">
-          <a href="#discussion" title="Create new Discussion">Discussion</a>
-        </li><li data-tabindex="4" id="TopmenuLogin">
-          <a href="#login" title="Login or register">Login</a>
-        </li><li data-tabindex="5" id="TopmenuProfile">
-          <a href="#profile" title="View your profile">Profile</a>
-        </li><li data-tabindex="6" id="TopmenuUsers">
-          <a href="#users" title="View your profile">Users</a>
-        </li><li data-tabindex="7" id="TopmenuAdmin">
-          <a href="#admin" title="Perform administration tasks">Admin</a>
-        </li><li data-tabindex="8" id="TopmenuAbout">
-          <a href="#about">About</a>
-        </li>
-      </ul>
-      <div id="browse">
-        <table>
-          <thead>
-            <tr><th>Title</th><th>Description</th><th>Author</th><th>Creation</th><th>Deletion</th><th>Actions</th></tr>
-          </thead>
-          <tbody id="BrowseDisplay"></tbody>
-        </table>
-        <ul class="pager"></ul>
-      </div>
-      <div id="view">
-        <div id="ViewInformationRelations"></div>
-        <h1 id="ViewInformationTitle"></h1>
-        <div id="ViewInformationDesc"></div>
-        <div id="ViewInformationContent"></div>
-        <!-- More views shall be added here. -->
-      </div>
-      <div id="create">
-        <input id="CreateTitle" type="text" placeholder="Title" title="Title for the new Information">
-        <textarea id="CreateDescription" placeholder="Description" title="Description of the new Information"></textarea>
-        <button id="CreateNew" title="Create the new Information.">
-          <span class="ui-icon ui-icon-disk"></span>
-        </button>
-        <button id="CreateAddLinkB" title="Add a link at the current cursor position.">
-          <span class="ui-icon ui-icon-link"></span>
-        </button>
-        <button id="CreateAddImageB" title="Add an image at the current cursor position.">
-          <span class="ui-icon ui-icon-image"></span>
-        </button>
-        <button id="CreateHelp" title="Get help with writing the content in markdown.">
-          <span class="ui-icon ui-icon-help"></span>
-        </button>
-        <textarea id="CreateContent" placeholder="The content in markdown syntax."></textarea>
-        <div id="CreatePreview" class="ui-widget-content ui-corner-all" title="Content preview">Nothing to preview.</div>
-        <div id="CreateAddLinkD" title="Add a link">
-          <p>
-            <label for="CreateAddLinkAlt">Alt:</label>
-            <input id="CreateAddLinkAlt" type="text">
-            <br>
-            <label for="CreateAddLinkText">Text:</label>
-            <input id="CreateAddLinkText" type="text">
-            <br>
-            <label for="CreateAddLinkUrl">Url:</label>
-            <input id="CreateAddLinkUrl" type="text">
-          </p>
-        </div>
-        <div id="CreateAddImageD" title="Add an image">
-          <p>
-            <label for="CreateAddImageAlt">Alt:</label>
-            <input id="CreateAddImageAlt" type="text">
-            <br>
-            <label for="CreateAddImageTitle">Title:</label>
-            <input id="CreateAddImageTitle" type="text">
-            <br>
-            <label for="CreateAddImageUrl">Url:</label>
-            <input id="CreateAddImageUrl" type="text">
-          </p>
-        </div>
-      </div>
-      <div id="discussion">
-        <input id="DiscussionTitle" type="text" placeholder="Title" title="Title for the new Discussion">
-        <textarea id="DiscussionDescription" placeholder="Description" title="Description of the new Discussion"></textarea>
-        <button id="DiscussionCreate" title="Create a new discussion">
-          <span class="ui-icon ui-icon-disk"></span>
-        </button>
-        <label>
-          Deadline:
-          <input type="text" id="DiscussionPickDate">
-          <input type="text" id="DiscussionPickTime" placeholder="hh:mm" title="Enter a time in 24hour format.">
-        </label>
-        <h3>Arguments:</h3>
-        <div id="DiscussionType">
-          <input type="radio" name="radio" id="DiscussionTAttack">
-          <label for="DiscussionTAttack">Attack only</label>
-          <input type="radio" name="radio" id="DiscussionTDefense" checked="checked">
-          <label for="DiscussionTDefense">Attack/Defense</label>
-        </div>
-        <table>
-          <thead><tr><th>Include?</th><th>Title</th><th>Description</th></tr></thead>
-          <tbody id="DiscussionArgumentTable"></tbody>
-        </table>
-      </div>
-      <div id="login">
-        <label for="Username">Username:</label>
-        <input id="Username" type="text">
-        <label for="Password">Password:</label>
-        <input id="Password" type="password">
-        <button id="LoginButton" title="Login"><span class="ui-icon ui-icon-unlocked"></span></button>
-        <button id="RegisterButton" title="Register"><span class="ui-icon ui-icon-key"></span></button>
-      </div>
-      <div id="profile">
-        <h3>Update Password:</h3>
-        <label for="NewPassword">New Password:</label>
-        <input id="NewPassword" type="password">
-        <label for="ConfirmPassword">Confirm Password:</label>
-        <input id="ConfirmPassword" type="password">
-        <button id="UpdatePasswordButton" title="Update Password"><span class="ui-icon ui-icon-disk"></span></button>
-        <button id="DeleteUserButton" title="Delete User"><span class="ui-icon ui-icon-trash"></span></button>
-        <h3>Statistics:</h3>
-        <dl id="ProfileStatistics">
-          <dt>Karma:</dt><dd>0</dd>
-          <dt>Creation:</dt><dd>23.5.1337</dd>
-          <dt>Last login:</dt><dd>Today :P</dd>
-        </dl>
-        <div id="ProfileDeleteDialog" title="Delete user permanently?">
-          <p>Do you want to permanently delete your user on this page?</p>
-        </div>
-      </div>
-      <div id="users">
-        <dl id="UserStatistics"></dl>
-      </div>
-      <div id="admin">
-        <table id="AdminUserTable">
-          <thead>
-            <tr><th>Id</th><th>Username</th><th>Karma</th><th>Password</th><th>Admin</th><th>Action</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-        <ul class="pager"></ul>
-      </div>
-      <div id="about">
-        Welcome to the OpenBrain about page.<br>
-        This application has been under development for some time now,
-        and I'd like it to finish asap.<br>
-        My Version count is at V.0.3.
-      </div>
-    </div>
-    <div id="log"></div>
-    <button id="LogoutButton" title="Logout"><span class="ui-icon ui-icon-locked"></span></button>
+    <!-- Build basic page structure here. -->
   </body>
 </html>
