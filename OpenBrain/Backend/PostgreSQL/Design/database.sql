@@ -22,7 +22,7 @@ CREATE DATABASE openbrain
 CREATE TABLE public.users(
 	userid serial NOT NULL,
 	username varchar(255) NOT NULL,
-	hash varchar(32) NOT NULL,
+	hash varchar(128) NOT NULL,
 	salt varchar(255) NOT NULL,
 	creationtime timestamp NOT NULL DEFAULT now(),
 	lastlogin timestamp NOT NULL DEFAULT now(),

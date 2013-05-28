@@ -15,7 +15,7 @@ createArticle = plusm createFail $ do
   aid     <- liftB $ AddArticle ndid content
   readArticle aid
   where
-    createFail = respBadRequest $ responseJSON "Login required; expected parameters: headline, description, content"
+    createFail = respBadRequest $ responseJSON'' "Login required; expected parameters: headline, description, content"
 
 readArticle :: ArticleId -> OBW Response
 readArticle = respOk . responseJSON' <=< liftB . GetArticle
@@ -44,14 +44,14 @@ updateArticle aid = Session.chkSession' $ \author -> plusm updateFail $ do
       return [update]
     updates :: [OBW [ArticleId -> BackendDSL ()]]
     updates = [updateHeadline, updateDescription, updateContent]
-    updateFail = respBadRequest $ responseJSON "Expected parameters are any of: headline, description, content."
+    updateFail = respBadRequest $ responseJSON'' "Expected parameters are any of: headline, description, content."
 
 deleteArticle :: ArticleId -> OBW Response
 deleteArticle aid = Session.chkSession' . const $ do
   liftB $ do
     d <- liftM aDescription $ GetArticle aid
     DeleteDescription $ descriptionId d
-  respOk . responseJSON' $ "Deleted Article:\t"++show aid
+  respOk . responseJSON'' $ "Deleted Article:\t" ++ show aid
 
 -- | Parameters…
 getContent :: OBW String

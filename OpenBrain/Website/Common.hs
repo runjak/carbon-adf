@@ -3,7 +3,7 @@ module OpenBrain.Website.Common(
   module Id
 , module Crud
 , module Monad
-, responseHTML, responseJSON, responseJSON'
+, responseHTML, responseJSON, responseJSON', responseJSON''
 , countAndPageBy, sanitize
 )where
 {-
@@ -32,6 +32,9 @@ responseJSON = setHeader "Content-Type" "application/json"
 
 responseJSON' :: ToJSON x => x -> Response 
 responseJSON' = responseJSON . toResponse . Aeson.encode
+
+responseJSON'' :: String -> Response
+responseJSON'' = responseJSON'
 
 countAndPageBy :: BackendDSL Count -> (Limit -> Offset -> BackendDSL Response) -> OBW Response
 countAndPageBy c p = plusm count $ do

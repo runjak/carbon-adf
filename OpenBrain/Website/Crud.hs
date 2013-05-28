@@ -1,13 +1,29 @@
-module OpenBrain.Website.Crud where
+module OpenBrain.Website.Crud(
+  crudCreate
+, crudRead
+, crudUpdate
+, crudDelete
+, respOk
+, respCreated
+, respNotModified
+, respBadRequest
+, respUnauthorized
+, respForbidden
+, respNotFound
+, respInternalServerError
+)where
 {-|
   Inspired by http://devo.ps/blog/2013/03/22/designing-a-restful-api-that-doesn-t-suck.html
 |-}
 import OpenBrain.Website.Monad as Monad
 
-crudCreate = (>>) $ method POST   :: OBW a -> OBW a
-crudRead   = (>>) $ method GET    :: OBW a -> OBW a
-crudUpdate = (>>) $ method PUT    :: OBW a -> OBW a
-crudDelete = (>>) $ method DELETE :: OBW a -> OBW a
+crudCreate = decode $ method POST
+crudRead   = decode $ method GET
+crudUpdate = decode $ method PUT
+crudDelete = decode $ method DELETE
+
+decode :: OBW () -> OBW a -> OBW a
+decode check = (>>) $ check >> decodeBody (defaultBodyPolicy "/tmp/" 0 1000 1000)
 
 {-
 200: OK

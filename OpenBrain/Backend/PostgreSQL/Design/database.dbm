@@ -20,7 +20,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<type name="varchar" length="255"/>
 	</column>
 	<column name="hash" not-null="true">
-		<type name="varchar" length="32"/>
+		<type name="varchar" length="128"/>
 	</column>
 	<column name="salt" not-null="true">
 		<type name="varchar" length="255"/>

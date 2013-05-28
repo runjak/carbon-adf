@@ -19,7 +19,7 @@ createRelation = plusm createFail $ do
   rid  <- liftB $ AddRelation ndid rType source target
   readRelation rid
   where
-    createFail = respBadRequest $ responseJSON
+    createFail = respBadRequest $ responseJSON''
       "Login required; Expected parameters are: headline, description, source, target, type."
 
 readRelation :: RelationId -> OBW Response

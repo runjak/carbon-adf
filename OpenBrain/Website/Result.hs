@@ -23,8 +23,8 @@ vote rid = plusm badReq $ do
     liftB $ Vote rid uid cid
     readResult rid
   where
-    badReq = respBadRequest $ responseJSON "A choice parameter is expected, and the user must be logged in."
-    cantVote = respForbidden $ responseJSON "The user either has already voted or was no participant in the discussion."
+    badReq = respBadRequest  $ responseJSON'' "A choice parameter is expected, and the user must be logged in."
+    cantVote = respForbidden $ responseJSON'' "The user either has already voted or was no participant in the discussion."
 
 -- Parameters…
 getChoice :: OBW CollectionId

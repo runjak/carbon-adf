@@ -44,7 +44,7 @@ chkSession = do
 chkSession' :: (UserId -> OBW Response) -> OBW Response
 chkSession' f = plusm loginReq $ f =<< chkSession
   where
-    loginReq = respUnauthorized $ responseJSON "Login required"
+    loginReq = respUnauthorized $ responseJSON'' "Login required"
 
 dropSession :: OBW ()
 dropSession = do

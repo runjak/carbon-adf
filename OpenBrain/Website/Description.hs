@@ -17,8 +17,8 @@ readDescription = respOk . responseJSON' <=< liftB . GetDescription
 
 deleteDescription :: DescriptionId -> OBW Response
 deleteDescription did = Session.chkSession' . const $ do
-  liftB $ DeleteDescription did
-  respOk $ responseJSON "Deletion successful."
+  liftB  $ DeleteDescription did
+  respOk $ responseJSON'' "Deletion successful."
 
 getHeadline :: OBW Headline
 getHeadline = liftM sanitize $ lookRead "headline"

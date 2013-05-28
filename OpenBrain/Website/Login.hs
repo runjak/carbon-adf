@@ -20,14 +20,14 @@ login = plusm params $ do
     mskey <- liftB $ Login uid (fromJust mHash)
     guard $ isJust mskey
     Session.mkSession uid $ fromJust mskey
-    respOk $ responseJSON "Login successful."
+    respOk $ responseJSON'' "Login successful."
   where
-    params = respBadRequest $ responseJSON "Expected parameters are:\t username, password"
-    failed = respForbidden  $ responseJSON "Wrong username or password."
+    params = respBadRequest $ responseJSON'' "Expected parameters are:\t username, password"
+    failed = respForbidden  $ responseJSON'' "Wrong username or password."
 
 logout :: OBW Response
-logout = plusm notLoggedIn $ doLogout >> success
+logout = plusm notLoggedIn $ doLogout >> Session.dropSession >> success
   where
-    notLoggedIn = respBadRequest $ responseJSON "Not logged in."
+    notLoggedIn = respBadRequest $ responseJSON'' "Not logged in."
     doLogout    = liftB . Logout =<< Session.chkSession
-    success     = respOk $ responseJSON "Logout succesful."
+    success     = respOk $ responseJSON'' "Logout succesful."

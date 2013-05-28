@@ -16,7 +16,7 @@ createDiscussion = Session.chkSession' $ \uid -> plusm createFail $ do
     AddDiscussion ncid [uid] deadline
   readDiscussion did
   where
-    createFail = respBadRequest $ responseJSON "Expected parameters: headline, description, deadline"
+    createFail = respBadRequest $ responseJSON'' "Expected parameters: headline, description, deadline"
 
 readDiscussion :: DiscussionId -> OBW Response
 readDiscussion = respOk . responseJSON' <=< liftB . GetDiscussion
@@ -37,7 +37,7 @@ weightRelation did rid = Session.chkSession' $ \uid -> plusm weightFail $ do
   liftB $ Weight did uid w rid
   readDiscussion did
   where
-    weightFail = respBadRequest $ responseJSON "Expected parameter: weight."
+    weightFail = respBadRequest $ responseJSON'' "Expected parameter: weight."
 
 -- | Parameters…
 getDeadline :: OBW Timestamp

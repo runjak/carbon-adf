@@ -18,7 +18,7 @@ addUser uName (h,s) isA conn = do
 
 deleteUser :: UserId -> Heir -> Query ()
 deleteUser uid heir conn = do
-  let heirDesc   = "UPDATE descriptions SET userid = ? WHERE userid = ?"
+  let heirDesc   = "UPDATE descriptions SET author = ? WHERE author = ?"
       delWeights = "DELETE FROM weights WHERE userid = ?"
       delVotes   = "DELETE FROM voters WHERE userid = ?"
       delUser    = "DELETE FROM users WHERE userid = ?"
@@ -41,7 +41,7 @@ getNobody conn = do
 
 getUser :: UserId -> Query User
 getUser uid conn = do
-  let q = "SELECT (username, hash, salt, creationtime, lastlogin, isadmin, profile, sessionkey) FROM users WHERE userid = ?"
+  let q = "SELECT username, hash, salt, creationtime, lastlogin, isadmin, profile, sessionkey FROM users WHERE userid = ?"
   rst <- quickQuery' conn q [toSql $ toId uid]
   case rst of
     [[uname, h, s, ctime, ltime, isA, p, session]] -> return User {
