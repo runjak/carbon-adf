@@ -16,3 +16,5 @@ body {
 }
 /* Own, additional stuff: */
 #LoginRegisterForm {display: none;}
+#SingleUserViewParent {display: none;}
+#UserViewParent {display: none;}

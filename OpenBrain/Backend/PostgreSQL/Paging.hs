@@ -44,7 +44,7 @@ pageRelations'    = "SELECT r.relationid "
   ++ "FROM relations r JOIN descriptions d USING (descriptionid) "
   ++ "WHERE d.deletion IS NULL LIMIT ? OFFSET ?"
 pageResults'      = "SELECT resultid FROM results LIMIT ? OFFSET ?"
-pageUsers'        = "SELECT userid FROM users LIMIT ? OFFSET ?"
+pageUsers'        = "SELECT userid FROM users WHERE username != 'Nobody' LIMIT ? OFFSET ?"
 
 pageArticles     = idQ pageArticles'     :: Limit -> Offset -> Query [ArticleId]
 pageCollections  = idQ pageCollections'  :: Limit -> Offset -> Query [CollectionId]

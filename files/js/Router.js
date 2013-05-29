@@ -1,6 +1,7 @@
 Router = Backbone.Router.extend({
   routes: {
     "login":    "loginView"
+  , "user":     "userView"
   , "user/:id": "singleUserView"
   , "*actions": "defaultRoute"
   }

@@ -20,10 +20,12 @@ $(function(){
     el: $('#LoginState')
   , model: window.App.login
   });
+  views.userView = new UserView({el: $('#UserView')});
   views.singleUserView = new SingleUserView({
-    el: $('#SingleUserViewModel')
+    el: $('#SingleUserView')
   , model: null
   });
+  views.topMenuView = new TopMenuView({el: $('#TopMenu')});
   //Starting the routing:
   Backbone.history.start();
   window.App.router.on('defaultRoute', function(actions){

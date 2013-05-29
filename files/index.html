@@ -20,10 +20,10 @@
           <a href="#" class="brand">OpenBrain</a>
           <div class="nav-collapse collapse">
             <p id="LoginState" class="navbar-text pull-right"></p>
-            <ul class="nav">
-              <li class="active"><a href="#">Articles</a></li>
-              <li><a href="#about">Discussions</a></li>
-              <li><a href="#contact">Users</a></li>
+            <ul id="TopMenu" class="nav">
+              <li class="article"><a href="#/article">Articles</a></li>
+              <li class="discussion"><a href="#/discussion">Discussions</a></li>
+              <li class="user"><a href="#/user">Users</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div><!--/.container-fluid -->
@@ -31,10 +31,22 @@
     </div><!--/.navbar -->
     <!-- The Content: -->
     <div class="container-fluid">
-      <div id="SingleUserView" class="row-fluid">
-        <div id="SingleUserViewModel" class="span8 offset2">
-          <!-- FIXME complete -->
+      <div id="UserViewParent" class="row-fluid">
+        <div id="UserView">
+          <table class="table table-bordered">
+            <thead><tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Creation</th>
+              <th>Last login</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="pagination"></div>
         </div>
+      </div>
+      <div id="SingleUserViewParent" class="row-fluid">
+        <div id="SingleUserView" class="span8 offset2"></div>
       </div>
       <div id="LoginRegisterForm" class="row-fluid">
         <div class="span4 offset4">
@@ -78,11 +90,16 @@
     <script src="files/js/extern/bootstrap.js"></script>
     <script src="files/js/models/User.js"></script>
     <script src="files/js/models/Login.js"></script>
+    <script src="files/js/models/Pager.js"></script>
+    <script src="files/js/collections/UserCollection.js"></script>
     <script src="files/js/views/Hideable.js"></script>
     <script src="files/js/views/HideManager.js"></script>
     <script src="files/js/views/LoginState.js"></script>
     <script src="files/js/views/LoginView.js"></script>
     <script src="files/js/views/SingleUserView.js"></script>
+    <script src="files/js/views/TopMenuView.js"></script>
+    <script src="files/js/views/UserPagination.js"></script>
+    <script src="files/js/views/UserView.js"></script>
     <script src="files/js/Router.js"></script>
     <script src="files/js/App.js"></script>
   </body>

@@ -1,5 +1,6 @@
 SingleUserView = Hideable.extend({
   initialize: function(){
+    this.HideTarget = this.$el.parent();
     var t = this;
     window.App.router.on('route:singleUserView', function(uid){
       t.setUserId(uid).always(function(){
