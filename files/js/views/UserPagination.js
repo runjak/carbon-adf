@@ -24,7 +24,7 @@ UserPagination = Backbone.View.extend({
       var name = (i === _.last(pages.next)) ? '»' : (i+1);
       lis += '<li><a data-page="'+i+'">'+name+'</a></li>';
     });
-    if(pages.prev === [] && pages.next === [])
+    if(pages.prev.length === 0 && pages.next.length === 0)
       lis = '';
     this.$('ul').html(lis);
     //Binding actions:
