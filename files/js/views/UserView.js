@@ -4,7 +4,7 @@ UserView = Hideable.extend({
     this.pagination = new UserPagination({
       el: this.$('.pagination')
     });
-    this.model = this.pagination.users;
+    this.model = this.pagination.collection;
     this.model.on('reset add remove', this.render, this);
     var userView = this;
     window.App.router.on('route:userView', function(){

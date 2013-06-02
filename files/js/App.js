@@ -18,6 +18,9 @@ $(function(){
   }
   //Setting the views:
   var views = window.App.views;
+  views.articleView = new ArticleView({
+    el: $('#ArticleView')
+  });
   views.singleArticleView = new SingleArticleView({
     el: $('#SingleArticleView')
   , model: null

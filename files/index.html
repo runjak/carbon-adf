@@ -31,7 +31,21 @@
     </div><!--/.navbar -->
     <!-- The Content: -->
     <div class="container-fluid">
-      <div class="row-fluid">
+      <div id="ArticleViewParent" class="row-fluid">
+        <div id="ArticleView" class="span12">
+          <table class="table table-bordered">
+            <thead><tr>
+              <th>#</th>
+              <th>Headline</th>
+              <th>Description</th>
+              <th>Creation</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="pagination"></div>
+        </div>
+      </div>
+      <div id="SingleArticleViewParent" class="row-fluid">
         <div id="SingleArticleView" class="span12"></div>
       </div>
       <div id="CreateArticleView" class="row-fluid">
@@ -116,6 +130,7 @@
     <script src="files/js/models/Login.js"></script>
     <script src="files/js/models/Pager.js"></script>
     <script src="files/js/models/Article.js"></script>
+    <script src="files/js/collections/ArticleCollection.js"></script>
     <script src="files/js/collections/UserCollection.js"></script>
     <script src="files/js/views/Hideable.js"></script>
     <script src="files/js/views/HideManager.js"></script>
@@ -123,9 +138,12 @@
     <script src="files/js/views/LoginView.js"></script>
     <script src="files/js/views/SingleUserView.js"></script>
     <script src="files/js/views/TopMenuView.js"></script>
+    <script src="files/js/views/Pagination.js"></script>
     <script src="files/js/views/UserPagination.js"></script>
     <script src="files/js/views/UserView.js"></script>
+    <script src="files/js/views/ArticlePagination.js"></script>
     <script src="files/js/views/ArticleRender.js"></script>
+    <script src="files/js/views/ArticleView.js"></script>
     <script src="files/js/views/CreateArticleView.js"></script>
     <script src="files/js/views/SingleArticleView.js"></script>
     <script src="files/js/Router.js"></script>
