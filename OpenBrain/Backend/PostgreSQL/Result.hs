@@ -21,8 +21,8 @@ addResult did cids conn = do
 
 getResult :: ResultId -> Query Result
 getResult rid conn = do
-  choices <- quickQuery' conn "SELECT (collectionid, votes) FROM choices WHERE resultid = ?" [toSql $ toId rid]
-  voters  <- quickQuery' conn "SELECT (userid, voted) FROM voters WHERE resultid = ?" [toSql $ toId rid]
+  choices <- quickQuery' conn "SELECT collectionid, votes FROM choices WHERE resultid = ?" [toSql $ toId rid]
+  voters  <- quickQuery' conn "SELECT userid, voted FROM voters WHERE resultid = ?" [toSql $ toId rid]
   return Result{
     resultId = rid
   , choices  = concatMap mkChoice choices

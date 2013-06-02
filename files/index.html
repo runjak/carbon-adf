@@ -31,8 +31,31 @@
     </div><!--/.navbar -->
     <!-- The Content: -->
     <div class="container-fluid">
+      <div class="row-fluid">
+        <div id="SingleArticleView" class="span12"></div>
+      </div>
+      <div id="CreateArticleView" class="row-fluid">
+        <div class="span6">
+          <form>
+            <fieldset>
+              <legend>Create a new Article:</legend>
+              <label>Headline:</label>
+              <input id="CreateArticleViewHeadline" placeholder="The new headline" type="text">
+              <label>Description:</label>
+              <textarea id="CreateArticleViewDescription" placeholder="The new description"></textarea>
+              <label>Content:</label>
+              <textarea id="CreateArticleViewContent" placeholder="The new content"></textarea>
+              <button id="CreateArticle" class="btn">Save</button>
+            </fieldset>
+          </form>
+        </div>
+        <div class="span6">
+          <legend>Preview:</legend>
+          <div id="CreateArticleViewPreview"></div>
+        </div>
+      </div>
       <div id="UserViewParent" class="row-fluid">
-        <div id="UserView">
+        <div id="UserView" class="span12">
           <table class="table table-bordered">
             <thead><tr>
               <th>#</th>
@@ -83,6 +106,7 @@
     <!-- Scripts: -->
     <script src="files/js/extern/jquery-1.9.1.js"></script>
     <script src="files/js/extern/jquery.cookie.js"></script>
+    <script src="files/js/extern/autoresize.jquery.js"></script>
     <script src="files/js/jquery.crud.js"></script>
     <script src="files/js/extern/underscore.js"></script>
     <script src="files/js/extern/backbone.js"></script>
@@ -91,6 +115,7 @@
     <script src="files/js/models/User.js"></script>
     <script src="files/js/models/Login.js"></script>
     <script src="files/js/models/Pager.js"></script>
+    <script src="files/js/models/Article.js"></script>
     <script src="files/js/collections/UserCollection.js"></script>
     <script src="files/js/views/Hideable.js"></script>
     <script src="files/js/views/HideManager.js"></script>
@@ -100,6 +125,9 @@
     <script src="files/js/views/TopMenuView.js"></script>
     <script src="files/js/views/UserPagination.js"></script>
     <script src="files/js/views/UserView.js"></script>
+    <script src="files/js/views/ArticleView.js"></script>
+    <script src="files/js/views/CreateArticleView.js"></script>
+    <script src="files/js/views/SingleArticleView.js"></script>
     <script src="files/js/Router.js"></script>
     <script src="files/js/App.js"></script>
   </body>

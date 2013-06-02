@@ -18,3 +18,7 @@ body {
 #LoginRegisterForm {display: none;}
 #SingleUserViewParent {display: none;}
 #UserViewParent {display: none;}
+#CreateArticleView {display: none;}
+#CreateArticleViewHeadline {width: 100%;}
+#CreateArticleViewDescription {width: 100%; resize: none;}
+#CreateArticleViewContent {width: 100%; resize: none;}

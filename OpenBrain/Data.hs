@@ -22,7 +22,7 @@ data Description = Description {
 , headline      :: Headline
 , description   :: String
 , creationTime  :: Timestamp
-, deletionTime  :: Timestamp
+, deletionTime  :: Maybe Timestamp
 } deriving (Show)
 
 data Article = Article {

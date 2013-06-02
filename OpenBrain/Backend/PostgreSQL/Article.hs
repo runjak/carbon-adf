@@ -45,7 +45,7 @@ clone aid uid conn = do
 
 getArticle :: ArticleId -> Query Article
 getArticle aid conn = do
-  let q = "SELECT (descriptionid, content) FROM articles WHERE articleid = ?"
+  let q = "SELECT descriptionid, content FROM articles WHERE articleid = ?"
   [[did, content]] <- quickQuery' conn q [toSql $ toId aid]
   description <- getDescription (fromId $ fromSql did) conn
   let getC = "SELECT child FROM children WHERE parent = ?"

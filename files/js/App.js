@@ -3,6 +3,12 @@ $(function(){
     The app inspired by
     http://benhowdle.im/2013/03/24/patterns-for-managing-large-scale-backbone-applications/
   */
+  /*Setting up marked.js:*/
+  marked.setOptions({
+    gfm:      true
+  , pedantic: false
+  , sanitize: true
+  });
   //The singleton:
   window.App = {
     hideManager: new HideManager()
@@ -12,6 +18,13 @@ $(function(){
   }
   //Setting the views:
   var views = window.App.views;
+  views.singleArticleView = new SingleArticleView({
+    el: $('#SingleArticleView')
+  , model: null
+  });
+  views.createArticleView = new CreateArticleView({
+    el: $('#CreateArticleView')
+  });
   views.loginView = new LoginView({
     el: $('#LoginRegisterForm')
   , model: window.App.login

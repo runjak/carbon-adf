@@ -7,7 +7,7 @@ SingleUserView = Hideable.extend({
         window.App.hideManager.render(t);
       });
     });
-    window.App.login.on('change', t.render(), t);
+    window.App.login.on('change', t.render, t);
   }
 , render: function(){
     var model = this.model;
