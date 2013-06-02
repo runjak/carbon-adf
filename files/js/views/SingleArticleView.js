@@ -1,4 +1,4 @@
-SingleArticleView = ArticleView.extend({
+SingleArticleView = ArticleRender.extend({
   initialize: function(){
     this.HideTarget = this.$el.parent();
     var view = this;

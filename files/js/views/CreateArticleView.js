@@ -1,7 +1,7 @@
 CreateArticleView = Hideable.extend({
   initialize: function(){
     this.$('textarea').autoResize();
-    this.preview = new ArticleView({el: this.$('#CreateArticleViewPreview')});
+    this.preview = new ArticleRender({el: this.$('#CreateArticleViewPreview')});
     this.setModel(new Article());
     var view = this;
     window.App.router.on('route:createArticleView', function(){

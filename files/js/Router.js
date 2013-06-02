@@ -2,6 +2,7 @@ Router = Backbone.Router.extend({
   routes: {
     "article/create": "createArticleView"
   , "article/:id":    "singleArticleView"
+  , "article":        "articleView"
   , "login":          "loginView"
   , "user":           "userView"
   , "user/:id":       "singleUserView"

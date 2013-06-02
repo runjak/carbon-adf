@@ -1,11 +1,9 @@
-ArticleView = Hideable.extend({
+ArticleRender = Hideable.extend({
   initialize: function(){
     this.setModel(this.model);
   }
 , render: function(){
-    console.log('ArticleView:render()');
     if(!this.model){
-      console.log('ArticleView:render() aborted');
       this.$el.html('');
     }else{
       var h = this.model.get('headline');
