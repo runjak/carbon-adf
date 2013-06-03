@@ -11,7 +11,8 @@ $(function(){
   });
   //The singleton:
   window.App = {
-    hideManager: new HideManager()
+    collectedArticles: new CollectedArticles()
+  , hideManager: new HideManager()
   , login:  new Login()
   , router: new Router()
   , views:  {}

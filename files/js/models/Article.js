@@ -2,16 +2,26 @@ Article = Backbone.Model.extend({
   urlRoot: 'article/'
 , defaults: {}
 , initialize: function(){}
-, create: function(headline, description, content){
+, create: function(){
     var article = this;
-    var query   = {
-      headline:    headline
-    , description: description
-    , content:     content
-    };
-    console.log(query);
-    return $.post(this.urlRoot, query).done(function(d){
+    return $.post(this.urlRoot, this.getQuery()).done(function(d){
       article.set(d);
     });
+  }
+  , update: function(){
+    var article = this;
+    var target  = this.urlRoot + this.get('id');
+    return $.put(target, this.getQuery()).done(function(d){
+      article.set(d);
+    });
+  }
+, getQuery: function(){
+    var q = {
+      headline:    this.get('headline')
+    , description: this.get('description')
+    , content:     this.get('content')
+    };
+    console.log('Article:getQuery: '+JSON.stringify(q));
+    return q;
   }
 });

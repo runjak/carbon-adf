@@ -10,6 +10,7 @@ pageArticles = countAndPageBy ArticleCount $ \l o -> liftM responseJSON' $ PageA
 
 createArticle :: OBW Response
 createArticle = plusm createFail $ do
+  liftIO $ putStrLn "OpenBrain.Website.Article:createArticle"
   ndid    <- Description.createDescription
   content <- getContent
   aid     <- liftB $ AddArticle ndid content
@@ -25,11 +26,13 @@ updateArticle aid = Session.chkSession' $ \author -> plusm updateFail $ do
   actions <- liftM concat $ sequence updates
   guard . not $ null actions
   aid' <- liftB $ do
-    aid' <- Clone aid author
-    mapM_ ($ aid') actions
-    return aid'
+    aid'' <- Clone aid author
+    mapM_ ($ aid'') actions
+    deleteArticle aid
+    return aid''
   readArticle aid'
   where
+    deleteArticle = DeleteDescription <=< liftM (descriptionId . aDescription) . GetArticle
     updateHeadline = plusm (return []) $ do
       h <- Description.getHeadline
       let update = flip SetHeadline h <=< liftM (descriptionId . aDescription) . GetArticle

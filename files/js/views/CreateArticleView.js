@@ -14,22 +14,22 @@ CreateArticleView = Hideable.extend({
   , "keyup #CreateArticleViewDescription": "syncDescription"
   , "keyup #CreateArticleViewContent":     "syncContent"
   }
-, render: function(){
-    console.log('CreateArticleView:render()');
-  }
+, render: function(){}
 , create: function(e){
     e.preventDefault();
-    console.log('CreateArticleView:create()');
+    var promise = null;
     var view = this;
-    this.model.create(
-      this.model.get('headline')
-    , this.model.get('description')
-    , this.model.get('content')
-    ).done(function(d){
-      console.log('New article created!');
-      console.log(d);
-      //FIXME route to new content
-      //FIXME set clean model
+    if(typeof(this.model.get('id')) === 'undefined'){
+      console.log('Calling model.create…');
+      promise = this.model.create();
+    }else{
+      console.log('Calling model.update…');
+      promise = this.model.update();
+    }
+    return promise.done(function(d){
+      view.model.set({id: view.model.get('articleId')});
+      window.App.views.singleArticleView.setArticle(view.model);
+      view.setModel(new Article());
     }).fail(function(f){
       console.log('Failed to create new article!');
       console.log(f);
@@ -38,6 +38,9 @@ CreateArticleView = Hideable.extend({
 , setModel: function(m){
     this.model = m;
     this.preview.setModel(m);
+    this.$('#CreateArticleViewHeadline').val(m.get('headline'));
+    this.$('#CreateArticleViewDescription').val(m.get('description'));
+    this.$('#CreateArticleViewContent').val(m.get('content'));
   }
 , syncHeadline: function(){this.model.set({headline: this.$('#CreateArticleViewHeadline').val()});}
 , syncDescription: function(){this.model.set({description: this.$('#CreateArticleViewDescription').val()});}

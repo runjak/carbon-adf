@@ -48,13 +48,7 @@ Pagination = Backbone.View.extend({
       pagination.collection.set(items);
     });
   }
-, itemsFromIds: function(ids){
-    console.log('Pagination:itemsFromIds(uids) should be overwritten.');
-  }
-, createCollection: function(){
-    console.log('Pagination:createCollection() should be overwritten.');
-  }
-, createPager: function(){
-    console.log('Pagination:createPager() should be overwritten.');
-  }
+, itemsFromIds: function(ids){/*Overwrite this*/}
+, createCollection: function(){/*Overwrite this*/}
+, createPager: function(){/*Overwrite this*/}
 });

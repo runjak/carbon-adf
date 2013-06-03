@@ -20,6 +20,9 @@ body {
 #UserViewParent {display: none;}
 #ArticleViewParent {display: none;}
 #SingleArticleViewParent {display: none;}
+#SingleArticleViewActionEdit {display: none;}
+#SingleArticleViewActionCollect {display: none;}
+#SingleArticleViewActionUncollect {display: none;}
 #CreateArticleView {display: none;}
 #CreateArticleViewHeadline {width: 100%;}
 #CreateArticleViewDescription {width: 100%; resize: none;}

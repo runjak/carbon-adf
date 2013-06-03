@@ -33,6 +33,7 @@
     <div class="container-fluid">
       <div id="ArticleViewParent" class="row-fluid">
         <div id="ArticleView" class="span12">
+          <p id="ArticleViewActions" class="pull-left">FIXME: implement ArticleViewActions!</p>
           <table class="table table-bordered">
             <thead><tr>
               <th>#</th>
@@ -46,7 +47,14 @@
         </div>
       </div>
       <div id="SingleArticleViewParent" class="row-fluid">
-        <div id="SingleArticleView" class="span12"></div>
+        <div id="SingleArticleView" class="span12">
+          <p id="SingleArticleViewActions" class="pull-right">
+            <a id="SingleArticleViewActionEdit" class="btn" title="Edit this Article."><i class="icon-pencil"></i></a>
+            <a id="SingleArticleViewActionCollect" class="btn" title="Collect this Article."><i class="icon-plus"></i></a>
+            <a id="SingleArticleViewActionUncollect" class="btn" title="Uncollect this Article."><i class="icon-minus"></i></a>
+          </p>
+          <div class="render"></div>
+        </div>
       </div>
       <div id="CreateArticleView" class="row-fluid">
         <div class="span6">
@@ -132,6 +140,7 @@
     <script src="files/js/models/Article.js"></script>
     <script src="files/js/collections/ArticleCollection.js"></script>
     <script src="files/js/collections/UserCollection.js"></script>
+    <script src="files/js/collections/CollectedArticles.js"></script>
     <script src="files/js/views/Hideable.js"></script>
     <script src="files/js/views/HideManager.js"></script>
     <script src="files/js/views/LoginState.js"></script>
@@ -145,6 +154,7 @@
     <script src="files/js/views/ArticleRender.js"></script>
     <script src="files/js/views/ArticleView.js"></script>
     <script src="files/js/views/CreateArticleView.js"></script>
+    <script src="files/js/views/SingleArticleActionView.js"></script>
     <script src="files/js/views/SingleArticleView.js"></script>
     <script src="files/js/Router.js"></script>
     <script src="files/js/App.js"></script>

@@ -1,7 +1,13 @@
 SingleArticleView = ArticleRender.extend({
   initialize: function(){
     this.HideTarget = this.$el.parent();
+    this.renderTarget = this.$('.render');
+    this.actions = new SingleArticleActionView({
+      el: this.$('#SingleArticleViewActions')
+    , model: window.App.collectedArticles
+    });
     var view = this;
+    this.actions.setGetArticle(function(){return view.model;});
     window.App.router.on('route:singleArticleView', function(aid){
       view.setArticleId(aid).always(function(){
         window.App.hideManager.render(view);
@@ -9,14 +15,20 @@ SingleArticleView = ArticleRender.extend({
     });
     this.setModel(this.model);
   }
+, setArticle: function(m){
+    this.model = m;
+    var aid = m.get('id');
+    window.App.router.navigate('#/article/'+aid);
+    this.setArticleId(aid);
+  }
 , setArticleId: function(aid){
     var view = this;
     var p = $.Deferred();
     if(this.model && this.model.get('id') === aid){
       p.resolve(this.model);
     }else{
-      var m = new Article({id: aid});
-      console.log(m);
+      var m = this.actions.checkArticleId(aid);
+      if(!m) m = new Article({id: aid});
       m.fetch().done(function(){
         view.setModel(m);
         p.resolve(m);

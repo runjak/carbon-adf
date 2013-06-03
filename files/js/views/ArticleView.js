@@ -11,7 +11,7 @@ ArticleView = Hideable.extend({
       window.App.hideManager.render(view);
     });
   }
-, render: function(){
+, render: function(target){
     var rows = '';
     this.model.map(function(a){
       var aid  = a.get('id');

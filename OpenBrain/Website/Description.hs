@@ -9,6 +9,7 @@ pageDescriptions = countAndPageBy DescriptionCount $ \l o -> liftM responseJSON'
 
 createDescription :: OBW NewDescriptionId
 createDescription = do
+  liftIO $ putStrLn "OpenBrain.Website.Description:createDescription"
   (author, headline, desc) <- liftM3 (,,) Session.chkSession getHeadline getDesc
   liftB $ AddDescription author headline desc
 

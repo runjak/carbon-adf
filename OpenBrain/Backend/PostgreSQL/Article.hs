@@ -19,9 +19,9 @@ clone aid uid conn = do
   let d = aDescription a
   ndid <- addDescription uid (headline d) (description d) conn
   aid' <- addArticle ndid (content a) conn
-  -- | Copy children from original:
-  copyChildren <- prepare conn "INSERT INTO children (parent, child) VALUES (?, ?)"
-  executeMany copyChildren . map (\c -> [toSql $ toId aid', toSql $ toId c]) $ children a
+  -- | Copy parents from original:
+  let copyParents = "INSERT INTO children (parent, child) SELECT parent, ? FROM children WHERE child = ?"
+  quickQuery' conn copyParents [toSql $ toId aid', toSql $ toId aid]
   -- | Add as child to original:
   quickQuery' conn "INSERT INTO children (parent, child) VALUES (?, ?)" [toSql $ toId aid, toSql $ toId aid']
   -- | Copy relations:

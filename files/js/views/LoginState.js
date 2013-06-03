@@ -16,7 +16,8 @@ LoginState = Backbone.View.extend({
 , onChange: function(){
     this.render();
     if(this.model.get('loggedIn')){
-      window.App.router.navigate(this.$('a').attr('href'), {trigger: true});
+      if(!this.model.get('fromCookie'))
+        window.App.router.navigate(this.$('a').attr('href'), {trigger: true});
     }else{
       window.App.router.navigate('#/login', {trigger: true});
     }

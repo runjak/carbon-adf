@@ -1,10 +1,11 @@
 ArticleRender = Hideable.extend({
   initialize: function(){
     this.setModel(this.model);
+    this.renderTarget = this.$el;
   }
 , render: function(){
     if(!this.model){
-      this.$el.html('');
+      this.renderTarget.html('');
     }else{
       var h = this.model.get('headline');
       var d = this.model.get('description');
@@ -12,7 +13,7 @@ ArticleRender = Hideable.extend({
       if(!h) h = '';
       if(!d) d = '';
       if(!c) c = '';
-      this.$el.html('<article>'
+      this.renderTarget.html('<article>'
         + '<h1>'+h+'</h1>'
         + '<summary>'+d+'</summary><hr>'
         + '<div>'+marked(c)+'</div>'
