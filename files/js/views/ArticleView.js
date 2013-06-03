@@ -19,7 +19,9 @@ ArticleView = Hideable.extend({
       var head = a.get('headline');
       var desc = a.get('description');
       var crea = a.get('creationTime');
-      rows += '<tr>'
+      var collected = window.App.collectedArticles.elemById(aid);
+      collected = (typeof(collected) === 'undefined') ? '' : ' class="success"';
+      rows += '<tr'+collected+'>'
             + '<td>'+aid+'</td>'
             + '<td><a href="#/article/'+aid+'">'+head+'</a></td>'
             + '<td>'+desc+'</td>'

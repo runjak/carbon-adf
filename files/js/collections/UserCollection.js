@@ -1,3 +1,3 @@
-UserCollection = Backbone.Collection.extend({
+UserCollection = ExtendedCollection.extend({
   model: User
 });

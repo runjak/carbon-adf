@@ -1,3 +1,3 @@
-ArticleCollection = Backbone.Collection.extend({
+ArticleCollection = ExtendedCollection.extend({
   model: Article
 });
