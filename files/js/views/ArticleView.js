@@ -8,6 +8,7 @@ ArticleView = Hideable.extend({
     this.model.on('reset add remove', this.render, this);
     var view = this;
     window.App.router.on('route:articleView', function(){
+      view.pagination.refresh();
       window.App.hideManager.render(view);
     });
   }

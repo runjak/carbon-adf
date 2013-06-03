@@ -48,6 +48,7 @@ Pagination = Backbone.View.extend({
       pagination.collection.set(items);
     });
   }
+, refresh: function(){this.model.refresh();}
 , itemsFromIds: function(ids){/*Overwrite this*/}
 , createCollection: function(){/*Overwrite this*/}
 , createPager: function(){/*Overwrite this*/}

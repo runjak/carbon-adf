@@ -39,4 +39,10 @@ Pager = Backbone.Model.extend({
       pages.next.push(Math.floor(i/limit));
     return pages;
   }
+, refresh: function(){
+    var limit  = this.get('limit');
+    var offset = this.get('offset');
+    var page   = Math.floor(offset/limit);
+    return this.fetchPage(page);
+  }
 });
