@@ -29,6 +29,7 @@ data Article = Article {
   articleId    :: ArticleId
 , content      :: String
 , children     :: [ArticleId]
+, parents      :: [ArticleId]
 , aDescription :: Description
 } deriving (Show)
 
@@ -140,6 +141,7 @@ instance ToJSON Article where
           "articleId" .= articleId a
         , "content"   .= content   a
         , "children"  .= children  a
+        , "parents"   .= parents   a
         ]
 instance ToJSON Relation where
   toJSON r = merge (toJSON $ rDescription r) o

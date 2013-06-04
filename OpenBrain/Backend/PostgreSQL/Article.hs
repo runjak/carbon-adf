@@ -50,10 +50,13 @@ getArticle aid conn = do
   description <- getDescription (fromId $ fromSql did) conn
   let getC = "SELECT child FROM children WHERE parent = ?"
   children <- liftM (map head) $ quickQuery' conn getC [toSql $ toId aid]
+  let getP = "SELECT parent FROM children WHERE child = ?"
+  parents <- liftM (map head) $ quickQuery' conn getP [toSql $ toId aid]
   return Article{
     articleId    = aid
   , content      = fromSql content
   , children     = map (fromId . fromSql) children
+  , parents      = map (fromId . fromSql) parents
   , aDescription = description
   }
 
