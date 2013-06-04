@@ -11,12 +11,15 @@ Sidebar = Backbone.View.extend({
     this.newSpan = 'span' + leftSpan;
     this.$el.addClass(this.newSpan)
             .removeClass(this.oldSpan)
-            .after('<div class="sidebar span3 offset'+leftSpan+'"></div>');
-    this.target = this.$el.parent().find('.sidebar');
+            .after(this.sidebarHtml('sidebar span3 offset'+leftSpan));
+    this.target = this.$el.parent().find('.sidebar ul.nav');
   }
 , hide: function(){
-    this.target.remove();
+    this.target.closest('.sidebar').remove();
     this.target = null; 
     this.$el.addClass(this.oldSpan).removeClass(this.newSpan);
+  }
+, sidebarHtml: function(classes){
+    return '<div class="'+classes+'"><div class="well sidebar-nav"><ul class="nav nav-list"></ul></div></div>';
   }
 });
