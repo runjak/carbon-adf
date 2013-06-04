@@ -7,16 +7,22 @@ ArticleRender = Hideable.extend({
     if(!this.model){
       this.renderTarget.html('');
     }else{
-      var h = this.model.get('headline');
-      var d = this.model.get('description');
-      var c = this.model.get('content');
-      if(!h) h = '';
-      if(!d) d = '';
-      if(!c) c = '';
+      var headline    = this.model.get('headline');
+      var creation    = this.model.get('creationTime');
+      var deletion    = this.model.get('deletionTime');
+      var description = this.model.get('description');
+      var content     = this.model.get('content');
+      if(!headline) headline = '';
+      creation = creation ? ('created: '+creation) : '';
+      deletion = deletion ? ('deleted: '+deletion) : '';
+      if(!description) description = '';
+      if(!content) content = '';
       this.renderTarget.html('<article>'
-        + '<h1>'+h+'</h1>'
-        + '<summary>'+d+'</summary><hr>'
-        + '<div>'+marked(c)+'</div>'
+        + '<h1>'+headline+'</h1>'
+        + '<div class="creation">'+creation+'</div>'
+        + '<div class="deletion">'+deletion+'</div>'
+        + '<summary>'+description+'</summary><hr>'
+        + '<div>'+marked(content)+'</div>'
         + '</article>');
     }
   }
