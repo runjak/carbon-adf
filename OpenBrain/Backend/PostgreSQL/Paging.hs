@@ -32,7 +32,8 @@ getCount qString conn = do
 
 pageArticles'     = "SELECT a.articleid "
   ++ "FROM articles a JOIN descriptions d USING (descriptionid) "
-  ++ "WHERE d.deletion IS NULL LIMIT ? OFFSET ?"
+  ++ "WHERE d.deletion IS NULL "
+  ++ "ORDER BY d.creation DESC LIMIT ? OFFSET ?"
 pageCollections'  = "SELECT c.collectionid "
   ++ "FROM collections c JOIN descriptions d USING (descriptionid) "
   ++ "WHERE d.deletion IS NULL LIMIT ? OFFSET ?"
