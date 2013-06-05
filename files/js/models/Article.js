@@ -24,4 +24,16 @@ Article = Backbone.Model.extend({
     console.log('Article:getQuery: '+JSON.stringify(q));
     return q;
   }
+, dayFromTime: function(t){
+    var t = /([^ ]+) /.exec(t);
+    if(t.length === 2)
+      return t[1]; 
+    return '';
+  }
+, stripFractionFromTime: function(t){
+    var t = /([^\.]+)\./.exec(t);
+    if(t.length === 2)
+      return t[1];
+    return '';
+  }
 });

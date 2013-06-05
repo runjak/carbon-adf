@@ -1,10 +1,12 @@
 SingleArticleActionView = Backbone.View.extend({
   initialize: function(){
-    this.aid = null;
-    this.collected = false;
-    this.collect   = this.$('#SingleArticleViewActionCollect');
-    this.edit      = this.$('#SingleArticleViewActionEdit');
-    this.uncollect = this.$('#SingleArticleViewActionUncollect');
+    this.aid        = null;
+    this.getArticle = function(){};
+    this.history    = null;
+    this.collected  = false;
+    this.collect    = this.$('#SingleArticleViewActionCollect');
+    this.edit       = this.$('#SingleArticleViewActionEdit');
+    this.uncollect  = this.$('#SingleArticleViewActionUncollect');
     window.App.login.on('change:loggedIn', this.render, this);
     this.model.bind('reset add remove', this.checkArticleId, this);
     var view = this;
@@ -17,6 +19,14 @@ SingleArticleActionView = Backbone.View.extend({
     });
     this.uncollect.click(function(){
       window.App.collectedArticles.remove(view.getArticle());
+    });
+    this.$('#SingleArticleViewActionHistory').click(function(){
+      var h = view.history;
+      if(h === null) return;
+      if(h.visible()){
+        h.hide();
+      }else
+        h.show();
     });
   }
 , render: function(){
@@ -45,5 +55,10 @@ SingleArticleActionView = Backbone.View.extend({
   }
 , setGetArticle: function(f){
     this.getArticle = f;
+    return this;
+  }
+, setHistory: function(h){
+    this.history = h;
+    return this;
   }
 });

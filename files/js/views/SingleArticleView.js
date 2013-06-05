@@ -6,8 +6,11 @@ SingleArticleView = ArticleRender.extend({
       el: this.$('#SingleArticleViewActions')
     , model: window.App.collectedArticles
     });
+    this.history = new ArticleHistoryView({el: this.$el});
     var view = this;
-    this.actions.setGetArticle(function(){return view.model;});
+    this.actions.setGetArticle(function(){
+      return view.model;
+    }).setHistory(this.history);
     window.App.router.on('route:singleArticleView', function(aid){
       view.setArticleId(aid).always(function(){
         window.App.hideManager.render(view);
@@ -31,6 +34,7 @@ SingleArticleView = ArticleRender.extend({
       if(!m) m = new Article({id: aid});
       m.fetch().done(function(){
         view.setModel(m);
+        view.history.setModel(m);
         p.resolve(m);
       }).fail(function(f){
         m.set({
