@@ -6,7 +6,7 @@ SingleArticleView = ArticleRender.extend({
       el: this.$('#SingleArticleViewActions')
     , model: window.App.collectedArticles
     });
-    this.history = new ArticleHistoryView({el: this.$el});
+    this.history = new ArticleHistoryView({el: this.$('#SingleArticleHistoryView ul')});
     var view = this;
     this.actions.setGetArticle(function(){
       return view.model;

@@ -1,14 +1,18 @@
 Hideable = Backbone.View.extend({
-  show: function(){
-    var t = (this.HideTarget !== undefined)
-          ? this.HideTarget
-          : this.$el;
-    t.show();
+  hideTarget: function(){
+    if(this.HideTarget !== undefined)
+      return this.HideTarget;
+    return this.$el;
+  }
+, show: function(){
+    this.hideTarget().show();
+    return this;
   }
 , hide: function(){
-    var t = (this.HideTarget !== undefined)
-          ? this.HideTarget
-          : this.$el;
-    t.hide();
+    this.hideTarget().hide();
+    return this;
+  }
+, visible: function(){
+    return this.hideTarget().is(':visible');
   }
 });

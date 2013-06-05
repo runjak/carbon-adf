@@ -1,5 +1,6 @@
-ArticleHistoryView = Sidebar.extend({
+ArticleHistoryView = Hideable.extend({
   initialize: function(){
+    this.HideTarget = this.$el.closest('#SingleArticleHistoryView');
     this.children = new ArticleCollection();
     this.parents  = new ArticleCollection();
     this.children.sortByCreation();
@@ -7,9 +8,7 @@ ArticleHistoryView = Sidebar.extend({
     this.setModel(this.model);
   }
 , render: function(){
-    if(this.target === null || typeof(this.target) === 'undefined')
-      return;
-    this.target.html('<li class="nav-header">History</li>');
+    this.$el.html('<li class="nav-header">History</li>');
     var mkItem = function(a){
       var aid = a.get('id');
       var headline = a.get('headline');
@@ -18,11 +17,11 @@ ArticleHistoryView = Sidebar.extend({
     };
     var view = this;
     this.children.reiterate(function(c){
-      view.target.append(mkItem(c));
+      view.$el.append(mkItem(c));
     });
-    this.target.append('<li class="active">Current Article</li>');
+    this.$el.append('<li class="active">Current Article</li>');
     this.parents.reiterate(function(p){
-      view.target.append(mkItem(p));
+      view.$el.append(mkItem(p));
     });
   }
 , setModel: function(m){
