@@ -1,4 +1,4 @@
-User = Backbone.Model.extend({
+User = Item.extend({
   urlRoot: 'user/'
 , defaults: {}
 , initialize: function(){}
