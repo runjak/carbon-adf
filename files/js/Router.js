@@ -1,12 +1,13 @@
 Router = Backbone.Router.extend({
   routes: {
-    "article/create": "createArticleView"
-  , "article/:id":    "singleArticleView"
-  , "article":        "articleView"
-  , "login":          "loginView"
-  , "user":           "userView"
-  , "user/:id":       "singleUserView"
-  , "*actions":       "defaultRoute"
+    "article/create":    "createArticleView"
+  , "article/:id":       "singleArticleView"
+  , "article":           "articleView"
+  , "discussion/create": "createDiscussionView"
+  , "login":             "loginView"
+  , "user":              "userView"
+  , "user/:id":          "singleUserView"
+  , "*actions":          "defaultRoute"
   }
 , watchClick: function(target){
     var router = this;

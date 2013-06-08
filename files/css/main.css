@@ -15,17 +15,20 @@ body {
   }
 }
 /* Own, additional stuff: */
-#LoginRegisterForm {display: none;}
-#SingleUserViewParent {display: none;}
-#UserViewParent {display: none;}
-#ArticleViewParent {display: none;}
-#SingleArticleViewParent {display: none;}
-.CollectedArticlesView {display: none;}
-#SingleArticleHistoryView {display: none;}
-#SingleArticleViewActionEdit {display: none;}
-#SingleArticleViewActionCollect {display: none;}
-#SingleArticleViewActionUncollect {display: none;}
-#CreateArticleView {display: none;}
-#CreateArticleViewHeadline {width: 100%;}
-#CreateArticleViewDescription {width: 100%; resize: none;}
-#CreateArticleViewContent {width: 100%; resize: none;}
+  #LoginRegisterForm
+, #SingleUserViewParent
+, #UserViewParent
+, #ArticleViewParent
+, #SingleArticleViewParent
+, .CollectedArticlesView
+, #SingleArticleHistoryView
+, #SingleArticleViewActionEdit
+, #SingleArticleViewActionCollect
+, #SingleArticleViewActionUncollect
+, #CreateArticleView
+, #CreateDiscussionView {display: none;}
+  #CreateArticleViewHeadline
+, #CreateDiscussionViewHeadline {width: 100%;}
+  #CreateArticleViewDescription
+, #CreateArticleViewContent
+, #CreateDiscussionViewDescription {width: 100%; resize: none;}

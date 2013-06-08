@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="files/css/bootstrap/bootstrap.css" rel="stylesheet">
+    <link href="files/css/datepicker.css" rel="stylesheet">
     <link href="files/css/main.css" rel="stylesheet">
   </head>
   <body>
@@ -104,6 +105,30 @@
           <div id="CreateArticleViewPreview"></div>
         </div>
       </div>
+      <div id="CreateDiscussionView" class="row-fluid">
+        <div class="span4">
+          <form>
+            <fieldset>
+              <legend>Create a new Discussion:</legend>
+              <label>Headline:</label>
+              <input id="CreateDiscussionViewHeadline" placeholder="The new headline" type="text">
+              <label>Deadline:</label>
+              <div class="input-append">
+                <input id="CreateDiscussionViewDate" placeholder="yyyy-mm-dd" type="text"
+                  pattern="\d\d\d\d-(1[012]|0\d)-(3[012]|[012]\d)">
+                <input id="CreateDiscussionViewTime" class="add-on" placeholder="hh:mm" type="time"
+                  pattern="(2[0-4]|[01]\d):[0-5]\d">
+              </div>
+              <label>Description:</label>
+              <textarea id="CreateDiscussionViewDescription" placeholder="The new description"></textarea>
+              <button id="CreateDiscussion" class="btn">Save</button>
+            </fieldset>
+          </form>
+        </div>
+        <div class="span8 well sidebar-nav">
+          <ul id="CreateDiscussionInitialArticles" class="nav nav-list"></ul>
+        </div>
+      </div>
       <div id="UserViewParent" class="row-fluid">
         <div id="UserView" class="span12">
           <table class="table table-bordered">
@@ -146,6 +171,7 @@
     <script src="files/js/extern/backbone.js"></script>
     <script src="files/js/extern/marked.js"></script>
     <script src="files/js/extern/bootstrap.js"></script>
+    <script src="files/js/extern/bootstrap-datepicker.js"></script>
     <script src="files/js/models/Item.js"></script>
     <script src="files/js/models/User.js"></script>
     <script src="files/js/models/Login.js"></script>
@@ -155,6 +181,7 @@
     <script src="files/js/collections/ArticleCollection.js"></script>
     <script src="files/js/collections/UserCollection.js"></script>
     <script src="files/js/collections/CollectedArticles.js"></script>
+    <script src="files/js/models/Discussion.js"></script>
     <script src="files/js/views/Hideable.js"></script>
     <script src="files/js/views/ArticleHistoryView.js"></script>
     <script src="files/js/views/CollectedArticlesView.js"></script>
@@ -172,6 +199,7 @@
     <script src="files/js/views/CreateArticleView.js"></script>
     <script src="files/js/views/SingleArticleActionView.js"></script>
     <script src="files/js/views/SingleArticleView.js"></script>
+    <script src="files/js/views/CreateDiscussionView.js"></script>
     <script src="files/js/Router.js"></script>
     <script src="files/js/App.js"></script>
   </body>
