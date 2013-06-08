@@ -9,17 +9,19 @@ ArticleHistoryView = Hideable.extend({
   }
 , render: function(){
     this.$el.html('<li class="nav-header">History</li>');
-    var mkItem = function(a){
+    var mkItem = function(a, active){
       var aid = a.get('id');
       var headline = a.get('headline');
       var creation = a.stripFractionFromTime(a.get('creationTime'));
+      if(active)
+        return '<li class="active">'+headline+' - '+creation+'</li>';
       return '<li><a href="#/article/'+aid+'">'+headline+' - '+creation+'</a></li>';
     };
     var view = this;
     this.children.reiterate(function(c){
       view.$el.append(mkItem(c));
     });
-    this.$el.append('<li class="active">Current Article</li>');
+    this.$el.append(mkItem(this.model, true));
     this.parents.reiterate(function(p){
       view.$el.append(mkItem(p));
     });
