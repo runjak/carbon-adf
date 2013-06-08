@@ -28,6 +28,9 @@ SingleArticleActionView = Backbone.View.extend({
       }else
         h.show();
     });
+    this.$('#SingleArticleViewActionCollected').click(function(){
+      window.App.views.collectedArticlesView.toggle();
+    });
   }
 , render: function(){
     if(this.collected){

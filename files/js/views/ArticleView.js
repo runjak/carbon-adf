@@ -11,6 +11,9 @@ ArticleView = Hideable.extend({
       view.pagination.refresh();
       window.App.hideManager.render(view);
     });
+    this.$('#ArticleViewActionCollected').click(function(){
+      window.App.views.collectedArticlesView.toggle();   
+    });
   }
 , render: function(target){
     var rows = '';

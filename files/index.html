@@ -33,8 +33,16 @@
     <div class="container-fluid">
       <div id="ArticleViewParent" class="row-fluid">
         <div id="ArticleView" class="span12">
+          <div class="pull-right well sidebar-nav CollectedArticlesView">
+            <ul class="nav nav-list"></ul>
+          </div>
           <p id="ArticleViewActions" class="pull-left">
-            <a id="ArticleViewActionCreate" class="btn" title="Create a new Article." href="#/article/create"><i class="icon-file"></i></a>
+            <a id="ArticleViewActionCreate" class="btn" title="Create a new Article." href="#/article/create">
+              <i class="icon-file"></i>
+            </a>
+            <a id="ArticleViewActionCollected" class="btn" title="Show/Hide collected articles.">
+              <i class="icon-list-alt"></i>
+            </a>
           </p>
           <table class="table table-bordered">
             <thead><tr>
@@ -50,14 +58,28 @@
       </div>
       <div id="SingleArticleViewParent" class="row-fluid">
         <div id="SingleArticleView" class="span12">
+          <div class="pull-right well sidebar-nav CollectedArticlesView">
+            <ul class="nav nav-list"></ul>
+          </div>
           <div id="SingleArticleHistoryView" class="pull-right well sidebar-nav">
             <ul class="nav nav-list"></ul>
           </div>
           <p id="SingleArticleViewActions" class="pull-right">
-            <a id="SingleArticleViewActionEdit" class="btn" title="Edit this Article."><i class="icon-pencil"></i></a>
-            <a id="SingleArticleViewActionCollect" class="btn" title="Collect this Article."><i class="icon-plus"></i></a>
-            <a id="SingleArticleViewActionUncollect" class="btn" title="Uncollect this Article."><i class="icon-minus"></i></a>
-            <a id="SingleArticleViewActionHistory" class="btn" title="Show/Hide history."><i class="icon-time"></i></a>
+            <a id="SingleArticleViewActionEdit" class="btn" title="Edit this Article.">
+              <i class="icon-pencil"></i>
+            </a>
+            <a id="SingleArticleViewActionCollect" class="btn" title="Collect this Article.">
+              <i class="icon-plus"></i>
+            </a>
+            <a id="SingleArticleViewActionUncollect" class="btn" title="Uncollect this Article.">
+              <i class="icon-minus"></i>
+            </a>
+            <a id="SingleArticleViewActionHistory" class="btn" title="Show/Hide history.">
+              <i class="icon-time"></i>
+            </a>
+            <a id="SingleArticleViewActionCollected" class="btn" title="Show/Hide collected articles.">
+              <i class="icon-list-alt"></i>
+            </a>
           </p>
           <div class="render"></div>
         </div>
@@ -135,6 +157,7 @@
     <script src="files/js/collections/CollectedArticles.js"></script>
     <script src="files/js/views/Hideable.js"></script>
     <script src="files/js/views/ArticleHistoryView.js"></script>
+    <script src="files/js/views/CollectedArticlesView.js"></script>
     <script src="files/js/views/HideManager.js"></script>
     <script src="files/js/views/LoginState.js"></script>
     <script src="files/js/views/LoginView.js"></script>

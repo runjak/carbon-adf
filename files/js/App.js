@@ -26,6 +26,10 @@ $(function(){
     el: $('#SingleArticleView')
   , model: null
   });
+  views.collectedArticlesView = new CollectedArticlesView({
+    el: $('.CollectedArticlesView')
+  , model: window.App.collectedArticles
+  });
   views.createArticleView = new CreateArticleView({
     el: $('#CreateArticleView')
   });
