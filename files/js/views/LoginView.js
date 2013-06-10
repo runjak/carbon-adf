@@ -10,13 +10,15 @@ LoginView = Hideable.extend({
   , "click #LoginRegisterFormRegister": "register"
   }
 , render: function(){}
-, login: function(){
+, login: function(e){
+    e.preventDefault();
     var d = this.formData();
     this.model.login(d.username, d.password).fail(function(f){
       console.log(f);
     });
   }
-, register: function(){
+, register: function(e){
+    e.preventDefault();
     var model = this.model;
     var formD = this.formData();
     model.create(formD.username, formD.password).done(function(d){
