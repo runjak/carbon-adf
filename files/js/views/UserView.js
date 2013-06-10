@@ -6,9 +6,10 @@ UserView = Hideable.extend({
     });
     this.model = this.pagination.collection;
     this.model.on('reset add remove', this.render, this);
-    var userView = this;
+    var view = this;
     window.App.router.on('route:userView', function(){
-      window.App.hideManager.render(userView);
+      view.pagination.refresh();
+      window.App.hideManager.render(view);
     });
   }
 , render: function(){
