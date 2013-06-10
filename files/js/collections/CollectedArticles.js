@@ -3,11 +3,17 @@ CollectedArticles = ArticleCollection.extend({
     var l = this.loadLocal();
     if(l.length){
       var elems = _.map(l, function(aid){
-        var a = new Article({id: aid});
+        return new Article({id: aid});
         a.fetch();
         return a;
       });
-      this.reset(elems);
+      var fetches = _.map(elems, function(a){
+        return a.fetch();
+      });
+      var coll = this;
+      $.when.apply($, fetches).done(function(){
+        coll.reset(elems);
+      });
     }
     this.bind('reset add remove', this.saveLocal);
   }
