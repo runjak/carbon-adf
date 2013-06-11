@@ -114,6 +114,9 @@
               <input id="CreateDiscussionViewHeadline" placeholder="The new headline" type="text">
               <label>Deadline:</label>
               <div class="input-append">
+                <button id="CreateDiscussionViewClearDeadline" class="btn" title="Clear deadline.">
+                  <i class="icon-trash"></i>
+                </button>
                 <input id="CreateDiscussionViewDate" placeholder="yyyy-mm-dd" type="text"
                   pattern="\d\d\d\d-(1[012]|0\d)-(3[012]|[012]\d)">
                 <input id="CreateDiscussionViewTime" class="add-on" placeholder="hh:mm" type="time"
@@ -125,7 +128,7 @@
             </fieldset>
           </form>
         </div>
-        <div class="span8 well sidebar-nav">
+        <div class="offset1 span7 well sidebar-nav">
           <ul id="CreateDiscussionInitialArticles" class="nav nav-list"></ul>
         </div>
       </div>

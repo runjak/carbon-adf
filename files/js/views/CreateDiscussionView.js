@@ -14,11 +14,13 @@ CreateDiscussionView = Hideable.extend({
     window.App.collectedArticles.on('reset add remove', this.renderIfVisible, this);
   }
 , events: {
-    "click #CreateDiscussion":                "create"
-  , "keyup #CreateDiscussionViewHeadline":    "syncHeadline"
-  , "keyup #CreateDiscussionViewDate":        "syncDeadline"
-  , "keyup #CreateDiscussionViewTime":        "syncDeadline"
-  , "keyup #CreateDiscussionViewDescription": "syncDescription"
+    "click #CreateDiscussion":                  "create"
+  , "click #CreateDiscussionViewClearDeadline": "clearDeadline"
+  , "keyup #CreateDiscussionViewHeadline":      "syncHeadline"
+  , "keyup #CreateDiscussionViewDate":          "syncDeadline"
+  , "keyup #CreateDiscussionViewTime":          "syncDeadline"
+  , "input #CreateDiscussionViewTime":          "syncDeadline"
+  , "keyup #CreateDiscussionViewDescription":   "syncDescription"
   }
 , render: function(){
     var target = this.$('#CreateDiscussionInitialArticles');
@@ -72,6 +74,11 @@ CreateDiscussionView = Hideable.extend({
     }).fail(function(f){
       console.log('CreateDiscussionView.create() failed: '+JSON.stringify(f));
     });
+  }
+, clearDeadline: function(){
+    this.$('#CreateDiscussionViewDate').val('');
+    this.$('#CreateDiscussionViewTime').val('');
+    this.model.set({deadline: null});
   }
 , syncHeadline: function(){this.model.set({headline: this.$('#CreateDiscussionViewHeadline').val()});}
 , syncDescription: function(){this.model.set({description: this.$('#CreateDiscussionViewDescription').val()});}
