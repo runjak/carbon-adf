@@ -89,7 +89,7 @@ WITH (OIDS=TRUE);
 CREATE TABLE public.discussions(
 	discussionid serial NOT NULL,
 	collectionid serial NOT NULL,
-	deadline timestamp NOT NULL,
+	deadline timestamp,
 	resultid integer DEFAULT NULL,
 	CONSTRAINT discussions_primarykey PRIMARY KEY (discussionid)
 )

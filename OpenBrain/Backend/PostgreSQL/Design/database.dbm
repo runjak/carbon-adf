@@ -180,7 +180,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="collectionid" not-null="true">
 		<type name="serial"/>
 	</column>
-	<column name="deadline" not-null="true">
+	<column name="deadline">
 		<type name="timestamp"/>
 	</column>
 	<column name="resultid" default-value="NULL">

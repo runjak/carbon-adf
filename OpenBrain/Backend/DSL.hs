@@ -44,7 +44,7 @@ data BackendDSL r where
   ForgetArticles  :: CollectionId -> [ArticleId] -> BackendDSL ()
   GetCollection   :: CollectionId -> BackendDSL Collection
   -- | Discussion related:
-  AddDiscussion  :: NewCollectionId -> [UserId] -> Timestamp -> BackendDSL DiscussionId
+  AddDiscussion  :: NewCollectionId -> [UserId] -> Maybe Timestamp -> BackendDSL DiscussionId
   GetDiscussion  :: DiscussionId -> BackendDSL Discussion
   SetParticipant :: DiscussionId -> UserId -> Bool -> BackendDSL ()
   Weight         :: DiscussionId -> UserId -> Weight -> RelationId -> BackendDSL ()

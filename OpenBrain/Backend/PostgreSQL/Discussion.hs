@@ -6,7 +6,7 @@ import OpenBrain.Backend.PostgreSQL.Common
 import OpenBrain.Backend.PostgreSQL.Result (getResult)
 import OpenBrain.Data.Id
 
-addDiscussion :: NewCollectionId -> [UserId] -> Timestamp -> Query DiscussionId
+addDiscussion :: NewCollectionId -> [UserId] -> Maybe Timestamp -> Query DiscussionId
 addDiscussion ncid uids deadline conn = do
   let q = "INSERT INTO discussions (collectionid, deadline) VALUES (?, ?) RETURNING discussionid"
   [[i]] <- quickQuery' conn q [toSql $ toId ncid, toSql deadline]

@@ -53,7 +53,7 @@ data Collection = Collection {
 data Discussion = Discussion {
   discussionId :: DiscussionId
 , participants :: [UserId]
-, deadline     :: Timestamp
+, deadline     :: Maybe Timestamp
 , weights      :: [(UserId, Weight, RelationId)]
 , result       :: Maybe Result
 , dCollection  :: Collection

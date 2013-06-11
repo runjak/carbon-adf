@@ -372,7 +372,7 @@ ALTER SEQUENCE descriptions_descriptionid_seq OWNED BY descriptions.descriptioni
 CREATE TABLE discussions (
     discussionid integer NOT NULL,
     collectionid integer NOT NULL,
-    deadline timestamp without time zone NOT NULL,
+    deadline timestamp without time zone,
     resultid integer
 );
 
@@ -1199,7 +1199,7 @@ SELECT pg_catalog.setval('results_resultid_seq', 1, false);
 --
 
 COPY users (userid, username, hash, salt, creationtime, lastlogin, isadmin, profile, sessionkey) FROM stdin;
-1	foo	11905215f353d80e07977b6599e94d0b99878accaf7212e784e2f590f4a8f68c71ee66c7f1156148a87c7c92d212497dcba7e5b9e587fe49034a481d33967a71	iagi{hbgdozhcw	2013-06-03 14:45:19.392634	2013-06-03 14:45:19.392634	t	\N	zclmacgbqkktwj{gz
+1	foo	dee6017363052fba42c7a2beb6abcba6c04d42b40cef39c466a5514940f42799eca343f454f8c33736f104c2c9cba784791f7030b56568eb163d542954b8d3f5	mddqvtz}ac{jtc	2013-06-11 14:13:08.583819	2013-06-11 14:13:08.583819	t	\N	bjpjquk|ybb{
 \.
 
 
