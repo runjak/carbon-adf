@@ -60,7 +60,7 @@ ExtendedCollection = Backbone.Collection.extend({
     var duplicates = this.elems(function(x){
       return id == x.get('id');
     });
-    if(duplicates === []){
+    if(duplicates.length === 0){
       this.add(e);
       return true;
     }

@@ -2,9 +2,12 @@ CreateDiscussionView = Hideable.extend({
   initialize: function(){
     this.$('textarea').autoResize();
     this.setModel(new Discussion());
-    this.datepicker = this.$('#CreateDiscussionViewDate').datepicker({format: 'yyyy-mm-dd'});
     var view = this;
-    this.datepicker.on('changeDate', function(){view.syncDeadline();});
+    this.datepicker = this.$('#CreateDiscussionViewDate').datepicker({
+      format: 'yyyy-mm-dd'
+    }).on('changeDate', function(){
+      view.syncDeadline();
+    });
     window.App.router.on('route:createDiscussionView', function(){
       window.App.hideManager.render(view);
     });
@@ -25,11 +28,33 @@ CreateDiscussionView = Hideable.extend({
                  +' <i class="icon-arrow-right"></i> '
                  +'Can\'t add them on creation, sorry.</li>');
     }else{
+      var view = this;
       target.html('<li class="nav-header">Select articles to include them in the discussion:</li>');
       elems.reiterate(function(a){
         var aid = a.get('id');
         var headline = a.get('headline');
-        target.append('<li data-aid="'+aid+'">'+headline+'</li>');
+        var creation = a.stripFractionFromTime(a.get('creationTime'));
+        var item = '<li>'
+                 + '<form class="form-inline">'
+                 + '<label class="checkbox" title="'+creation+'">'
+                 + '<input type="checkbox">'
+                 + headline
+                 + '</label>'
+                 + '<a class="btn pull-right uncollect" title="Remove article from collection">'
+                 + '<i class="icon-minus"></i>'
+                 + '</a>'
+                 + '<a class="btn pull-right" href="#/article/'+aid+'" title="View this article.">'
+                 + '<i class="icon-eye-open"></i>'
+                 + '</a>'
+                 + '</form>'
+                 + '</li>';
+        target.append(item);
+        target.find('li:last a.uncollect').click(function(){
+          window.App.collectedArticles.remove(a);
+        });
+        target.find('li:last input[type="checkbox"]').click(function(){
+          view.model.get('articles').toggleElem(a);
+        });
       });
     }
   }
