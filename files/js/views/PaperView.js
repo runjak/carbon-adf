@@ -67,4 +67,9 @@ PaperView = Backbone.View.extend({
     this.setZoom(zx, zy);
     return this;
   }
+, center: function(){
+    this.setZoom(1,1);
+    var c = this.getContainerSize();
+    this.centerViewBox(c.w, c.h);
+  }
 });

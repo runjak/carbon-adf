@@ -8,7 +8,8 @@ DiscussionGraphView = PaperView.extend({
     $(window).keyup(function(e){view.keyboard(e);});
   }
 , events: {
-    "click #DiscussionGraphViewZoomIn":    "zoomIn"
+    "click #DiscussionGraphViewCenter":    "center"
+  , "click #DiscussionGraphViewZoomIn":    "zoomIn"
   , "click #DiscussionGraphViewZoomOut":   "zoomOut"
   , "click #DiscussionGraphViewMoveLeft":  "moveLeft"
   , "click #DiscussionGraphViewMoveRight": "moveRight"
@@ -72,6 +73,9 @@ DiscussionGraphView = PaperView.extend({
     if(!this.$el.is('.fade.in'))
       return;
     switch(e.keyCode){
+      case 90: // Z
+        this.center();
+      break;
       case 81: // Q
         this.zoomIn();
       break;
