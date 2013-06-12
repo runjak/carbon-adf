@@ -78,18 +78,24 @@ DiscussionGraphView = PaperView.extend({
       case 69: // E
         this.zoomOut();
       break;
+      case 38: // ArrowUp
       case 87: // W
         this.moveUp();
       break;
+      case 37: // ArrowLeft
       case 65: // A
         this.moveLeft();
       break;
+      case 40: // ArrowDown
       case 83: // S
         this.moveDown();
       break;
+      case 39: // ArrowRight
       case 68: // D
         this.moveRight();
       break;
+      default:
+        console.log('Uncought keycode: '+e.keyCode);
     }
   }
 });
