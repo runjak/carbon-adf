@@ -8,9 +8,10 @@ Discussion = Item.extend({
 , create: function(){
     var q = {
       headline: this.get('headline')
-    , deadline: this.get('deadline')
     , description: this.get('description')
     };
+    if(d = this.get('deadline'))
+      q.deadline = d;
     var created = $.Deferred();
     var discussion = this;
     $.post(this.urlRoot, q).done(function(d){

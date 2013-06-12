@@ -32,3 +32,15 @@ body {
   #CreateArticleViewDescription
 , #CreateArticleViewContent
 , #CreateDiscussionViewDescription {width: 100%; resize: none;}
+#DiscussionGraphView {
+  margin: 0px;
+  top:   25px;
+  left:  25px;
+}
+#DiscussionGraphView form {margin: 0px;}
+.paper {
+  margin:  0px;
+  padding: 0px;
+  background-color: #333;
+  overflow: hidden;
+}

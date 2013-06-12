@@ -21,6 +21,7 @@ CreateDiscussionView = Hideable.extend({
   , "keyup #CreateDiscussionViewTime":          "syncDeadline"
   , "input #CreateDiscussionViewTime":          "syncDeadline"
   , "keyup #CreateDiscussionViewDescription":   "syncDescription"
+  , "click #CreateDiscussionViewShowGraphView": "openGraphView"
   }
 , render: function(){
     var target = this.$('#CreateDiscussionInitialArticles');
@@ -93,5 +94,8 @@ CreateDiscussionView = Hideable.extend({
     this.$('#CreateDiscussionViewHeadline').val(m.get('headline'));
     this.$('#CreateDiscussionViewDeadline').val(m.get('deadline'));
     this.$('#CreateDiscussionViewDescription').val(m.get('description'));
+  }
+, openGraphView: function(){
+    window.App.views.discussionGraphView.setModel(this.model);
   }
 });
