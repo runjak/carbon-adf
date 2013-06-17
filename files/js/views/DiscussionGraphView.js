@@ -6,9 +6,12 @@ DiscussionGraphView = PaperView.extend({
       view.resize();
     });
     $(window).keyup(function(e){view.keyboard(e);});
+    this.$('.paper').click(function(e){
+      view.mouse(e);});
+    window.d = this; // FIXME DEBUG
   }
 , events: {
-    "click #DiscussionGraphViewCenter":    "center"
+    "click #DiscussionGraphViewCenter":    "resetPanZoom"
   , "click #DiscussionGraphViewZoomIn":    "zoomIn"
   , "click #DiscussionGraphViewZoomOut":   "zoomOut"
   , "click #DiscussionGraphViewMoveLeft":  "moveLeft"
@@ -24,9 +27,7 @@ DiscussionGraphView = PaperView.extend({
     p.clear();
     //Drawing:
     this.drawGrid();
-    p.circle(32768,32768,42).attr({
-      fill: '#0f0'
-    , 'fill-opacity': 0.25});
+    this.paper.circle(500,500,42).attr({fill: '#0f0'});
     p.renderfix();
     p.safari();
   }
@@ -40,11 +41,11 @@ DiscussionGraphView = PaperView.extend({
     if(this.model !== null){
       if(this.paper === null){
         this.mkPaper(this.$('.paper').get(0));
-        this.centerViewBox(w,h).render();
+        this.resetPanZoom().render();
       }else{
         var p = this.model._previousAttributes;
         if(p.paperWidth !== w || p.paperHeight !== h){
-          this.centerViewBox(w,h).render();
+          this.resetPanZoom().render();
         }
       }
     }
@@ -63,23 +64,25 @@ DiscussionGraphView = PaperView.extend({
     }
     this.resize();
   }
-, zoomIn:    function(){this.deltaZoom(.1,.1);}
-, zoomOut:   function(){this.deltaZoom(-.1,-.1);}
-, moveLeft:  function(){this.pan(100, 0);}
+, zoomIn:    function(){this.deltaZoom(-.1);}
+, zoomOut:   function(){this.deltaZoom( .1);}
+, moveLeft:  function(){this.pan( 100, 0);}
 , moveRight: function(){this.pan(-100, 0);}
-, moveUp:    function(){this.pan(0,100);}
-, moveDown:  function(){this.pan(0,-100);}
+, moveUp:    function(){this.pan(0,  100);}
+, moveDown:  function(){this.pan(0, -100);}
 , keyboard:  function(e){
     if(!this.$el.is('.fade.in'))
       return;
     switch(e.keyCode){
       case 90: // Z
-        this.center();
+        this.resetPanZoom();
       break;
-      case 81: // Q
+      case 187: // +
+      case 81:  // Q
         this.zoomIn();
       break;
-      case 69: // E
+      case 189: // -
+      case 69:  // E
         this.zoomOut();
       break;
       case 38: // ArrowUp
@@ -99,7 +102,16 @@ DiscussionGraphView = PaperView.extend({
         this.moveRight();
       break;
       default:
-        console.log('Uncought keycode: '+e.keyCode);
+      //console.log('Uncought keycode: '+e.keyCode);
+    }
+  }
+, mouse: function(e){
+    if(e.type === 'click'){
+      var p = {x: e.pageX, y: e.pageY};
+      console.log('Click on: '+JSON.stringify(p));
+          p = this.mouseToPaper(p);
+      console.log('Click on: '+JSON.stringify(p));
+      this.paper.circle(p.x, p.y, 10).attr({fill: '#f00'});
     }
   }
 });
