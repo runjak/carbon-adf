@@ -27,7 +27,9 @@ DiscussionGraphView = PaperView.extend({
     p.clear();
     //Drawing:
     this.drawGrid();
-    this.paper.circle(500,500,42).attr({fill: '#0f0'});
+    window.pa = new PaperArticle({
+      model: null, el: this.paper
+    });
     p.renderfix();
     p.safari();
   }
@@ -107,11 +109,8 @@ DiscussionGraphView = PaperView.extend({
   }
 , mouse: function(e){
     if(e.type === 'click'){
-      var p = {x: e.pageX, y: e.pageY};
-      console.log('Click on: '+JSON.stringify(p));
-          p = this.mouseToPaper(p);
-      console.log('Click on: '+JSON.stringify(p));
-      this.paper.circle(p.x, p.y, 10).attr({fill: '#f00'});
+      var p = this.mouseToPaper({x: e.pageX, y: e.pageY});
+    //this.paper.circle(p.x, p.y, 10).attr({fill: '#f00'});
     }
   }
 });

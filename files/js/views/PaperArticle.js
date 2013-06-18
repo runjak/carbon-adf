@@ -1,0 +1,73 @@
+/**
+  Renders a single Article on a paper.
+  model: Article
+  el:    Paper
+*/
+PaperArticle = Backbone.View.extend({
+  initialize: function(){
+  //this.model.on('change', this.update, this);
+    var view  = this;
+    this.el.setStart();
+    this.back = this.el.rect(450, 490, 100 , 20, 5).attr({fill: '#666'})
+    var p     = this.back.attr(['x','y']);
+    this.text = this.el.text(p.x + 40, (p.y+12.5)/2, 'Hello World!'); //this.model.get('headline'));
+    this.set  = this.el.setFinish();
+    this.set.mouseover(function(){view.showSelected();})
+            .mouseout(function(){view.showUnselected();})
+            .drag(this.drag, this.dragStart, this.dragEnd, this, this, this);
+  }
+  /**
+    Update needs to adjust all content and make sure, that the text is inside back and so on.
+  */
+, update: function(){
+    //Update text content:
+//  this.text.attr('text', this.model.get('headline'));
+    //Updating back size:
+    var tBox = this.text.getBBox();
+    this.back.attr({
+      width:  tBox.width  + 10
+    , height: tBox.height + 10
+    });
+    //Updating text position:
+    var p = this.back.attr(['x','y']);
+    this.text.attr({
+      x: p.x + 5 + tBox.width/2
+    , y: p.y + 5 + tBox.height/2
+    });
+  }
+, showSelected: function(){
+    if(!this.back.dragFrom){
+      this.showUnselected();
+      this.glow = this.back.glow({color: '#fff'});
+    } return this;
+  }
+, showUnselected: function(){
+    if(this.glow){
+      this.glow.remove();
+      this.glow = null;
+    } return this;
+  }
+, showAccepted: function(){this.back.attr({fill: '#0f0'}); return this;}
+, showRejected: function(){this.back.attr({fill: '#f00'}); return this;}
+, showUnknown:  function(){this.back.attr({fill: '#666'}); return this;}
+, dragStart: function(){
+    this.showUnselected();
+    this.back.attr('fill-opacity', .5);
+    this.back.dragFrom = this.back.attr(['x','y']);
+    this.text.hide();
+  }
+, drag: function(dx, dy){
+    var z = this.el._vbSize;
+    var p = this.back.dragFrom;
+    this.back.attr({
+      x: p.x + dx * z
+    , y: p.y + dy * z
+    });
+  }
+, dragEnd: function(){
+    this.back.dragFrom = null;
+    this.back.attr('fill-opacity', 1);
+    this.text.show();
+    this.showSelected().update();
+  }
+});
