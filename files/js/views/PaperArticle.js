@@ -6,6 +6,7 @@
 PaperArticle = Backbone.View.extend({
   initialize: function(){
   //this.model.on('change', this.update, this);
+    //General content:
     var view  = this;
     this.el.setStart();
     this.back = this.el.rect(450, 490, 100 , 20, 5).attr({fill: '#666'})
@@ -15,6 +16,29 @@ PaperArticle = Backbone.View.extend({
     this.set.mouseover(function(){view.showSelected();})
             .mouseout(function(){view.showUnselected();})
             .drag(this.drag, this.dragStart, this.dragEnd, this, this, this);
+    this.el.setStart();
+    // Building the buttons:
+    this.buttons = this.el.buttonSet(this);
+    this.btnDelete = this.el.set(); // Button to delete the PaperArticle from the Discussion
+    this.btnRelA   = this.el.set(); // Button to let a PaperArticle attack another
+    this.btnRelD   = this.el.set(); // Button to let a PaperArticle defend another
+    this.btnDelete.push(
+      this.el.rect(0,0,15,17,2)
+    , this.el.image('files/img/ghw-trash.png',2,2,11,13)
+    ).click(function(){view.clickBtnDelete();});
+    this.btnRelA.push(
+      this.el.rect(0,0,15,17,2)
+    , this.el.image('files/img/ghw-minus.png',3,6,9,4)
+    ).click(function(){view.clickBtnRelA();});
+    this.btnRelD.push(
+      this.el.rect(0,0,15,17,2)
+    , this.el.image('files/img/ghw-plus.png',2,2,11,12)
+    ).click(function(){view.clickBtnRelD();});
+    this.buttons.push(
+      this.btnDelete
+    , this.btnRelA
+    , this.btnRelD
+    ).init().place().hide();
   }
   /**
     Update needs to adjust all content and make sure, that the text is inside back and so on.
@@ -34,6 +58,8 @@ PaperArticle = Backbone.View.extend({
       x: p.x + 5 + tBox.width/2
     , y: p.y + 5 + tBox.height/2
     });
+    //Updating buttons:
+    this.buttons.place();
   }
 , showSelected: function(){
     if(!this.back.dragFrom){
@@ -55,8 +81,13 @@ PaperArticle = Backbone.View.extend({
     this.back.attr('fill-opacity', .5);
     this.back.dragFrom = this.back.attr(['x','y']);
     this.text.hide();
+    this.dragged = false;
   }
 , drag: function(dx, dy){
+    if(!this.dragged){
+      this.dragged = true;
+      this.buttons.hide();
+    }
     var z = this.el._vbSize;
     var p = this.back.dragFrom;
     this.back.attr({
@@ -69,5 +100,14 @@ PaperArticle = Backbone.View.extend({
     this.back.attr('fill-opacity', 1);
     this.text.show();
     this.showSelected().update();
+    if(!this.dragged) this.click();
   }
+, click: function(){
+    if(this.buttons.visible){
+      this.buttons.hide();
+    }else this.buttons.show();
+  }
+, clickBtnDelete: function(){alert('clickBtnDelete');}
+, clickBtnRelA: function(){alert('clickBtnRelA');}
+, clickBtnRelD: function(){alert('clickBtnRelD');}
 });

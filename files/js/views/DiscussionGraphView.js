@@ -18,6 +18,7 @@ DiscussionGraphView = PaperView.extend({
   , "click #DiscussionGraphViewMoveRight": "moveRight"
   , "click #DiscussionGraphViewMoveUp":    "moveUp"
   , "click #DiscussionGraphViewMoveDown":  "moveDown"
+  , "click #DiscussionGraphViewAddNode":   "addNode"
   }
 , render: function(){
     //Setup:
@@ -27,6 +28,10 @@ DiscussionGraphView = PaperView.extend({
     p.clear();
     //Drawing:
     this.drawGrid();
+    // FIXME DEBUG
+    window.pa = new PaperArticle({
+      model: null, el: this.paper
+    });
     window.pa = new PaperArticle({
       model: null, el: this.paper
     });
@@ -103,6 +108,9 @@ DiscussionGraphView = PaperView.extend({
       case 68: // D
         this.moveRight();
       break;
+      case 78: // N
+        this.addNode();
+      break;
       default:
       //console.log('Uncought keycode: '+e.keyCode);
     }
@@ -110,7 +118,16 @@ DiscussionGraphView = PaperView.extend({
 , mouse: function(e){
     if(e.type === 'click'){
       var p = this.mouseToPaper({x: e.pageX, y: e.pageY});
-    //this.paper.circle(p.x, p.y, 10).attr({fill: '#f00'});
+      if(this.clickTask){
+        var keep = this.clickTask(p);
+        if(!keep) this.clickTask = null;
+      }
     }
+  }
+, addNode: function(){
+    var view = this;
+    this.clickTask = function(p){
+      view.paper.circle(p.x, p.y, 10).attr({fill: '#f00'});
+    };
   }
 });
