@@ -33,6 +33,9 @@ data Article = Article {
 , aDescription :: Description
 } deriving (Show)
 
+isDummy :: Article -> Bool
+isDummy a = all null [content a, description $ aDescription a]
+
 data Relation = Relation {
   relationId   :: RelationId
 , source       :: ArticleId

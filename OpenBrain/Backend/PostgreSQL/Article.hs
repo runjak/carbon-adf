@@ -62,5 +62,22 @@ getArticle aid conn = do
 
 setContent :: ArticleId -> String -> Query ()
 setContent aid content conn =
-  let q = "UPDATE articles SET content = ? WHERE articleid = ?"
-  in void $ quickQuery' conn q [toSql content, toSql $ toId aid]
+  unless (null content) $
+    let q = "UPDATE articles SET content = ? WHERE articleid = ?"
+    in void $ quickQuery' conn q [toSql content, toSql $ toId aid]
+
+replaceDummy :: ArticleId -> ArticleId -> Query Bool
+replaceDummy dummy aid conn = do
+  dummyA <- getArticle dummy conn
+  if isDummy dummyA then process (descriptionId $ aDescription dummyA) else return False
+  where
+    {- We don't care if the dummy is a profile or part of a parent-child chain,
+       because that should never be the case.-}
+    process did = do
+      let qs = [ "UPDATE collectedarticles SET articleid = ? WHERE articleid = ?"
+               , "UPDATE relations SET target = ? WHERE target = ?"
+               , "UPDATE relations SET source = ? WHERE target = ?"]
+      mapM_ (\q -> quickQuery' conn q [toSql $ toId aid, toSql $ toId dummy]) qs
+      quickQuery' conn "DELETE FROM descriptions WHERE descriptionid = ?" [toSql $ toId did]
+      quickQuery' conn "DELETE FROM articles WHERE articleid = ?" [toSql $ toId dummy]
+      return True

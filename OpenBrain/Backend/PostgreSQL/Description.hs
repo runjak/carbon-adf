@@ -35,5 +35,6 @@ setHeadline did h conn =
 
 setDescription :: DescriptionId -> String -> Query ()
 setDescription did desc conn =
-  let q = "UPDATE descriptions SET description = ? WHERE descriptionid = ?"
-  in void $ quickQuery' conn q [toSql desc, toSql $ toId did]
+  unless (null desc) $
+    let q = "UPDATE descriptions SET description = ? WHERE descriptionid = ?"
+    in void $ quickQuery' conn q [toSql desc, toSql $ toId did]

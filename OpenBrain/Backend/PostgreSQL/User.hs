@@ -8,6 +8,8 @@ import OpenBrain.Data.Hash
 import OpenBrain.Data.Id
 import OpenBrain.Data.Salt
 
+import qualified OpenBrain.Backend.PostgreSQL.Article as Article
+
 addUser :: Username -> (Hash,Salt) -> IsAdmin -> Query (Maybe UserId)
 addUser uName (h,s) isA conn = do
   let insert = "INSERT INTO users (username, hash, salt, isadmin) VALUES (?, ?, ?, ?) RETURNING userid"
@@ -102,6 +104,8 @@ setPasswd uid f conn = do
   void $ quickQuery' conn setHash [toSql h, toSql $ toId uid]
 
 setProfile :: UserId -> Maybe ArticleId -> Query ()
-setProfile uid mA conn =
-  let q = "UPDATE users SET profile = ? WHERE userid = ?"
-  in void $ quickQuery' conn q [toSql $ liftM toId mA, toSql $ toId uid]
+setProfile uid mA conn = do
+  noDummy <- flip (maybe $ return True) mA $ liftM (not . isDummy) . flip Article.getArticle conn
+  when noDummy $
+    let q = "UPDATE users SET profile = ? WHERE userid = ?"
+    in void $ quickQuery' conn q [toSql $ liftM toId mA, toSql $ toId uid]

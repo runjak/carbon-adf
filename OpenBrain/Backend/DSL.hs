@@ -31,10 +31,11 @@ data BackendDSL r where
   SetHeadline       :: DescriptionId -> Headline -> BackendDSL ()
   SetDescription    :: DescriptionId -> String -> BackendDSL ()
   -- | Article related:
-  AddArticle :: NewDescriptionId -> String -> BackendDSL ArticleId
-  Clone      :: ArticleId -> Author -> BackendDSL ArticleId
-  GetArticle :: ArticleId -> BackendDSL Article
-  SetContent :: ArticleId -> String -> BackendDSL ()
+  AddArticle   :: NewDescriptionId -> String -> BackendDSL ArticleId
+  Clone        :: ArticleId -> Author -> BackendDSL ArticleId
+  GetArticle   :: ArticleId -> BackendDSL Article
+  SetContent   :: ArticleId -> String -> BackendDSL ()
+  ReplaceDummy :: ArticleId -> ArticleId -> BackendDSL Bool
   -- | Relation related:
   AddRelation :: NewDescriptionId -> RelationType -> ArticleId -> ArticleId -> BackendDSL RelationId
   GetRelation :: RelationId -> BackendDSL Relation

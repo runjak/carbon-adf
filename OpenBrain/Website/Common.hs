@@ -41,7 +41,7 @@ countAndPageBy c p = plusm count $ do
   (l, o) <- liftM2 (,) (lookRead "limit") $ lookRead "offset"
   respOk =<< liftB (p l o)
   where
-    count = respOk . responseJSON'' =<< liftM (show) (liftB c)
+    count = respOk . responseJSON'' =<< liftM show (liftB c)
 
 sanitize :: String -> String
 sanitize = foldl1 (.) [
