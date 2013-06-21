@@ -78,6 +78,7 @@ replaceDummy dummy aid conn = do
                , "UPDATE relations SET target = ? WHERE target = ?"
                , "UPDATE relations SET source = ? WHERE target = ?"]
       mapM_ (\q -> quickQuery' conn q [toSql $ toId aid, toSql $ toId dummy]) qs
+      quickQuery' conn "DELETE FROM relations WHERE source = ? AND target = ?" [toSql $ toId aid, toSql $ toId aid]
       quickQuery' conn "DELETE FROM descriptions WHERE descriptionid = ?" [toSql $ toId did]
       quickQuery' conn "DELETE FROM articles WHERE articleid = ?" [toSql $ toId dummy]
       return True

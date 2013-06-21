@@ -56,6 +56,13 @@ deleteArticle aid = Session.chkSession' . const $ do
     DeleteDescription $ descriptionId d
   respOk . responseJSON'' $ "Deleted Article:\t" ++ show aid
 
+replaceDummy :: ArticleId -> ArticleId -> OBW Response
+replaceDummy dummy replacement = Session.chkSession' . const $ do
+  replaced <- liftB $ ReplaceDummy dummy replacement
+  let success = respOk $ responseJSON'' "Dummy replaced"
+      problem = respNotModified $ responseJSON'' "Could not replace dummy"
+  replaced ? (success, problem)
+
 -- | Parameters…
 getContent :: OBW String
 getContent = liftM sanitize $ lookRead "content"

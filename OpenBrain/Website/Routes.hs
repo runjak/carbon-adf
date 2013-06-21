@@ -15,7 +15,8 @@ route :: OBW Response
 route = msum [
     dir "article" $ msum [
       path $ \aid -> msum [
-        crudRead   $ Article.readArticle   aid
+        dir "replace" . path $ \d -> crudUpdate $ Article.replaceDummy d aid
+      , crudRead   $ Article.readArticle   aid
       , crudUpdate $ Article.updateArticle aid
       , crudDelete $ Article.deleteArticle aid
       ]
