@@ -7,9 +7,10 @@ module OpenBrain.Backend.PostgreSQL.Paging(
 import OpenBrain.Backend.PostgreSQL.Common
 import OpenBrain.Data.Id
 
-articleCount     = getCount $ "SELECT COUNT(*) "
-  ++ "FROM articles INNER JOIN descriptions d USING (descriptionid) "
-  ++ "WHERE d.deletion IS NULL"
+articleCount = getCount $ "SELECT COUNT(*) "
+  ++ "FROM articles a INNER JOIN descriptions d USING (descriptionid) "
+  ++ "WHERE d.deletion IS NULL "
+  ++ "AND (a.content != '' OR d.description != '')"
 collectionCount  = getCount $ "SELECT COUNT(*) "
   ++ "FROM collections INNER JOIN descriptions d USING (descriptionid) "
   ++ "WHERE d.deletion IS NULL"
@@ -33,6 +34,7 @@ getCount qString conn = do
 pageArticles'     = "SELECT a.articleid "
   ++ "FROM articles a JOIN descriptions d USING (descriptionid) "
   ++ "WHERE d.deletion IS NULL "
+  ++ "AND (a.content != '' OR d.description != '') "
   ++ "ORDER BY d.creation DESC LIMIT ? OFFSET ?"
 pageCollections'  = "SELECT c.collectionid "
   ++ "FROM collections c JOIN descriptions d USING (descriptionid) "
