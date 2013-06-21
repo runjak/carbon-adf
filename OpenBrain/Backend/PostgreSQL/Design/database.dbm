@@ -140,12 +140,32 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="collectedarticles" oids="true">
 	<schema name="public"/>
-	<position x="594.571" y="145.571"/>
+	<position x="563.142" y="149.857"/>
 	<column name="collectionid" not-null="true">
 		<type name="serial"/>
 	</column>
 	<column name="articleid" not-null="true">
 		<type name="serial"/>
+	</column>
+	<column name="pos_x" not-null="true">
+		<type name="smallint"/>
+		<comment><![CDATA[x position of an article when displayed in a graph.]]></comment>
+	</column>
+	<column name="pos_y" not-null="true">
+		<type name="smallint"/>
+		<comment><![CDATA[y position of an article when displayed in a graph]]></comment>
+	</column>
+	<column name="accepted">
+		<type name="boolean"/>
+		<comment><![CDATA[Null means unknown]]></comment>
+	</column>
+	<column name="condition" not-null="true" default-value="''">
+		<type name="text"/>
+		<comment><![CDATA[Acceptance condition for an article. Can be set by a client or be generated automatically. Because openBrain needs to parse/generate this anyway, it\'s stored as text.]]></comment>
+	</column>
+	<column name="customcondition" not-null="true" default-value="false">
+		<type name="boolean"/>
+		<comment><![CDATA[true if the condition was set by a client. This also means that it should not be overwritten by openBrain except a client requests so.]]></comment>
 	</column>
 </table>
 
@@ -409,7 +429,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="children" oids="true">
 	<schema name="public"/>
-	<position x="828.571" y="137.143"/>
+	<position x="831.428" y="141.429"/>
 	<column name="parent" not-null="true">
 		<type name="serial"/>
 	</column>

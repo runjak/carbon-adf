@@ -205,11 +205,51 @@ ALTER SEQUENCE choices_resultid_seq OWNED BY choices.resultid;
 
 CREATE TABLE collectedarticles (
     collectionid integer NOT NULL,
-    articleid integer NOT NULL
+    articleid integer NOT NULL,
+    pos_x smallint DEFAULT 500 NOT NULL,
+    pos_y smallint DEFAULT 500 NOT NULL,
+    accepted boolean,
+    condition text DEFAULT ''::text NOT NULL,
+    customcondition boolean DEFAULT false NOT NULL
 );
 
 
 ALTER TABLE public.collectedarticles OWNER TO mushu;
+
+--
+-- Name: COLUMN collectedarticles.pos_x; Type: COMMENT; Schema: public; Owner: mushu
+--
+
+COMMENT ON COLUMN collectedarticles.pos_x IS 'x position of an article when displayed in a graph. Because default paper size is 1000, default is 500.';
+
+
+--
+-- Name: COLUMN collectedarticles.pos_y; Type: COMMENT; Schema: public; Owner: mushu
+--
+
+COMMENT ON COLUMN collectedarticles.pos_y IS 'y position of an article when displayed in a graph. Because default paper size is 1000, default is 500.';
+
+
+--
+-- Name: COLUMN collectedarticles.accepted; Type: COMMENT; Schema: public; Owner: mushu
+--
+
+COMMENT ON COLUMN collectedarticles.accepted IS 'Null means unknown';
+
+
+--
+-- Name: COLUMN collectedarticles.condition; Type: COMMENT; Schema: public; Owner: mushu
+--
+
+COMMENT ON COLUMN collectedarticles.condition IS 'Acceptance condition for an article. Can be set by a client or be generated automatically. Because openBrain needs to parse/generate this anyway, it is stored as text.';
+
+
+--
+-- Name: COLUMN collectedarticles.customcondition; Type: COMMENT; Schema: public; Owner: mushu
+--
+
+COMMENT ON COLUMN collectedarticles.customcondition IS 'true if the condition was set by a client. This also means that it should not be overwritten by openBrain except a client requests so.';
+
 
 --
 -- Name: collectedarticles_articleid_seq; Type: SEQUENCE; Schema: public; Owner: mushu
@@ -1037,7 +1077,7 @@ SELECT pg_catalog.setval('choices_resultid_seq', 1, false);
 -- Data for Name: collectedarticles; Type: TABLE DATA; Schema: public; Owner: mushu
 --
 
-COPY collectedarticles (collectionid, articleid) FROM stdin;
+COPY collectedarticles (collectionid, articleid, pos_x, pos_y, accepted, condition, customcondition) FROM stdin;
 \.
 
 
@@ -1199,7 +1239,6 @@ SELECT pg_catalog.setval('results_resultid_seq', 1, false);
 --
 
 COPY users (userid, username, hash, salt, creationtime, lastlogin, isadmin, profile, sessionkey) FROM stdin;
-1	foo	dee6017363052fba42c7a2beb6abcba6c04d42b40cef39c466a5514940f42799eca343f454f8c33736f104c2c9cba784791f7030b56568eb163d542954b8d3f5	mddqvtz}ac{jtc	2013-06-11 14:13:08.583819	2013-06-11 14:13:08.583819	t	\N	bjpjquk|ybb{
 \.
 
 
@@ -1207,7 +1246,7 @@ COPY users (userid, username, hash, salt, creationtime, lastlogin, isadmin, prof
 -- Name: users_userid_seq; Type: SEQUENCE SET; Schema: public; Owner: mushu
 --
 
-SELECT pg_catalog.setval('users_userid_seq', 1, true);
+SELECT pg_catalog.setval('users_userid_seq', 1, false);
 
 
 --

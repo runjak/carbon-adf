@@ -78,11 +78,21 @@ WITH (OIDS=TRUE);
 -- object: public.collectedarticles | type: TABLE -- 
 CREATE TABLE public.collectedarticles(
 	collectionid serial NOT NULL,
-	articleid serial NOT NULL
+	articleid serial NOT NULL,
+	pos_x smallint NOT NULL DEFAULT 500,
+	pos_y smallint NOT NULL DEFAULT 500,
+	accepted boolean,
+	condition text NOT NULL DEFAULT '',
+	customcondition boolean NOT NULL DEFAULT false
 )
 WITH (OIDS=TRUE);
 -- ddl-end --
 
+COMMENT ON COLUMN public.collectedarticles.pos_x IS 'x position of an article when displayed in a graph. Because default paper size is 1000, default is 500.';
+COMMENT ON COLUMN public.collectedarticles.pos_y IS 'y position of an article when displayed in a graph. Because default paper size is 1000, default is 500.';
+COMMENT ON COLUMN public.collectedarticles.accepted IS 'Null means unknown';
+COMMENT ON COLUMN public.collectedarticles.condition IS 'Acceptance condition for an article. Can be set by a client or be generated automatically. Because openBrain needs to parse/generate this anyway, it is stored as text.';
+COMMENT ON COLUMN public.collectedarticles.customcondition IS 'true if the condition was set by a client. This also means that it should not be overwritten by openBrain except a client requests so.';
 -- ddl-end --
 
 -- object: public.discussions | type: TABLE -- 
