@@ -2,8 +2,10 @@
 module OpenBrain.Backend.PostgreSQL.Collection where
 
 import OpenBrain.Backend.PostgreSQL.Common
-import OpenBrain.Backend.PostgreSQL.Description (getDescription)
 import OpenBrain.Data.Id
+
+import qualified OpenBrain.Backend.PostgreSQL.Article     as Article
+import qualified OpenBrain.Backend.PostgreSQL.Description as Description
 
 addCollection :: NewDescriptionId -> [ArticleId] -> Query NewCollectionId
 addCollection ndid as conn = do
@@ -25,11 +27,25 @@ forgetArticles cid as conn = do
 
 getCollection :: CollectionId -> Query Collection
 getCollection cid conn = do
-  articles <- quickQuery' conn "SELECT articleid FROM collectedarticles WHERE collectionid = ?" [toSql $ toId cid]
-  [[did]]  <- quickQuery' conn "SELECT descriptionid FROM collections WHERE collectionid = ?" [toSql $ toId cid]
-  description <- getDescription (fromId $ fromSql did) conn
+  [[did]] <- quickQuery' conn "SELECT descriptionid FROM collections WHERE collectionid = ?" [toSql $ toId cid]
+  desc    <- Description.getDescription (fromId $ fromSql did) conn
+  let q = "SELECT articleid, pos_x, pos_y, accepted, condition, customcondition "
+       ++ "FROM collectedarticles WHERE collectionid = ?"
+  cArts   <- mapM (go conn) =<< quickQuery' conn q [toSql $ toId cid]
+  undefined
   return Collection{
     collectionId = cid
-  , articles     = map (fromId . fromSql . head) articles
-  , cDescription = description
+  , articles     = cArts
+  , cDescription = desc
   }
+  where
+    go conn [aid, x, y, acc, cond, cust] = do
+      a <- Article.getArticle (fromId $ fromSql aid) conn
+      return CollectionArticle{
+        cArticle        = a
+      , pos_x           = fromSql x
+      , pos_y           = fromSql y
+      , accepted        = fromSql acc
+      , customcondition = fromSql cust
+      , condition       = fromSql cond
+      }

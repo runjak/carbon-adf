@@ -47,9 +47,18 @@ data Relation = Relation {
 data RelationType = RelationAttack | RelationDefense
   deriving (Show, Read, Eq, Ord, Enum)
 
+data CollectionArticle = CollectionArticle {
+  cArticle        :: Article
+, pos_x           :: Int
+, pos_y           :: Int
+, accepted        :: Bool
+, customcondition :: Bool
+, condition       :: Condition
+} deriving (Show)
+
 data Collection = Collection {
   collectionId :: CollectionId
-, articles     :: [ArticleId]
+, articles     :: [CollectionArticle]
 , cDescription :: Description
 } deriving (Show)
 
@@ -95,6 +104,8 @@ type Voted        = Bool
 type Votes        = Int
 type Weight       = Int 
 
+type Condition = String -- | FIXME build custom type to parse/generate
+
 {-| Instances of Eq: |-}
 instance Eq Description where
   (==) = (==) `on` descriptionId
@@ -102,6 +113,8 @@ instance Eq Article where
   (==) = (==) `on` articleId
 instance Eq Relation where
   (==) = (==) `on` relationId
+instance Eq CollectionArticle where
+  (==) = (==) `on` cArticle
 instance Eq Collection where
   (==) = (==) `on` collectionId
 instance Eq Discussion where
@@ -118,6 +131,8 @@ instance Ord Article where
   compare = compare `on` articleId
 instance Ord Relation where
   compare = compare `on` relationId
+instance Ord CollectionArticle where
+  compare = compare `on` cArticle
 instance Ord Collection where
   compare = compare `on` collectionId
 instance Ord Discussion where
@@ -157,6 +172,16 @@ instance ToJSON Relation where
         ]
 instance ToJSON RelationType where
   toJSON = toJSON . show
+instance ToJSON CollectionArticle where
+  toJSON c = merge (toJSON $ cArticle c) o
+    where 
+      o = object [
+          "pos_x"           .= pos_x           c
+        , "pos_y"           .= pos_y           c
+        , "accepted"        .= accepted        c
+        , "customcondition" .= customcondition c
+        , "condition"       .= condition       c
+        ]
 instance ToJSON Collection where
   toJSON c = merge (toJSON $ cDescription c) o
     where
