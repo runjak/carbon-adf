@@ -5,6 +5,7 @@ import OpenBrain.Data
 import OpenBrain.Data.Id
 import OpenBrain.Data.Hash
 import OpenBrain.Data.Json
+import OpenBrain.Data.Logic
 import OpenBrain.Data.Salt
 
 {-| The BackendDSL and it's verbs: |-}
@@ -44,6 +45,10 @@ data BackendDSL r where
   CollectArticles :: CollectionId -> [ArticleId] -> BackendDSL () 
   ForgetArticles  :: CollectionId -> [ArticleId] -> BackendDSL ()
   GetCollection   :: CollectionId -> BackendDSL Collection
+  -- | CollectionArticle related:
+  UpdatePosition  :: CollectionId -> ArticleId -> (Int,Int) -> BackendDSL ()
+  UpdateAccepted  :: CollectionId -> ArticleId -> Maybe Bool -> BackendDSL ()
+  UpdateCondition :: CollectionId -> ArticleId -> Bool -> Exp -> BackendDSL ()
   -- | Discussion related:
   AddDiscussion  :: NewCollectionId -> [UserId] -> Maybe Timestamp -> BackendDSL DiscussionId
   GetDiscussion  :: DiscussionId -> BackendDSL Discussion

@@ -26,8 +26,8 @@ import OpenBrain.Data   as Data
 import qualified OpenBrain.Backend.PostgreSQL.Conversion as Conversion
 import qualified OpenBrain.Config  as Config
 
-type Query  r    = forall conn . IConnection conn => conn -> IO r
-data Connector   = Connector {conn :: MVar ConnWrapper}
+type   Query   r = forall conn . IConnection conn => conn -> IO r
+data   Connector = Connector {conn :: MVar ConnWrapper}
 newtype Executor = E ConnWrapper
 
 valid :: Config -> Bool
