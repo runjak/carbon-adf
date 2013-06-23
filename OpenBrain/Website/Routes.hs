@@ -1,21 +1,26 @@
 module OpenBrain.Website.Routes where
 
 import OpenBrain.Website.Common
-import qualified OpenBrain.Website.Article     as Article
-import qualified OpenBrain.Website.Collection  as Collection
-import qualified OpenBrain.Website.Description as Description
-import qualified OpenBrain.Website.Discussion  as Discussion
-import qualified OpenBrain.Website.Files       as Files
-import qualified OpenBrain.Website.Login       as Login
-import qualified OpenBrain.Website.Relation    as Relation
-import qualified OpenBrain.Website.Result      as Result
-import qualified OpenBrain.Website.User        as User
+import qualified OpenBrain.Website.Article           as Article
+import qualified OpenBrain.Website.CollectionArticle as CArticle
+import qualified OpenBrain.Website.Collection        as Collection
+import qualified OpenBrain.Website.Description       as Description
+import qualified OpenBrain.Website.Discussion        as Discussion
+import qualified OpenBrain.Website.Files             as Files
+import qualified OpenBrain.Website.Login             as Login
+import qualified OpenBrain.Website.Relation          as Relation
+import qualified OpenBrain.Website.Result            as Result
+import qualified OpenBrain.Website.User              as User
 
 route :: OBW Response
 route = msum [
     dir "article" $ msum [
       path $ \aid -> msum [
         dir "replace" . path $ \d -> crudUpdate $ Article.replaceDummy d aid
+      , dir "collection" . path $ \cid -> crudUpdate $ msum [
+          dir "position"  $ CArticle.updatePosition  cid aid
+        , dir "condition" $ CArticle.updateCondition cid aid
+        ]
       , crudRead   $ Article.readArticle   aid
       , crudUpdate $ Article.updateArticle aid
       , crudDelete $ Article.deleteArticle aid

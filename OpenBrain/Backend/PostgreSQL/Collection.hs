@@ -43,8 +43,8 @@ getCollection cid conn = do
       a <- Article.getArticle (fromId $ fromSql aid) conn
       return CollectionArticle{
         cArticle        = a
-      , pos_x           = fromSql x
-      , pos_y           = fromSql y
+      , posX            = fromSql x
+      , posY            = fromSql y
       , accepted        = fromSql acc
       , customcondition = fromSql cust
       , condition       = read $ fromSql cond

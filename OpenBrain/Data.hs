@@ -50,8 +50,8 @@ data RelationType = RelationAttack | RelationDefense
 
 data CollectionArticle = CollectionArticle {
   cArticle        :: Article
-, pos_x           :: Int
-, pos_y           :: Int
+, posX            :: Int
+, posY            :: Int
 , accepted        :: Bool
 , customcondition :: Bool
 , condition       :: Exp 
@@ -175,8 +175,8 @@ instance ToJSON CollectionArticle where
   toJSON c = merge (toJSON $ cArticle c) o
     where 
       o = object [
-          "pos_x"           .= pos_x           c
-        , "pos_y"           .= pos_y           c
+          "pos_x"           .= posX            c
+        , "pos_y"           .= posY            c
         , "accepted"        .= accepted        c
         , "customcondition" .= customcondition c
         , "condition"       .= show (condition c)

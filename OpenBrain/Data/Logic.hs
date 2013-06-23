@@ -1,5 +1,7 @@
 module OpenBrain.Data.Logic where
 
+import Happstack.Server (FromReqURI(..))
+
 data Exp = Var String
          | And Exp Exp
          | Or  Exp Exp
@@ -18,3 +20,6 @@ instance Show Exp where
 
 -- | FIXME build an instance for read/some kind of parser
 -- | PostgreSQL Backend uses read to parse atm
+
+instance FromReqURI Exp where
+  fromReqURI = Just . read
