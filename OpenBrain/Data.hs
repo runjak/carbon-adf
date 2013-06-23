@@ -14,6 +14,7 @@ import qualified Data.Aeson as Aeson
 import OpenBrain.Data.Id
 import OpenBrain.Data.Hash
 import OpenBrain.Data.Json
+import OpenBrain.Data.Logic
 import OpenBrain.Data.Salt
 
 data Description = Description {
@@ -53,7 +54,7 @@ data CollectionArticle = CollectionArticle {
 , pos_y           :: Int
 , accepted        :: Bool
 , customcondition :: Bool
-, condition       :: Condition
+, condition       :: Exp 
 } deriving (Show)
 
 data Collection = Collection {
@@ -103,8 +104,6 @@ type Username     = String
 type Voted        = Bool
 type Votes        = Int
 type Weight       = Int 
-
-type Condition = String -- | FIXME build custom type to parse/generate
 
 {-| Instances of Eq: |-}
 instance Eq Description where
@@ -180,7 +179,7 @@ instance ToJSON CollectionArticle where
         , "pos_y"           .= pos_y           c
         , "accepted"        .= accepted        c
         , "customcondition" .= customcondition c
-        , "condition"       .= condition       c
+        , "condition"       .= show (condition c)
         ]
 instance ToJSON Collection where
   toJSON c = merge (toJSON $ cDescription c) o

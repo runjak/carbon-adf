@@ -47,5 +47,5 @@ getCollection cid conn = do
       , pos_y           = fromSql y
       , accepted        = fromSql acc
       , customcondition = fromSql cust
-      , condition       = fromSql cond
+      , condition       = read $ fromSql cond
       }
