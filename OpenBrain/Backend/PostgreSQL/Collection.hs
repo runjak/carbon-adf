@@ -32,7 +32,6 @@ getCollection cid conn = do
   let q = "SELECT articleid, pos_x, pos_y, accepted, condition, customcondition "
        ++ "FROM collectedarticles WHERE collectionid = ?"
   cArts   <- mapM (go conn) =<< quickQuery' conn q [toSql $ toId cid]
-  undefined
   return Collection{
     collectionId = cid
   , articles     = cArts

@@ -10,6 +10,7 @@ pageDiscussions = countAndPageBy DiscussionCount $ \l o -> liftM responseJSON' $
 
 createDiscussion :: OBW Response
 createDiscussion = Session.chkSession' $ \uid -> plusm createFail $ do
+  liftIO $ putStrLn "OpenBrain.Website.Discussion:createDiscussion"
   (deadline, ndid) <- liftM2 (,) getDeadline Description.createDescription
   did <- liftB $ do
     ncid <- AddCollection ndid []
@@ -23,16 +24,19 @@ readDiscussion = respOk . responseJSON' <=< liftB . GetDiscussion
 
 joinDiscussion :: DiscussionId -> OBW Response
 joinDiscussion did = Session.chkSession' $ \uid -> do
+  liftIO $ putStrLn "OpenBrain.Website.Discussion:joinDiscussion"
   liftB $ SetParticipant did uid True
   readDiscussion did
 
 leaveDiscussion :: DiscussionId -> OBW Response
 leaveDiscussion did = Session.chkSession' $ \uid -> do
+  liftIO $ putStrLn "OpenBrain.Website.Discussion:leaveDiscussion"
   liftB $ SetParticipant did uid False
   readDiscussion did
 
 weightRelation :: DiscussionId -> RelationId -> OBW Response
 weightRelation did rid = Session.chkSession' $ \uid -> plusm weightFail $ do
+  liftIO $ putStrLn "OpenBrain.Website.Discussion:weightRelation"
   w <- getWeight
   liftB $ Weight did uid w rid
   readDiscussion did

@@ -8,7 +8,7 @@ Article = Item.extend({
       article.set(d);
     });
   }
-  , update: function(){
+, update: function(){
     var article = this;
     var target  = this.urlRoot + this.get('id');
     return $.put(target, this.getQuery()).done(function(d){
@@ -23,5 +23,13 @@ Article = Item.extend({
     };
     console.log('Article:getQuery: '+JSON.stringify(q));
     return q;
+  }
+, mkDummy: function(n){
+    this.set({
+      headline:    n
+    , description: ''
+    , content:     ''
+    });
+    return this.create();
   }
 });

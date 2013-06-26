@@ -175,8 +175,8 @@ instance ToJSON CollectionArticle where
   toJSON c = merge (toJSON $ cArticle c) o
     where 
       o = object [
-          "pos_x"           .= posX            c
-        , "pos_y"           .= posY            c
+          "posX"            .= posX            c
+        , "posY"            .= posY            c
         , "accepted"        .= accepted        c
         , "customcondition" .= customcondition c
         , "condition"       .= show (condition c)

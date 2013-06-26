@@ -1,5 +1,6 @@
 DiscussionGraphView = PaperView.extend({
   initialize: function(){
+    this.dummyArticleFactory = new DummyArticleFactory();
     var view = this;
     this.setModel(this.model);
     $(window).resize(function(){
@@ -22,19 +23,26 @@ DiscussionGraphView = PaperView.extend({
   }
 , render: function(){
     //Setup:
+    var view = this;
     var p = this.paper;
     var w = p.width;
     var h = p.height;
+    //Cleaning:
+    if(this.paperArticles)
+      _.map(this.paperArticles, function(pa){pa.remove();});
+    this.paperArticles = [];
     p.clear();
     //Drawing:
     this.drawGrid();
-    // FIXME DEBUG
-    window.pa = new PaperArticle({
-      model: null, el: this.paper
-    });
-    window.pa = new PaperArticle({
-      model: null, el: this.paper
-    });
+    if(this.model !== null && typeof(this.model) !== 'undefined'){
+      //Placing Articles:
+      this.model.articles.map(function(a){
+        view.paperArticles.push(new PaperArticle({model: a, el: p}));
+      });
+      //Placing Relations:
+      //FIXME implement
+    }
+    //Fixes:
     p.renderfix();
     p.safari();
   }
@@ -57,9 +65,26 @@ DiscussionGraphView = PaperView.extend({
       }
     }
   }
+, articlesAdded:   function(a, collection, options){
+    if(!this.paperArticles)
+      this.paperArticles = [];
+    this.paperArticles.push(new PaperArticle({model: a, el: this.paper}));
+  }
+, articlesRemoved: function(a, collection, options){
+    var pAs = [];
+    var aid = a.get('id');
+    _.map(this.paperArticles, function(b){
+      if(b.get('id') == aid){
+        b.remove();
+      }else pAs.push(b);
+    });
+    this.paperArticles = pAs;
+  }
 , setModel: function(m){
-    if(this.model !== null && typeof(this.model) !== 'undefined')
+    if(this.model !== null && typeof(this.model) !== 'undefined'){
       this.model.off(null, null, this);
+      this.model.articles.off(null, null, this);
+    }
     if(m === null || typeof(m) === 'undefined'){
       this.model = null;
       this.paper = null;
@@ -68,6 +93,10 @@ DiscussionGraphView = PaperView.extend({
       this.model = m;
       this.model.on('change:paperWidth',  this.resize, this)
                 .on('change:paperHeight', this.resize, this);
+      this.model.articles.on('reset',  this.render,          this)
+                         .on('add',    this.articlesAdded,   this)
+                         .on('remove', this.articlesRemoved, this);
+      this.dummyArticleFactory.reset();
     }
     this.resize();
   }
@@ -127,7 +156,10 @@ DiscussionGraphView = PaperView.extend({
 , addNode: function(){
     var view = this;
     this.clickTask = function(p){
-      view.paper.circle(p.x, p.y, 10).attr({fill: '#f00'});
+      view.dummyArticleFactory.nextDummy().done(function(a){
+        a.set({posX: p.x, posY: p.y});
+        view.model.articles.add(a);
+      });
     };
   }
 });

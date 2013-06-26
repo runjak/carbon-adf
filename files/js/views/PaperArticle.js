@@ -110,4 +110,11 @@ PaperArticle = Backbone.View.extend({
 , clickBtnDelete: function(){alert('clickBtnDelete');}
 , clickBtnRelA: function(){alert('clickBtnRelA');}
 , clickBtnRelD: function(){alert('clickBtnRelD');}
+, remove: function(){
+    if(this.model !== null && typeof(this.model) !== 'undefined'){
+      this.model.off(null, null, this);
+    }
+    this.set.remove();
+    this.buttons.remove();
+  }
 });

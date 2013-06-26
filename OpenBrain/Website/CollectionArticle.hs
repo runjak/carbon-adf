@@ -7,7 +7,7 @@ import qualified OpenBrain.Website.Session as Session
 
 updatePosition :: CollectionId -> ArticleId -> OBW Response
 updatePosition cid aid = Session.chkSession' . const $
-  plusm (respBadRequest "Parameters are: pos_x, pos_y") $ do
+  plusm (respBadRequest "Parameters are: posX, posY") $ do
     liftB . UpdatePosition cid aid =<< getPosition
     respOk "Position updated."
 
@@ -20,7 +20,7 @@ updateCondition cid aid = Session.chkSession' . const $
 
 -- | Parameters…
 getPosition :: OBW (Int, Int)
-getPosition = liftM2 (,) (lookRead "pos_x") $ lookRead "pos_y"
+getPosition = liftM2 (,) (lookRead "posX") $ lookRead "posY"
 
 getCondition :: OBW (Maybe Exp)
 getCondition = plusm (return Nothing) . liftM Just $ lookRead "condition"
