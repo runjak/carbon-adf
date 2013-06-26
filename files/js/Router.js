@@ -4,6 +4,7 @@ Router = Backbone.Router.extend({
   , "article/:id":       "singleArticleView"
   , "article":           "articleView"
   , "discussion/create": "createDiscussionView"
+  , "discussion":        "discussionView"
   , "login":             "loginView"
   , "user":              "userView"
   , "user/:id":          "singleUserView"

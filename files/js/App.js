@@ -37,6 +37,9 @@ $(function(){
   views.createArticleView = new CreateArticleView({
     el: $('#CreateArticleView')
   });
+  views.discussionView = new DiscussionView({
+    el: $('#DiscussionView')
+  });
   views.createDiscussionView = new CreateDiscussionView({
     el: $('#CreateDiscussionView')
   });

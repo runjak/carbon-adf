@@ -26,6 +26,7 @@ body {
 , #SingleArticleViewActionCollect
 , #SingleArticleViewActionUncollect
 , #CreateArticleView
+, #DiscussionViewParent
 , #CreateDiscussionView {display: none;}
   #CreateArticleViewHeadline
 , #CreateDiscussionViewHeadline {width: 100%;}
