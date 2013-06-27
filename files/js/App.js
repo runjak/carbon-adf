@@ -40,6 +40,10 @@ $(function(){
   views.discussionView = new DiscussionView({
     el: $('#DiscussionView')
   });
+  views.singleDiscussionView = new SingleDiscussionView({
+    model: null
+  , el: $('#SingleDiscussionView')
+  });
   views.createDiscussionView = new CreateDiscussionView({
     el: $('#CreateDiscussionView')
   });
