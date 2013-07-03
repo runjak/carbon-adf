@@ -67,4 +67,18 @@ ExtendedCollection = Backbone.Collection.extend({
     this.remove(duplicates);
     return false;
   }
+, fetchAndReset: function(elems){
+    var fetches = _.map(elems, function(e){
+      return e.fetch();
+    });
+    var t = this;
+    var p = $.Deferred();
+    $.when.apply($, fetches).done(function(){
+      t.reset(elems);
+      p.resolve();
+    }).fail(function(){
+      p.reject();
+    });
+    return p;
+  }
 });

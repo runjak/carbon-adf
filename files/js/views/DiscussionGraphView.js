@@ -36,7 +36,7 @@ DiscussionGraphView = PaperView.extend({
     this.drawGrid();
     if(this.model !== null && typeof(this.model) !== 'undefined'){
       //Placing Articles:
-      this.model.articles.map(function(a){
+      this.model.get('articles').map(function(a){
         view.paperArticles.push(new PaperArticle({model: a, el: p}));
       });
       //Placing Relations:
@@ -71,19 +71,20 @@ DiscussionGraphView = PaperView.extend({
     this.paperArticles.push(new PaperArticle({model: a, el: this.paper}));
   }
 , articlesRemoved: function(a, collection, options){
+    console.log('DiscussionGraphView.articlesRemoved()');
     var pAs = [];
     var aid = a.get('id');
     _.map(this.paperArticles, function(b){
-      if(b.get('id') == aid){
+      if(b.model.get('id') === aid){
         b.remove();
       }else pAs.push(b);
     });
     this.paperArticles = pAs;
   }
 , setModel: function(m){
-    if(this.model !== null && typeof(this.model) !== 'undefined'){
+    if(this.model){
       this.model.off(null, null, this);
-      this.model.articles.off(null, null, this);
+      this.model.get('articles').off(null, null, this);
     }
     if(m === null || typeof(m) === 'undefined'){
       this.model = null;
@@ -93,9 +94,9 @@ DiscussionGraphView = PaperView.extend({
       this.model = m;
       this.model.on('change:paperWidth',  this.resize, this)
                 .on('change:paperHeight', this.resize, this);
-      this.model.articles.on('reset',  this.render,          this)
-                         .on('add',    this.articlesAdded,   this)
-                         .on('remove', this.articlesRemoved, this);
+      this.model.get('articles').on('reset',  this.render,          this)
+                                .on('add',    this.articlesAdded,   this)
+                                .on('remove', this.articlesRemoved, this);
       this.dummyArticleFactory.reset();
     }
     this.resize();
@@ -158,7 +159,7 @@ DiscussionGraphView = PaperView.extend({
     this.clickTask = function(p){
       view.dummyArticleFactory.nextDummy().done(function(a){
         a.set({posX: p.x, posY: p.y});
-        view.model.articles.add(a);
+        view.model.addArticle(a);
       });
     };
   }

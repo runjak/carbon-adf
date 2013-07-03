@@ -27,7 +27,6 @@ CreateArticleView = Hideable.extend({
       promise = this.model.update();
     }
     return promise.done(function(d){
-      view.model.set({id: view.model.get('articleId')});
       window.App.views.singleArticleView.setArticle(view.model);
       view.setModel(new Article());
     }).fail(function(f){

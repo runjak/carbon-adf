@@ -130,6 +130,90 @@
           <div class="deadline"></div>
           <div class="deletion"></div>
           <summary></summary>
+          <ul id="SingleDiscussionViewTabs" class="nav nav-tabs">
+            <li class="active"><a href="#SingleDiscussionViewArticles" data-toggle="tab">Current articles</a></li>
+            <li><a href="#SingleDiscussionViewCollected" data-toggle="tab">Collected articles</a></li>
+            <li><a href="#SingleDiscussionViewGraph" data-toggle="tab">Graph view</a></li>
+            <li><a href="#SingleDiscussionViewParticipants" data-toggle="tab">Participants</a></li>
+          </ul>
+          <div id="SingleDiscussionViewTabContent" class="tab-content">
+            <div id="SingleDiscussionViewArticles" class="tab-pane fade in active">
+              <table class="table table-bordered">
+                <thead>
+                  <th>#</th>
+                  <th>Headline</th>
+                  <th>Description</th>
+                  <th>Actions</th>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div id="SingleDiscussionViewCollected" class="tab-pane fade">
+              <table class="table table-bordered">
+                <thead>
+                  <th>#</th>
+                  <th>Headline</th>
+                  <th>Description</th>
+                  <th>Actions</th>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div id="SingleDiscussionViewGraph" class="tab-pane fade">
+              <form class="form-inline">
+                <button type="button" class="btn btn-info"
+                  id="DiscussionGraphViewCenter"
+                  title="Center. (z)">
+                  <i class="icon-screenshot"></i>
+                </button>
+                <button type="button" class="btn btn-info"
+                  id="DiscussionGraphViewZoomIn"
+                  title="Zoom in. (q)">
+                  <i class="icon-zoom-in"></i>
+                </button>
+                <button type="button" class="btn btn-info"
+                  id="DiscussionGraphViewZoomOut"
+                  title="Zoom out. (e)">
+                  <i class="icon-zoom-out"></i>
+                </button>
+                <button type="button" class="btn btn-info"
+                  id="DiscussionGraphViewMoveLeft"
+                  title="Scroll left. (a)">
+                  <i class="icon-chevron-left"></i>
+                </button>
+                <button type="button" class="btn btn-info"
+                  id="DiscussionGraphViewMoveRight"
+                  title="Scroll right. (d)">
+                  <i class="icon-chevron-right"></i>
+                </button>
+                <button type="button" class="btn btn-info"
+                  id="DiscussionGraphViewMoveUp"
+                  title="Scroll up. (w)">
+                  <i class="icon-chevron-up"></i>
+                </button>
+                <button type="button" class="btn btn-info"
+                  id="DiscussionGraphViewMoveDown"
+                  title="Scroll down. (s)">
+                  <i class="icon-chevron-down"></i>
+                </button>
+                <button type="button" class="btn btn-success"
+                  id="DiscussionGraphViewAddNode"
+                  title="Add a dummy node to the graph. (n)">
+                  <i class="icon-plus"></i>
+                </button>
+                <button type="button" class="btn btn-inverse"
+                  id="DiscussionGraphViewHideRest"
+                  title="Hide/Display above page parts.">
+                  <i class="icon-arrow-up icon-white"></i>
+                </button>
+              </form>
+              <div class="modal-body paper"></div>
+            </div>
+            <div id="SingleDiscussionViewParticipants" class="tab-pane fade">
+              There will be a list of current participants here,
+              aswell as ways to join/leave the discussion.
+            </div>
+          </div>
         </div>
       </div>
       <div id="CreateDiscussionView" class="row-fluid">
@@ -156,61 +240,8 @@
           </form>
         </div>
         <div class="offset1 span7 well sidebar-nav">
-          <form class="form-inline pull-right">
-            <a href="#DiscussionGraphView" role="button" class="btn" data-toggle="modal"
-              id="CreateDiscussionViewShowGraphView"
-              title="Open GraphView."><i class="icon-fullscreen"></i></a>
-          </form>
           <ul id="CreateDiscussionInitialArticles" class="nav nav-list"></ul>
         </div>
-      </div>
-      <div id="DiscussionGraphView" class="modal hide fade">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <form class="form-inline">
-            <button type="button" class="btn"
-              id="DiscussionGraphViewCenter"
-              title="Center. (z)">
-              <i class="icon-screenshot"></i>
-            </button>
-            <button type="button" class="btn"
-              id="DiscussionGraphViewZoomIn"
-              title="Zoom in. (q)">
-              <i class="icon-zoom-in"></i>
-            </button>
-            <button type="button" class="btn"
-              id="DiscussionGraphViewZoomOut"
-              title="Zoom out. (e)">
-              <i class="icon-zoom-out"></i>
-            </button>
-            <button type="button" class="btn"
-              id="DiscussionGraphViewMoveLeft"
-              title="Scroll left. (a)">
-              <i class="icon-chevron-left"></i>
-            </button>
-            <button type="button" class="btn"
-              id="DiscussionGraphViewMoveRight"
-              title="Scroll right. (d)">
-              <i class="icon-chevron-right"></i>
-            </button>
-            <button type="button" class="btn"
-              id="DiscussionGraphViewMoveUp"
-              title="Scroll up. (w)">
-              <i class="icon-chevron-up"></i>
-            </button>
-            <button type="button" class="btn"
-              id="DiscussionGraphViewMoveDown"
-              title="Scroll down. (s)">
-              <i class="icon-chevron-down"></i>
-            </button>
-            <button type="button" class="btn btn-success"
-              id="DiscussionGraphViewAddNode"
-              title="Add a dummy node to the graph. (n)">
-              <i class="icon-plus"></i>
-            </button>
-          </form>
-        </div>
-        <div class="modal-body paper"></div>
       </div>
       <div id="UserViewParent" class="row-fluid">
         <div id="UserView" class="span12">
@@ -240,11 +271,11 @@
           </form>
         </div>
       </div>
-      <hr>
+<!--  <hr>
       <footer>
       <p>&copy; Jakob Runge 2013</p>
       </footer>
-    </div>
+--> </div>
     <!-- Scripts: -->
     <script src="files/js/extern/jquery-1.9.1.js"></script>
     <script src="files/js/extern/jquery.cookie.js"></script>
@@ -290,6 +321,8 @@
     <script src="files/js/views/CreateDiscussionView.js"></script>
     <script src="files/js/views/DiscussionView.js"></script>
     <script src="files/js/views/SingleDiscussionView.js"></script>
+    <script src="files/js/views/DiscussionArticleView.js"></script>
+    <script src="files/js/views/DiscussionCollectedView.js"></script>
     <script src="files/js/views/PaperArticle.js"></script>
     <script src="files/js/views/PaperView.js"></script>
     <script src="files/js/views/DiscussionGraphView.js"></script>

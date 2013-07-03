@@ -3,7 +3,7 @@ module OpenBrain.Backend.PostgreSQL.Collection where
 
 import OpenBrain.Backend.PostgreSQL.Common
 import OpenBrain.Data.Id
-
+import qualified OpenBrain.Data.Logic                     as Logic
 import qualified OpenBrain.Backend.PostgreSQL.Article     as Article
 import qualified OpenBrain.Backend.PostgreSQL.Description as Description
 
@@ -46,5 +46,5 @@ getCollection cid conn = do
       , posY            = fromSql y
       , accepted        = fromSql acc
       , customcondition = fromSql cust
-      , condition       = read $ fromSql cond
+      , condition       = Nothing -- read $ fromSql cond
       }

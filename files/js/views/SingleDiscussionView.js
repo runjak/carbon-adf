@@ -1,6 +1,14 @@
 SingleDiscussionView = Hideable.extend({
   initialize: function(){
     this.HideTarget = this.$el.parent();
+    this.discussionArticleView = new DiscussionArticleView({
+      el: this.$('#SingleDiscussionViewArticles'), model: null});
+    this.discussionCollectedView = new DiscussionCollectedView({
+      el:    this.$('#SingleDiscussionViewCollected')
+    , model: window.App.collectedArticles
+    });
+    this.discussionGraphView = new DiscussionGraphView({
+      el: this.$('#SingleDiscussionViewGraph'), model: null});
     var view = this;
     window.App.router.on('route:singleDiscussionView', function(did){
       view.setDiscussionId(did).always(function(){
@@ -26,7 +34,7 @@ SingleDiscussionView = Hideable.extend({
     }
   }
 , setDiscussion: function(d){
-    if(this.model !== null && typeof(this.model) !== 'undefined'){
+    if(this.model){
       this.model.off(null, null, this);
     }
     this.model = d;
@@ -37,6 +45,9 @@ SingleDiscussionView = Hideable.extend({
       this.model.on('change:deadline',     this.render, this);
       this.model.on('change:description',  this.render, this);
     }
+    this.discussionArticleView.setModel(d);
+    this.discussionCollectedView.setDiscussion(d);
+    this.discussionGraphView.setModel(d);
   }
 , setDiscussionId: function(did){
     var view = this;
@@ -44,12 +55,12 @@ SingleDiscussionView = Hideable.extend({
     var p = $.Deferred();
     if(this.model){
       if(did === this.model.get('id')){
-        this.model.fetch();
+        this.model.load();
         p.resolve();
         return p;
       }
     }
-    d.fetch().done(function(){
+    d.load().done(function(){
       view.setDiscussion(d);
       p.resolve();
     }).fail(function(f){

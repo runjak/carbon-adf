@@ -52,9 +52,9 @@ data CollectionArticle = CollectionArticle {
   cArticle        :: Article
 , posX            :: Int
 , posY            :: Int
-, accepted        :: Bool
+, accepted        :: Maybe Bool
 , customcondition :: Bool
-, condition       :: Exp 
+, condition       :: Maybe Exp
 } deriving (Show)
 
 data Collection = Collection {
@@ -155,19 +155,19 @@ instance ToJSON Article where
   toJSON a = merge (toJSON $ aDescription a) o
     where
       o = object [
-          "articleId" .= articleId a
-        , "content"   .= content   a
-        , "children"  .= children  a
-        , "parents"   .= parents   a
+          "id"       .= articleId a
+        , "content"  .= content   a
+        , "children" .= children  a
+        , "parents"  .= parents   a
         ]
 instance ToJSON Relation where
   toJSON r = merge (toJSON $ rDescription r) o
     where
       o = object [
-          "relationId" .= relationId r
-        , "source"     .= source     r
-        , "target"     .= target     r
-        , "rType"      .= rType      r
+          "id"     .= relationId r
+        , "source" .= source     r
+        , "target" .= target     r
+        , "rType"  .= rType      r
         ]
 instance ToJSON RelationType where
   toJSON = toJSON . show
@@ -189,7 +189,7 @@ instance ToJSON Discussion where
   toJSON d = merge (toJSON $ dCollection d) o
     where
       o = object [
-          "discussionId" .= discussionId d
+          "id"           .= discussionId d
         , "participants" .= participants d
         , "deadline"     .= deadline     d
         , "weights"      .= weights      d
@@ -197,13 +197,13 @@ instance ToJSON Discussion where
         ]
 instance ToJSON Result where
   toJSON r = object [
-      "resultId" .= resultId r
-    , "choices"  .= choices  r
-    , "voters"   .= voters   r
+      "id"      .= resultId r
+    , "choices" .= choices  r
+    , "voters"  .= voters   r
     ]
 instance ToJSON User where
   toJSON u = object [
-      "userId"       .= userId       u
+      "id"           .= userId       u
     , "username"     .= username     u
     , "userCreation" .= userCreation u
     , "lastLogin"    .= lastLogin    u

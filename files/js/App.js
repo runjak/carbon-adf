@@ -22,10 +22,6 @@ $(function(){
   views.articleView = new ArticleView({
     el: $('#ArticleView')
   });
-  views.discussionGraphView = new DiscussionGraphView({
-    el: $('#DiscussionGraphView')
-  , model: null
-  });
   views.singleArticleView = new SingleArticleView({
     el: $('#SingleArticleView')
   , model: null

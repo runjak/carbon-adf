@@ -34,9 +34,7 @@ pageUsers :: OBW Response
 pageUsers = countAndPageBy UserCount $ \l o -> liftM responseJSON' $ PageUsers l o
 
 readUser :: UserId -> OBW Response
-readUser uid = do
-  liftIO $ putStrLn "OpenBrain.Website.User:readUser"
-  respOk . responseJSON' =<< liftB (GetUser uid)
+readUser uid = respOk . responseJSON' =<< liftB (GetUser uid)
 
 updateUser :: UserId -> OBW Response
 updateUser target = do
