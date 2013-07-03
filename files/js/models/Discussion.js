@@ -33,12 +33,18 @@ Discussion = Item.extend({
     var discussion = this;
     var ret = $.Deferred();
     this.fetch().done(function(d){
+      //Handling Articles:
       var as = discussion.get('articles');
-      var ac = new ArticleCollection();
-      ac.fetchAndReset(_.map(as, function(a){
+      var ac = new ArticleCollection(_.map(as, function(a){
         return new Article(a);
+      }));
+      //Handling Participants:
+      var us = discussion.get('participants');
+      var uc = new UserCollection();
+      uc.fetchAndReset(_.map(us, function(u){
+        return new User({id: u});
       })).always(function(){
-        discussion.set({articles: ac});
+        discussion.set({articles: ac, participants: uc});
         ret.resolve(d);
       });
     }).fail(function(f){
@@ -65,5 +71,14 @@ Discussion = Item.extend({
     var cid = this.get('collectionId');
     var aid = a.get('id');
     return 'collection/'+cid+'/'+aid;
+  }
+, setParticipant: function(isP){
+    if(!window.App.login.get('loggedIn')) return;
+    var url = this.urlRoot + this.get('id') + '/participate/' + window.App.login.get('id');
+    var ps  = this.get('participants');
+    var def = isP ? $.post(url) : $.delete(url);
+    def.done(function(){
+      ps.toggleElem(window.App.login);
+    });
   }
 });

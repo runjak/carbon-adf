@@ -210,8 +210,26 @@
               <div class="modal-body paper"></div>
             </div>
             <div id="SingleDiscussionViewParticipants" class="tab-pane fade">
-              There will be a list of current participants here,
-              aswell as ways to join/leave the discussion.
+              <form class="form-horizontal">
+                <label id="JoinDiscussion" class="hide">
+                  <button class="btn btn-success">
+                    <i class="icon-ok-circle"></i>
+                    Join the discussion.
+                  </button>
+                  You're currently not a participant in this discussion.
+                </label>
+                <label id="LeaveDiscussion" class="hide">
+                  <button class="btn btn-danger">
+                    <i class="icon-ban-circle"></i>
+                    Leave the discussion.
+                  </button>
+                  You're currently a participant in this discussion.
+                </label>
+              </form>
+              <table class="table table-bordered">
+                <thead><tr><th>Participants:</th></tr></thead>
+                <tbody></tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -326,6 +344,7 @@
     <script src="files/js/views/PaperArticle.js"></script>
     <script src="files/js/views/PaperView.js"></script>
     <script src="files/js/views/DiscussionGraphView.js"></script>
+    <script src="files/js/views/DiscussionParticipantView.js"></script>
     <script src="files/js/Router.js"></script>
     <script src="files/js/App.js"></script>
   </body>
