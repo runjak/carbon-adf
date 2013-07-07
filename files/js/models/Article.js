@@ -32,4 +32,13 @@ Article = Item.extend({
     });
     return this.create();
   }
+, setPosition: function(p){
+    var url = this.urlRoot
+            + this.get('id')
+            + '/collection/'
+            + this.get('collectionId')
+            + '/position';
+    var article = this;
+    return $.put(url, p).done(function(){article.set(p);});
+  }
 });

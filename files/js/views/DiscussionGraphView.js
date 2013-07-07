@@ -13,7 +13,6 @@ DiscussionGraphView = PaperView.extend({
     this.$('.paper').click(function(e){
       view.mouse(e);
     });
-    window.d = this; // FIXME DEBUG
   }
 , events: {
     "click #DiscussionGraphViewCenter":    "resetPanZoom"
@@ -68,7 +67,6 @@ DiscussionGraphView = PaperView.extend({
     this.paperArticles.push(new PaperArticle({model: a, el: this.paper}));
   }
 , articlesRemoved: function(a, collection, options){
-    console.log('DiscussionGraphView.articlesRemoved()');
     var pAs = [];
     var aid = a.get('id');
     _.map(this.paperArticles, function(b){

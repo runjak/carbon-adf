@@ -9,7 +9,7 @@ PaperArticle = Backbone.View.extend({
     //General content:
     var view  = this;
     this.el.setStart();
-    this.back = this.el.rect(450, 490, 100 , 20, 5).attr({fill: '#666'})
+    this.back = this.el.rect(this.model.get('posX'), this.model.get('posY'), 100 , 20, 5).attr({fill: '#666'})
     var p     = this.back.attr(['x','y']);
     this.text = this.el.text(p.x + 40, (p.y+12.5)/2, 'Hello World!'); //this.model.get('headline'));
     this.set  = this.el.setFinish();
@@ -100,7 +100,12 @@ PaperArticle = Backbone.View.extend({
     this.back.attr('fill-opacity', 1);
     this.text.show();
     this.showSelected().update();
-    if(!this.dragged) this.click();
+    if(!this.dragged){
+      this.click();
+    }else{ // Save new position
+      var p = this.back.attr(['x','y']);
+      this.model.setPosition({posX: p.x, posY: p.y});
+    }
   }
 , click: function(){
     if(this.buttons.visible){

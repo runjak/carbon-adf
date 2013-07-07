@@ -36,7 +36,8 @@ Discussion = Item.extend({
       //Handling Articles:
       var as = discussion.get('articles');
       var ac = new ArticleCollection(_.map(as, function(a){
-        return new Article(a);
+        a = new Article(a);
+        return a.set({collectionId: discussion.get('collectionId')});
       }));
       //Handling Participants:
       var us = discussion.get('participants');
