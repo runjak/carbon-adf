@@ -11,14 +11,13 @@ PaperArticle = Backbone.View.extend({
     this.el.setStart();
     this.back = this.el.rect(this.model.get('posX'), this.model.get('posY'), 100 , 20, 5).attr({fill: '#666'})
     var p     = this.back.attr(['x','y']);
-    this.text = this.el.text(p.x + 40, (p.y+12.5)/2, 'Hello World!'); //this.model.get('headline'));
+    this.text = this.el.text(p.x + 40, (p.y+12.5)/2, this.model.get('headline'));
     this.set  = this.el.setFinish();
     this.set.mouseover(function(){view.showSelected();})
             .mouseout(function(){view.showUnselected();})
             .drag(this.drag, this.dragStart, this.dragEnd, this, this, this);
-    this.el.setStart();
     // Building the buttons:
-    this.buttons = this.el.buttonSet(this);
+    this.buttons   = this.el.buttonSet(this);
     this.btnDelete = this.el.set(); // Button to delete the PaperArticle from the Discussion
     this.btnRelA   = this.el.set(); // Button to let a PaperArticle attack another
     this.btnRelD   = this.el.set(); // Button to let a PaperArticle defend another
@@ -39,6 +38,8 @@ PaperArticle = Backbone.View.extend({
     , this.btnRelA
     , this.btnRelD
     ).init().place().hide();
+    //Ensuring correct positioning
+    this.update();
   }
   /**
     Update needs to adjust all content and make sure, that the text is inside back and so on.
