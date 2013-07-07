@@ -1,8 +1,5 @@
 /* Copied from http://twitter.github.io/bootstrap/examples/fluid.html# : */
-body {
-  padding-top: 60px;
-  padding-bottom: 40px;
-}
+body {padding-top: 60px;}
 .sidebar-nav {
   padding: 9px 0;
 }
@@ -45,4 +42,5 @@ body {
   padding: 0px;
   background-color: #333;
   overflow: hidden;
+  width: 100%;
 }

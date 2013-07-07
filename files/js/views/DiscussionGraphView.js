@@ -1,14 +1,18 @@
 DiscussionGraphView = PaperView.extend({
   initialize: function(){
     this.dummyArticleFactory = new DummyArticleFactory();
-    var view = this;
     this.setModel(this.model);
+    var view = this;
     $(window).resize(function(){
+      view.resize();
+    });
+    $('a[href="#SingleDiscussionViewGraph"]').on('shown', function(){
       view.resize();
     });
     $(window).keyup(function(e){view.keyboard(e);});
     this.$('.paper').click(function(e){
-      view.mouse(e);});
+      view.mouse(e);
+    });
     window.d = this; // FIXME DEBUG
   }
 , events: {
@@ -20,6 +24,7 @@ DiscussionGraphView = PaperView.extend({
   , "click #DiscussionGraphViewMoveUp":    "moveUp"
   , "click #DiscussionGraphViewMoveDown":  "moveDown"
   , "click #DiscussionGraphViewAddNode":   "addNode"
+  , "click #DiscussionGraphViewHideRest":  "hideRest"
   }
 , render: function(){
     //Setup:
@@ -47,22 +52,14 @@ DiscussionGraphView = PaperView.extend({
     p.safari();
   }
 , resize: function(){
-    var w = $(window).width()  - 50;
-    var h = $(window).height() - 50;
-    this.$el.width(w).height(h);
-    h -= 60; //More elegance would be nice.
-    this.$('.paper').css('max-width',  w+'px')
-                    .css('max-height', h+'px');
-    if(this.model !== null){
+    if(this.model){
+      var h = $(window).height() - 5;
+      h -= this.$('.paper').position().top;
+      this.$('.paper').css('max-height', h+'px');
       if(this.paper === null){
         this.mkPaper(this.$('.paper').get(0));
-        this.resetPanZoom().render();
-      }else{
-        var p = this.model._previousAttributes;
-        if(p.paperWidth !== w || p.paperHeight !== h){
-          this.resetPanZoom().render();
-        }
       }
+      this.resetPanZoom().render();
     }
   }
 , articlesAdded:   function(a, collection, options){
@@ -141,6 +138,9 @@ DiscussionGraphView = PaperView.extend({
       case 78: // N
         this.addNode();
       break;
+      case 72: // H
+        this.hideRest();
+      break;
       default:
       //console.log('Uncought keycode: '+e.keyCode);
     }
@@ -162,5 +162,22 @@ DiscussionGraphView = PaperView.extend({
         view.model.addArticle(a);
       });
     };
+  }
+, hideRest: function(){
+    var p = $('#SingleDiscussionView > h1'
+          + ', #SingleDiscussionView > .creation'
+          + ', #SingleDiscussionView > .deletion'
+          + ', #SingleDiscussionView > .deadline'
+          + ', #SingleDiscussionView > summary'
+          + ', #SingleDiscussionView > ul');
+    var i = $('#DiscussionGraphViewHideRest i');
+    if(i.hasClass('icon-arrow-up')){
+      p.hide();
+      i.addClass('icon-arrow-down').removeClass('icon-arrow-up');
+    }else{
+      p.show();
+      i.addClass('icon-arrow-up').removeClass('icon-arrow-down');
+    }
+    this.resize();
   }
 });
