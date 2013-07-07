@@ -21,7 +21,28 @@ DummyArticleFactory = Backbone.Model.extend({
     });
     return p;
   }
-, reset: function(){ //FIXME maybe calculate last i from dummy Articles in Discusison
-    this.set({i: 0});
+/*
+  Reset should set a useful i given an ArticleCollection.
+  To do this, it will map over the articles,
+  and find the dummy with the highest id.
+  Than the headline can be converted back to an i.
+*/
+, reset: function(articles){
+    var id = 0;
+    var headline = '';
+    articles.each(function(a){
+      if(a.get('content')     !== '') return;
+      if(a.get('description') !== '') return;
+      if(a.get('id') <= id) return;
+      id = a.get('id');
+      headline = a.get('headline');
+    });
+    var i = 1;
+    _.each(headline, function(c){
+      c = c.charCodeAt(0) - 97;
+      if(i > 1) i *= 26;
+      i += c;
+    });
+    this.set({i: i});
   }
 });

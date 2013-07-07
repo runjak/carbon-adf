@@ -96,7 +96,7 @@ DiscussionGraphView = PaperView.extend({
       this.model.get('articles').on('reset',  this.render,         this)
                                 .on('add',    this.articleAdded,   this)
                                 .on('remove', this.articleRemoved, this);
-      this.dummyArticleFactory.reset();
+      this.dummyArticleFactory.reset(this.model.get('articles'));
     }
     this.resize();
   }
