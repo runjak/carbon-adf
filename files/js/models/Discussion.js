@@ -57,6 +57,7 @@ Discussion = Item.extend({
     if(!a) return;
     var discussion = this;
     return $.put(this.getCAUrl(a)).done(function(){
+      a.set({collectionId: discussion.get('collectionId')});
       discussion.get('articles').add(a);
     });
   }

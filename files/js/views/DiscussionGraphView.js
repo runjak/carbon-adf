@@ -65,7 +65,8 @@ DiscussionGraphView = PaperView.extend({
   }
 , articleAdded: function(a, collection, options){
     if(!this.paperArticles) this.paperArticles = [];
-    a.set({posX: 500, posY: 500});
+    if(typeof(a.get('posX')) === 'undefined' || typeof(a.get('posY')) === 'undefined')
+      a.set({posX: 500, posY: 500});
     var pa = new PaperArticle({model: a, el: this.paper});
     this.paperArticles.push(pa.setDiscussion(this.model));
   }
