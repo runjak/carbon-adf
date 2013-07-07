@@ -40,8 +40,10 @@ DiscussionGraphView = PaperView.extend({
     this.drawGrid();
     if(this.model !== null && typeof(this.model) !== 'undefined'){
       //Placing Articles:
+      var discussion = this.model;
       this.model.get('articles').map(function(a){
-        view.paperArticles.push(new PaperArticle({model: a, el: p}));
+        var pa = new PaperArticle({model: a, el: p});
+        view.paperArticles.push(pa.setDiscussion(discussion));
       });
       //Placing Relations:
       //FIXME implement
@@ -61,12 +63,13 @@ DiscussionGraphView = PaperView.extend({
       this.resetPanZoom().render();
     }
   }
-, articlesAdded:   function(a, collection, options){
-    if(!this.paperArticles)
-      this.paperArticles = [];
-    this.paperArticles.push(new PaperArticle({model: a, el: this.paper}));
+, articleAdded: function(a, collection, options){
+    if(!this.paperArticles) this.paperArticles = [];
+    a.set({posX: 500, posY: 500});
+    var pa = new PaperArticle({model: a, el: this.paper});
+    this.paperArticles.push(pa.setDiscussion(this.model));
   }
-, articlesRemoved: function(a, collection, options){
+, articleRemoved: function(a, collection, options){
     var pAs = [];
     var aid = a.get('id');
     _.map(this.paperArticles, function(b){
@@ -89,9 +92,9 @@ DiscussionGraphView = PaperView.extend({
       this.model = m;
       this.model.on('change:paperWidth',  this.resize, this)
                 .on('change:paperHeight', this.resize, this);
-      this.model.get('articles').on('reset',  this.render,          this)
-                                .on('add',    this.articlesAdded,   this)
-                                .on('remove', this.articlesRemoved, this);
+      this.model.get('articles').on('reset',  this.render,         this)
+                                .on('add',    this.articleAdded,   this)
+                                .on('remove', this.articleRemoved, this);
       this.dummyArticleFactory.reset();
     }
     this.resize();

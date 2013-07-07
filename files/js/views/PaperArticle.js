@@ -38,7 +38,7 @@ PaperArticle = Backbone.View.extend({
     , this.btnRelA
     , this.btnRelD
     ).init().place().hide();
-    //Ensuring correct positioning
+    //Ensuring correct positioning:
     this.update();
   }
   /**
@@ -113,7 +113,10 @@ PaperArticle = Backbone.View.extend({
       this.buttons.hide();
     }else this.buttons.show();
   }
-, clickBtnDelete: function(){alert('clickBtnDelete');}
+, clickBtnDelete: function(){
+    if(!this.discussion) return;
+    this.discussion.removeArticle(this.model);
+  }
 , clickBtnRelA: function(){alert('clickBtnRelA');}
 , clickBtnRelD: function(){alert('clickBtnRelD');}
 , remove: function(){
@@ -122,5 +125,9 @@ PaperArticle = Backbone.View.extend({
     }
     this.set.remove();
     this.buttons.remove();
+  }
+, setDiscussion: function(d){
+    this.discussion = d;
+    return this;
   }
 });

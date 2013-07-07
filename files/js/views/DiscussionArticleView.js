@@ -37,7 +37,7 @@ DiscussionArticleView = Backbone.View.extend({
     }
     this.model = d;
     if(d){
-      this.model.on('reset add remove', this.render, this);
+      this.model.get('articles').on('reset add remove', this.render, this);
     }
     this.render();
   }
