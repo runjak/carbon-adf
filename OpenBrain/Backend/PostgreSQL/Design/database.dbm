@@ -140,7 +140,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="collectedarticles" oids="true">
 	<schema name="public"/>
-	<position x="563.142" y="149.857"/>
+	<position x="569.296" y="223.703"/>
 	<column name="collectionid" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -161,7 +161,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<column name="condition" not-null="true" default-value="''">
 		<type name="text"/>
-		<comment><![CDATA[Acceptance condition for an article. Can be set by a client or be generated automatically. Because openBrain needs to parse/generate this anyway, it\'s stored as text.]]></comment>
+		<comment><![CDATA[Acceptance condition for an article. Can be set by a client or be generated automatically. Because openBrain needs to parse/generate this anyway, it is stored as text.]]></comment>
 	</column>
 	<column name="customcondition" not-null="true" default-value="false">
 		<type name="boolean"/>
@@ -193,7 +193,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="discussions" oids="true">
 	<schema name="public"/>
-	<position x="465.714" y="514.286"/>
+	<position x="505.714" y="521.286"/>
 	<column name="discussionid" not-null="true">
 		<type name="serial"/>
 	</column>
@@ -257,11 +257,14 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="relations" oids="true">
 	<schema name="public"/>
-	<position x="741.429" y="305.714"/>
+	<position x="776.814" y="384.176"/>
 	<column name="relationid" not-null="true">
 		<type name="serial"/>
 	</column>
 	<column name="descriptionid" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="discussionid" not-null="true">
 		<type name="serial"/>
 	</column>
 	<column name="source" not-null="true">
@@ -269,9 +272,6 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<column name="target" not-null="true">
 		<type name="serial"/>
-	</column>
-	<column name="type" not-null="true">
-		<type name="varchar" length="255"/>
 	</column>
 	<constraint name="relations_primarykey" type="pk-constr" factor="10" table="public.relations">
 		<columns names="relationid" ref-type="src-columns"/>
@@ -293,56 +293,6 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 src-required="false" dst-required="false"
 	 src-table="public.relations"
 	 dst-table="public.articles"/>
-
-<table name="weights" oids="true">
-	<schema name="public"/>
-	<position x="775.824" y="581.429"/>
-	<column name="discussionid" not-null="true">
-		<type name="serial"/>
-	</column>
-	<column name="userid" not-null="true">
-		<type name="serial"/>
-	</column>
-	<column name="relationid" not-null="true">
-		<type name="serial"/>
-	</column>
-	<column name="weight" not-null="true" default-value="0">
-		<type name="integer"/>
-	</column>
-</table>
-
-<constraint name="weights_discussionid" type="fk-constr"	 comparison-type="MATCH FULL"
-	 upd-action="NO ACTION" del-action="CASCADE" ref-table="public.discussions" table="public.weights">
-	<columns names="discussionid" ref-type="src-columns"/>
-	<columns names="discussionid" ref-type="dst-columns"/>
-</constraint>
-<constraint name="weights_userid" type="fk-constr"	 comparison-type="MATCH FULL"
-	 upd-action="NO ACTION" del-action="CASCADE" ref-table="public.users" table="public.weights">
-	<columns names="userid" ref-type="src-columns"/>
-	<columns names="userid" ref-type="dst-columns"/>
-</constraint>
-<constraint name="weights_relationid" type="fk-constr"	 comparison-type="MATCH FULL"
-	 upd-action="NO ACTION" del-action="CASCADE" ref-table="public.relations" table="public.weights">
-	<columns names="relationid" ref-type="src-columns"/>
-	<columns names="relationid" ref-type="dst-columns"/>
-</constraint>
-<relationship name="rel_weights_discussions"
-	 type="relfk"
-	 src-required="false" dst-required="false"
-	 src-table="public.weights"
-	 dst-table="public.discussions"/>
-
-<relationship name="rel_weights_users"
-	 type="relfk"
-	 src-required="false" dst-required="false"
-	 src-table="public.weights"
-	 dst-table="public.users"/>
-
-<relationship name="rel_weights_relations"
-	 type="relfk"
-	 src-required="false" dst-required="false"
-	 src-table="public.weights"
-	 dst-table="public.relations"/>
 
 <table name="results" oids="true">
 	<schema name="public"/>
@@ -486,5 +436,16 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 src-required="false" dst-required="false"
 	 src-table="public.relations"
 	 dst-table="public.descriptions"/>
+
+<constraint name="relations_discussionid" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.discussions" table="public.relations">
+	<columns names="discussionid" ref-type="src-columns"/>
+	<columns names="discussionid" ref-type="dst-columns"/>
+</constraint>
+<relationship name="rel_relations_discussions"
+	 type="relfk"
+	 src-required="false" dst-required="false"
+	 src-table="public.relations"
+	 dst-table="public.discussions"/>
 
 </dbmodel>

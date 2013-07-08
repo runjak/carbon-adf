@@ -14,13 +14,13 @@ pageRelations = countAndPageBy RelationCount $ \l o -> liftM responseJSON' $ Pag
 
 createRelation :: OBW Response
 createRelation = plusm createFail $ do
-  (source, target, rType) <- liftM3 (,,) (lookRead "source") (lookRead "target") $ lookRead "type"
+  (discussion, source, target) <- liftM3 (,,) (lookRead "discussion") (lookRead "source") (lookRead "target")
   ndid <- Description.createDescription
-  rid  <- liftB $ AddRelation ndid rType source target
+  rid  <- liftB $ AddRelation discussion ndid source target
   readRelation rid
   where
     createFail = respBadRequest $ responseJSON''
-      "Login required; Expected parameters are: headline, description, source, target, type."
+      "Login required; Expected parameters are: headline, description, discussion, source, target."
 
 readRelation :: RelationId -> OBW Response
 readRelation = respOk . responseJSON' <=< liftB . GetRelation

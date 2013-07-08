@@ -38,7 +38,7 @@ data BackendDSL r where
   SetContent   :: ArticleId -> String -> BackendDSL ()
   ReplaceDummy :: ArticleId -> ArticleId -> BackendDSL Bool
   -- | Relation related:
-  AddRelation :: NewDescriptionId -> RelationType -> ArticleId -> ArticleId -> BackendDSL RelationId
+  AddRelation :: DiscussionId -> NewDescriptionId -> ArticleId -> ArticleId -> BackendDSL RelationId
   GetRelation :: RelationId -> BackendDSL Relation
   -- | Collection related:
   AddCollection   :: NewDescriptionId -> [ArticleId] -> BackendDSL NewCollectionId

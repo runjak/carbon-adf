@@ -17,7 +17,7 @@ Discussion = Item.extend({
     $.post(this.urlRoot, q).done(function(d){
       //Add articles to the discussion:
       var base = 'collection/' + d.collectionId + '/';
-      discussion.articles.map(function(a){
+      discussion.get('articles').map(function(a){
         $.put(base + a.get('id'));
       });
       //Set discussion data and resolve:

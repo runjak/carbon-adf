@@ -1139,7 +1139,7 @@ SELECT pg_catalog.setval('relations_discussionid_seq', 1, false);
 -- Name: relations_relationid_seq; Type: SEQUENCE SET; Schema: public; Owner: mushu
 --
 
-SELECT pg_catalog.setval('relations_relationid_seq', 1, false);
+SELECT pg_catalog.setval('relations_relationid_seq', 1, true);
 
 
 --
@@ -1176,6 +1176,7 @@ SELECT pg_catalog.setval('results_resultid_seq', 1, false);
 --
 
 COPY users (userid, username, hash, salt, creationtime, lastlogin, isadmin, profile, sessionkey) FROM stdin;
+1	foo	b644c46c8b162337deebf3f2b370a1de22d0ff512453961eaf500f422e0351b00ddd180c3d4283bb2f5b5c4d3541e1b02189e58db802d428e18aa2055f6ddcf4	fnlelnrglz}pdmtrfwx	2013-07-08 14:12:04.83055	2013-07-08 14:12:04.83055	t	\N	\N
 \.
 
 
@@ -1183,7 +1184,7 @@ COPY users (userid, username, hash, salt, creationtime, lastlogin, isadmin, prof
 -- Name: users_userid_seq; Type: SEQUENCE SET; Schema: public; Owner: mushu
 --
 
-SELECT pg_catalog.setval('users_userid_seq', 1, false);
+SELECT pg_catalog.setval('users_userid_seq', 1, true);
 
 
 --

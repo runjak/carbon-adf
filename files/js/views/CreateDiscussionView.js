@@ -69,8 +69,8 @@ CreateDiscussionView = Hideable.extend({
     e.preventDefault();
     var view = this;
     this.model.create().done(function(d){
-      console.log('CreateDiscussionView.create() worked, dumping data:');
-      console.log(d);
+      var route = '#/discussion/' + d.get('id');
+      window.App.router.navigate(route, {trigger: true});
       view.setModel(new Discussion);
     }).fail(function(f){
       console.log('CreateDiscussionView.create() failed: '+JSON.stringify(f));

@@ -10,4 +10,3 @@ DROP TABLE IF EXISTS relations         CASCADE;
 DROP TABLE IF EXISTS results           CASCADE;
 DROP TABLE IF EXISTS users             CASCADE;
 DROP TABLE IF EXISTS voters            CASCADE;
-DROP TABLE IF EXISTS weights           CASCADE;

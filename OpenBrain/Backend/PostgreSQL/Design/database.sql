@@ -79,8 +79,8 @@ WITH (OIDS=TRUE);
 CREATE TABLE public.collectedarticles(
 	collectionid serial NOT NULL,
 	articleid serial NOT NULL,
-	pos_x smallint NOT NULL DEFAULT 500,
-	pos_y smallint NOT NULL DEFAULT 500,
+	pos_x smallint NOT NULL,
+	pos_y smallint NOT NULL,
 	accepted boolean,
 	condition text NOT NULL DEFAULT '',
 	customcondition boolean NOT NULL DEFAULT false
@@ -88,8 +88,8 @@ CREATE TABLE public.collectedarticles(
 WITH (OIDS=TRUE);
 -- ddl-end --
 
-COMMENT ON COLUMN public.collectedarticles.pos_x IS 'x position of an article when displayed in a graph. Because default paper size is 1000, default is 500.';
-COMMENT ON COLUMN public.collectedarticles.pos_y IS 'y position of an article when displayed in a graph. Because default paper size is 1000, default is 500.';
+COMMENT ON COLUMN public.collectedarticles.pos_x IS 'x position of an article when displayed in a graph.';
+COMMENT ON COLUMN public.collectedarticles.pos_y IS 'y position of an article when displayed in a graph';
 COMMENT ON COLUMN public.collectedarticles.accepted IS 'Null means unknown';
 COMMENT ON COLUMN public.collectedarticles.condition IS 'Acceptance condition for an article. Can be set by a client or be generated automatically. Because openBrain needs to parse/generate this anyway, it is stored as text.';
 COMMENT ON COLUMN public.collectedarticles.customcondition IS 'true if the condition was set by a client. This also means that it should not be overwritten by openBrain except a client requests so.';
@@ -122,22 +122,10 @@ WITH (OIDS=TRUE);
 CREATE TABLE public.relations(
 	relationid serial NOT NULL,
 	descriptionid serial NOT NULL,
+	discussionid serial NOT NULL,
 	source serial NOT NULL,
 	target serial NOT NULL,
-	type varchar(255) NOT NULL,
 	CONSTRAINT relations_primarykey PRIMARY KEY (relationid)
-)
-WITH (OIDS=TRUE);
--- ddl-end --
-
--- ddl-end --
-
--- object: public.weights | type: TABLE -- 
-CREATE TABLE public.weights(
-	discussionid serial NOT NULL,
-	userid serial NOT NULL,
-	relationid serial NOT NULL,
-	weight integer NOT NULL DEFAULT 0
 )
 WITH (OIDS=TRUE);
 -- ddl-end --
@@ -228,24 +216,10 @@ ON DELETE CASCADE ON UPDATE NO ACTION NOT DEFERRABLE;
 -- ddl-end --
 
 
--- object: weights_relationid | type: CONSTRAINT -- 
-ALTER TABLE public.weights ADD CONSTRAINT weights_relationid FOREIGN KEY (relationid)
-REFERENCES public.relations (relationid) MATCH FULL
-ON DELETE CASCADE ON UPDATE NO ACTION NOT DEFERRABLE;
--- ddl-end --
-
-
--- object: weights_userid | type: CONSTRAINT -- 
-ALTER TABLE public.weights ADD CONSTRAINT weights_userid FOREIGN KEY (userid)
-REFERENCES public.users (userid) MATCH FULL
-ON DELETE CASCADE ON UPDATE NO ACTION NOT DEFERRABLE;
--- ddl-end --
-
-
--- object: weights_discussionid | type: CONSTRAINT -- 
-ALTER TABLE public.weights ADD CONSTRAINT weights_discussionid FOREIGN KEY (discussionid)
+-- object: relations_discussionid | type: CONSTRAINT -- 
+ALTER TABLE public.relations ADD CONSTRAINT relations_discussionid FOREIGN KEY (discussionid)
 REFERENCES public.discussions (discussionid) MATCH FULL
-ON DELETE CASCADE ON UPDATE NO ACTION NOT DEFERRABLE;
+ON DELETE NO ACTION ON UPDATE NO ACTION NOT DEFERRABLE;
 -- ddl-end --
 
 

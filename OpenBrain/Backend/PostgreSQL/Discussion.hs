@@ -3,6 +3,7 @@ module OpenBrain.Backend.PostgreSQL.Discussion where
 
 import OpenBrain.Backend.PostgreSQL.Collection (getCollection)
 import OpenBrain.Backend.PostgreSQL.Common
+import OpenBrain.Backend.PostgreSQL.Relation (getRelation)
 import OpenBrain.Backend.PostgreSQL.Result (getResult)
 import OpenBrain.Data.Id
 
@@ -21,13 +22,14 @@ getDiscussion did conn = do
   [[cid, dline, mrid]] <- quickQuery' conn q did'
   collection <- getCollection (fromId $ fromSql cid) conn
   result <- maybe (return Nothing) (liftM Just . flip getResult conn) . liftM fromId $ fromSql mrid
-  parts <- quickQuery' conn "SELECT userid FROM participants WHERE discussionid = ?" did' 
-  ws <- quickQuery' conn "SELECT userid, weight, relationid FROM weights WHERE discussionid = ?" did'
+  parts  <- quickQuery' conn "SELECT userid FROM participants WHERE discussionid = ?"  did' 
+  rs'    <- quickQuery' conn "SELECT relationid FROM relations WHERE discussionid = ?" did'
+  rs     <- mapM (flip getRelation conn . fromId . fromSql . head) rs'
   return Discussion{
     discussionId = did
   , participants = map (fromId . fromSql . head) parts
   , deadline     = fromSql dline
-  , weights      = map mkWeight ws
+  , relations    = rs
   , result       = result
   , dCollection  = collection
   }

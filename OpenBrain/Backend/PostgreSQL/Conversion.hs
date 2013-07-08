@@ -23,11 +23,6 @@ instance Convertible Id SqlValue where
 instance Convertible SqlValue Id where
   safeConvert = Right . Id.wrap . fromSql
 
-instance Convertible RelationType SqlValue where
-  safeConvert = Right . toSql . fromEnum
-instance Convertible SqlValue RelationType where
-  safeConvert = Right . toEnum . fromSql
-
 instance Convertible Salt SqlValue where
   safeConvert = Right . toSql . Salt.fromSalt
 instance Convertible SqlValue Salt where

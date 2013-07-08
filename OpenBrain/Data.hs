@@ -41,12 +41,8 @@ data Relation = Relation {
   relationId   :: RelationId
 , source       :: ArticleId
 , target       :: ArticleId
-, rType        :: RelationType
 , rDescription :: Description
 } deriving (Show) 
-
-data RelationType = RelationAttack | RelationDefense
-  deriving (Show, Read, Eq, Ord, Enum)
 
 data CollectionArticle = CollectionArticle {
   cArticle        :: Article
@@ -67,7 +63,7 @@ data Discussion = Discussion {
   discussionId :: DiscussionId
 , participants :: [UserId]
 , deadline     :: Maybe Timestamp
-, weights      :: [(UserId, Weight, RelationId)]
+, relations    :: [Relation]
 , result       :: Maybe Result
 , dCollection  :: Collection
 } deriving (Show)
@@ -167,10 +163,7 @@ instance ToJSON Relation where
           "id"     .= relationId r
         , "source" .= source     r
         , "target" .= target     r
-        , "rType"  .= rType      r
         ]
-instance ToJSON RelationType where
-  toJSON = toJSON . show
 instance ToJSON CollectionArticle where
   toJSON c = merge (toJSON $ cArticle c) o
     where 
@@ -192,7 +185,7 @@ instance ToJSON Discussion where
           "id"           .= discussionId d
         , "participants" .= participants d
         , "deadline"     .= deadline     d
-        , "weights"      .= weights      d
+        , "relations"    .= relations    d
         , "result"       .= result       d
         ]
 instance ToJSON Result where
@@ -210,8 +203,3 @@ instance ToJSON User where
     , "isAdmin"      .= isAdmin      u
     , "profile"      .= profile      u
     ]
-{-| Instances of FromReqURI |-}
-instance FromReqURI RelationType where
-  fromReqURI "RelationAttack"  = Just RelationAttack
-  fromReqURI "RelationDefense" = Just RelationDefense
-  fromReqURI _ = Nothing
