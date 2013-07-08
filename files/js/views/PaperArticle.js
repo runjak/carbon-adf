@@ -25,18 +25,9 @@ PaperArticle = Backbone.View.extend({
       this.el.rect(0,0,15,17,2)
     , this.el.image('files/img/ghw-trash.png',2,2,11,13)
     ).click(function(){view.clickBtnDelete();});
-    this.btnRelA.push(
-      this.el.rect(0,0,15,17,2)
-    , this.el.image('files/img/ghw-minus.png',3,6,9,4)
-    ).click(function(){view.clickBtnRelA();});
-    this.btnRelD.push(
-      this.el.rect(0,0,15,17,2)
-    , this.el.image('files/img/ghw-plus.png',2,2,11,12)
-    ).click(function(){view.clickBtnRelD();});
+    //Add relation link button here .)
     this.buttons.push(
       this.btnDelete
-    , this.btnRelA
-    , this.btnRelD
     ).init().place().hide();
     //Ensuring correct positioning:
     this.update();
@@ -117,8 +108,6 @@ PaperArticle = Backbone.View.extend({
     if(!this.discussion) return;
     this.discussion.removeArticle(this.model);
   }
-, clickBtnRelA: function(){alert('clickBtnRelA');}
-, clickBtnRelD: function(){alert('clickBtnRelD');}
 , remove: function(){
     if(this.model !== null && typeof(this.model) !== 'undefined'){
       this.model.off(null, null, this);
