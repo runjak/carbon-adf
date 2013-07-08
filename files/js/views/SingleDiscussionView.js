@@ -11,6 +11,8 @@ SingleDiscussionView = Hideable.extend({
       el: this.$('#SingleDiscussionViewGraph'), model: null});
     this.discussionParticipantView = new DiscussionParticipantView({
       el: this.$('#SingleDiscussionViewParticipants'), model: null});
+    this.relationCreationModal = new RelationCreationModal({
+      el: this.$('#RelationCreationModal'), model: null});
     var view = this;
     window.App.router.on('route:singleDiscussionView', function(did){
       view.setDiscussionId(did).always(function(){
@@ -51,6 +53,7 @@ SingleDiscussionView = Hideable.extend({
     this.discussionCollectedView.setDiscussion(d);
     this.discussionGraphView.setModel(d);
     this.discussionParticipantView.setModel(d);
+    this.relationCreationModal.setModel(d);
   }
 , setDiscussionId: function(did){
     var view = this;

@@ -232,6 +232,36 @@
               </table>
             </div>
           </div>
+          <div id="RelationCreationModal" class="modal hide fade">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h3>Create a new Relation:</h3>
+            </div>
+            <div class="modal-body">
+              <form class="form-horizontal">
+                <div class="control-group">
+                  <label class="control-label" for="RelationCreationHeadline">Name:</label>
+                  <div class="controls">
+                    <input type="text"
+                      id="RelationCreationHeadline"
+                      placeholder="Name the Relation.">
+                  </div>
+                </div>
+                <div class="control-group">
+                  <label class="control-label" for=RelationCreationDescription"">Description:</label>
+                  <div class="controls">
+                    <textarea id="RelationCreationDescription" placeholder="A short description"></textarea>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <a id="RelationCreationRemove" class="btn btn-inverse hide"><i
+                class="icon-white icon-trash"></i>Remove</a>
+              <a id="RelationCreationSave" class="btn btn-primary hide">Save</a>
+              <a id="RelationCreationCreate" class="btn btn-primary hide">Create</a>
+            </div>
+          </div>
         </div>
       </div>
       <div id="CreateDiscussionView" class="row-fluid">
@@ -289,11 +319,7 @@
           </form>
         </div>
       </div>
-<!--  <hr>
-      <footer>
-      <p>&copy; Jakob Runge 2013</p>
-      </footer>
---> </div>
+    </div>
     <!-- Scripts: -->
     <script src="files/js/extern/jquery-1.9.1.js"></script>
     <script src="files/js/extern/jquery.cookie.js"></script>
@@ -312,10 +338,12 @@
     <script src="files/js/models/Article.js"></script>
     <script src="files/js/models/DummyArticleFactory.js"></script>
     <script src="files/js/models/ButtonSetFactory.js"></script>
+    <script src="files/js/models/Relation.js"></script>
     <script src="files/js/collections/ExtendedCollection.js"></script>
     <script src="files/js/collections/ArticleCollection.js"></script>
     <script src="files/js/collections/UserCollection.js"></script>
     <script src="files/js/collections/CollectedArticles.js"></script>
+    <script src="files/js/collections/RelationCollection.js"></script>
     <script src="files/js/models/Discussion.js"></script>
     <script src="files/js/collections/DiscussionCollection.js"></script>
     <script src="files/js/views/Hideable.js"></script>
@@ -342,9 +370,11 @@
     <script src="files/js/views/DiscussionArticleView.js"></script>
     <script src="files/js/views/DiscussionCollectedView.js"></script>
     <script src="files/js/views/PaperArticle.js"></script>
+    <script src="files/js/views/PaperRelation.js"></script>
     <script src="files/js/views/PaperView.js"></script>
     <script src="files/js/views/DiscussionGraphView.js"></script>
     <script src="files/js/views/DiscussionParticipantView.js"></script>
+    <script src="files/js/views/RelationCreationModal.js"></script>
     <script src="files/js/Router.js"></script>
     <script src="files/js/App.js"></script>
   </body>

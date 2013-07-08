@@ -1,8 +1,9 @@
 Discussion = Item.extend({
   urlRoot: 'discussion/'
 , defaults: {
-    articles:  new ArticleCollection()
-  , participants: new UserCollection()
+    articles:   new ArticleCollection()
+  , participants:  new UserCollection()
+  , relations: new RelationCollection()
   }
 , initialize: function(){}
 , create: function(){
@@ -39,13 +40,21 @@ Discussion = Item.extend({
         a = new Article(a);
         return a.set({collectionId: discussion.get('collectionId')});
       }));
+      //Handling Relations:
+      var rs = discussion.get('relations');
+      var rc = new RelationCollection(_.map(rs, function(r){
+        return new Relation(r);
+      }));
       //Handling Participants:
       var us = discussion.get('participants');
       var uc = new UserCollection();
       uc.fetchAndReset(_.map(us, function(u){
         return new User({id: u});
       })).always(function(){
-        discussion.set({articles: ac, participants: uc});
+        discussion.set({articles: ac, participants: uc, relations: rc});
+        discussion.get('relations').map(function(r){
+          r.setDiscussion(discussion);
+        });
         ret.resolve(d);
       });
     }).fail(function(f){
@@ -82,5 +91,13 @@ Discussion = Item.extend({
     def.done(function(){
       ps.toggleElem(window.App.login);
     });
+  }
+, setNewRelationStart: function(source){
+    this.set({'newRelationStart': source});
+  }
+, setNewRelationEnd: function(target){
+    if(!this.get('newRelationStart')) return false;
+    this.set({'newRelationEnd': target});
+    return true;
   }
 });

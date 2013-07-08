@@ -104,6 +104,8 @@ PaperArticle = Backbone.View.extend({
     }
   }
 , click: function(){
+    if(this.discussion.setNewRelationEnd(this.model))
+      return;
     if(this.buttons.visible){
       this.buttons.hide();
     }else this.buttons.show();
@@ -113,7 +115,8 @@ PaperArticle = Backbone.View.extend({
     this.discussion.removeArticle(this.model);
   }
 , clickBtnAddRel: function(){
-    alert('This is, how new relations are added!');
+    this.discussion.setNewRelationStart(this.model);
+    this.buttons.hide();
   }
 , remove: function(){
     if(this.model !== null && typeof(this.model) !== 'undefined'){
