@@ -53,7 +53,6 @@ data BackendDSL r where
   AddDiscussion  :: NewCollectionId -> [UserId] -> Maybe Timestamp -> BackendDSL DiscussionId
   GetDiscussion  :: DiscussionId -> BackendDSL Discussion
   SetParticipant :: DiscussionId -> UserId -> Bool -> BackendDSL ()
-  Weight         :: DiscussionId -> UserId -> Weight -> RelationId -> BackendDSL ()
   -- | Result related:
   AddResult :: DiscussionId -> [CollectionId] -> BackendDSL ResultId
   GetResult :: ResultId -> BackendDSL Result

@@ -34,18 +34,6 @@ leaveDiscussion did = Session.chkSession' $ \uid -> do
   liftB $ SetParticipant did uid False
   readDiscussion did
 
-weightRelation :: DiscussionId -> RelationId -> OBW Response
-weightRelation did rid = Session.chkSession' $ \uid -> plusm weightFail $ do
-  liftIO $ putStrLn "OpenBrain.Website.Discussion:weightRelation"
-  w <- getWeight
-  liftB $ Weight did uid w rid
-  readDiscussion did
-  where
-    weightFail = respBadRequest $ responseJSON'' "Expected parameter: weight."
-
 -- | Parameters…
 getDeadline :: OBW (Maybe Timestamp)
 getDeadline = msum [liftM Just $ lookRead "deadline", return Nothing]
-
-getWeight :: OBW Weight
-getWeight = lookRead "weight"

@@ -49,7 +49,6 @@ route = msum [
           crudCreate $ Discussion.joinDiscussion did
         , crudDelete $ Discussion.leaveDiscussion did
         ]
-      , dir "weight" . path $ crudCreate . Discussion.weightRelation did
       , crudRead $ Discussion.readDiscussion did
       ]
     , crudCreate Discussion.createDiscussion

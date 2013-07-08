@@ -43,8 +43,3 @@ setParticipant did uid True conn =
 setParticipant did uid False conn = 
   let q = "DELETE FROM participants WHERE discussionid = ? AND userid = ?"
   in void $ quickQuery' conn q [toSql $ toId did, toSql $ toId uid]
-
-weight :: DiscussionId -> UserId -> Weight -> RelationId -> Query ()
-weight did uid w rid conn =
-  let q = "INSERT INTO weights (discussionid, userid, relationid, weight) VALUES (?, ?, ?, ?)"
-  in void $ quickQuery' conn q [toSql $ toId did, toSql $ toId uid, toSql $ toId rid, toSql w]

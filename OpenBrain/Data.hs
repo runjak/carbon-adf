@@ -99,7 +99,6 @@ type Timestamp    = String
 type Username     = String
 type Voted        = Bool
 type Votes        = Int
-type Weight       = Int 
 
 {-| Instances of Eq: |-}
 instance Eq Description where
