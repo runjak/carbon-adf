@@ -19,15 +19,19 @@ PaperArticle = Backbone.View.extend({
     // Building the buttons:
     this.buttons   = this.el.buttonSet(this);
     this.btnDelete = this.el.set(); // Button to delete the PaperArticle from the Discussion
-    this.btnRelA   = this.el.set(); // Button to let a PaperArticle attack another
-    this.btnRelD   = this.el.set(); // Button to let a PaperArticle defend another
+    this.btnAddRel = this.el.set(); // Button to add a Relation to another Article
     this.btnDelete.push(
       this.el.rect(0,0,15,17,2)
     , this.el.image('files/img/ghw-trash.png',2,2,11,13)
     ).click(function(){view.clickBtnDelete();});
+    this.btnAddRel.push(
+      this.el.rect(17,0,15,17,2)
+    , this.el.image('files/img/ghw-arrow-right.png',19,2,11,13)
+    ).click(function(){view.clickBtnAddRel();});
     //Add relation link button here .)
     this.buttons.push(
       this.btnDelete
+    , this.btnAddRel
     ).init().place().hide();
     //Ensuring correct positioning:
     this.update();
@@ -107,6 +111,9 @@ PaperArticle = Backbone.View.extend({
 , clickBtnDelete: function(){
     if(!this.discussion) return;
     this.discussion.removeArticle(this.model);
+  }
+, clickBtnAddRel: function(){
+    alert('This is, how new relations are added!');
   }
 , remove: function(){
     if(this.model !== null && typeof(this.model) !== 'undefined'){
