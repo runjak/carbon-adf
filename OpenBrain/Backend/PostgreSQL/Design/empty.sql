@@ -206,8 +206,8 @@ ALTER SEQUENCE choices_resultid_seq OWNED BY choices.resultid;
 CREATE TABLE collectedarticles (
     collectionid integer NOT NULL,
     articleid integer NOT NULL,
-    pos_x smallint NOT NULL,
-    pos_y smallint NOT NULL,
+    pos_x smallint DEFAULT 500 NOT NULL,
+    pos_y smallint DEFAULT 500 NOT NULL,
     accepted boolean,
     condition text DEFAULT ''::text NOT NULL,
     customcondition boolean DEFAULT false NOT NULL
@@ -1176,6 +1176,7 @@ SELECT pg_catalog.setval('results_resultid_seq', 1, false);
 --
 
 COPY users (userid, username, hash, salt, creationtime, lastlogin, isadmin, profile, sessionkey) FROM stdin;
+1	foo	50c9387054e4afec024be1881ed61dd57f2c349910b2e0af0795ae48c14b8992f39125588b6ba8ec4f4c4580b1d867a607419d2308cc6843450b7ff660a8844d	bfzsxmqxhbzhd{fc	2013-07-08 14:41:12.644502	2013-07-08 14:41:12.644502	t	\N	\N
 \.
 
 
@@ -1183,7 +1184,7 @@ COPY users (userid, username, hash, salt, creationtime, lastlogin, isadmin, prof
 -- Name: users_userid_seq; Type: SEQUENCE SET; Schema: public; Owner: mushu
 --
 
-SELECT pg_catalog.setval('users_userid_seq', 1, false);
+SELECT pg_catalog.setval('users_userid_seq', 1, true);
 
 
 --

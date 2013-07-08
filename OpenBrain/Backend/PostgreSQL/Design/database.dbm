@@ -147,11 +147,11 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="articleid" not-null="true">
 		<type name="serial"/>
 	</column>
-	<column name="pos_x" not-null="true">
+	<column name="pos_x" not-null="true" default-value="500">
 		<type name="smallint"/>
 		<comment><![CDATA[x position of an article when displayed in a graph.]]></comment>
 	</column>
-	<column name="pos_y" not-null="true">
+	<column name="pos_y" not-null="true" default-value="500">
 		<type name="smallint"/>
 		<comment><![CDATA[y position of an article when displayed in a graph]]></comment>
 	</column>

@@ -21,7 +21,6 @@ Article = Item.extend({
     , description: this.get('description')
     , content:     this.get('content')
     };
-    console.log('Article:getQuery: '+JSON.stringify(q));
     return q;
   }
 , mkDummy: function(n){

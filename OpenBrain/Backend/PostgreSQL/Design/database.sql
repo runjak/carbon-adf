@@ -79,8 +79,8 @@ WITH (OIDS=TRUE);
 CREATE TABLE public.collectedarticles(
 	collectionid serial NOT NULL,
 	articleid serial NOT NULL,
-	pos_x smallint NOT NULL,
-	pos_y smallint NOT NULL,
+	pos_x smallint NOT NULL DEFAULT 500,
+	pos_y smallint NOT NULL DEFAULT 500,
 	accepted boolean,
 	condition text NOT NULL DEFAULT '',
 	customcondition boolean NOT NULL DEFAULT false
