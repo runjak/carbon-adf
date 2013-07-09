@@ -40,21 +40,23 @@ Discussion = Item.extend({
         a = new Article(a);
         return a.set({collectionId: discussion.get('collectionId')});
       }));
+      discussion.set({articles: ac});
       //Handling Relations:
       var rs = discussion.get('relations');
-      var rc = new RelationCollection(_.map(rs, function(r){
-        return new Relation(r);
-      }));
+      var rc = new RelationCollection(_.reduce(rs, function(stack, r){
+        var relation = new Relation(r);
+        if(relation.setDiscussion(discussion))
+          stack.push(relation);
+        return stack;
+      }, []));
+      discussion.set({relations: rc});
       //Handling Participants:
       var us = discussion.get('participants');
       var uc = new UserCollection();
       uc.fetchAndReset(_.map(us, function(u){
         return new User({id: u});
       })).always(function(){
-        discussion.set({articles: ac, participants: uc, relations: rc});
-        discussion.get('relations').map(function(r){
-          r.setDiscussion(discussion);
-        });
+        discussion.set({participants: uc});
         ret.resolve(d);
       });
     }).fail(function(f){
@@ -75,6 +77,13 @@ Discussion = Item.extend({
     var discussion = this;
     return $.delete(this.getCAUrl(a)).done(function(){
       discussion.get('articles').remove(a);
+      var aid = a.get('id');
+      var rs = discussion.get('relations').elems(function(r){
+        var hasSource = r.source.get('id') === aid;
+        var hasTarget = r.target.get('id') === aid;
+        return (hasSource || hasTarget);
+      });
+      discussion.get('relations').remove(rs);
     });
   }
 /* Produces the url necessary to add/remove an article to/from a collection. */

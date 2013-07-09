@@ -24,6 +24,13 @@ forgetArticles :: CollectionId -> [ArticleId] -> Query()
 forgetArticles cid as conn = do
   del <- prepare conn "DELETE FROM collectedarticles WHERE collectionid = ? AND articleid = ?"
   executeMany del $ map (\a -> [toSql $ toId cid, toSql $ toId a]) as
+  let q = "DELETE FROM relations "
+       ++ "WHERE (source = ? OR target = ?) "
+       ++ "AND discussionid = ANY (SELECT d.discussionid "
+       ++ "FROM discussions d JOIN collections c USING (collectionid) "
+       ++ "WHERE c.collectionid = ?)"
+  delOldRelations <- prepare conn q 
+  executeMany delOldRelations $ map (\a -> [toSql $ toId a, toSql $ toId a, toSql $ toId cid]) as
 
 getCollection :: CollectionId -> Query Collection
 getCollection cid conn = do

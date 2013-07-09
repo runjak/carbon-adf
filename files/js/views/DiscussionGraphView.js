@@ -9,6 +9,7 @@ DiscussionGraphView = PaperView.extend({
     $('a[href="#SingleDiscussionViewGraph"]').on('shown', function(){
       view.resize();
     });
+    this.useKeyboard = true;
     $(window).keyup(function(e){view.keyboard(e);});
     this.$('.paper').click(function(e){
       view.mouse(e);
@@ -33,19 +34,25 @@ DiscussionGraphView = PaperView.extend({
     var h = p.height;
     //Cleaning:
     if(this.paperArticles)
-      _.map(this.paperArticles, function(pa){pa.remove();});
+      _.each(this.paperArticles, function(pa){pa.remove();});
     this.paperArticles = [];
+    if(this.paperRelations)
+      _.each(this.paperRelations, function(pr){pr.remove();});
+    this.paperRelations = [];
     p.clear();
     //Drawing:
     this.drawGrid();
     if(this.model !== null && typeof(this.model) !== 'undefined'){
       //Placing Articles:
       var discussion = this.model;
-      this.model.get('articles').map(function(a){
+      this.model.get('articles').each(function(a){
         var pa = new PaperArticle({model: a, el: p});
         view.paperArticles.push(pa.setDiscussion(discussion));
       });
       //Placing Relations:
+      this.model.get('relations').each(function(r){
+        view.paperRelations.push(new PaperRelation({model: r, el: p}));
+      });
       //FIXME implement
     }
     //Fixes:
@@ -80,10 +87,25 @@ DiscussionGraphView = PaperView.extend({
     });
     this.paperArticles = pAs;
   }
+, relationAdded: function(r, collection, options){
+    if(!this.paperRelations) this.paperRelations = [];
+    this.paperRelations.push(new PaperRelation({model: r, el: this.paper}));
+  }
+, relationRemoved: function(r, collection, options){
+    var pRs = [];
+    var rid = r.get('id');
+    _.each(this.paperRelations, function(pr){
+      if(pr.model.get('id') === rid){
+        pr.remove();
+      }else pRs.push(pr);
+    });
+    this.paperRelations = pRs;
+  }
 , setModel: function(m){
     if(this.model){
       this.model.off(null, null, this);
       this.model.get('articles').off(null, null, this);
+      this.model.get('relations').off(null, null, this);
     }
     if(m === null || typeof(m) === 'undefined'){
       this.model = null;
@@ -96,6 +118,9 @@ DiscussionGraphView = PaperView.extend({
       this.model.get('articles').on('reset',  this.render,         this)
                                 .on('add',    this.articleAdded,   this)
                                 .on('remove', this.articleRemoved, this);
+      this.model.get('relations').on('reset',  this.render,          this)
+                                 .on('add',    this.relationAdded,   this)
+                                 .on('remove', this.relationRemoved, this);
       this.dummyArticleFactory.reset(this.model.get('articles'));
     }
     this.resize();
@@ -107,8 +132,8 @@ DiscussionGraphView = PaperView.extend({
 , moveUp:    function(){this.pan(0,  100);}
 , moveDown:  function(){this.pan(0, -100);}
 , keyboard:  function(e){
-    if(!this.$el.is('.fade.in'))
-      return;
+    if(!this.$el.is('.fade.in')) return;
+    if(!this.useKeyboard) return;
     switch(e.keyCode){
       case 90: // Z
         this.resetPanZoom();
@@ -181,5 +206,8 @@ DiscussionGraphView = PaperView.extend({
       i.addClass('icon-arrow-up').removeClass('icon-arrow-down');
     }
     this.resize();
+  }
+, setUseKeyboard: function(use){
+    this.useKeyboard = use;
   }
 });

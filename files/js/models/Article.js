@@ -40,4 +40,10 @@ Article = Item.extend({
     var article = this;
     return $.put(url, p).done(function(){article.set(p);});
   }
+, getXY: function(){
+    return {
+      x: this.get('posX')
+    , y: this.get('posY')
+    };
+  }
 });
