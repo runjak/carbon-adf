@@ -18,6 +18,8 @@ data Config = Config {
   , allowBrowsing :: Bool        -- | Should users be able to browse the static files directory?
   , port          :: Int         -- | The port on which openBrain will listen
   , backendType   :: BackendType -- | Which backend will be used
+  , diamondCall   :: String      -- | What to execute to run diamond.py
+  , diamondDlDir  :: FilePath    -- | Which directory to place generated .dl files in
 } deriving (Eq, Read, Show)
 
 nullConfig = Config {
@@ -26,6 +28,8 @@ nullConfig = Config {
   , port          = 8000  -- | Happstack std.
   , backendType   = PostgreSQLBackend {pgOptions = "dbname=openbrain host=127.0.0.1 user=mushu"}
 --, backendType   = PostgreSQLBackend {pgOptions = "dbname=openbrain host=127.0.0.1 user=mushu password=1234"}
+  , diamondCall   = "diamond"
+  , diamondDlDir  = "/tmp/"
 }
 
 readConfig :: FilePath -> IO (Maybe Config)
