@@ -6,6 +6,8 @@
 PaperArticle = Backbone.View.extend({
   initialize: function(){
   //this.model.on('change', this.update, this);
+    //Taking care that the paperArticle can be found:
+    this.model.paperArticle = this;
     //General content:
     var view  = this;
     this.el.setStart();
@@ -119,8 +121,9 @@ PaperArticle = Backbone.View.extend({
     this.buttons.hide();
   }
 , remove: function(){
-    if(this.model !== null && typeof(this.model) !== 'undefined'){
+    if(this.model){
       this.model.off(null, null, this);
+      this.model.paperArticle = null;
     }
     this.set.remove();
     this.buttons.remove();
@@ -128,5 +131,8 @@ PaperArticle = Backbone.View.extend({
 , setDiscussion: function(d){
     this.discussion = d;
     return this;
+  }
+, getBBox: function(){
+    return this.back.getBBox();
   }
 });

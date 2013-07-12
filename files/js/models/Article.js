@@ -1,7 +1,9 @@
 Article = Item.extend({
   urlRoot: 'article/'
 , defaults: {}
-, initialize: function(){}
+, initialize: function(){
+    this.paperArticle = null;
+  }
 , create: function(){
     var article = this;
     return $.post(this.urlRoot, this.getQuery()).done(function(d){

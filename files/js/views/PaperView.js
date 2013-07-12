@@ -9,7 +9,7 @@ PaperView = Backbone.View.extend({
     this.paper = null;
   }
 , mkPaper: function(p){
-    this.paper = ButtonSetFactory(Raphael(p, 1000, 1000));
+    this.paper = Calculator(ButtonSetFactory(Raphael(p, 1000, 1000)));
   }
 //Data:
 , getContainer: function(){
