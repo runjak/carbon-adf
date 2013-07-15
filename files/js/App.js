@@ -43,6 +43,7 @@ $(function(){
   views.createDiscussionView = new CreateDiscussionView({
     el: $('#CreateDiscussionView')
   });
+  views.discussionArticles = {};
   views.loginView = new LoginView({
     el: $('#LoginRegisterForm')
   , model: window.App.login

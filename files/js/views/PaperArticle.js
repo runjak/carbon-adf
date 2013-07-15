@@ -7,7 +7,8 @@ PaperArticle = Backbone.View.extend({
   initialize: function(){
   //this.model.on('change', this.update, this);
     //Taking care that the paperArticle can be found:
-    this.model.paperArticle = this;
+    var aid = this.model.get('id');
+    window.App.views.discussionArticles[aid] = this;
     //General content:
     var view  = this;
     this.el.setStart();
@@ -123,7 +124,8 @@ PaperArticle = Backbone.View.extend({
 , remove: function(){
     if(this.model){
       this.model.off(null, null, this);
-      this.model.paperArticle = null;
+      var aid = this.model.get('id');
+      window.App.views.discussionArticles[aid] = this;
     }
     this.set.remove();
     this.buttons.remove();
