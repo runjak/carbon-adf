@@ -2,6 +2,7 @@ module OpenBrain.Data.Logic(
   Exp(..), and', or'
 , parseExp, parseAc, parseAcs
 , parseHelper, parseHelper'
+, idToExp
 )where
 
 
@@ -9,6 +10,8 @@ import Control.Monad
 import Happstack.Server (FromReqURI(..))
 import Text.Parsec as P
 import Text.ParserCombinators.Parsec as PC
+
+import OpenBrain.Data.Id
 
 data Exp = Var String
          | And Exp Exp
@@ -24,9 +27,6 @@ instance Show Exp where
   show (And x y) = "and(" ++ show x ++ "," ++ show y ++ ")"
   show (Or  x y) =  "or(" ++ show x ++ "," ++ show y ++ ")"
   show (Not x)   = "not(" ++ show x ++ ")"
-
--- | FIXME build an instance for read/some kind of parser
--- | PostgreSQL Backend uses read to parse atm
 
 instance FromReqURI Exp where
   fromReqURI = parseHelper' parseExp "FromReqURI"
@@ -83,3 +83,9 @@ parseVar = liftM (Var) . many1 $ noneOf ",)"
 
 eol :: Parsec String () String
 eol = string "\n" <|> string "\n\r"
+
+{-|
+  Mechanisms to enable easier work with Exp:
+|-}
+idToExp :: IdType i => i -> Exp
+idToExp = Var . show . unwrap . toId

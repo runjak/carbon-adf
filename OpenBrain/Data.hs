@@ -89,6 +89,7 @@ data User = User {
 {-| Type aliases: |-}
 type Author       = UserId
 type Count        = Int
+type Custom       = Bool
 type Headline     = String
 type Heir         = UserId
 type IsAdmin      = Bool
@@ -171,7 +172,7 @@ instance ToJSON CollectionArticle where
         , "posY"            .= posY            c
         , "accepted"        .= accepted        c
         , "customcondition" .= customcondition c
-        , "condition"       .= show (condition c)
+        , "condition"       .= fmap show (condition c)
         ]
 instance ToJSON Collection where
   toJSON c = merge (toJSON $ cDescription c) o
