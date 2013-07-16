@@ -53,5 +53,5 @@ getCollection cid conn = do
       , posY            = fromSql y
       , accepted        = fromSql acc
       , customcondition = fromSql cust
-      , condition       = Nothing -- read $ fromSql cond
+      , condition       = Logic.parseHelper' Logic.parseExp "PostgreSQL" $ fromSql cond
       }

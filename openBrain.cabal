@@ -17,6 +17,7 @@ Build-Depends:  aeson
               , HDBC, HDBC-postgresql
               , mtl
               , old-time
+              , parsec
               , process
               , random
               , regex-compat
