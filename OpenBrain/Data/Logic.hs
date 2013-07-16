@@ -2,7 +2,7 @@ module OpenBrain.Data.Logic(
   Exp(..), and', or'
 , parseExp, parseAc, parseAcs
 , parseHelper, parseHelper'
-, idToExp
+, idToExp, expsToAcs
 )where
 
 
@@ -89,3 +89,6 @@ eol = string "\n" <|> string "\n\r"
 |-}
 idToExp :: IdType i => i -> Exp
 idToExp = Var . show . unwrap . toId
+
+expsToAcs :: [Exp] -> String
+expsToAcs = unlines . map (\c -> "ac(" ++ show c ++ ").")

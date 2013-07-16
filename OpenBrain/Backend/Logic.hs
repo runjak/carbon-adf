@@ -1,6 +1,7 @@
 module OpenBrain.Backend.Logic where
 
 import Control.Monad
+import qualified Data.Maybe as Maybe
 
 import OpenBrain.Backend.DSL
 import OpenBrain.Data
@@ -20,3 +21,11 @@ autoCondition did aid = do
     let attackers = map (source) . filter ((aid ==) . target) $ relations d
     let condition = Not . or' $ map idToExp attackers
     UpdateCondition (collectionId $ dCollection d) aid False condition
+
+{-|
+  Generates the content of a diamond input file from a DiscussionId.
+|-}
+diamondInput :: DiscussionId -> BackendDSL String
+diamondInput did = do
+  conditions <- liftM (Maybe.catMaybes . map condition . articles . dCollection) $ GetDiscussion did
+  return $ expsToAcs conditions
