@@ -1,22 +1,25 @@
 module OpenBrain.Data.Logic(
   Exp(..), and', or'
+, ACondition(..)
 , parseExp, parseAc, parseAcs
 , parseHelper, parseHelper'
-, idToExp, expsToAcs
+, idToExp, renameVars, renameAc
 )where
 
 
 import Control.Monad
+import Data.Map (Map)
 import Happstack.Server (FromReqURI(..))
 import Text.Parsec as P
 import Text.ParserCombinators.Parsec as PC
+import qualified Data.Map as Map
 
 import OpenBrain.Data.Id
 
 data Exp = Var String
          | And Exp Exp
          | Or  Exp Exp
-         | Not Exp
+         | Neg Exp
          deriving Eq
 
 and' = foldr1 And
@@ -26,28 +29,39 @@ instance Show Exp where
   show (Var s)   = s
   show (And x y) = "and(" ++ show x ++ "," ++ show y ++ ")"
   show (Or  x y) =  "or(" ++ show x ++ "," ++ show y ++ ")"
-  show (Not x)   = "not(" ++ show x ++ ")"
+  show (Neg x)   = "neg(" ++ show x ++ ")"
 
 instance FromReqURI Exp where
   fromReqURI = parseHelper' parseExp "FromReqURI"
 
+data ACondition = AC String Exp deriving Eq
+
+instance Show ACondition where
+  show (AC n e) = "ac(" ++ n ++ "," ++ show e ++ ")."
+
 -- | Mechanisms for parsing:
 parseExp :: Parsec String () Exp
-parseExp = parseAnd <|> parseOr <|> parseNot <|> parseVar
+parseExp = parseAnd <|> parseOr <|> parseNeg <|> parseVar
 
-parseAc :: Parsec String () Exp
-parseAc = between (string "ac(") (string ").") $ parseExp
+parseAc :: Parsec String () ACondition
+parseAc = do
+  string "ac("
+  n <- many1 $ noneOf ","
+  char ','
+  e <- parseExp
+  string ")."
+  return $ AC n e
 
-parseAcs :: Parsec String () [Exp]
+parseAcs :: Parsec String () [ACondition]
 parseAcs = parseAc `sepBy` eol
 
-parseHelper :: (Parsec String () Exp) -> SourceName -> String -> Either String Exp
+parseHelper :: Parsec String () a -> SourceName -> String -> Either String a
 parseHelper exp src content =
   case runP exp () src content of
     (Left err)   -> Left $ show err
     (Right keep) -> Right keep
 
-parseHelper' :: (Parsec String () Exp) -> SourceName -> String -> Maybe Exp
+parseHelper' :: Parsec String () a -> SourceName -> String -> Maybe a
 parseHelper' e s c =
   case parseHelper e s c of
     (Left _)  -> Nothing
@@ -75,11 +89,11 @@ twoOps = do
   char ')'
   return (o1, o2)
 
-parseNot :: Parsec String () Exp
-parseNot = between (string "not(") (char ')') $ liftM Not parseExp
+parseNeg :: Parsec String () Exp
+parseNeg = between (string "neg(") (char ')') $ liftM Neg parseExp
 
 parseVar :: Parsec String () Exp
-parseVar = liftM (Var) . many1 $ noneOf ",)"
+parseVar = liftM Var . many1 $ noneOf ",)"
 
 eol :: Parsec String () String
 eol = string "\n" <|> string "\n\r"
@@ -90,5 +104,17 @@ eol = string "\n" <|> string "\n\r"
 idToExp :: IdType i => i -> Exp
 idToExp = Var . show . unwrap . toId
 
-expsToAcs :: [Exp] -> String
-expsToAcs = unlines . map (\c -> "ac(" ++ show c ++ ").")
+renameVars :: Map String String -> Exp -> Exp
+renameVars m (And e f) = And (renameVars m e) (renameVars m f)
+renameVars m (Or e f)  = Or  (renameVars m e) (renameVars m f)
+renameVars m (Neg e)   = Neg $ renameVars m e
+renameVars m (Var n)   =
+  case Map.lookup n m of
+    (Just n') -> Var n'
+    Nothing   -> Var n
+
+renameAc :: Map String String -> ACondition -> ACondition
+renameAc m (AC n e) =
+  case Map.lookup n m of
+    (Just n') -> AC n' $ renameVars m e
+    Nothing   -> AC n  $ renameVars m e

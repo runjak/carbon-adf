@@ -1,15 +1,17 @@
 module OpenBrain.Backend.Logic where
 
+import Control.Arrow ((&&&), second)
 import Control.Monad
+import qualified Data.Map   as Map
 import qualified Data.Maybe as Maybe
 
 import OpenBrain.Backend.DSL
 import OpenBrain.Data
 import OpenBrain.Data.Id
-import OpenBrain.Data.Logic
+import OpenBrain.Data.Logic as Logic
 
 {-|
-  Generates the condition for a CollectionArticle automatically
+  Generates the  for a CollectionArticle automatically
   as long as it's not a custom one.
   This will be executed whenever a Relation is added or removed.
 |-}
@@ -17,9 +19,9 @@ autoCondition :: DiscussionId -> ArticleId -> BackendDSL ()
 autoCondition did aid = do
   d <- GetDiscussion did
   let ca = head . filter ((aid ==) . articleId . cArticle) . articles $ dCollection d
-  when (not $ customcondition ca) $ do
-    let attackers = map (source) . filter ((aid ==) . target) $ relations d
-    let condition = Not . or' $ map idToExp attackers
+  unless (customcondition ca) $ do
+    let attackers = map source . filter ((aid ==) . target) $ relations d
+        condition = Neg . or' $ map idToExp attackers
     UpdateCondition (collectionId $ dCollection d) aid False condition
 
 {-|
@@ -27,5 +29,10 @@ autoCondition did aid = do
 |-}
 diamondInput :: DiscussionId -> BackendDSL String
 diamondInput did = do
-  conditions <- liftM (Maybe.catMaybes . map condition . articles . dCollection) $ GetDiscussion did
-  return $ expsToAcs conditions
+  as <- liftM (articles . dCollection) $ GetDiscussion did
+  let caToIdName = show . unwrap . toId . articleId . cArticle
+      caToHeName = headline . aDescription . cArticle
+      renameMap  = Map.fromList $ map (caToIdName &&& caToHeName) as
+      hAndMConds = filter (Maybe.isJust . snd) $ map (caToHeName &&& condition) as
+      acs        = map (renameAc renameMap . uncurry AC . second Maybe.fromJust) hAndMConds
+  return . unlines $ map show acs

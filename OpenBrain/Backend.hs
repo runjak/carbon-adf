@@ -1,4 +1,4 @@
-module OpenBrain.Backend (loadBackend) where
+module OpenBrain.Backend (loadBackend, tryBackend) where
 {-
   Provides the loading procedure to build a Backend from the Config.
 -}
