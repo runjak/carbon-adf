@@ -6,6 +6,7 @@ import qualified Data.Map   as Map
 import qualified Data.Maybe as Maybe
 
 import OpenBrain.Backend.DSL
+import OpenBrain.Common
 import OpenBrain.Data
 import OpenBrain.Data.Id
 import OpenBrain.Data.Logic as Logic
@@ -27,12 +28,14 @@ autoCondition did aid = do
 {-|
   Generates the content of a diamond input file from a DiscussionId.
 |-}
-diamondInput :: DiscussionId -> BackendDSL String
-diamondInput did = do
+type RenameIds = Bool
+diamondInput :: RenameIds -> DiscussionId -> BackendDSL String
+diamondInput rename did = do
   as <- liftM (articles . dCollection) $ GetDiscussion did
   let caToIdName = show . unwrap . toId . articleId . cArticle
       caToHeName = headline . aDescription . cArticle
       renameMap  = Map.fromList $ map (caToIdName &&& caToHeName) as
-      hAndMConds = filter (Maybe.isJust . snd) $ map (caToHeName &&& condition) as
-      acs        = map (renameAc renameMap . uncurry AC . second Maybe.fromJust) hAndMConds
-  return . unlines $ map show acs
+      hAndMConds = filter (Maybe.isJust . snd) $ map (caToIdName &&& condition) as
+      acs        = map (uncurry AC . second Maybe.fromJust) hAndMConds
+      acs'       = map (renameAc renameMap) acs
+  return . unlines . map show $ rename ? (acs', acs)

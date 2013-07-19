@@ -26,7 +26,7 @@ main = do
     "nullConfig":path:_ -> do
       putStrLn $ "Creating a nullConfig in '" ++ path ++ "'."
       writeConfig path nullConfig
-    "diamond":path:did:_ -> diamond path did
+    "diamond":path:did:rename:_ -> diamond path did $ read rename
     path:_ -> withConfig path startup
     _ -> help
 
@@ -34,9 +34,10 @@ help :: IO ()
 help = mapM_ putStrLn [
     "openBrain Version " ++ Reflection.version
   , "------------------------------------------------------------------"
-  , "Simple start:      $ openBrain <configFile>"
-  , "Create nullConfig: $ openBrain nullConfig <location>"
-  , "Input for diamond: $ openBrain diamond <configFile> <discussionId>"
+  , "Simple start:      $ openBrain <configFile::Filepath>"
+  , "Create nullConfig: $ openBrain nullConfig <location::Filepath>"
+  , "Input for diamond: $ openBrain diamond <configFile::Filepath>"
+  , "                           <discussionId::Int> <rename::Bool>"
   , "Misc information:  $ openrain info"
   , "Get this message:  $ openBrain {--help,-help,help}"
   ]
@@ -54,11 +55,11 @@ withConfig path go = do
   The given String is expected to belong to a discussionId.
   Input for diamond will be printed to console.
 |-}
-diamond :: FilePath -> String -> IO ()
-diamond path did' = do
+diamond :: FilePath -> String -> Bool -> IO ()
+diamond path did' rename = do
   executor <- tryBackend path
   let did = fromId . wrap $ read did'
-  input <- executor $ Logic.diamondInput did
+  input <- executor $ Logic.diamondInput rename did
   putStrLn $ "OpenBrain.Backend.Logic:diamondInput " ++ show did
   putStrLn input
 
