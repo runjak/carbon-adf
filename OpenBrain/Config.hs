@@ -12,7 +12,6 @@ module OpenBrain.Config (
 import Control.Monad (liftM)
 import Data.Maybe (listToMaybe)
 
-type Seconds = Int
 data Config = Config {
     fileStorage   :: FilePath    -- | Directory to serve static files from
   , allowBrowsing :: Bool        -- | Should users be able to browse the static files directory?
@@ -23,13 +22,13 @@ data Config = Config {
 } deriving (Eq, Read, Show)
 
 nullConfig = Config {
-    fileStorage   = "files/"
-  , allowBrowsing = True
-  , port          = 8000  -- | Happstack std.
-  , backendType   = PostgreSQLBackend {pgOptions = "dbname=openbrain host=127.0.0.1 user=mushu"}
---, backendType   = PostgreSQLBackend {pgOptions = "dbname=openbrain host=127.0.0.1 user=mushu password=1234"}
-  , diamondCall   = "diamond"
-  , diamondDlDir  = "/tmp/"
+    fileStorage    = "files/"
+  , allowBrowsing  = True
+  , port           = 8000  -- | Happstack std.
+  , backendType    = PostgreSQLBackend {pgOptions = "dbname=openbrain host=127.0.0.1 user=mushu"}
+--, backendType    = PostgreSQLBackend {pgOptions = "dbname=openbrain host=127.0.0.1 user=mushu password=1234"}
+  , diamondCall    = "diamond"
+  , diamondDlDir   = "/tmp/"
 }
 
 readConfig :: FilePath -> IO (Maybe Config)

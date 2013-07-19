@@ -49,6 +49,8 @@ route = msum [
           crudCreate $ Discussion.joinDiscussion did
         , crudDelete $ Discussion.leaveDiscussion did
         ]
+      , dir "acs" . crudRead $ Discussion.acs did
+      , dir "evaluate" . crudRead $ Discussion.evaluate did
       , crudRead $ Discussion.readDiscussion did
       ]
     , crudCreate Discussion.createDiscussion
