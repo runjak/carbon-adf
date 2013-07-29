@@ -49,10 +49,10 @@ evaluate did = Session.chkSession' . const $ do
   let dir  = diamondDlDir c
       call = diamondCall  c
       file = dir ++ "Discussion_" ++ (show . unwrap $ toId did) ++ ".dl"
-  dInput <- liftB $ Logic.diamondInput False did
+  dInput  <- liftB  $ Logic.diamondInput False did
   dOutput <- liftIO $ do
     writeFile file dInput
-    Process.readProcess call ["--all",file] ""
+    Process.readProcess call [file] ""
   respOk . responseJSON' $ "Created file: "++file++"\nDiamond Output was:\n"++dOutput
 
 -- | Parameters…
