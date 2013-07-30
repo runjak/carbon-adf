@@ -13,14 +13,23 @@ updatePosition cid aid = Session.chkSession' . const $
 
 updateCondition :: CollectionId -> ArticleId -> OBW Response
 updateCondition cid aid = Session.chkSession' . const $
-  plusm (respBadRequest "Parameter condition not found.") $ do
+  withCondition $ \mCondition -> do
     let cToUpdate = maybe (UpdateCondition cid aid False $ Var "") (UpdateCondition cid aid True)
-    liftB =<< liftM cToUpdate getCondition
+    liftB $ cToUpdate mCondition
+--  liftB =<< liftM cToUpdate getCondition
+-- FIXME reimplement this one
     respOk "Condition updated."
 
 -- | Parameters…
 getPosition :: OBW (Int, Int)
 getPosition = liftM2 (,) (lookRead "posX") $ lookRead "posY"
 
-getCondition :: OBW (Maybe Exp)
-getCondition = plusm (return Nothing) . liftM Just $ lookRead "condition"
+withCondition :: (Maybe Exp -> OBW Response) -> OBW Response
+withCondition f = plusm (respBadRequest "Parameter condition not found.") $ do
+  c <- look "condition"
+  case c of
+    "" -> f Nothing
+    _  ->
+      let eCondition = execInstanceParser parseExp "Client Input" c
+          problem    = respBadRequest . responseJSON'' . (++) "Could not parse input: "
+      in either problem (f . Just) eCondition

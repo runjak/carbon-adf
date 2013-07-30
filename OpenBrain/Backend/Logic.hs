@@ -30,12 +30,12 @@ autoCondition did aid = do
 |-}
 type RenameIds = Bool
 diamondInput :: RenameIds -> DiscussionId -> BackendDSL String
-diamondInput rename did = do
+diamondInput rIds did = do
   as <- liftM (articles . dCollection) $ GetDiscussion did
   let caToIdName = show . unwrap . toId . articleId . cArticle
       caToHeName = headline . aDescription . cArticle
       renameMap  = Map.fromList $ map (caToIdName &&& caToHeName) as
       hAndMConds = filter (Maybe.isJust . snd) $ map (caToIdName &&& condition) as
       acs        = map (uncurry AC . second Maybe.fromJust) hAndMConds
-      acs'       = map (renameAc renameMap) acs
-  return . unlines . map show $ rename ? (acs', acs)
+      acs'       = rename renameMap acs
+  return . unlines . map show $ rIds ? (acs', acs)
