@@ -45,6 +45,7 @@ data BackendDSL r where
   CollectArticles :: CollectionId -> [ArticleId] -> BackendDSL () 
   ForgetArticles  :: CollectionId -> [ArticleId] -> BackendDSL ()
   GetCollection   :: CollectionId -> BackendDSL Collection
+  DiscussionIds   :: CollectionId -> BackendDSL [DiscussionId]
   -- | CollectionArticle related:
   UpdatePosition  :: CollectionId -> ArticleId -> (Int,Int) -> BackendDSL ()
   UpdateAccepted  :: CollectionId -> ArticleId -> Maybe Bool -> BackendDSL ()

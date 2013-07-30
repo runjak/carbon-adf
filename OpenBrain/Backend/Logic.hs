@@ -22,7 +22,7 @@ autoCondition did aid = do
   let ca = head . filter ((aid ==) . articleId . cArticle) . articles $ dCollection d
   unless (customcondition ca) $ do
     let attackers = map source . filter ((aid ==) . target) $ relations d
-        condition = Neg . or' $ map idToExp attackers
+        condition = null attackers ? (Const True, Neg . or' $ map idToExp attackers)
     UpdateCondition (collectionId $ dCollection d) aid False condition
 
 {-|
@@ -35,7 +35,7 @@ diamondInput rIds did = do
   let caToIdName = show . unwrap . toId . articleId . cArticle
       caToHeName = headline . aDescription . cArticle
       renameMap  = Map.fromList $ map (caToIdName &&& caToHeName) as
-      hAndMConds = filter (Maybe.isJust . snd) $ map (caToIdName &&& condition) as
-      acs        = map (uncurry AC . second Maybe.fromJust) hAndMConds
+      hAndMConds = map (caToIdName &&& condition) as
+      acs        = map (uncurry AC) hAndMConds
       acs'       = rename renameMap acs
-  return . unlines . map show $ rIds ? (acs', acs)
+  return . show . instanceFromAcs $ rIds ? (acs', acs)

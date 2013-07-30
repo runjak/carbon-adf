@@ -3,6 +3,7 @@ module OpenBrain.Data.Logic.Instance(
 , Statement(..)
 , Instance(..)
 , emptyInstance
+, instanceFromAcs
 , InstanceParser
 , addCondition
 , addStatement
@@ -12,10 +13,10 @@ module OpenBrain.Data.Logic.Instance(
 
 
 import Control.Monad
+import Data.List (nub)
 import Data.Map (Map)
 import Text.Parsec as P
 import Text.ParserCombinators.Parsec as PC
-import qualified Data.Either as Either
 import qualified Data.Functor.Identity as Identity
 import qualified Data.Map as Map
 
@@ -33,6 +34,19 @@ data Instance = Instance {
   } deriving Eq
 
 emptyInstance = Instance [] []
+
+instanceFromAcs :: [ACondition] -> Instance
+instanceFromAcs acs = Instance acs . map Statement . nub $ concatMap names acs
+  where
+    names :: ACondition -> [String]
+    names (AC n e) = n:eNames e
+
+    eNames :: Exp -> [String]
+    eNames (Const _)   = []
+    eNames (Var s)     = [s]
+    eNames (Neg e)     = eNames e
+    eNames (And e1 e2) = eNames e1 ++ eNames e2
+    eNames (Or e1 e2)  = eNames e1 ++ eNames e2
 
 -- | Instances:
 instance Show ACondition where
@@ -82,4 +96,4 @@ finish = do
   return $ Instance as ss
 
 execInstanceParser :: InstanceParser a -> SourceName -> String -> Either String a
-execInstanceParser p src = Either.either (Left . show) Right . Identity.runIdentity . runPT p emptyInstance src
+execInstanceParser p src = either (Left . show) Right . Identity.runIdentity . runPT p emptyInstance src

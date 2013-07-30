@@ -3,6 +3,7 @@ module OpenBrain.Website.CollectionArticle where
 
 import OpenBrain.Data.Logic
 import OpenBrain.Website.Common
+import qualified OpenBrain.Backend.Logic   as Logic
 import qualified OpenBrain.Website.Session as Session
 
 updatePosition :: CollectionId -> ArticleId -> OBW Response
@@ -14,10 +15,9 @@ updatePosition cid aid = Session.chkSession' . const $
 updateCondition :: CollectionId -> ArticleId -> OBW Response
 updateCondition cid aid = Session.chkSession' . const $
   withCondition $ \mCondition -> do
-    let cToUpdate = maybe (UpdateCondition cid aid False $ Var "") (UpdateCondition cid aid True)
+    let autoConditions = mapM_ (`Logic.autoCondition` aid) <=< DiscussionIds
+        cToUpdate      = maybe (autoConditions cid) $ UpdateCondition cid aid True
     liftB $ cToUpdate mCondition
---  liftB =<< liftM cToUpdate getCondition
--- FIXME reimplement this one
     respOk "Condition updated."
 
 -- | Parameters…

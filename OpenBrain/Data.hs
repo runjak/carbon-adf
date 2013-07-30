@@ -50,7 +50,7 @@ data CollectionArticle = CollectionArticle {
 , posY            :: Int
 , accepted        :: Maybe Bool
 , customcondition :: Bool
-, condition       :: Maybe Exp
+, condition       :: Exp
 } deriving (Show)
 
 data Collection = Collection {
@@ -172,7 +172,7 @@ instance ToJSON CollectionArticle where
         , "posY"            .= posY            c
         , "accepted"        .= accepted        c
         , "customcondition" .= customcondition c
-        , "condition"       .= fmap show (condition c)
+        , "condition"       .= show (condition c)
         ]
 instance ToJSON Collection where
   toJSON c = merge (toJSON $ cDescription c) o

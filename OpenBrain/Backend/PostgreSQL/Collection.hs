@@ -54,5 +54,11 @@ getCollection cid conn = do
       , posY            = fromSql y
       , accepted        = fromSql acc
       , customcondition = fromSql cust
-      , condition       = either (const Nothing) Just eCondition
+      , condition       = either (const $ Logic.Const True) id eCondition
       }
+
+discussionIds :: CollectionId -> Query [DiscussionId]
+discussionIds cid conn = do
+  let q = "SELECT discussionid FROM discussions WHERE collectionid = ?"
+  ids' <- quickQuery' conn q [toSql $ toId cid]
+  return $ map (fromId . fromSql . head) ids'
