@@ -30,6 +30,6 @@ withCondition f = plusm (respBadRequest "Parameter condition not found.") $ do
   case c of
     "" -> f Nothing
     _  ->
-      let eCondition = execInstanceParser parseExp "Client Input" c
+      let eCondition = execParser' parseExp "Client Input" c
           problem    = respBadRequest . responseJSON'' . (++) "Could not parse input: "
       in either problem (f . Just) eCondition

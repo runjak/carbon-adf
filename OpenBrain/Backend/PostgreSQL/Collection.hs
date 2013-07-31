@@ -47,7 +47,7 @@ getCollection cid conn = do
   where
     go conn [aid, x, y, acc, cond, cust] = do
       a <- Article.getArticle (fromId $ fromSql aid) conn
-      let eCondition = Logic.execInstanceParser Logic.parseExp "PostgreSQL" $ fromSql cond
+      let eCondition = Logic.execParser' Logic.parseExp "PostgreSQL" $ fromSql cond
       return CollectionArticle{
         cArticle        = a
       , posX            = fromSql x

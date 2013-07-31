@@ -2,15 +2,8 @@ module OpenBrain.Data.Logic.Instance(
   ACondition(..)
 , Statement(..)
 , Instance(..)
-, emptyInstance
 , instanceFromAcs
-, InstanceParser
-, addCondition
-, addStatement
-, finish
-, execInstanceParser
 )where
-
 
 import Control.Monad
 import Data.List (nub)
@@ -23,6 +16,7 @@ import qualified Data.Map as Map
 import OpenBrain.Common
 import OpenBrain.Data.Id
 import OpenBrain.Data.Logic.Exp
+import OpenBrain.Data.Logic.Parse
 import OpenBrain.Data.Logic.Renameable
 
 data ACondition = AC String Exp    deriving Eq
@@ -32,8 +26,6 @@ data Instance = Instance {
     conditions :: [ACondition]
   , statements :: [Statement]
   } deriving Eq
-
-emptyInstance = Instance [] []
 
 instanceFromAcs :: [ACondition] -> Instance
 instanceFromAcs acs = Instance acs . map Statement . nub $ concatMap names acs
@@ -58,6 +50,9 @@ instance Show Statement where
 instance Show Instance where
   show (Instance cs ss) = unlines $ map show cs ++ map show ss
 
+instance StartState Instance where
+  startState = Instance [] []
+
 instance Renameable ACondition where
   rename m (AC n e) =
     case Map.lookup n m of
@@ -72,28 +67,3 @@ instance Renameable Instance where
     let cs' = rename m cs
         ss' = rename m ss
     in Instance cs' ss'
-
-{-|
-  Rudiments for parsing:
-|-}
-type InstanceParser = Parsec String Instance
-
-addCondition :: ACondition -> InstanceParser ACondition
-addCondition c = do
-  updateState $ \i -> i{conditions = c:conditions i}
-  return c
-
-addStatement :: Statement -> InstanceParser Statement
-addStatement s = do
-  updateState $ \i -> i{statements = s:statements i}
-  return s
-
-finish :: InstanceParser Instance
-finish = do
-  i <- getState
-  let as = reverse $ conditions i
-      ss = reverse $ statements i
-  return $ Instance as ss
-
-execInstanceParser :: InstanceParser a -> SourceName -> String -> Either String a
-execInstanceParser p src = either (Left . show) Right . Identity.runIdentity . runPT p emptyInstance src
