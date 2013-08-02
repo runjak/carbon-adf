@@ -65,7 +65,8 @@ instance Show a => Show (DiamondResult a) where
 instance Show a => Show (Results a) where
   show (Results r) = unlines $ concatMap go r
     where
-      go (t, drs)       = tell t ++ map show drs
+      go (t, drs)       = tell t ++ answers drs ++ end
+      answers           = zipWith (\n d -> show n ++ ":\t" ++ show d) [1..]
       tell ConflictFree = "conflict free sets:":end
       tell TwoValued    = "two-valued models"  :end
       tell Stable       = "stable models:"     :end

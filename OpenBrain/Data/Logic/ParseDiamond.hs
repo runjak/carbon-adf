@@ -1,5 +1,5 @@
 module OpenBrain.Data.Logic.ParseDiamond(
-  RParser
+  DRParser
 , parseDiamond
 )where
 
@@ -13,14 +13,17 @@ import OpenBrain.Data.Id
 import OpenBrain.Data.Logic.Diamond
 import OpenBrain.Data.Logic.Parse
 
-{-| Parsing DiamondResults: |-}
+type Answer = (Int, DiamondResult String)
 type DRParser a = MyParser (DiamondResult String) a
 
-parseDR :: DRParser (DiamondResult String)
-parseDR = do
-  string "Answer: " >> many1 digit     >> eol
-  pieces `sepBy` many1 (oneOf " \t") >> eol
-  getState
+answer :: DRParser Answer
+answer = do
+  setState startState
+  string "Answer: "
+  num <- liftM read $ many1 digit
+  eol
+  (pieces `sepBy` char ' ') >> eol
+  liftM ((,) num) getState
   where
     parsePiece :: String -> (String -> DiamondResult String -> DiamondResult String) -> DRParser ()
     parsePiece start update = between (string start >> char '(') (char ')') $ do
@@ -33,16 +36,42 @@ parseDR = do
 
     pieces = choice [parseIn, parseUdec, parseOut]
 
-{-| Parsing Results: |-}
-type RParser a = MyParser (Results String) a
+answers :: DRParser [Answer]
+answers = choice [found, finished, dropLine]
+  where
+    found = do
+      a  <- answer
+      as <- answers
+      return $ a:as
 
-parseDiamond :: RParser (Results String)
-parseDiamond = do
-  mapM_ parseResults [minBound ..]
-  liftM (\(Results rs) -> Results $ reverse rs) getState
+    dropLine = do
+      many $ noneOf "\r\n"
+      eol >> answers
 
-parseResults :: ResultType -> RParser ()
-parseResults rType = do
-  anyToken `manyTill` (string "Solving..." >> eol)
-  dResults <- many $ keepState parseDR
-  modifyState $ \(Results rs) -> Results $ (rType, dResults):rs
+    finished =
+      let models = void $ string "Models" >> many (noneOf "\r\n") >> eol
+      in choice [eof, models] >> return []
+
+rPart :: ResultType -> DRParser (ResultType, [DiamondResult String])
+rPart rType = choice [found, dropLine, finished]
+  where
+    found = do
+      string "Solving..." >> eol
+      as <- answers
+      return (rType, map snd as)
+
+    dropLine = do
+      many $ noneOf "\r\n"
+      eol >> rPart rType
+
+    finished =
+      let models = void $ string "Models" >> many (noneOf "\r\n") >> eol
+      in choice [eof, models] >> return (rType, []) 
+
+parseDiamond :: DRParser (Results String)
+parseDiamond = liftM Results $ mapM rPart [minBound..]
+
+test :: IO ()
+test = do
+  foo <- readFile "/tmp/foo"
+  either putStrLn print $ execParser parseDiamond "/tmp/foo" foo
