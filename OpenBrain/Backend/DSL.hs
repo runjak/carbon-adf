@@ -55,9 +55,11 @@ data BackendDSL r where
   GetDiscussion  :: DiscussionId -> BackendDSL Discussion
   SetParticipant :: DiscussionId -> UserId -> Bool -> BackendDSL ()
   -- | Result related:
-  AddResult :: DiscussionId -> [CollectionId] -> BackendDSL ResultId
-  GetResult :: ResultId -> BackendDSL Result
-  Vote      :: ResultId -> UserId -> CollectionId -> BackendDSL ()
+  AddResult     :: DiscussionId -> ResultType -> [(ResultState, ArticleId)] -> BackendDSL ResultId
+  GetResults    :: DiscussionId -> BackendDSL [Result]
+  Vote          :: ResultId -> UserId -> BackendDSL ()
+  RemoveResults :: DiscussionId -> BackendDSL ()
+  DisForResult  :: ResultId -> BackendDSL DiscussionId
   -- | Paging:
   ArticleCount     :: BackendDSL Count
   CollectionCount  :: BackendDSL Count

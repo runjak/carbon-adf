@@ -9,13 +9,6 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 
 --
--- Name: openbrain; Type: COMMENT; Schema: -; Owner: mushu
---
-
-COMMENT ON DATABASE openbrain IS 'The openbrain development database. It uses the schema from the design document with the date of 2013-04-29.';
-
-
---
 -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
 --
 
@@ -142,61 +135,6 @@ ALTER TABLE public.children_parent_seq OWNER TO mushu;
 --
 
 ALTER SEQUENCE children_parent_seq OWNED BY children.parent;
-
-
---
--- Name: choices; Type: TABLE; Schema: public; Owner: mushu; Tablespace: 
---
-
-CREATE TABLE choices (
-    resultid integer NOT NULL,
-    collectionid integer NOT NULL,
-    votes integer DEFAULT 0 NOT NULL
-);
-
-
-ALTER TABLE public.choices OWNER TO mushu;
-
---
--- Name: choices_collectionid_seq; Type: SEQUENCE; Schema: public; Owner: mushu
---
-
-CREATE SEQUENCE choices_collectionid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.choices_collectionid_seq OWNER TO mushu;
-
---
--- Name: choices_collectionid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: mushu
---
-
-ALTER SEQUENCE choices_collectionid_seq OWNED BY choices.collectionid;
-
-
---
--- Name: choices_resultid_seq; Type: SEQUENCE; Schema: public; Owner: mushu
---
-
-CREATE SEQUENCE choices_resultid_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.choices_resultid_seq OWNER TO mushu;
-
---
--- Name: choices_resultid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: mushu
---
-
-ALTER SEQUENCE choices_resultid_seq OWNED BY choices.resultid;
 
 
 --
@@ -412,8 +350,7 @@ ALTER SEQUENCE descriptions_descriptionid_seq OWNED BY descriptions.descriptioni
 CREATE TABLE discussions (
     discussionid integer NOT NULL,
     collectionid integer NOT NULL,
-    deadline timestamp without time zone,
-    resultid integer
+    deadline timestamp without time zone
 );
 
 
@@ -467,7 +404,8 @@ ALTER SEQUENCE discussions_discussionid_seq OWNED BY discussions.discussionid;
 
 CREATE TABLE participants (
     discussionid integer NOT NULL,
-    userid integer NOT NULL
+    userid integer NOT NULL,
+    voted boolean DEFAULT false NOT NULL
 );
 
 
@@ -636,15 +574,101 @@ ALTER SEQUENCE relations_target_seq OWNED BY relations.target;
 
 
 --
+-- Name: resultarticles; Type: TABLE; Schema: public; Owner: mushu; Tablespace: 
+--
+
+CREATE TABLE resultarticles (
+    resultid integer NOT NULL,
+    state smallint NOT NULL,
+    articleid integer NOT NULL
+);
+
+
+ALTER TABLE public.resultarticles OWNER TO mushu;
+
+--
+-- Name: TABLE resultarticles; Type: COMMENT; Schema: public; Owner: mushu
+--
+
+COMMENT ON TABLE resultarticles IS 'The sets for every result';
+
+
+--
+-- Name: resultarticles_articleid_seq; Type: SEQUENCE; Schema: public; Owner: mushu
+--
+
+CREATE SEQUENCE resultarticles_articleid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.resultarticles_articleid_seq OWNER TO mushu;
+
+--
+-- Name: resultarticles_articleid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: mushu
+--
+
+ALTER SEQUENCE resultarticles_articleid_seq OWNED BY resultarticles.articleid;
+
+
+--
+-- Name: resultarticles_resultid_seq; Type: SEQUENCE; Schema: public; Owner: mushu
+--
+
+CREATE SEQUENCE resultarticles_resultid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.resultarticles_resultid_seq OWNER TO mushu;
+
+--
+-- Name: resultarticles_resultid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: mushu
+--
+
+ALTER SEQUENCE resultarticles_resultid_seq OWNED BY resultarticles.resultid;
+
+
+--
 -- Name: results; Type: TABLE; Schema: public; Owner: mushu; Tablespace: 
 --
 
 CREATE TABLE results (
-    resultid integer NOT NULL
+    resultid integer NOT NULL,
+    discussionid integer NOT NULL,
+    resulttype smallint NOT NULL,
+    votes integer DEFAULT 0 NOT NULL
 );
 
 
 ALTER TABLE public.results OWNER TO mushu;
+
+--
+-- Name: results_discussionid_seq; Type: SEQUENCE; Schema: public; Owner: mushu
+--
+
+CREATE SEQUENCE results_discussionid_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.results_discussionid_seq OWNER TO mushu;
+
+--
+-- Name: results_discussionid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: mushu
+--
+
+ALTER SEQUENCE results_discussionid_seq OWNED BY results.discussionid;
+
 
 --
 -- Name: results_resultid_seq; Type: SEQUENCE; Schema: public; Owner: mushu
@@ -791,20 +815,6 @@ ALTER TABLE ONLY children ALTER COLUMN child SET DEFAULT nextval('children_child
 
 
 --
--- Name: resultid; Type: DEFAULT; Schema: public; Owner: mushu
---
-
-ALTER TABLE ONLY choices ALTER COLUMN resultid SET DEFAULT nextval('choices_resultid_seq'::regclass);
-
-
---
--- Name: collectionid; Type: DEFAULT; Schema: public; Owner: mushu
---
-
-ALTER TABLE ONLY choices ALTER COLUMN collectionid SET DEFAULT nextval('choices_collectionid_seq'::regclass);
-
-
---
 -- Name: collectionid; Type: DEFAULT; Schema: public; Owner: mushu
 --
 
@@ -913,7 +923,28 @@ ALTER TABLE ONLY relations ALTER COLUMN target SET DEFAULT nextval('relations_ta
 -- Name: resultid; Type: DEFAULT; Schema: public; Owner: mushu
 --
 
+ALTER TABLE ONLY resultarticles ALTER COLUMN resultid SET DEFAULT nextval('resultarticles_resultid_seq'::regclass);
+
+
+--
+-- Name: articleid; Type: DEFAULT; Schema: public; Owner: mushu
+--
+
+ALTER TABLE ONLY resultarticles ALTER COLUMN articleid SET DEFAULT nextval('resultarticles_articleid_seq'::regclass);
+
+
+--
+-- Name: resultid; Type: DEFAULT; Schema: public; Owner: mushu
+--
+
 ALTER TABLE ONLY results ALTER COLUMN resultid SET DEFAULT nextval('results_resultid_seq'::regclass);
+
+
+--
+-- Name: discussionid; Type: DEFAULT; Schema: public; Owner: mushu
+--
+
+ALTER TABLE ONLY results ALTER COLUMN discussionid SET DEFAULT nextval('results_discussionid_seq'::regclass);
 
 
 --
@@ -979,28 +1010,6 @@ SELECT pg_catalog.setval('children_child_seq', 1, false);
 --
 
 SELECT pg_catalog.setval('children_parent_seq', 1, false);
-
-
---
--- Data for Name: choices; Type: TABLE DATA; Schema: public; Owner: mushu
---
-
-COPY choices (resultid, collectionid, votes) FROM stdin;
-\.
-
-
---
--- Name: choices_collectionid_seq; Type: SEQUENCE SET; Schema: public; Owner: mushu
---
-
-SELECT pg_catalog.setval('choices_collectionid_seq', 1, false);
-
-
---
--- Name: choices_resultid_seq; Type: SEQUENCE SET; Schema: public; Owner: mushu
---
-
-SELECT pg_catalog.setval('choices_resultid_seq', 1, false);
 
 
 --
@@ -1073,7 +1082,7 @@ SELECT pg_catalog.setval('descriptions_descriptionid_seq', 1, false);
 -- Data for Name: discussions; Type: TABLE DATA; Schema: public; Owner: mushu
 --
 
-COPY discussions (discussionid, collectionid, deadline, resultid) FROM stdin;
+COPY discussions (discussionid, collectionid, deadline) FROM stdin;
 \.
 
 
@@ -1095,7 +1104,7 @@ SELECT pg_catalog.setval('discussions_discussionid_seq', 1, false);
 -- Data for Name: participants; Type: TABLE DATA; Schema: public; Owner: mushu
 --
 
-COPY participants (discussionid, userid) FROM stdin;
+COPY participants (discussionid, userid, voted) FROM stdin;
 \.
 
 
@@ -1157,11 +1166,40 @@ SELECT pg_catalog.setval('relations_target_seq', 1, false);
 
 
 --
+-- Data for Name: resultarticles; Type: TABLE DATA; Schema: public; Owner: mushu
+--
+
+COPY resultarticles (resultid, state, articleid) FROM stdin;
+\.
+
+
+--
+-- Name: resultarticles_articleid_seq; Type: SEQUENCE SET; Schema: public; Owner: mushu
+--
+
+SELECT pg_catalog.setval('resultarticles_articleid_seq', 1, false);
+
+
+--
+-- Name: resultarticles_resultid_seq; Type: SEQUENCE SET; Schema: public; Owner: mushu
+--
+
+SELECT pg_catalog.setval('resultarticles_resultid_seq', 1, false);
+
+
+--
 -- Data for Name: results; Type: TABLE DATA; Schema: public; Owner: mushu
 --
 
-COPY results (resultid) FROM stdin;
+COPY results (resultid, discussionid, resulttype, votes) FROM stdin;
 \.
+
+
+--
+-- Name: results_discussionid_seq; Type: SEQUENCE SET; Schema: public; Owner: mushu
+--
+
+SELECT pg_catalog.setval('results_discussionid_seq', 1, false);
 
 
 --
@@ -1176,7 +1214,6 @@ SELECT pg_catalog.setval('results_resultid_seq', 1, false);
 --
 
 COPY users (userid, username, hash, salt, creationtime, lastlogin, isadmin, profile, sessionkey) FROM stdin;
-1	foo	50c9387054e4afec024be1881ed61dd57f2c349910b2e0af0795ae48c14b8992f39125588b6ba8ec4f4c4580b1d867a607419d2308cc6843450b7ff660a8844d	bfzsxmqxhbzhd{fc	2013-07-08 14:41:12.644502	2013-07-08 14:41:12.644502	t	\N	\N
 \.
 
 
@@ -1184,7 +1221,7 @@ COPY users (userid, username, hash, salt, creationtime, lastlogin, isadmin, prof
 -- Name: users_userid_seq; Type: SEQUENCE SET; Schema: public; Owner: mushu
 --
 
-SELECT pg_catalog.setval('users_userid_seq', 1, true);
+SELECT pg_catalog.setval('users_userid_seq', 1, false);
 
 
 --
@@ -1298,22 +1335,6 @@ ALTER TABLE ONLY children
 
 
 --
--- Name: choices_collectionid; Type: FK CONSTRAINT; Schema: public; Owner: mushu
---
-
-ALTER TABLE ONLY choices
-    ADD CONSTRAINT choices_collectionid FOREIGN KEY (collectionid) REFERENCES collections(collectionid) MATCH FULL ON DELETE CASCADE;
-
-
---
--- Name: choices_resultid; Type: FK CONSTRAINT; Schema: public; Owner: mushu
---
-
-ALTER TABLE ONLY choices
-    ADD CONSTRAINT choices_resultid FOREIGN KEY (resultid) REFERENCES results(resultid) MATCH FULL ON DELETE CASCADE;
-
-
---
 -- Name: collectedarticles_articleid; Type: FK CONSTRAINT; Schema: public; Owner: mushu
 --
 
@@ -1351,14 +1372,6 @@ ALTER TABLE ONLY descriptions
 
 ALTER TABLE ONLY discussions
     ADD CONSTRAINT discussions_collectionid FOREIGN KEY (collectionid) REFERENCES collections(collectionid) MATCH FULL ON DELETE CASCADE;
-
-
---
--- Name: discussions_result; Type: FK CONSTRAINT; Schema: public; Owner: mushu
---
-
-ALTER TABLE ONLY discussions
-    ADD CONSTRAINT discussions_result FOREIGN KEY (resultid) REFERENCES results(resultid) MATCH FULL;
 
 
 --
@@ -1407,6 +1420,30 @@ ALTER TABLE ONLY relations
 
 ALTER TABLE ONLY relations
     ADD CONSTRAINT relations_target FOREIGN KEY (target) REFERENCES articles(articleid) MATCH FULL ON DELETE CASCADE;
+
+
+--
+-- Name: results_discussionid; Type: FK CONSTRAINT; Schema: public; Owner: mushu
+--
+
+ALTER TABLE ONLY results
+    ADD CONSTRAINT results_discussionid FOREIGN KEY (discussionid) REFERENCES discussions(discussionid) MATCH FULL;
+
+
+--
+-- Name: resultsets_articleid; Type: FK CONSTRAINT; Schema: public; Owner: mushu
+--
+
+ALTER TABLE ONLY resultarticles
+    ADD CONSTRAINT resultsets_articleid FOREIGN KEY (articleid) REFERENCES articles(articleid) MATCH FULL;
+
+
+--
+-- Name: resultssets_resultid; Type: FK CONSTRAINT; Schema: public; Owner: mushu
+--
+
+ALTER TABLE ONLY resultarticles
+    ADD CONSTRAINT resultssets_resultid FOREIGN KEY (resultid) REFERENCES results(resultid) MATCH FULL;
 
 
 --

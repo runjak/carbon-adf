@@ -3,41 +3,63 @@ module OpenBrain.Backend.PostgreSQL.Result where
 
 import OpenBrain.Backend.PostgreSQL.Common
 import OpenBrain.Data.Id
+import OpenBrain.Data.Logic (ResultType)
 
-addResult :: DiscussionId -> [CollectionId] -> Query ResultId
-addResult did cids conn = do
+addResult :: DiscussionId -> ResultType -> [(ResultState, ArticleId)] -> Query ResultId
+addResult did rType rArticles conn = do
+  let did' = toSql $ toId did
   -- | New entry in the results table:
-  [[i]] <- quickQuery' conn "INSERT INTO results (resultid) VALUES (DEFAULT) RETURNING resultid" []
-  -- | Set the results to belong to the discussion:
-  quickQuery' conn "UPDATE discussions SET resultid = ? WHERE discussionid = ?" [i, toSql $ toId did]
-  -- | Voters are the discussions participants:
-  let voters = "INSERT INTO voters (resultid, userid) SELECT ?, userid FROM participants WHERE discussionid = ?"
-  quickQuery' conn voters [i, toSql $ toId did]
-  -- | Add choices to the result:
-  addC <- prepare conn "INSERT INTO choices (resultid, collcetionid) VALUES (?, ?)"
-  executeMany addC $ map (\c -> [i, toSql $ toId c]) cids
+  let q = "INSERT INTO results (discussionid, resulttype) VALUES (?, ?) RETURNING resultid"
+  [[i]] <- quickQuery' conn q [did', toSql $ fromEnum rType]
+  -- | Inserting rArticles:
+  let q  = "INSERT INTO resultarticles (resultid, state, articleid) VALUES (?, ?, ?)"
+      qs = map (\(rState, aid) -> [i, toSql $ fromEnum rState, toSql $ toId aid])
+  addRArticle <- prepare conn q
+  executeMany addRArticle $ qs rArticles 
   -- | Done:
   return . fromId $ fromSql i
 
-getResult :: ResultId -> Query Result
-getResult rid conn = do
-  choices <- quickQuery' conn "SELECT collectionid, votes FROM choices WHERE resultid = ?" [toSql $ toId rid]
-  voters  <- quickQuery' conn "SELECT userid, voted FROM voters WHERE resultid = ?" [toSql $ toId rid]
-  return Result{
-    resultId = rid
-  , choices  = concatMap mkChoice choices
-  , voters   = concatMap mkVoter  voters
-  }
+getResults :: DiscussionId -> Query [Result]
+getResults did conn = do
+  let q = "SELECT resultid, resulttype, votes FROM results WHERE discussionid = ?"
+  mapM (go conn) =<< quickQuery' conn q [toSql $ toId did]
   where
-    mkChoice [cid, v] = [(fromId $ fromSql cid, fromSql v)]
-    mkChoice _ = []
-    mkVoter [uid, v] = [(fromId $ fromSql uid, fromSql v)]
-    mkVoter _ = []
+    go :: IConnection conn => conn -> [SqlValue] -> IO Result
+    go conn [rid, rtype, votes] = do
+      let q = "SELECT state, articleid FROM resultarticles WHERE resultid = ?"
+      rArticles <- quickQuery' conn q [rid]
+      return Result{
+        resultId   = fromId $ fromSql rid
+      , resultType = toEnum $ fromSql rtype
+      , rArticles  = map mkRArticles rArticles
+      , votes      = fromSql votes
+      }
 
-vote :: ResultId -> UserId -> CollectionId -> Query ()
-vote rid uid cid conn = do
-  let setVoter  = "UPDATE voters SET voted = true WHERE userid = ? AND resultid = ?"
-      setChoice = "UPDATE choices SET votes = votes + 1 WHERE collectionid = ? AND resultId = ?"
-  quickQuery' conn setVoter [toSql $ toId uid, toSql $ toId rid]
-  quickQuery' conn setChoice [toSql $ toId cid, toSql $ toId rid]
+    mkRArticles :: [SqlValue] -> (ResultState, ArticleId)
+    mkRArticles [state, aid] = (toEnum $ fromSql state, fromId $ fromSql aid)
+
+vote :: ResultId -> UserId -> Query ()
+vote rid uid conn = do
+  let setVoted = "UPDATE participants SET voted = true "
+              ++ "WHERE discussionid = (SELECT discussionid "
+              ++ "FROM results WHERE resultid = ?) AND userid = ?"
+      incVotes = "UPDATE results SET votes = votes + 1 WHERE resultid = ?"
+      rid'     = toSql $ toId rid
+  quickQuery' conn setVoted [rid', toSql $ toId uid]
+  quickQuery' conn incVotes [rid']
   return ()
+
+removeResults :: DiscussionId -> Query ()
+removeResults did conn = do
+  let resetVotes  = "UPDATE participants SET voted = false WHERE discussionid = ?"
+      removeRArts = "DELETE FROM resultarticles WHERE "
+                 ++ "resultid = ANY (SELECT resultid FROM results WHERE discussionid = ?)"
+      remResults  = "DELETE FROM results WHERE discussionid = ?"
+  forM_ [resetVotes, removeRArts, remResults] $ \q -> quickQuery' conn q [toSql $ toId did]
+
+disForResult :: ResultId -> Query DiscussionId
+disForResult rid conn = do
+  let q = "SELECT discussionid FROM results WHERE resultid = ?"
+  did <- quickQuery' conn q [toSql $ toId rid]
+  when (null did) . fail $ "Non existent resultId: " ++ show rid
+  return . fromId . fromSql . head $ head did

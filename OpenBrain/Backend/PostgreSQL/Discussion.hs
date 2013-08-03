@@ -4,7 +4,7 @@ module OpenBrain.Backend.PostgreSQL.Discussion where
 import OpenBrain.Backend.PostgreSQL.Collection (getCollection)
 import OpenBrain.Backend.PostgreSQL.Common
 import OpenBrain.Backend.PostgreSQL.Relation (getRelation)
-import OpenBrain.Backend.PostgreSQL.Result (getResult)
+import OpenBrain.Backend.PostgreSQL.Result (getResults)
 import OpenBrain.Data.Id
 
 addDiscussion :: NewCollectionId -> [UserId] -> Maybe Timestamp -> Query DiscussionId
@@ -18,23 +18,24 @@ addDiscussion ncid uids deadline conn = do
 getDiscussion :: DiscussionId -> Query Discussion
 getDiscussion did conn = do
   let did' = [toSql $ toId did]
-      q    = "SELECT collectionid, deadline, resultid FROM discussions WHERE discussionid = ?"
-  [[cid, dline, mrid]] <- quickQuery' conn q did'
+      q    = "SELECT collectionid, deadline FROM discussions WHERE discussionid = ?"
+  [[cid, dline]] <- quickQuery' conn q did'
   collection <- getCollection (fromId $ fromSql cid) conn
-  result <- maybe (return Nothing) (liftM Just . flip getResult conn) . liftM fromId $ fromSql mrid
-  parts  <- quickQuery' conn "SELECT userid FROM participants WHERE discussionid = ?"  did' 
-  rs'    <- quickQuery' conn "SELECT relationid FROM relations WHERE discussionid = ?" did'
-  rs     <- mapM (flip getRelation conn . fromId . fromSql . head) rs'
+  results <- getResults did conn
+  parts <- quickQuery' conn "SELECT userid, voted FROM participants WHERE discussionid = ?" did'
+  rs'   <- quickQuery' conn "SELECT relationid FROM relations WHERE discussionid = ?" did'
+  rs    <- mapM (flip getRelation conn . fromId . fromSql . head) rs'
   return Discussion{
     discussionId = did
-  , participants = map (fromId . fromSql . head) parts
+  , participants = map mkParts parts
   , deadline     = fromSql dline
   , relations    = rs
-  , result       = result
+  , results      = results
   , dCollection  = collection
   }
   where
-    mkWeight [uid, w, rid] = (fromId $ fromSql uid, fromSql w, fromId $ fromSql rid)
+    mkParts :: [SqlValue] -> (UserId, Voted)
+    mkParts [uid, v] = (fromId $ fromSql uid, fromSql v)
 
 setParticipant :: DiscussionId -> UserId -> Bool -> Query ()
 setParticipant did uid True conn =

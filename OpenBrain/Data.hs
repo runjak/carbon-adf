@@ -61,17 +61,21 @@ data Collection = Collection {
 
 data Discussion = Discussion {
   discussionId :: DiscussionId
-, participants :: [UserId]
+, participants :: [(UserId, Voted)]
 , deadline     :: Maybe Timestamp
 , relations    :: [Relation]
-, result       :: Maybe Result
+, results      :: [Result]
 , dCollection  :: Collection
 } deriving (Show)
 
+data ResultState = In | Udec | Out
+  deriving (Bounded, Eq, Enum, Ord, Show)
+
 data Result = Result {
-  resultId :: ResultId
-, choices  :: [(CollectionId, Votes)]
-, voters   :: [(UserId, Voted)]
+  resultId   :: ResultId
+, resultType :: ResultType
+, rArticles  :: [(ResultState, ArticleId)]
+, votes      :: Votes
 } deriving (Show)
 
 data User = User {
@@ -87,19 +91,19 @@ data User = User {
 } deriving (Show)
 
 {-| Type aliases: |-}
-type Author       = UserId
-type Count        = Int
-type Custom       = Bool
-type Headline     = String
-type Heir         = UserId
-type IsAdmin      = Bool
-type Limit        = Int
-type Offset       = Int
-type SessionKey   = String
-type Timestamp    = String
-type Username     = String
-type Voted        = Bool
-type Votes        = Int
+type Author     = UserId
+type Count      = Int
+type Custom     = Bool
+type Headline   = String
+type Heir       = UserId
+type IsAdmin    = Bool
+type Limit      = Int
+type Offset     = Int
+type SessionKey = String
+type Timestamp  = String
+type Username   = String
+type Voted      = Bool
+type Votes      = Int
 
 {-| Instances of Eq: |-}
 instance Eq Description where
@@ -186,13 +190,18 @@ instance ToJSON Discussion where
         , "participants" .= participants d
         , "deadline"     .= deadline     d
         , "relations"    .= relations    d
-        , "result"       .= result       d
+        , "results"      .= results      d
         ]
+instance ToJSON ResultState where
+  toJSON = toJSON . show
+instance ToJSON ResultType where
+  toJSON = toJSON . show
 instance ToJSON Result where
   toJSON r = object [
-      "id"      .= resultId r
-    , "choices" .= choices  r
-    , "voters"  .= voters   r
+      "id"       .= resultId   r
+    , "type"     .= resultType r
+    , "articles" .= rArticles  r
+    , "votes"    .= votes      r
     ]
 instance ToJSON User where
   toJSON u = object [

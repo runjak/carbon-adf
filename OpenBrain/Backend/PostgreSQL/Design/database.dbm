@@ -203,9 +203,6 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="deadline">
 		<type name="timestamp"/>
 	</column>
-	<column name="resultid" default-value="NULL">
-		<type name="integer"/>
-	</column>
 	<constraint name="discussions_primarykey" type="pk-constr" factor="10" table="public.discussions">
 		<columns names="discussionid" ref-type="src-columns"/>
 	</constraint>
@@ -230,6 +227,9 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	</column>
 	<column name="userid" not-null="true">
 		<type name="serial"/>
+	</column>
+	<column name="voted" not-null="true" default-value="false">
+		<type name="boolean"/>
 	</column>
 </table>
 
@@ -296,50 +296,23 @@ CAUTION: Do not modify this file unless you know what you are doing.
 
 <table name="results" oids="true">
 	<schema name="public"/>
-	<position x="20" y="480"/>
+	<position x="29" y="470"/>
 	<column name="resultid" not-null="true">
 		<type name="serial"/>
+	</column>
+	<column name="discussionid" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="resulttype" not-null="true">
+		<type name="smallint"/>
+	</column>
+	<column name="votes" not-null="true" default-value="0">
+		<type name="integer"/>
 	</column>
 	<constraint name="results_primarykey" type="pk-constr" factor="10" table="public.results">
 		<columns names="resultid" ref-type="src-columns"/>
 	</constraint>
 </table>
-
-<table name="choices" oids="true">
-	<schema name="public"/>
-	<position x="240" y="560"/>
-	<column name="resultid" not-null="true">
-		<type name="serial"/>
-	</column>
-	<column name="collectionid" not-null="true">
-		<type name="serial"/>
-	</column>
-	<column name="votes" not-null="true" default-value="0">
-		<type name="integer"/>
-	</column>
-</table>
-
-<constraint name="choices_resultid" type="fk-constr"	 comparison-type="MATCH FULL"
-	 upd-action="NO ACTION" del-action="CASCADE" ref-table="public.results" table="public.choices">
-	<columns names="resultid" ref-type="src-columns"/>
-	<columns names="resultid" ref-type="dst-columns"/>
-</constraint>
-<constraint name="choices_collectionid" type="fk-constr"	 comparison-type="MATCH FULL"
-	 upd-action="NO ACTION" del-action="CASCADE" ref-table="public.collections" table="public.choices">
-	<columns names="collectionid" ref-type="src-columns"/>
-	<columns names="collectionid" ref-type="dst-columns"/>
-</constraint>
-<relationship name="rel_choices_results"
-	 type="relfk"
-	 src-required="false" dst-required="false"
-	 src-table="public.choices"
-	 dst-table="public.results"/>
-
-<relationship name="rel_choices_collections"
-	 type="relfk"
-	 src-required="false" dst-required="false"
-	 src-table="public.choices"
-	 dst-table="public.collections"/>
 
 <table name="voters" oids="true">
 	<schema name="public"/>
@@ -415,17 +388,6 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 src-table="public.users"
 	 dst-table="public.articles"/>
 
-<constraint name="discussions_result" type="fk-constr"	 comparison-type="MATCH FULL"
-	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.results" table="public.discussions">
-	<columns names="resultid" ref-type="src-columns"/>
-	<columns names="resultid" ref-type="dst-columns"/>
-</constraint>
-<relationship name="rel_discussions_results"
-	 type="relfk"
-	 src-required="false" dst-required="false"
-	 src-table="public.discussions"
-	 dst-table="public.results"/>
-
 <constraint name="relations_description" type="fk-constr"	 comparison-type="MATCH FULL"
 	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.descriptions" table="public.relations">
 	<columns names="descriptionid" ref-type="src-columns"/>
@@ -447,5 +409,54 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 src-required="false" dst-required="false"
 	 src-table="public.relations"
 	 dst-table="public.discussions"/>
+
+<constraint name="results_discussionid" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.discussions" table="public.results">
+	<columns names="discussionid" ref-type="src-columns"/>
+	<columns names="discussionid" ref-type="dst-columns"/>
+</constraint>
+<relationship name="rel_results_discussions"
+	 type="relfk"
+	 src-required="false" dst-required="false"
+	 src-table="public.results"
+	 dst-table="public.discussions"/>
+
+<table name="resultarticles" oids="true">
+	<schema name="public"/>
+	<comment><![CDATA[The sets for every result]]></comment>
+	<position x="267" y="536"/>
+	<column name="resultid" not-null="true">
+		<type name="serial"/>
+	</column>
+	<column name="state" not-null="true">
+		<type name="smallint" length="4"/>
+		<comment><![CDATA[one of 'in','udec','out']]></comment>
+	</column>
+	<column name="articleid" not-null="true">
+		<type name="serial"/>
+	</column>
+</table>
+
+<constraint name="resultssets_resultid" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.results" table="public.resultarticles">
+	<columns names="resultid" ref-type="src-columns"/>
+	<columns names="resultid" ref-type="dst-columns"/>
+</constraint>
+<relationship name="rel_resultssets_results"
+	 type="relfk"
+	 src-required="false" dst-required="false"
+	 src-table="public.resultarticles"
+	 dst-table="public.results"/>
+
+<constraint name="resultsets_articleid" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.articles" table="public.resultarticles">
+	<columns names="articleid" ref-type="src-columns"/>
+	<columns names="articleid" ref-type="dst-columns"/>
+</constraint>
+<relationship name="rel_resultssets_articles"
+	 type="relfk"
+	 src-required="false" dst-required="false"
+	 src-table="public.resultarticles"
+	 dst-table="public.articles"/>
 
 </dbmodel>

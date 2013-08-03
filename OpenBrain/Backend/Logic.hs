@@ -39,3 +39,22 @@ diamondInput rIds did = do
       acs        = map (uncurry AC) hAndMConds
       acs'       = rename renameMap acs
   return . show . instanceFromAcs $ rIds ? (acs', acs)
+
+{-|
+  Saves the parsed output as Logic.Results String for a DiscussionId.
+  As a first step it also removes older results if existent
+|-}
+saveResults :: DiscussionId -> Logic.Results String -> BackendDSL ()
+saveResults did rs  =
+  let (Results rs') = fmap (fromId . wrap . read) rs
+  in RemoveResults did >> mapM_ (go did) rs'
+  where
+    go :: DiscussionId -> (ResultType, [DiamondResult ArticleId]) -> BackendDSL ()
+    go did (rType, dResults) = mapM_ (AddResult did rType . mkRArticles) dResults
+
+    mkRArticles :: DiamondResult ArticleId -> [(ResultState, ArticleId)]
+    mkRArticles dResult =
+      let ins   = map ((,) In)   $ inSet   dResult
+          udecs = map ((,) Udec) $ udecSet dResult
+          outs  = map ((,) Out)  $ outSet  dResult
+      in concat [ins, udecs, outs]

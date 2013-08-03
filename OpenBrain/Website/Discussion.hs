@@ -4,7 +4,8 @@ module OpenBrain.Website.Discussion where
 import qualified System.Process as Process
 
 import OpenBrain.Website.Common
-import qualified OpenBrain.Backend.Logic       as Logic
+import qualified OpenBrain.Backend.Logic       as BLogic
+import qualified OpenBrain.Data.Logic          as Logic
 import qualified OpenBrain.Website.Description as Description
 import qualified OpenBrain.Website.Session     as Session
 
@@ -39,8 +40,8 @@ leaveDiscussion did = Session.chkSession' $ \uid -> do
 
 acs :: DiscussionId -> OBW Response
 acs did = do
-  dInput  <- liftB $ Logic.diamondInput False did
-  dInput' <- liftB $ Logic.diamondInput True  did
+  dInput  <- liftB $ BLogic.diamondInput False did
+  dInput' <- liftB $ BLogic.diamondInput True  did
   respOk $ responseJSON' [dInput, dInput']
 
 evaluate :: DiscussionId -> OBW Response
@@ -49,11 +50,22 @@ evaluate did = Session.chkSession' . const $ do
   let dir  = diamondDlDir c
       call = diamondCall  c
       file = dir ++ "Discussion_" ++ (show . unwrap $ toId did) ++ ".dl"
-  dInput  <- liftB  $ Logic.diamondInput False did
-  dOutput <- liftIO $ do
-    writeFile file dInput
-    Process.readProcess call [file] ""
-  respOk . responseJSON' $ "Created file: "++file++"\nDiamond Output was:\n"++dOutput
+  fork $ do
+    dInput  <- liftB  $ BLogic.diamondInput False did
+    dOutput <- liftIO $ do
+      writeFile file dInput
+      Process.readProcess call [file] ""
+    either onError (onResults did) $ Logic.execParser Logic.parseDiamond file dOutput
+  respOk $ responseJSON "Evaluating discussion…"
+  where
+    onError :: String -> Task ()
+    onError e = liftIO $
+      mapM_ putStrLn ["Could not parse diamond output for discussion "++show did++":",e]
+
+    onResults :: DiscussionId -> Logic.Results String -> Task ()
+    onResults did rs = do
+      liftIO $ mapM_ putStrLn ["Got diamond results:", show rs]
+      liftB  $ BLogic.saveResults did rs
 
 -- | Parameters…
 getDeadline :: OBW (Maybe Timestamp)

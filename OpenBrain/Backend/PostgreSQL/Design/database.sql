@@ -100,7 +100,6 @@ CREATE TABLE public.discussions(
 	discussionid serial NOT NULL,
 	collectionid serial NOT NULL,
 	deadline timestamp,
-	resultid integer DEFAULT NULL,
 	CONSTRAINT discussions_primarykey PRIMARY KEY (discussionid)
 )
 WITH (OIDS=TRUE);
@@ -111,7 +110,8 @@ WITH (OIDS=TRUE);
 -- object: public.participants | type: TABLE -- 
 CREATE TABLE public.participants(
 	discussionid serial NOT NULL,
-	userid serial NOT NULL
+	userid serial NOT NULL,
+	voted boolean NOT NULL DEFAULT false
 )
 WITH (OIDS=TRUE);
 -- ddl-end --
@@ -135,18 +135,10 @@ WITH (OIDS=TRUE);
 -- object: public.results | type: TABLE -- 
 CREATE TABLE public.results(
 	resultid serial NOT NULL,
+	discussionid serial NOT NULL,
+	resulttype smallint NOT NULL,
+	votes integer NOT NULL DEFAULT 0,
 	CONSTRAINT results_primarykey PRIMARY KEY (resultid)
-)
-WITH (OIDS=TRUE);
--- ddl-end --
-
--- ddl-end --
-
--- object: public.choices | type: TABLE -- 
-CREATE TABLE public.choices(
-	resultid serial NOT NULL,
-	collectionid serial NOT NULL,
-	votes integer NOT NULL DEFAULT 0
 )
 WITH (OIDS=TRUE);
 -- ddl-end --
@@ -173,6 +165,33 @@ WITH (OIDS=TRUE);
 -- ddl-end --
 
 -- ddl-end --
+
+-- object: public.resultarticles | type: TABLE -- 
+CREATE TABLE public.resultarticles(
+	resultid serial NOT NULL,
+	state smallint NOT NULL,
+	articleid serial NOT NULL
+)
+WITH (OIDS=TRUE);
+-- ddl-end --
+
+COMMENT ON TABLE public.resultarticles IS 'The sets for every result';
+COMMENT ON COLUMN public.resultarticles.state IS 'one of 'in','udec','out'';
+-- ddl-end --
+
+-- object: resultsets_articleid | type: CONSTRAINT -- 
+ALTER TABLE public.resultarticles ADD CONSTRAINT resultsets_articleid FOREIGN KEY (articleid)
+REFERENCES public.articles (articleid) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION NOT DEFERRABLE;
+-- ddl-end --
+
+
+-- object: resultssets_resultid | type: CONSTRAINT -- 
+ALTER TABLE public.resultarticles ADD CONSTRAINT resultssets_resultid FOREIGN KEY (resultid)
+REFERENCES public.results (resultid) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION NOT DEFERRABLE;
+-- ddl-end --
+
 
 -- object: children_child | type: CONSTRAINT -- 
 ALTER TABLE public.children ADD CONSTRAINT children_child FOREIGN KEY (child)
@@ -202,17 +221,10 @@ ON DELETE CASCADE ON UPDATE NO ACTION NOT DEFERRABLE;
 -- ddl-end --
 
 
--- object: choices_collectionid | type: CONSTRAINT -- 
-ALTER TABLE public.choices ADD CONSTRAINT choices_collectionid FOREIGN KEY (collectionid)
-REFERENCES public.collections (collectionid) MATCH FULL
-ON DELETE CASCADE ON UPDATE NO ACTION NOT DEFERRABLE;
--- ddl-end --
-
-
--- object: choices_resultid | type: CONSTRAINT -- 
-ALTER TABLE public.choices ADD CONSTRAINT choices_resultid FOREIGN KEY (resultid)
-REFERENCES public.results (resultid) MATCH FULL
-ON DELETE CASCADE ON UPDATE NO ACTION NOT DEFERRABLE;
+-- object: results_discussionid | type: CONSTRAINT -- 
+ALTER TABLE public.results ADD CONSTRAINT results_discussionid FOREIGN KEY (discussionid)
+REFERENCES public.discussions (discussionid) MATCH FULL
+ON DELETE NO ACTION ON UPDATE NO ACTION NOT DEFERRABLE;
 -- ddl-end --
 
 
@@ -254,13 +266,6 @@ ON DELETE NO ACTION ON UPDATE NO ACTION NOT DEFERRABLE;
 -- object: participants_discussionid | type: CONSTRAINT -- 
 ALTER TABLE public.participants ADD CONSTRAINT participants_discussionid FOREIGN KEY (discussionid)
 REFERENCES public.discussions (discussionid) MATCH FULL
-ON DELETE NO ACTION ON UPDATE NO ACTION NOT DEFERRABLE;
--- ddl-end --
-
-
--- object: discussions_result | type: CONSTRAINT -- 
-ALTER TABLE public.discussions ADD CONSTRAINT discussions_result FOREIGN KEY (resultid)
-REFERENCES public.results (resultid) MATCH FULL
 ON DELETE NO ACTION ON UPDATE NO ACTION NOT DEFERRABLE;
 -- ddl-end --
 
