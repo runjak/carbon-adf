@@ -46,7 +46,7 @@ parseComment = between (char '%') eol . many $ noneOf "\n\r"
 
 parseInstance :: InstanceParser Instance
 parseInstance = do
-  many1 $ choice [void parseAc, void parseSt, void parseComment, void eol, void spaces]
+  many1 $ choice [void parseAc, void parseSt, void parseComment, void anyToken]
   i <- finish
   when (i == startState) $ fail "Parser result equals the empty instance."
   return i

@@ -84,10 +84,10 @@ parse = parse'
     input Nothing      = liftM ((,) "StdIn") getContents
     input (Just fName) = liftM ((,) fName) $ readFile fName
 
-    goAc       = either putStrLn print . uncurry (Logic.execParser  Logic.parseAc     )
-    goDiamond  = either putStrLn print . uncurry (Logic.execParser  Logic.parseDiamond)
-    goExp      = either putStrLn print . uncurry (Logic.execParser' Logic.parseExp    )
-    goInstance = either putStrLn print . uncurry (Logic.execParser  Logic.parseDiamond)
+    goAc       = either putStrLn print . uncurry (Logic.execParser  Logic.parseAc      )
+    goDiamond  = either putStrLn print . uncurry (Logic.execParser  Logic.parseDiamond )
+    goExp      = either putStrLn print . uncurry (Logic.execParser' Logic.parseExp     )
+    goInstance = either putStrLn print . uncurry (Logic.execParser  Logic.parseInstance)
 
 {-|
   Normal running webservice
