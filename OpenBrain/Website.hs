@@ -10,10 +10,8 @@ import qualified Happstack.Server as S
 
 import OpenBrain.Website.Common
 import OpenBrain.Website.Routes
-import qualified OpenBrain.Deadline as Deadline
 
 serve :: CBackendProcessor -> Config -> IO ()
-serve backend config = do
-  deadline <- Deadline.newState
-  let serverParts = runOBW (WebsiteState backend config deadline) route
-  simpleHTTP nullConf{S.port = port config} serverParts
+serve backend config =
+  let serverParts = runOBW (WebsiteState backend config) route
+  in simpleHTTP nullConf{S.port = port config} serverParts
