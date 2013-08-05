@@ -6,11 +6,13 @@ module OpenBrain.Data.Logic.Exp(
 ) where
 
 import Control.Monad
+import Data.List (nub)
 import qualified Data.Map as Map
 
 import OpenBrain.Common
 import OpenBrain.Data.Id
 import OpenBrain.Data.Logic.Renameable
+import OpenBrain.Data.Logic.NameContainer
 
 data Exp = Var   String
          | And   Exp Exp
@@ -20,6 +22,15 @@ data Exp = Var   String
          deriving Eq
 
 -- | Instances:
+instance NameContainer Exp where
+  names = nub . names'
+    where
+      names' (Var   s) = [s]
+      names' (And a b) = names' a ++ names' b
+      names' (Or  a b) = names' a ++ names' b
+      names' (Neg   a) = names' a
+      names' (Const _) = []
+
 instance Show Exp where
   show (Var s)   = s
   show (And x y) = "and(" ++ show x ++ "," ++ show y ++ ")"

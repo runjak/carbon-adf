@@ -7,6 +7,7 @@ module OpenBrain.Data.Logic(
 , module ParseInstance
 , module ParseDiamond
 , module Renameable
+, module NameContainer
 )where
 
 import OpenBrain.Data.Logic.Exp           as Exp
@@ -17,3 +18,4 @@ import OpenBrain.Data.Logic.ParseExp      as ParseExp
 import OpenBrain.Data.Logic.ParseInstance as ParseInstance
 import OpenBrain.Data.Logic.ParseDiamond  as ParseDiamond
 import OpenBrain.Data.Logic.Renameable    as Renameable
+import OpenBrain.Data.Logic.NameContainer as NameContainer

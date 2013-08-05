@@ -18,6 +18,7 @@ import OpenBrain.Data.Id
 import OpenBrain.Data.Logic.Exp
 import OpenBrain.Data.Logic.Parse
 import OpenBrain.Data.Logic.Renameable
+import OpenBrain.Data.Logic.NameContainer
 
 data ACondition = AC String Exp    deriving Eq
 data Statement  = Statement String deriving Eq
@@ -28,19 +29,18 @@ data Instance = Instance {
   } deriving Eq
 
 instanceFromAcs :: [ACondition] -> Instance
-instanceFromAcs acs = Instance acs . map Statement . nub $ concatMap names acs
-  where
-    names :: ACondition -> [String]
-    names (AC n e) = n:eNames e
-
-    eNames :: Exp -> [String]
-    eNames (Const _)   = []
-    eNames (Var s)     = [s]
-    eNames (Neg e)     = eNames e
-    eNames (And e1 e2) = eNames e1 ++ eNames e2
-    eNames (Or e1 e2)  = eNames e1 ++ eNames e2
+instanceFromAcs acs = Instance acs . map Statement $ names acs
 
 -- | Instances:
+instance NameContainer ACondition where
+  names (AC n e) = nub $ n:names e
+
+instance NameContainer Statement where
+  names (Statement s) = [s]
+
+instance NameContainer Instance where
+  names (Instance cs ss) = nub $ names cs ++ names ss
+
 instance Show ACondition where
   show (AC n e) = "ac(" ++ n ++ "," ++ show e ++ ")."
 
