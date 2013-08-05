@@ -5,7 +5,7 @@ DiscussionArticleView = Backbone.View.extend({
 , render: function(){
     var el = this.$('tbody').empty();
     if(this.model){
-      var as = this.model.get('articles');
+      var as = this.model.articles;
       if(as.length === 0){
         el.append('<tr><td colspan="4">There are currently no articles in this Discussion.</td></tr>');
       }else{
@@ -33,11 +33,11 @@ DiscussionArticleView = Backbone.View.extend({
   }
 , setModel: function(d){
     if(this.model){
-      this.model.get('articles').off(null, null, this);
+      this.model.articles.off(null, null, this);
     }
     this.model = d;
     if(d){
-      this.model.get('articles').on('reset add remove', this.render, this);
+      this.model.articles.on('reset add remove', this.render, this);
     }
     this.render();
   }

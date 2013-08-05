@@ -61,12 +61,12 @@ SingleDiscussionView = Hideable.extend({
     var p = $.Deferred();
     if(this.model){
       if(did === this.model.get('id')){
-        this.model.load();
+        this.model.fetch();
         p.resolve();
         return p;
       }
     }
-    d.load().done(function(){
+    d.fetch().done(function(){
       view.setDiscussion(d);
       p.resolve();
     }).fail(function(f){

@@ -36,8 +36,12 @@ ExtendedCollection = Backbone.Collection.extend({
   /**
     Performs a fetch on all elements and returnes a promise to be resolved when all are fetched.
   */
-, fetchAll: function(){
-    var fetches = this.map(function(x){return x.fetch();});
+, fetchAll: function(xs){
+    var fetches = [];
+    if(xs){
+      fetches = _.map(xs, function(x){return x.fetch();});
+    }else
+      fetches = this.map(function(x){return x.fetch();});
     return $.when.apply($, fetches);
   }
   /**
@@ -68,12 +72,9 @@ ExtendedCollection = Backbone.Collection.extend({
     return false;
   }
 , fetchAndReset: function(elems){
-    var fetches = _.map(elems, function(e){
-      return e.fetch();
-    });
     var t = this;
     var p = $.Deferred();
-    $.when.apply($, fetches).done(function(){
+    this.fetchAll(elems).done(function(){
       t.reset(elems);
       p.resolve();
     }).fail(function(){

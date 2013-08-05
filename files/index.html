@@ -267,11 +267,13 @@
       </div>
       <div id="CreateDiscussionView" class="row-fluid">
         <div class="span4">
-          <form>
+          <form target="DiscussionFromInstanceViewDescription"
+                method="POST" enctype="multipart/form-data"
+                action="discussion/uploadinstance/">
             <fieldset>
               <legend>Create a new Discussion:</legend>
               <label>Headline:</label>
-              <input id="CreateDiscussionViewHeadline" placeholder="The new headline" type="text">
+              <input id="CreateDiscussionViewHeadline" placeholder="The new headline" type="text" required>
               <label>Deadline:</label>
               <div class="input-append">
                 <button type="button" id="CreateDiscussionViewClearDeadline" class="btn" title="Clear deadline.">
@@ -282,8 +284,13 @@
                 <input id="CreateDiscussionViewTime" class="add-on" placeholder="hh:mm" type="time"
                   pattern="(2[0-4]|[01]\d):[0-5]\d">
               </div>
+              <label>Instance file (.dl) to upload:</label>
+              <input id="CreateDiscussionViewInstanceFile" name="file" type="file">
+              <iframe id="CreateDiscussionViewInstanceFileUpload"
+                      name="CreateDiscussionViewInstanceFileUpload"
+                      class="hide"></iframe>
               <label>Description:</label>
-              <textarea id="CreateDiscussionViewDescription" placeholder="The new description"></textarea>
+              <textarea id="CreateDiscussionViewDescription" placeholder="The new description" required></textarea>
               <button id="CreateDiscussion" class="btn">Save</button>
             </fieldset>
           </form>

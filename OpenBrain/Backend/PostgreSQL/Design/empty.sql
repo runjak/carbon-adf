@@ -1214,6 +1214,7 @@ SELECT pg_catalog.setval('results_resultid_seq', 1, false);
 --
 
 COPY users (userid, username, hash, salt, creationtime, lastlogin, isadmin, profile, sessionkey) FROM stdin;
+1	foo	529e8ed07a5e7b9065878723e37509046e32216b9ebfc7bb79a9f4ee4afd4317796b16206c33f0929f7657c8c3991c74e0869562f1ccc0cf13fde055aa0c257a	qwqowpezy}tol{yynqev	2013-08-05 13:06:02.738415	2013-08-05 13:06:02.738415	t	\N	\N
 \.
 
 
@@ -1221,7 +1222,7 @@ COPY users (userid, username, hash, salt, creationtime, lastlogin, isadmin, prof
 -- Name: users_userid_seq; Type: SEQUENCE SET; Schema: public; Owner: mushu
 --
 
-SELECT pg_catalog.setval('users_userid_seq', 1, false);
+SELECT pg_catalog.setval('users_userid_seq', 1, true);
 
 
 --

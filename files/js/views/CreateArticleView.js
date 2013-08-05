@@ -20,10 +20,8 @@ CreateArticleView = Hideable.extend({
     var promise = null;
     var view = this;
     if(typeof(this.model.get('id')) === 'undefined'){
-      console.log('Calling model.create…');
       promise = this.model.create();
     }else{
-      console.log('Calling model.update…');
       promise = this.model.update();
     }
     return promise.done(function(d){

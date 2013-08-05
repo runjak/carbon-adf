@@ -67,6 +67,28 @@ evaluate did = Session.chkSession' . const $ do
       liftIO $ mapM_ putStrLn ["Got diamond results:", show rs]
       liftB  $ BLogic.saveResults did rs
 
+uploadInstance :: DiscussionId -> OBW Response
+uploadInstance did = Session.chkSession' $ \uid -> do
+  liftIO $ putStrLn "OpenBrain.Website.Discussion:uploadInstance!"
+  plusm noFile $ do
+    content <- getFile
+    let source    = "Client upload by user: " ++ show uid
+        eInstance = Logic.execParser Logic.parseInstance source content
+    either withError (withInstance uid did) eInstance
+  where
+    noFile = respBadRequest "Expected .dl file is missing."
+
+    withInstance :: UserId -> DiscussionId -> Logic.Instance -> OBW Response
+    withInstance uid did i = liftB (BLogic.fitInstance uid did i) >> respOk "OK"
+
+    withError :: String -> OBW Response
+    withError = respBadRequest . toResponse
+
 -- | Parameters…
 getDeadline :: OBW (Maybe Timestamp)
 getDeadline = msum [liftM Just $ lookRead "deadline", return Nothing]
+
+getFile :: OBW String
+getFile = do
+  (tmpName, _, _) <- lookFile "file"
+  liftIO $ readFile tmpName

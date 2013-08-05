@@ -12,6 +12,11 @@ CreateDiscussionView = Hideable.extend({
       window.App.hideManager.render(view);
     });
     window.App.collectedArticles.on('reset add remove', this.renderIfVisible, this);
+    //Setting up the form target for uploads to be safe that it works:
+    //This is necessary, because some browsers don't get it from the html o.O
+    var f = this.$('form').get(0);
+    var i = this.$('iframe').get(0);
+    f.target = i.id;
   }
 , events: {
     "click #CreateDiscussion":                  "create"
@@ -69,12 +74,25 @@ CreateDiscussionView = Hideable.extend({
     e.preventDefault();
     var view = this;
     this.model.create().done(function(d){
-      var route = '#/discussion/' + d.get('id');
-      window.App.router.navigate(route, {trigger: true});
-      view.setModel(new Discussion);
+      var finish = function(){};
+      var file = view.$('#CreateDiscussionViewInstanceFile').val();
+      if(file !== ''){
+        var upload = view.$('#CreateDiscussionViewInstanceFileUpload').load(function(){
+          upload.unbind('load');
+          var result = upload.contents().text();
+          console.log('Upload result was:\n'+result)
+          view.finishCreation();
+        });
+        view.$('form').submit();
+      }else view.finishCreation();
     }).fail(function(f){
       console.log('CreateDiscussionView.create() failed: '+JSON.stringify(f));
     });
+  }
+, finishCreation: function(){
+    var route = '#/discussion/' + this.model.get('id');
+    window.App.router.navigate(route, {trigger: true});
+    this.setModel(new Discussion());
   }
 , clearDeadline: function(){
     this.$('#CreateDiscussionViewDate').val('');

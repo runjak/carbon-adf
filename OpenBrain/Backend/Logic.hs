@@ -58,3 +58,6 @@ saveResults did rs  =
           udecs = map ((,) Udec) $ udecSet dResult
           outs  = map ((,) Out)  $ outSet  dResult
       in concat [ins, udecs, outs]
+
+fitInstance :: UserId -> DiscussionId -> Logic.Instance -> BackendDSL ()
+fitInstance = undefined

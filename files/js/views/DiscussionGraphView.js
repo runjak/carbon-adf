@@ -45,12 +45,12 @@ DiscussionGraphView = PaperView.extend({
     if(this.model !== null && typeof(this.model) !== 'undefined'){
       //Placing Articles:
       var discussion = this.model;
-      this.model.get('articles').each(function(a){
+      this.model.articles.each(function(a){
         var pa = new PaperArticle({model: a, el: p});
         view.paperArticles.push(pa.setDiscussion(discussion));
       });
       //Placing Relations:
-      this.model.get('relations').each(function(r){
+      this.model.relations.each(function(r){
         view.paperRelations.push(new PaperRelation({model: r, el: p}));
       });
       //FIXME implement
@@ -104,8 +104,8 @@ DiscussionGraphView = PaperView.extend({
 , setModel: function(m){
     if(this.model){
       this.model.off(null, null, this);
-      this.model.get('articles').off(null, null, this);
-      this.model.get('relations').off(null, null, this);
+      this.model.articles.off(null, null, this);
+      this.model.relations.off(null, null, this);
     }
     if(m === null || typeof(m) === 'undefined'){
       this.model = null;
@@ -115,13 +115,13 @@ DiscussionGraphView = PaperView.extend({
       this.model = m;
       this.model.on('change:paperWidth',  this.resize, this)
                 .on('change:paperHeight', this.resize, this);
-      this.model.get('articles').on('reset',  this.render,         this)
-                                .on('add',    this.articleAdded,   this)
-                                .on('remove', this.articleRemoved, this);
-      this.model.get('relations').on('reset',  this.render,          this)
-                                 .on('add',    this.relationAdded,   this)
-                                 .on('remove', this.relationRemoved, this);
-      this.dummyArticleFactory.reset(this.model.get('articles'));
+      this.model.articles.on('reset',  this.render,         this)
+                         .on('add',    this.articleAdded,   this)
+                         .on('remove', this.articleRemoved, this);
+      this.model.relations.on('reset',  this.render,          this)
+                          .on('add',    this.relationAdded,   this)
+                          .on('remove', this.relationRemoved, this);
+      this.dummyArticleFactory.reset(this.model.articles);
     }
     this.resize();
   }

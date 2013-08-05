@@ -23,7 +23,7 @@ crudUpdate = decode $ method PUT
 crudDelete = decode $ method DELETE
 
 decode :: OBW () -> OBW a -> OBW a
-decode check = (>>) $ check >> decodeBody (defaultBodyPolicy "/tmp/" 0 1000 1000)
+decode check = (>>) $ check >> decodeBody (defaultBodyPolicy "/tmp/" 1000 1000 1000)
 
 {-
 200: OK

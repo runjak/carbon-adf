@@ -9,7 +9,7 @@ DiscussionCollectedView = Backbone.View.extend({
     if(this.model.length === 0){
       el.append('<tr><td colspan="4">No articles collected, so none can be displayed.</td><tr>');
     }else{
-      var das = this.discussion.get('articles');
+      var das = this.discussion.articles;
       this.model.map(function(a){
         var id          = a.get('id');
         var headline    = a.get('headline');
@@ -43,10 +43,10 @@ DiscussionCollectedView = Backbone.View.extend({
   }
 , setDiscussion: function(d){
     if(this.discussion){
-      this.discussion.get('articles').off(null, null, this);
+      this.discussion.articles.off(null, null, this);
     }
     this.discussion = d;
     this.render();
-    this.discussion.get('articles').on('reset add remove', this.render, this);
+    this.discussion.articles.on('reset add remove', this.render, this);
   }
 });
