@@ -22,3 +22,9 @@ getRelation rid conn = do
   , target       = fromId $ fromSql target
   , rDescription = description
   }
+
+-- | FIXME check what should happen to the left behind description.
+removeRelation :: RelationId -> Query ()
+removeRelation rid conn =
+  let q = "DELETE FROM relations WHERE relationid = ?"
+  in void $ quickQuery' conn q [toSql $ toId rid]

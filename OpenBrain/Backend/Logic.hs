@@ -43,10 +43,10 @@ diamondInput rIds did = do
   return . show . instanceFromAcs $ rIds ? (acs', acs)
 
 {-|
-  Saves the parsed output as Logic.Results String for a DiscussionId.
+  Saves the parsed output as Results String for a DiscussionId.
   As a first step it also removes older results if existent
 |-}
-saveResults :: DiscussionId -> Logic.Results String -> BackendDSL ()
+saveResults :: DiscussionId -> Results String -> BackendDSL ()
 saveResults did rs  =
   let (Results rs') = fmap (fromId . wrap . read) rs
   in RemoveResults did >> mapM_ (go did) rs'
@@ -74,27 +74,35 @@ saveResults did rs  =
 
   Notice that this functions can be optimized by using Data.Set instead of []
   … or even a Set from the unordered containers package
+
+  FIXME technically it would be correct to remove Relations from ac's that will be changed,
+  where the relations source is not mentioned in the EXP.
 |-}
-fitInstance :: UserId -> DiscussionId -> Logic.Instance -> BackendDSL ()
+fitInstance :: UserId -> DiscussionId -> Instance -> BackendDSL ()
 fitInstance uid did i = do
   -- Add missing Nodes:
   d <- GetDiscussion did
   let headlines = map (headline . aDescription . cArticle) . articles $ dCollection d
-      nodes     = (names i)
-      newNodes  = nodes \\ headlines
+      nodes     = names i            :: [String]
+      newNodes  = nodes \\ headlines :: [String]
   CollectArticles (collectionId $ dCollection d) =<< mapM (newDummyA uid) newNodes
   -- Add mising Relations:
   d <- GetDiscussion did -- We need the new Id's
-  let fetchAs  = map cArticle . articles . dCollection
-      hIdPair  = \a -> (headline $ aDescription a, articleId a)
-      wanted   = filter $ flip elem nodes . fst
-      hToIdMap = Map.fromList . wanted . map hIdPair $ fetchAs d
-      curRels  = map shrink $ relations d
-      posRels  = concatMap (possibleRels hToIdMap) $ conditions i
-      newRels  = nub $ posRels \\ curRels
+  let fetchAs  = map cArticle . articles . dCollection            :: Discussion -> [Article]
+      hIdPair  = (headline . aDescription) &&& articleId          :: Article -> (Headline, ArticleId)
+      wanted   = filter $ flip elem nodes . fst                   :: [(Headline, ArticleId)] -> [(Headline, ArticleId)]
+      hToIdMap = Map.fromList . wanted . map hIdPair $ fetchAs d  :: Map Headline ArticleId
+      curRels  = map shrink $ relations d                         :: [(ArticleId, ArticleId)]
+      posRels  = concatMap (possibleRels hToIdMap) $ conditions i :: [(ArticleId, ArticleId)]
+      newRels  = nub $ posRels \\ curRels                         :: [(ArticleId, ArticleId)]
   mapM_ (newRel uid did) newRels
+  -- Removing old Relations:
+  let oldRels' = filter (flip elem (Map.elems hToIdMap) . snd) curRels :: [(ArticleId, ArticleId)]
+      oldRels  = oldRels' \\ posRels                                   :: [(ArticleId, ArticleId)]
+      remRids  = map relationId . filter (flip elem oldRels . shrink) $ relations d
+  mapM_ RemoveRelation remRids
   -- Saving the Conditions:
-  let updates  = Maybe.catMaybes . map (acToAidExp hToIdMap) $ conditions i
+  let updates  = Maybe.mapMaybe (acToAidExp hToIdMap) $ conditions i
       cid      = collectionId $ dCollection d
   forM_ updates $ \(aid, exp) -> UpdateCondition cid aid True exp
   where
@@ -110,7 +118,7 @@ fitInstance uid did i = do
       Nothing  -> []
 
     lookupMany :: Ord k => Map k a -> [k] -> [a]
-    lookupMany m = Maybe.catMaybes . map (Map.lookup `flip` m)
+    lookupMany m = Maybe.mapMaybe $ Map.lookup `flip` m
 
     newRel :: UserId -> DiscussionId -> (ArticleId, ArticleId) -> BackendDSL RelationId
     newRel uid did st = do
