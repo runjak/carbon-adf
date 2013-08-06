@@ -16,6 +16,13 @@ Discussion = Item.extend({
       return a.set(cid);
     });
     this.articles.set(as);
+    /*
+      Sadly I've got to call updateRelations here,
+      because the existence of Articles determines the
+      outcome of Relation.setDiscussion,
+      which is used to filter produced Relations.
+    */
+    this.updateRelations();
   }
 , updateParticipants: function(){
     var ps = _.map(this.get('participants'), function(p){
@@ -39,7 +46,7 @@ Discussion = Item.extend({
   }
 , create: function(){
     var q = {
-      headline: this.get('headline')
+      headline:    this.get('headline')
     , description: this.get('description')
     };
     if(d = this.get('deadline'))

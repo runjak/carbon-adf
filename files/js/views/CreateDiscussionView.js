@@ -74,9 +74,12 @@ CreateDiscussionView = Hideable.extend({
     e.preventDefault();
     var view = this;
     this.model.create().done(function(d){
+      console.log("Discussion created!");
+      console.log(d);
       var finish = function(){};
       var file = view.$('#CreateDiscussionViewInstanceFile').val();
       if(file !== ''){
+        view.$('form').attr('action', 'discussion/'+d.id+'/fitinstance');
         var upload = view.$('#CreateDiscussionViewInstanceFileUpload').load(function(){
           upload.unbind('load');
           var result = upload.contents().text();

@@ -50,7 +50,11 @@ DiscussionGraphView = PaperView.extend({
         view.paperArticles.push(pa.setDiscussion(discussion));
       });
       //Placing Relations:
+      console.log('DiscussionGraphView:render() placing relations…');
+      console.log(this.model);
       this.model.relations.each(function(r){
+        console.log('Building PaperRelation:');
+        console.log(r);
         view.paperRelations.push(new PaperRelation({model: r, el: p}));
       });
       //FIXME implement

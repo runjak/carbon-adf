@@ -9,7 +9,7 @@ Relation = Item.extend({
     this.source = null;
     this.target = null;
     var relation = this;
-    d.get('articles').each(function(a){
+    d.articles.each(function(a){
       var aid = a.get('id');
       if(aid === sid) relation.source = a;
       if(aid === tid) relation.target = a;
@@ -30,7 +30,7 @@ Relation = Item.extend({
     var relation = this;
     return $.post(this.urlRoot, q).done(function(d){
       relation.set(d).setDiscussion(discussion);
-      discussion.get('relations').add(relation);
+      discussion.relations.add(relation);
     });
   }
 });

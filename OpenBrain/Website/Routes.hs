@@ -45,7 +45,7 @@ route = msum [
     ]
   , dir "discussion" $ msum [
       path $ \did -> msum [
-        dir "uploadinstance" . crudCreate $ Discussion.uploadInstance did
+        dir "fitinstance" . crudCreate $ Discussion.uploadInstance did
       , dir "participate" $ msum [
           crudCreate $ Discussion.joinDiscussion did
         , crudDelete $ Discussion.leaveDiscussion did
