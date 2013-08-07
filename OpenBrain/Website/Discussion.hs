@@ -67,9 +67,9 @@ evaluate did = Session.chkSession' . const $ do
       liftIO $ mapM_ putStrLn ["Got diamond results:", show rs]
       liftB  $ BLogic.saveResults did rs
 
-uploadInstance :: DiscussionId -> OBW Response
-uploadInstance did = Session.chkSession' $ \uid -> do
-  liftIO $ putStrLn "OpenBrain.Website.Discussion:uploadInstance!"
+fitInstance :: DiscussionId -> OBW Response
+fitInstance did = Session.chkSession' $ \uid -> do
+  liftIO $ putStrLn "OpenBrain.Website.Discussion:fitInstance"
   plusm noFile $ do
     content <- getFile
     let source    = "Client upload by user: " ++ show uid

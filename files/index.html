@@ -135,6 +135,7 @@
             <li><a href="#SingleDiscussionViewCollected" data-toggle="tab">Collected articles</a></li>
             <li><a href="#SingleDiscussionViewGraph" data-toggle="tab">Graph view</a></li>
             <li><a href="#SingleDiscussionViewParticipants" data-toggle="tab">Participants</a></li>
+            <li><a href="#SingleDiscussionViewFiles" data-toggle="tab">.dl files</a></li>
           </ul>
           <div id="SingleDiscussionViewTabContent" class="tab-content">
             <div id="SingleDiscussionViewArticles" class="tab-pane fade in active">
@@ -230,6 +231,22 @@
                 <thead><tr><th>Participants:</th></tr></thead>
                 <tbody></tbody>
               </table>
+            </div>
+            <div id="SingleDiscussionViewFiles" class="tab-pane fade">
+              <form target="SingleDiscussionViewFilesUpload"
+                    method="POST" enctype="multipart/form-data"
+                    action="discussion/<id>/fitinstance">
+                <label>Instance file (.dl) to upload:</label>
+                <input id="SingleDiscussionViewFilesInstance" name="file" type="file">
+                <iframe id="SingleDiscussionViewFilesUpload"
+                        name="SingleDiscussionViewFilesUpload"
+                        class="hide"></iframe>
+                <button id="SingleDiscussionViewFilesButton" class="btn">Upload</button>
+              </form>
+              <div id="SingleDiscussionViewFilesCurrentDl" class="hide">
+                <h3>Current .dl for this discussion:</h3>
+                <pre></pre>
+              </div>
             </div>
           </div>
           <div id="RelationCreationModal" class="modal hide fade">
@@ -383,6 +400,7 @@
     <script src="files/js/views/PaperView.js"></script>
     <script src="files/js/views/DiscussionGraphView.js"></script>
     <script src="files/js/views/DiscussionParticipantView.js"></script>
+    <script src="files/js/views/DiscussionDlFileView.js"></script>
     <script src="files/js/views/RelationCreationModal.js"></script>
     <script src="files/js/Router.js"></script>
     <script src="files/js/App.js"></script>
