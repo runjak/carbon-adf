@@ -41,8 +41,14 @@ DiscussionDlFileView = Backbone.View.extend({
     });
   }
 , setModel: function(m){
+    if(this.model){
+      this.model.articles.off( null, null, this);
+      this.model.relations.off(null, null, this);
+    }
     this.model = m;
     if(m){
+      this.model.articles.on( "change", this.fetchAcs, this);
+      this.model.relations.on("change", this.fetchAcs, this);
       var id = m.get('id');
       this.$('form').attr('action',
         'discussion/'+id+'/fitinstance');
