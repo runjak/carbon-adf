@@ -28,6 +28,9 @@ PaperRelation = Backbone.View.extend({
     //Drawing:
     var s = e.p1;
     var t = e.p2;
+    //Check if s, t are different:
+    if(s.x == t.x && s.y == t.y)
+      return;
     p.setStart();
     p.path('M'+s.x+' '+s.y+'L'+t.x+' '+t.y+'Z');
     _.each([o, p.scProduct(-1,o)], function(r){
