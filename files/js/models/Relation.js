@@ -33,4 +33,13 @@ Relation = Item.extend({
       discussion.relations.add(relation);
     });
   }
+, getShortname: function(){
+    var s = '';
+    var t = '';
+    if(this.source)
+      s = this.source.get('headline');
+    if(this.target)
+      t = this.target.get('headline');
+    return s+' -> '+t;
+  }
 });

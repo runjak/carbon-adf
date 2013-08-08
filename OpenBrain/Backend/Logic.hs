@@ -74,9 +74,6 @@ saveResults did rs  =
 
   Notice that this functions can be optimized by using Data.Set instead of []
   … or even a Set from the unordered containers package
-
-  FIXME technically it would be correct to remove Relations from ac's that will be changed,
-  where the relations source is not mentioned in the EXP.
 |-}
 fitInstance :: UserId -> DiscussionId -> Instance -> BackendDSL ()
 fitInstance uid did i = do
@@ -102,7 +99,8 @@ fitInstance uid did i = do
       remRids  = map relationId . filter (flip elem oldRels . shrink) $ relations d
   mapM_ RemoveRelation remRids
   -- Saving the Conditions:
-  let updates  = Maybe.mapMaybe (acToAidExp hToIdMap) $ conditions i
+  let updates' = Maybe.mapMaybe (acToAidExp hToIdMap) $ conditions i
+      updates  = renameExps hToIdMap updates'
       cid      = collectionId $ dCollection d
   forM_ updates $ \(aid, exp) -> UpdateCondition cid aid True exp
   where
@@ -129,3 +127,36 @@ fitInstance uid did i = do
     acToAidExp m (AC n e) =
       let mAid = Map.lookup n m
       in maybe Nothing (\aid -> Just (aid, e)) mAid
+
+    renameExps :: Map String ArticleId -> [(ArticleId, Exp)] -> [(ArticleId, Exp)]
+    renameExps m = map (second . rename $ fmap (show . unwrap . toId) m) 
+
+{-|
+  Removes a Relation, and updates the targets Exp,
+  so that it no longer includes the source.
+  On custom Conditions this is done via
+  OpenBrain.Data.Logic.Exp:removeVar.
+  Otherwise autoCondition is used.
+|-}
+removeRelation :: RelationId -> BackendDSL ()
+removeRelation rid = do
+  r <- GetRelation rid
+  d <- GetDiscussion =<< RelationDiscussion rid
+  RemoveRelation rid
+  let cas  = articles $ dCollection d
+      caId = articleId . cArticle
+      s    = head $ filter ((==) (source r) . caId) cas
+      t    = head $ filter ((==) (target r) . caId) cas
+      cid  = collectionId $ dCollection d
+      aid  = caId t
+      cust = customcondition t
+      var  = show . unwrap . toId $ caId s
+      exp  = condition t
+      exp' = removeVar var exp
+  LogString $ unlines [
+      "Changing exp:"
+    , "from " ++ show exp
+    , "to "   ++ show exp'
+    , "by removing var: " ++ var
+    ]
+  UpdateCondition cid aid cust exp'

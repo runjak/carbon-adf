@@ -27,20 +27,30 @@ RelationCreationModal = Backbone.View.extend({
       m.on('change:newRelationEnd', this.display, this);
     }
   }
-, display: function(){
-    if(!this.model.get('newRelationEnd')) return;
-    this.source = this.model.get('newRelationStart');
-    this.target = this.model.get('newRelationEnd');
-    this.model.set({newRelationStart: null, newRelationEnd: null});
-    //Check if relation already exists, and offer editing in that case.
-    this.relation = this.model.get('relations')
-      .relationFromTo(this.source, this.target);
+, display: function(relation){
+    if(!this.model.get('newRelationEnd') && !(relation instanceof Relation)) return;
+    if(relation instanceof Relation){
+      this.relation = relation;
+      this.source   = relation.get('source');
+      this.target   = relation.get('target');
+    }else{
+      this.relation = null;
+      this.source = this.model.get('newRelationStart');
+      this.target = this.model.get('newRelationEnd');
+      this.model.set({newRelationStart: null, newRelationEnd: null});
+      //Check if relation already exists, and offer editing in that case.
+      this.relation = this.model.relations
+        .relationFromTo(this.source, this.target);
+    }
     if(this.relation){
+      var r = this.relation.getShortname();
+      this.$('h3').html('Edit the Relation '+r+' :');
       this.$('#RelationCreationSave, #RelationCreationRemove').show();
       this.$('#RelationCreationCreate').hide();
       this.headline.val(this.relation.get('headline'));
       this.description.val(this.relation.get('description'));
     }else{
+      this.$('h3').html('Create a new Relation:');
       this.$('#RelationCreationSave, #RelationCreationRemove').hide();
       this.$('#RelationCreationCreate').show();
       this.headline.val('');
@@ -50,13 +60,19 @@ RelationCreationModal = Backbone.View.extend({
     this.showModal(true);
   }
 , remove: function(){
-    alert('This will soon be implemented, maybe');
-    //FIXME implement
+    var discussion = this.model;
+    this.relation.destroy().always(function(){
+      discussion.fetch();
+    });
+    this.relation = null;
     this.showModal(false);
   }
 , save: function(){
-    alert('This will soon be implemented, maybe');
-    //FIXME implement
+    this.relation.save({
+      headline:    this.headline.val()
+    , description: this.description.val()
+    });
+    this.relation = null;
     this.showModal(false);
   }
 , create: function(){

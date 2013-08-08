@@ -37,7 +37,8 @@ PaperRelation = Backbone.View.extend({
       var s = p.vAdd(st,p.scProduct(5,r));
       p.path('M'+s.x+' '+s.y+'L'+t.x+' '+t.y+'Z');
     });
-    this.arrow = p.setFinish();
+    this.setArrow(p.setFinish());
+    this.arrow.attr({'stroke-width': '2'});
   }
 , remove: function(){
     this.model.source.off(null, null, this);
@@ -48,5 +49,24 @@ PaperRelation = Backbone.View.extend({
     if(!this.arrow) return;
     this.arrow.remove();
     this.arrow = null;
+  }
+, setArrow: function(a){
+    this.arrow = a;
+    var r = this;
+    a.mouseover(function(){r.showSelected();})
+     .mouseout(function(){r.showUnselected();})
+     .click(function(){r.click();});
+  }
+, showSelected: function(){
+    if(!this.arrow) return;
+    this.glow = this.arrow.glow({color: '#fff'});
+  }
+, showUnselected: function(){
+    if(!this.glow) return;
+    this.glow.remove();
+    this.glow = null;
+  }
+, click: function(){
+    window.App.views.singleDiscussionView.relationCreationModal.display(this.model);
   }
 });

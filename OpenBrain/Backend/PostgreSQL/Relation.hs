@@ -23,6 +23,12 @@ getRelation rid conn = do
   , rDescription = description
   }
 
+relationDiscussion :: RelationId -> Query DiscussionId
+relationDiscussion rid conn = do
+  let q = "SELECT discussionid FROM relations WHERE relationid = ?"
+  [[did]] <- quickQuery' conn q [toSql $ toId rid]
+  return . fromId $ fromSql did
+
 -- | FIXME check what should happen to the left behind description.
 removeRelation :: RelationId -> Query ()
 removeRelation rid conn =

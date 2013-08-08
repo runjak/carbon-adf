@@ -3,11 +3,13 @@ module OpenBrain.Data.Logic.Exp(
 , and'
 , or'
 , idToExp
+, removeVar
 ) where
 
 import Control.Monad
 import Data.List (nub)
-import qualified Data.Map as Map
+import qualified Data.Map   as Map
+import qualified Data.Maybe as Maybe
 
 import OpenBrain.Common
 import OpenBrain.Data.Id
@@ -53,3 +55,33 @@ or'  = foldr1 Or
 
 idToExp :: IdType i => i -> Exp
 idToExp = Var . show . unwrap . toId
+
+removeVar :: String -> Exp -> Exp
+removeVar s = Maybe.fromMaybe (Const True) . removeVar' s
+  where
+    removeVar' :: String -> Exp -> Maybe Exp
+    removeVar' s v@(Var s')
+      | s == s'   = Nothing
+      | otherwise = Just v
+    removeVar' s (And e1 e2) =
+      let e1' = removeVar' s e1
+          e2' = removeVar' s e2
+      in case (e1', e2') of
+        (Just a,   Just b) -> Just $ And a b
+        (Just a,  Nothing) -> e1'
+        (Nothing,  Just b) -> e2'
+        (Nothing, Nothing) -> Nothing
+    removeVar' s (Or e1 e2) =
+      let e1' = removeVar' s e1
+          e2' = removeVar' s e2
+      in case (e1', e2') of
+        (Just a,   Just b) -> Just $ Or a b
+        (Just a,  Nothing) -> e1'
+        (Nothing,  Just b) -> e2'
+        (Nothing, Nothing) -> Nothing
+    removeVar' s (Neg e) =
+      let e' = removeVar' s e
+      in case e' of
+        (Just e) -> Just $ Neg e
+        Nothing  -> Nothing
+    removeVar' s c@(Const _) = Just c

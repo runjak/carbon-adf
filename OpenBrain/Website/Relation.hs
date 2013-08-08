@@ -1,9 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module OpenBrain.Website.Relation(
-  pageRelations
-, createRelation
-, readRelation
-)where
+module OpenBrain.Website.Relation where
 
 import OpenBrain.Website.Common
 import qualified OpenBrain.Backend.Logic       as Logic
@@ -26,3 +22,29 @@ createRelation = plusm createFail $ do
 
 readRelation :: RelationId -> OBW Response
 readRelation = respOk . responseJSON' <=< liftB . GetRelation
+
+updateRelation :: RelationId -> OBW Response
+updateRelation rid = Session.chkSession' . const $ do
+  r <- liftB $ GetRelation rid
+  let did = descriptionId $ rDescription r
+  success <- liftM or $ mapM ($ did) [updateHeadline, updateDescription]
+  success ? (readRelation rid, updateFail)
+  where
+    updateHeadline :: DescriptionId -> OBW Bool
+    updateHeadline did = plusm (return False) $ do
+      h <- look "headline"
+      liftB $ SetHeadline did h
+      return True
+
+    updateDescription :: DescriptionId -> OBW Bool
+    updateDescription did = plusm (return False) $ do
+      d <- look "description"
+      liftB $ SetDescription did d
+      return True
+
+    updateFail = respBadRequest $ responseJSON'' "Expected parameters are: headline, description"
+
+deleteRelation :: RelationId -> OBW Response
+deleteRelation rid = Session.chkSession' . const $ do
+  liftB  $ Logic.removeRelation rid
+  respOk $ responseJSON'' "Relation removed"

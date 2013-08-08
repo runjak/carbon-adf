@@ -66,6 +66,10 @@ route = msum [
       path $ crudRead . Relation.readRelation
     , crudRead   Relation.pageRelations
     , crudCreate Relation.createRelation
+    , path $ \rid -> msum [
+        crudUpdate $ Relation.updateRelation rid
+      , crudDelete $ Relation.deleteRelation rid
+      ]
     ]
   , dir "result" $ msum [
       path $ \rid -> msum [

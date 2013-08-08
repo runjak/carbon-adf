@@ -38,9 +38,10 @@ data BackendDSL r where
   SetContent   :: ArticleId -> String -> BackendDSL ()
   ReplaceDummy :: ArticleId -> ArticleId -> BackendDSL Bool
   -- | Relation related:
-  AddRelation    :: DiscussionId -> NewDescriptionId -> ArticleId -> ArticleId -> BackendDSL RelationId
-  GetRelation    :: RelationId -> BackendDSL Relation
-  RemoveRelation :: RelationId -> BackendDSL ()
+  AddRelation        :: DiscussionId -> NewDescriptionId -> ArticleId -> ArticleId -> BackendDSL RelationId
+  GetRelation        :: RelationId -> BackendDSL Relation
+  RelationDiscussion :: RelationId -> BackendDSL DiscussionId
+  RemoveRelation     :: RelationId -> BackendDSL ()
   -- | Collection related:
   AddCollection   :: NewDescriptionId -> [ArticleId] -> BackendDSL NewCollectionId
   CollectArticles :: CollectionId -> [ArticleId] -> BackendDSL () 
@@ -76,6 +77,8 @@ data BackendDSL r where
   PageRelations    :: Limit -> Offset -> BackendDSL [RelationId]
   PageResults      :: Limit -> Offset -> BackendDSL [ResultId]
   PageUsers        :: Limit -> Offset -> BackendDSL [UserId]
+  -- | Logging:
+  LogString :: String -> BackendDSL ()
 
 {-| The Monad instance for BackendDSL to enable beautiful composition. |-}
 instance Monad BackendDSL where
