@@ -13,6 +13,8 @@ SingleDiscussionView = Hideable.extend({
       el: this.$('#SingleDiscussionViewParticipants'), model: null});
     this.relationCreationModal = new RelationCreationModal({
       el: this.$('#RelationCreationModal'), model: null});
+    this.articleConditionModal = new ArticleConditionModal({
+      el: this.$('#ArticleConditionModal'), model: null});
     this.discussionDlFileView = new DiscussionDlFileView({
       el: this.$('#SingleDiscussionViewFiles'), model: null}); 
     var view = this;
@@ -57,6 +59,7 @@ SingleDiscussionView = Hideable.extend({
     this.discussionParticipantView.setModel(d);
     this.discussionDlFileView.setModel(d);
     this.relationCreationModal.setModel(d);
+    this.articleConditionModal.setModel(d);
   }
 , setDiscussionId: function(did){
     var view = this;

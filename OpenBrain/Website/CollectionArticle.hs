@@ -15,6 +15,7 @@ updatePosition cid aid = Session.chkSession' . const $
 updateCondition :: CollectionId -> ArticleId -> OBW Response
 updateCondition cid aid = Session.chkSession' $ \uid ->
   withCondition $ \mCondition -> do
+    liftIO $ putStrLn "OpenBrain.Website.CollectionArticle:updateCondition"
     let cToUpdate = maybe (autoConditions aid cid) $ customCondition uid cid aid
     liftB $ cToUpdate mCondition
     respOk "Condition updated."
@@ -25,11 +26,12 @@ updateCondition cid aid = Session.chkSession' $ \uid ->
       mapM_ (`BLogic.autoCondition` aid) =<< DiscussionIds cid
 
     customCondition :: UserId -> CollectionId -> ArticleId -> Exp -> BackendDSL ()
-    customCondition uid cid aid e =
-      let expToCondition = AC . show . unwrap $ toId aid :: Exp -> ACondition
-          acToInstance   = flip Instance [] . return     :: ACondition -> Instance
+    customCondition uid cid aid e = do
+      a <- GetArticle aid
+      let expToCondition = AC . headline $ aDescription a :: Exp -> ACondition
+          acToInstance   = flip Instance [] . return      :: ACondition -> Instance
           i              = acToInstance $ expToCondition e
-      in mapM_ (BLogic.fitInstance uid `flip` i) =<< DiscussionIds cid
+      mapM_ (BLogic.fitInstance uid `flip` i) =<< DiscussionIds cid
 
 -- | Parameters…
 getPosition :: OBW (Int, Int)

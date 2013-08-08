@@ -23,6 +23,7 @@ PaperArticle = Backbone.View.extend({
     this.buttons   = this.el.buttonSet(this);
     this.btnDelete = this.el.set(); // Button to delete the PaperArticle from the Discussion
     this.btnAddRel = this.el.set(); // Button to add a Relation to another Article
+    this.btnCond   = this.el.set(); // Button to change the condition of the Article.
     this.btnDelete.push(
       this.el.rect(0,0,15,17,2)
     , this.el.image('files/img/ghw-trash.png',2,2,11,13)
@@ -31,10 +32,15 @@ PaperArticle = Backbone.View.extend({
       this.el.rect(17,0,15,17,2)
     , this.el.image('files/img/ghw-arrow-right.png',19,2,11,13)
     ).click(function(){view.clickBtnAddRel();});
+    this.btnCond.push(
+      this.el.rect(38,0,15,17,2)
+    , this.el.image('files/img/ghw-cog.png',40,2,11,13)
+    ).click(function(){view.clickBtnCond();});
     //Add relation link button here .)
     this.buttons.push(
       this.btnDelete
     , this.btnAddRel
+    , this.btnCond
     ).init().place().hide();
     //Ensuring correct positioning:
     this.update();
@@ -44,7 +50,7 @@ PaperArticle = Backbone.View.extend({
   */
 , update: function(){
     //Update text content:
-//  this.text.attr('text', this.model.get('headline'));
+    this.text.attr('text', this.model.get('headline'));
     //Updating back size:
     var tBox = this.text.getBBox();
     this.back.attr({
@@ -119,6 +125,10 @@ PaperArticle = Backbone.View.extend({
   }
 , clickBtnAddRel: function(){
     this.discussion.setNewRelationStart(this.model);
+    this.buttons.hide();
+  }
+, clickBtnCond: function(){
+    window.App.views.singleDiscussionView.articleConditionModal.display(this.model);
     this.buttons.hide();
   }
 , remove: function(){
