@@ -50,8 +50,8 @@ data CollectionArticle = CollectionArticle {
 , posY            :: Int
 , accepted        :: Maybe Bool
 , customcondition :: Bool
-, condition       :: Exp
-} deriving (Show)
+, condition       :: Exp ArticleId
+}
 
 data Collection = Collection {
   collectionId :: CollectionId
@@ -141,6 +141,17 @@ instance Ord Result where
 instance Ord User where
   compare = compare `on` userId
 
+{-| Instances of Show: |-}
+instance Show CollectionArticle where
+  show ca  = 
+    let x1 = "cArticle="         ++ show (cArticle ca)
+        x2 = ",posX="            ++ show (posX ca)
+        x3 = ",posY="            ++ show (posY ca)
+        x4 = ",accepted="        ++ show (accepted ca)
+        x5 = ",customcondition=" ++ show (customcondition ca)
+        x6 = ",condition="       ++ show (fmap (show . unwrap . toId) $ condition ca)
+    in "CollectionArticle {"++x1++x2++x3++x4++x5++x6++"}"
+
 {-| Instances of ToJSON: |-}
 instance ToJSON Description where
   toJSON d = object [
@@ -176,7 +187,7 @@ instance ToJSON CollectionArticle where
         , "posY"            .= posY            c
         , "accepted"        .= accepted        c
         , "customcondition" .= customcondition c
-        , "condition"       .= show (condition c)
+        , "condition"       .= show (fmap (show . unwrap . toId) $ condition c)
         ]
 instance ToJSON Collection where
   toJSON c = merge (toJSON $ cDescription c) o

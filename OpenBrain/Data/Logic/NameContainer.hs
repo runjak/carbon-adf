@@ -2,10 +2,11 @@ module OpenBrain.Data.Logic.NameContainer(
   NameContainer(..)
 ) where
 
-import Data.List(nub)
+import Data.Set(Set)
+import qualified Data.Set as Set
 
 class NameContainer n where
-  names :: n -> [String]
+  names :: n -> Set String
 
 instance NameContainer n => NameContainer [n] where
-  names = nub . concatMap names
+  names = Set.unions . map names

@@ -1,3 +1,4 @@
+{-#LANGUAGE FlexibleInstances#-}
 module OpenBrain.Data.Logic.Instance(
   ACondition(..)
 , Statement(..)
@@ -8,10 +9,12 @@ module OpenBrain.Data.Logic.Instance(
 import Control.Monad
 import Data.List (nub)
 import Data.Map (Map)
+import Data.Set (Set)
 import Text.Parsec as P
 import Text.ParserCombinators.Parsec as PC
 import qualified Data.Functor.Identity as Identity
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 
 import OpenBrain.Common
 import OpenBrain.Data.Id
@@ -20,50 +23,59 @@ import OpenBrain.Data.Logic.Parse
 import OpenBrain.Data.Logic.Renameable
 import OpenBrain.Data.Logic.NameContainer
 
-data ACondition = AC String Exp    deriving Eq
-data Statement  = Statement String deriving Eq
+data ACondition a = AC {aHead :: a, aCondition :: Exp a}
+data Statement  a = Statement a
 
-data Instance = Instance {
-    conditions :: [ACondition]
-  , statements :: [Statement]
-  } deriving Eq
+data Instance a = Instance {
+    conditions :: [ACondition a]
+  , statements :: [Statement  a]
+  }
 
-instanceFromAcs :: [ACondition] -> Instance
-instanceFromAcs acs = Instance acs . map Statement $ names acs
+instanceFromAcs :: [ACondition String] -> Instance String
+instanceFromAcs acs = Instance acs . map Statement . Set.toList $ names acs
 
 -- | Instances:
-instance NameContainer ACondition where
-  names (AC n e) = nub $ n:names e
+instance Eq a => Eq (ACondition a) where
+  a1 == a2 =
+    let eqHeads = aHead a1      == aHead a2
+        eqConds = aCondition a1 == aCondition a2
+    in eqHeads && eqConds
 
-instance NameContainer Statement where
-  names (Statement s) = [s]
+instance Eq a => Eq (Statement a) where
+  (Statement x) == (Statement y) = x == y
 
-instance NameContainer Instance where
-  names (Instance cs ss) = nub $ names cs ++ names ss
+instance Eq a => Eq (Instance a) where
+  i1 == i2 =
+    let eqConds = conditions i1 == conditions i2
+        eqStats = statements i1 == statements i2
+    in eqConds && eqStats
 
-instance Show ACondition where
+instance Functor ACondition where
+  fmap f (AC h c) = AC (f h) $ fmap f c
+
+instance Functor Statement where
+  fmap f (Statement s) = Statement $ f s
+
+instance Functor Instance where
+  fmap f (Instance cs ss) = Instance (map (fmap f) cs) (map (fmap f) ss)
+
+instance NameContainer (ACondition String) where
+  names ac = Set.insert (aHead ac) . names $ aCondition ac
+
+instance NameContainer (Statement String) where
+  names (Statement s) = Set.fromList [s]
+
+instance NameContainer (Instance String) where
+  names i = names (conditions i) `Set.union` names (statements i)
+
+instance Show (ACondition String) where
   show (AC n e) = "ac(" ++ n ++ "," ++ show e ++ ")."
 
-instance Show Statement where
+instance Show (Statement String) where
   show (Statement s) = "statement(" ++ s ++ ")."
 
-instance Show Instance where
+instance Show (Instance String) where
   show (Instance cs ss) = unlines $ map show cs ++ map show ss
 
-instance StartState Instance where
+instance StartState (Instance String) where
   startState = Instance [] []
-
-instance Renameable ACondition where
-  rename m (AC n e) =
-    case Map.lookup n m of
-      (Just n') -> AC n' $ rename m e
-      Nothing   -> AC n  $ rename m e
-
-instance Renameable Statement where
-  rename m st@(Statement s) = maybe st Statement $ Map.lookup s m
-
-instance Renameable Instance where
-  rename m (Instance cs ss) =
-    let cs' = rename m cs
-        ss' = rename m ss
-    in Instance cs' ss'

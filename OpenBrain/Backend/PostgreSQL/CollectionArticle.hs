@@ -15,7 +15,7 @@ updateAccepted cid aid mac conn =
   let q = "UPDATE collectedarticles SET accepted = ? WHERE collectionid = ? AND articleid = ?"
   in void $ quickQuery' conn q [toSql mac, toSql $ toId cid, toSql $ toId aid]
 
-updateCondition :: CollectionId -> ArticleId -> Custom -> Exp -> Query ()
+updateCondition :: CollectionId -> ArticleId -> Custom -> Exp ArticleId -> Query ()
 updateCondition cid aid custom cond conn =
   let q = "UPDATE collectedarticles SET condition = ?, customcondition = ? WHERE collectionid = ? AND articleid = ?"
-  in void $ quickQuery' conn q [toSql $ show cond, toSql custom, toSql $ toId cid, toSql $ toId aid]
+  in void $ quickQuery' conn q [toSql . show $ fmap show cond, toSql custom, toSql $ toId cid, toSql $ toId aid]

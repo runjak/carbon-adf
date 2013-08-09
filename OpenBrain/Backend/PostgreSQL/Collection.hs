@@ -48,13 +48,14 @@ getCollection cid conn = do
     go conn [aid, x, y, acc, cond, cust] = do
       a <- Article.getArticle (fromId $ fromSql aid) conn
       let eCondition = Logic.execParser' Logic.parseExp "PostgreSQL" $ fromSql cond
+          condition  = either (const $ Logic.Const True) id eCondition
       return CollectionArticle{
         cArticle        = a
       , posX            = fromSql x
       , posY            = fromSql y
       , accepted        = fromSql acc
       , customcondition = fromSql cust
-      , condition       = either (const $ Logic.Const True) id eCondition
+      , condition       = fmap (fromId . wrap . read) condition
       }
 
 discussionIds :: CollectionId -> Query [DiscussionId]

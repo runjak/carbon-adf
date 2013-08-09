@@ -51,7 +51,7 @@ data BackendDSL r where
   -- | CollectionArticle related:
   UpdatePosition  :: CollectionId -> ArticleId -> (Int,Int) -> BackendDSL ()
   UpdateAccepted  :: CollectionId -> ArticleId -> Maybe Bool -> BackendDSL ()
-  UpdateCondition :: CollectionId -> ArticleId -> Custom -> Exp -> BackendDSL ()
+  UpdateCondition :: CollectionId -> ArticleId -> Custom -> Exp ArticleId -> BackendDSL ()
   -- | Discussion related:
   AddDiscussion  :: NewCollectionId -> [UserId] -> Maybe Timestamp -> BackendDSL DiscussionId
   GetDiscussion  :: DiscussionId -> BackendDSL Discussion

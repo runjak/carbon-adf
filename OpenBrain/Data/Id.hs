@@ -10,7 +10,7 @@ import Data.Aeson (ToJSON, FromJSON)
 import Happstack.Server as S
 
 newtype Id = Id Integer
-  deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
+  deriving (Eq, Ord, Enum, Read, ToJSON, FromJSON)
 
 wrap :: Integer -> Id
 wrap = Id
@@ -23,15 +23,15 @@ class IdType i where
   toId    :: i -> Id
 
 -- | Id Types:
-newtype ArticleId        = AId   Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
-newtype CollectionId     = CId   Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
-newtype NewCollectionId  = NCId  Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
-newtype DescriptionId    = DeId  Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
-newtype NewDescriptionId = NDId  Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
-newtype DiscussionId     = DiId  Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
-newtype RelationId       = RelId Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
-newtype ResultId         = ResId Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
-newtype UserId           = UId   Id deriving (Eq, Ord, Enum, Read, Show, ToJSON, FromJSON)
+newtype ArticleId        = AId   Id deriving (Eq, Ord, Enum, Read, ToJSON, FromJSON)
+newtype CollectionId     = CId   Id deriving (Eq, Ord, Enum, Read, ToJSON, FromJSON)
+newtype NewCollectionId  = NCId  Id deriving (Eq, Ord, Enum, Read, ToJSON, FromJSON)
+newtype DescriptionId    = DeId  Id deriving (Eq, Ord, Enum, Read, ToJSON, FromJSON)
+newtype NewDescriptionId = NDId  Id deriving (Eq, Ord, Enum, Read, ToJSON, FromJSON)
+newtype DiscussionId     = DiId  Id deriving (Eq, Ord, Enum, Read, ToJSON, FromJSON)
+newtype RelationId       = RelId Id deriving (Eq, Ord, Enum, Read, ToJSON, FromJSON)
+newtype ResultId         = ResId Id deriving (Eq, Ord, Enum, Read, ToJSON, FromJSON)
+newtype UserId           = UId   Id deriving (Eq, Ord, Enum, Read, ToJSON, FromJSON)
 
 -- | Instances:
 instance FromReqURI Id where
@@ -88,3 +88,24 @@ instance FromReqURI ResultId where
   fromReqURI = liftM fromId . fromReqURI
 instance FromReqURI UserId where
   fromReqURI = liftM fromId . fromReqURI
+
+instance Show Id where
+  show = show . unwrap
+instance Show ArticleId where
+  show = show . toId
+instance Show CollectionId where
+  show = show . toId
+instance Show NewCollectionId where
+  show = show . toId
+instance Show DescriptionId where
+  show = show . toId
+instance Show NewDescriptionId where
+  show = show . toId
+instance Show DiscussionId where
+  show = show . toId
+instance Show RelationId where
+  show = show . toId
+instance Show ResultId where
+  show = show . toId
+instance Show UserId where
+  show = show . toId

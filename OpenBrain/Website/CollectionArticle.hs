@@ -25,19 +25,19 @@ updateCondition cid aid = Session.chkSession' $ \uid ->
       UpdateCondition cid aid False $ Const False
       mapM_ (`BLogic.autoCondition` aid) =<< DiscussionIds cid
 
-    customCondition :: UserId -> CollectionId -> ArticleId -> Exp -> BackendDSL ()
+    customCondition :: UserId -> CollectionId -> ArticleId -> Exp String -> BackendDSL ()
     customCondition uid cid aid e = do
       a <- GetArticle aid
-      let expToCondition = AC . headline $ aDescription a :: Exp -> ACondition
-          acToInstance   = flip Instance [] . return      :: ACondition -> Instance
-          i              = acToInstance $ expToCondition e
+      let expToCondition = AC . headline $ aDescription a  :: Exp String   -> ACondition String
+          acToInstance   = flip Instance [] . return       :: ACondition a -> Instance a
+          i              = acToInstance $ expToCondition e :: Instance String
       mapM_ (BLogic.fitInstance uid `flip` i) =<< DiscussionIds cid
 
 -- | Parameters…
 getPosition :: OBW (Int, Int)
 getPosition = liftM2 (,) (lookRead "posX") $ lookRead "posY"
 
-withCondition :: (Maybe Exp -> OBW Response) -> OBW Response
+withCondition :: (Maybe (Exp String) -> OBW Response) -> OBW Response
 withCondition f = plusm (respBadRequest "Parameter condition not found.") $ do
   c <- look "condition"
   case c of

@@ -78,7 +78,7 @@ fitInstance did = Session.chkSession' $ \uid -> do
   where
     noFile = respBadRequest "Expected .dl file is missing."
 
-    withInstance :: UserId -> DiscussionId -> Logic.Instance -> OBW Response
+    withInstance :: UserId -> DiscussionId -> Logic.Instance String -> OBW Response
     withInstance uid did i = liftB (BLogic.fitInstance uid did i) >> respOk "OK"
 
     withError :: String -> OBW Response
