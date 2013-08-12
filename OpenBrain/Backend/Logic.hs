@@ -76,14 +76,21 @@ saveResults did rs  =
 |-}
 fitInstance :: UserId -> DiscussionId -> Instance Headline -> BackendDSL ()
 fitInstance uid did i = do
+  LogString "OpenBrain.Backend.Logic:fitInstance"
+  LogString $ "Instance is:\n" ++ show i
   d        <- addMissingNodes uid did i
   hToIdMap <- mapHeadlineArticleId  d i
   let i'      = fmap (hToIdMap !) i                                   :: Instance ArticleId
       posRels = Set.fromList . concatMap possibleRels $ conditions i' :: Set (ArticleId, ArticleId)
+  LogString $ "Converted Instance is:\n" ++ show (fmap show i')
+  LogString $ "Possible Relations are:\n" ++ show posRels
   addMissingRelations posRels hToIdMap d i' uid 
   removeOldRelations  posRels hToIdMap i' d
   saveConditions d i'
   where
+    possibleRels :: ACondition ArticleId -> [(ArticleId, ArticleId)]
+    possibleRels ac = map (\c -> (c, aHead ac)) . vars $ aCondition ac
+
     addMissingNodes :: UserId -> DiscussionId -> Instance Headline-> BackendDSL Discussion
     addMissingNodes uid did i = do
       d <- GetDiscussion did
@@ -133,9 +140,6 @@ fitInstance uid did i = do
 
     shrink :: Relation -> (ArticleId, ArticleId)
     shrink r = (source r, target r)
-
-    possibleRels :: ACondition ArticleId -> [(ArticleId, ArticleId)]
-    possibleRels ac = map ((,) $ aHead ac) . vars $ aCondition ac
 
 {-|
   Removes a Relation, and updates the targets Exp,
