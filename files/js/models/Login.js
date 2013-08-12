@@ -4,10 +4,11 @@ Login = User.extend({
 , initialize: function(){
     var uid = this.uidFromCookie();
     if(uid !== null){
-      this.set({id: uid});
-      this.fetch({success: function(login){
-        login.set({loggedIn: true, fromCookie: true});
-      }});
+      this.set({id: uid}).fetch({
+        success: function(login){
+          login.set({loggedIn: true, fromCookie: true});
+        }
+      });
     }
   }
 , login: function(username, password){
@@ -39,7 +40,7 @@ Login = User.extend({
 , uidFromCookie: function(){
     var uid = $.cookie('userid');
     if(uid){
-      return /^\"UId \(Id (.*)\)\"$/.exec(uid)[1];
+      return parseInt(/^\"(.*)\"$/.exec(uid)[1]);
     }
     return null;
   }
