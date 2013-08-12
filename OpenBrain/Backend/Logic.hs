@@ -15,7 +15,7 @@ import OpenBrain.Data.Id
 import OpenBrain.Data.Logic as Logic
 
 {-|
-  Generates the  for a CollectionArticle automatically
+  Generates the condition for a CollectionArticle automatically
   as long as it's not a custom one.
   This will be executed whenever a Relation is added or removed.
 |-}
@@ -35,8 +35,8 @@ type RenameIds = Bool
 diamondInput :: RenameIds -> DiscussionId -> BackendDSL String
 diamondInput rIds did = do
   as <- liftM (articles . dCollection) $ GetDiscussion did
-  let caToIdName = articleId . cArticle                              :: CollectionArticle -> ArticleId
-      caToHeName = headline . aDescription . cArticle                :: CollectionArticle -> Headline
+  let caToIdName = articleId . cArticle                              :: CollectionArticle a -> ArticleId
+      caToHeName = headline . aDescription . cArticle                :: CollectionArticle a -> Headline
       renameMap  = Map.fromList $ map (caToIdName &&& caToHeName) as :: Map ArticleId Headline
       hAndMConds = map (caToIdName &&& condition) as                 :: [(ArticleId, Exp ArticleId)]
       idsToStrgs = map (fmap $ show . unwrap . toId)                 :: [ACondition ArticleId] -> [ACondition String]
@@ -91,7 +91,7 @@ fitInstance uid did i = do
     possibleRels :: ACondition ArticleId -> [(ArticleId, ArticleId)]
     possibleRels ac = map (\c -> (c, aHead ac)) . vars $ aCondition ac
 
-    addMissingNodes :: UserId -> DiscussionId -> Instance Headline-> BackendDSL Discussion
+    addMissingNodes :: UserId -> DiscussionId -> Instance Headline-> BackendDSL (Discussion ArticleId)
     addMissingNodes uid did i = do
       d <- GetDiscussion did
       let headlines = map (headline . aDescription . cArticle) . articles $ dCollection d
@@ -103,16 +103,16 @@ fitInstance uid did i = do
        newDummyA :: UserId -> Headline -> BackendDSL ArticleId
        newDummyA uid h = (`AddArticle` "") =<< AddDescription uid h ""
 
-    mapHeadlineArticleId :: Discussion -> Instance Headline -> BackendDSL (Map Headline ArticleId)
+    mapHeadlineArticleId :: Discussion ArticleId -> Instance Headline -> BackendDSL (Map Headline ArticleId)
     mapHeadlineArticleId d i = do
       let nodes   = names i                                 :: Set Headline
-          fetchAs = map cArticle . articles . dCollection   :: Discussion -> [Article]
+          fetchAs = map cArticle . articles . dCollection   :: Discussion ArticleId -> [Article]
           wanted  = filter $ (`Set.member` nodes) . fst     :: [(Headline, ArticleId)] -> [(Headline, ArticleId)]
           hIdPair = (headline . aDescription) &&& articleId :: Article -> (Headline, ArticleId)
       return . Map.fromList . wanted . map hIdPair $ fetchAs d
 
     addMissingRelations :: Set (ArticleId, ArticleId) -> Map Headline ArticleId
-                        -> Discussion -> Instance ArticleId -> UserId -> BackendDSL ()
+                        -> Discussion ArticleId -> Instance ArticleId -> UserId -> BackendDSL ()
     addMissingRelations posRels hToIdMap d i uid = do
       let curRels  = Set.fromList . map shrink $ relations d :: Set (ArticleId, ArticleId)
           newRels  = posRels \\ curRels                      :: Set (ArticleId, ArticleId)
@@ -125,14 +125,14 @@ fitInstance uid did i = do
           AddRelation did desc s t
 
     removeOldRelations :: Set (ArticleId, ArticleId) -> Map Headline ArticleId
-                       -> Instance ArticleId -> Discussion -> BackendDSL ()
+                       -> Instance ArticleId -> Discussion ArticleId -> BackendDSL ()
     removeOldRelations posRels hToIdMap i d = do
       let targets  = map snd $ Set.toList posRels :: [ArticleId] -- Changed Articles
           oldRels' = filter (flip elem targets . target) $ relations d
           oldRels  = filter (flip Set.notMember posRels . shrink) oldRels'
       mapM_ (RemoveRelation . relationId) oldRels
 
-    saveConditions :: Discussion -> Instance ArticleId -> BackendDSL ()
+    saveConditions :: Discussion ArticleId -> Instance ArticleId -> BackendDSL ()
     saveConditions d i =
       let updates = map (aHead &&& aCondition) $ conditions i :: [(ArticleId, Exp ArticleId)]
           cid     = collectionId $ dCollection d              :: CollectionId

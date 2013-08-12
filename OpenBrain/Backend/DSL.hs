@@ -2,11 +2,6 @@
 module OpenBrain.Backend.DSL where
 
 import OpenBrain.Data
-import OpenBrain.Data.Id
-import OpenBrain.Data.Hash
-import OpenBrain.Data.Json
-import OpenBrain.Data.Logic
-import OpenBrain.Data.Salt
 
 {-| The BackendDSL and it's verbs: |-}
 data BackendDSL r where
@@ -46,7 +41,7 @@ data BackendDSL r where
   AddCollection   :: NewDescriptionId -> [ArticleId] -> BackendDSL NewCollectionId
   CollectArticles :: CollectionId -> [ArticleId] -> BackendDSL () 
   ForgetArticles  :: CollectionId -> [ArticleId] -> BackendDSL ()
-  GetCollection   :: CollectionId -> BackendDSL Collection
+  GetCollection   :: CollectionId -> BackendDSL (Collection ArticleId)
   DiscussionIds   :: CollectionId -> BackendDSL [DiscussionId]
   -- | CollectionArticle related:
   UpdatePosition  :: CollectionId -> ArticleId -> (Int,Int) -> BackendDSL ()
@@ -54,7 +49,7 @@ data BackendDSL r where
   UpdateCondition :: CollectionId -> ArticleId -> Custom -> Exp ArticleId -> BackendDSL ()
   -- | Discussion related:
   AddDiscussion  :: NewCollectionId -> [UserId] -> Maybe Timestamp -> BackendDSL DiscussionId
-  GetDiscussion  :: DiscussionId -> BackendDSL Discussion
+  GetDiscussion  :: DiscussionId -> BackendDSL (Discussion ArticleId)
   SetParticipant :: DiscussionId -> UserId -> Bool -> BackendDSL ()
   -- | Result related:
   AddResult     :: DiscussionId -> ResultType -> [(ResultState, ArticleId)] -> BackendDSL ResultId

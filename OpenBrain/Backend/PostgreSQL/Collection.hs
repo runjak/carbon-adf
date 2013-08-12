@@ -32,7 +32,7 @@ forgetArticles cid as conn = do
   delOldRelations <- prepare conn q 
   executeMany delOldRelations $ map (\a -> [toSql $ toId a, toSql $ toId a, toSql $ toId cid]) as
 
-getCollection :: CollectionId -> Query Collection
+getCollection :: CollectionId -> Query (Collection ArticleId)
 getCollection cid conn = do
   [[did]] <- quickQuery' conn "SELECT descriptionid FROM collections WHERE collectionid = ?" [toSql $ toId cid]
   desc    <- Description.getDescription (fromId $ fromSql did) conn

@@ -8,7 +8,9 @@ pageCollections :: OBW Response
 pageCollections = countAndPageBy CollectionCount $ \l o -> liftM responseJSON' $ PageCollections l o
 
 readCollection :: CollectionId -> OBW Response
-readCollection = respOk . responseJSON' <=< liftB . GetCollection
+-- FIXME
+-- Map Collection to Headline first, here.
+readCollection = respOk . responseJSON' . fmap show <=< liftB . GetCollection
 
 addToCollection :: CollectionId -> ArticleId -> OBW Response
 addToCollection cid aid = Session.chkSession' . const $ do

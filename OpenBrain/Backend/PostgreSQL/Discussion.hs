@@ -15,7 +15,7 @@ addDiscussion ncid uids deadline conn = do
   executeMany addP $ map (\u -> [i, toSql $ toId u]) uids
   return . fromId $ fromSql i
 
-getDiscussion :: DiscussionId -> Query Discussion
+getDiscussion :: DiscussionId -> Query (Discussion ArticleId)
 getDiscussion did conn = do
   let did' = [toSql $ toId did]
       q    = "SELECT collectionid, deadline FROM discussions WHERE discussionid = ?"

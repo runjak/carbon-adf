@@ -22,7 +22,7 @@ import qualified Database.HDBC.PostgreSQL as PSQL
 import OpenBrain.Backend.DSL as DSL
 import OpenBrain.Config (Config)
 import OpenBrain.Common as Common
-import OpenBrain.Data   as Data
+import OpenBrain.Data   as Data hiding (Statement)
 import qualified OpenBrain.Backend.PostgreSQL.Conversion as Conversion
 import qualified OpenBrain.Config  as Config
 
