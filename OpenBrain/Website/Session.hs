@@ -52,4 +52,3 @@ dropSession = do
   uid <- liftM read $ lookCookieValue cookieUserId
   liftB $ Logout uid
   mapM_ expireCookie [cookieActionKey, cookieUserId]
-
