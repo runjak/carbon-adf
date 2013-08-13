@@ -80,8 +80,6 @@ fitInstance uid did i = do
   hToIdMap <- mapHeadlineArticleId  d i
   let i'      = fmap (hToIdMap !) i                                   :: Instance ArticleId
       posRels = Set.fromList . concatMap possibleRels $ conditions i' :: Set (ArticleId, ArticleId)
-  LogString $ "Converted Instance is:\n" ++ show (fmap show i')
-  LogString $ "Possible Relations are:\n" ++ show posRels
   addMissingRelations posRels hToIdMap d i' uid 
   removeOldRelations  posRels hToIdMap i' d
   saveConditions d i'

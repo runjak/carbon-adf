@@ -46,7 +46,9 @@ clone aid uid conn = do
 getArticle :: ArticleId -> Query Article
 getArticle aid conn = do
   let q = "SELECT descriptionid, content FROM articles WHERE articleid = ?"
-  [[did, content]] <- quickQuery' conn q [toSql $ toId aid]
+  rst <- quickQuery' conn q [toSql $ toId aid]
+  when (null rst) . error $ "Non existent ArticleId: " ++ show aid
+  let [[did, content]] = rst
   description <- getDescription (fromId $ fromSql did) conn
   let getC = "SELECT child FROM children WHERE parent = ?"
   children <- liftM (map head) $ quickQuery' conn getC [toSql $ toId aid]

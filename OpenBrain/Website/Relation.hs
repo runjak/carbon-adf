@@ -2,7 +2,7 @@
 module OpenBrain.Website.Relation where
 
 import OpenBrain.Website.Common
-import qualified OpenBrain.Backend.Logic       as Logic
+import qualified OpenBrain.Backend.Logic       as BLogic
 import qualified OpenBrain.Website.Description as Description
 import qualified OpenBrain.Website.Session     as Session
 
@@ -14,7 +14,7 @@ createRelation = plusm createFail $ do
   (discussion, source, target) <- liftM3 (,,) (lookRead "discussion") (lookRead "source") (lookRead "target")
   ndid <- Description.createDescription
   rid  <- liftB $ AddRelation discussion ndid source target
-  liftB $ Logic.autoCondition discussion target
+  liftB $ BLogic.autoCondition discussion target
   readRelation rid
   where
     createFail = respBadRequest $ responseJSON''
@@ -46,5 +46,5 @@ updateRelation rid = Session.chkSession' . const $ do
 
 deleteRelation :: RelationId -> OBW Response
 deleteRelation rid = Session.chkSession' . const $ do
-  liftB  $ Logic.removeRelation rid
+  liftB  $ BLogic.removeRelation rid
   respOk $ responseJSON'' "Relation removed"
