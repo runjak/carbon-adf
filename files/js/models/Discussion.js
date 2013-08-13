@@ -2,12 +2,14 @@ Discussion = Item.extend({
   urlRoot: 'discussion/'
 , defaults: {}
 , initialize: function(){
-    this.articles   = new ArticleCollection();
-    this.participants  = new UserCollection();
-    this.relations = new RelationCollection();
+    this.articles     = new  ArticleCollection();
+    this.participants = new     UserCollection();
+    this.relations    = new RelationCollection();
+    this.results      = new  DiscussionResults();
     this.on('change:articles',     this.updateArticles,     this);
     this.on('change:participants', this.updateParticipants, this);
     this.on('change:relations',    this.updateRelations,    this);
+    this.on('change:results',      this.updateResults,      this);
   }
 , updateArticles: function(){
     var cid = {collectionId : this.get('collectionId')};
@@ -43,6 +45,9 @@ Discussion = Item.extend({
       return stack;
     }, []);
     this.relations.set(rs);
+  }
+, updateResults: function(){
+    this.results.setResults(this.get('results'));
   }
 , create: function(){
     var q = {
