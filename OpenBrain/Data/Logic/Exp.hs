@@ -1,16 +1,17 @@
 {-# LANGUAGE FlexibleInstances #-}
 module OpenBrain.Data.Logic.Exp(
   Exp(..)
+, VarContainer(..)
 , and'
 , or'
 , removeVar
-, vars
 ) where
 
 import Control.Monad
+import Data.Set (Set)
 import qualified Data.Map   as Map
 import qualified Data.Maybe as Maybe
-import qualified Data.Set as Set
+import qualified Data.Set   as Set
 
 import OpenBrain.Common
 import OpenBrain.Data.Id
@@ -24,6 +25,9 @@ data Exp  a = Var   a
             | Const Bool
             deriving Eq
 
+class VarContainer v where
+  vars :: (Ord a) => v a -> Set a
+
 -- | Instances:
 instance Functor Exp where
   fmap f (Var x)     = Var $ f x
@@ -33,7 +37,7 @@ instance Functor Exp where
   fmap f (Const b)   = Const b
 
 instance NameContainer (Exp String) where
-  names = Set.fromList . vars
+  names = vars
 
 instance Show (Exp String) where
   show (Var s)   = s
@@ -41,6 +45,13 @@ instance Show (Exp String) where
   show (Or  x y) =  "or(" ++ show x ++ "," ++ show y ++ ")"
   show (Neg x)   = "neg(" ++ show x ++ ")"
   show (Const t) =   "c(" ++ (t ? ("v","f")) ++ ")"
+
+instance VarContainer Exp where
+  vars (Var a)     = Set.fromList [a]
+  vars (And e1 e2) = vars e1 `Set.union` vars e2
+  vars (Or  e1 e2) = vars e1 `Set.union` vars e2
+  vars (Neg e)     = vars e
+  vars (Const _)   = Set.empty
 
 {-|
   Mechanisms to enable easier work with Exp:
@@ -78,9 +89,3 @@ removeVar s = Maybe.fromMaybe (Const True) . removeVar' s
         Nothing  -> Nothing
     removeVar' s c@(Const _) = Just c
 
-vars :: Exp a -> [a]
-vars (Var a)     = [a]
-vars (And e1 e2) = vars e1 ++ vars e2
-vars (Or  e1 e2) = vars e1 ++ vars e2
-vars (Neg e)     = vars e
-vars (Const _)   = []

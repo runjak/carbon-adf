@@ -11,8 +11,6 @@ import qualified Data.Set   as Set
 import OpenBrain.Backend.DSL
 import OpenBrain.Common
 import OpenBrain.Data
-import OpenBrain.Data.Id
-import OpenBrain.Data.Logic as Logic
 
 {-|
   Generates the condition for a CollectionArticle automatically
@@ -89,7 +87,8 @@ fitInstance uid did i = do
   saveConditions d i'
   where
     possibleRels :: ACondition ArticleId -> [(ArticleId, ArticleId)]
-    possibleRels ac = map (\c -> (c, aHead ac)) . vars $ aCondition ac
+    possibleRels ac = let sources = vars $ aCondition ac
+                      in  Set.toList . Set.map (\c -> (c, aHead ac)) $ sources
 
     addMissingNodes :: UserId -> DiscussionId -> Instance Headline-> BackendDSL (Discussion ArticleId)
     addMissingNodes uid did i = do
@@ -170,3 +169,14 @@ removeRelation rid = do
     , "by removing var: " ++ (show . unwrap $ toId var)
     ]
   UpdateCondition cid aid cust exp'
+
+{-|
+  Takes any Functor and VarContainer c that carries ArticleId and translates them to Headlines.
+  This is especially usefull to provide nice data to a client.
+|-}
+articleIdsToHeadlines :: (VarContainer c, Functor c) => c ArticleId -> BackendDSL (c Headline)
+articleIdsToHeadlines c = do
+  as <- mapM GetArticle . Set.toList $ vars c
+  let aidHPair = articleId &&& (headline . aDescription)
+      idToHMap = Map.fromList $ map aidHPair as
+  return $ fmap (idToHMap Map.!) c

@@ -24,10 +24,9 @@ createDiscussion = Session.chkSession' $ \uid -> plusm createFail $ do
     createFail = respBadRequest $ responseJSON'' "Expected parameters: headline, description, [deadline]"
 
 readDiscussion :: DiscussionId -> OBW Response
--- readDiscussion = respOk . responseJSON' <=< liftB . GetDiscussion
--- FIXME
--- Map Discussion to Headline first, here
-readDiscussion = respOk . responseJSON' . fmap show <=< liftB . GetDiscussion
+readDiscussion did = do
+  d <- liftB $ BLogic.articleIdsToHeadlines =<< GetDiscussion did
+  respOk $ responseJSON' d
 
 joinDiscussion :: DiscussionId -> OBW Response
 joinDiscussion did = Session.chkSession' $ \uid -> do

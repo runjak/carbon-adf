@@ -7,6 +7,7 @@ import Data.Function (on)
 import OpenBrain.Data.Alias
 import OpenBrain.Data.Collection
 import OpenBrain.Data.Id
+import OpenBrain.Data.Logic.Exp
 import OpenBrain.Data.Json
 import OpenBrain.Data.Relation
 import OpenBrain.Data.Result
@@ -22,10 +23,13 @@ data Discussion expType = Discussion {
 
 instance Eq (Discussion e) where
   (==) = (==) `on` discussionId
+
 instance Functor Discussion where
   fmap f d = d{dCollection = fmap f $ dCollection d}
+
 instance Ord (Discussion e) where
   compare = compare `on` discussionId
+
 instance Show (Discussion Headline) where
   show d =
     let x1 = "discussionId=" ++ show (discussionId d)
@@ -35,6 +39,7 @@ instance Show (Discussion Headline) where
         x5 = ",results=" ++ show (results d)
         x6 = ",dCollection=" ++ show (dCollection d)
     in "Discussion {"++x1++x2++x3++x4++x5++x6++"}"
+
 instance ToJSON (Discussion Headline) where
   toJSON d = merge (toJSON $ dCollection d) o
     where
@@ -45,3 +50,6 @@ instance ToJSON (Discussion Headline) where
         , "relations"    .= relations    d
         , "results"      .= results      d
         ]
+
+instance VarContainer Discussion where
+  vars = vars . dCollection

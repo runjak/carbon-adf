@@ -20,10 +20,13 @@ data CollectionArticle expType = CollectionArticle {
 
 instance Eq (CollectionArticle e) where
   (==) = (==) `on` cArticle
+
 instance Functor CollectionArticle where
   fmap f ca = ca{condition = fmap f $ condition ca}
+
 instance Ord (CollectionArticle e) where
   compare = compare `on` cArticle
+
 instance Show (CollectionArticle Headline) where
   show ca  = 
     let x1 = "cArticle="         ++ show (cArticle ca)
@@ -33,6 +36,7 @@ instance Show (CollectionArticle Headline) where
         x5 = ",customcondition=" ++ show (customcondition ca)
         x6 = ",condition="       ++ show (condition ca)
     in "CollectionArticle {"++x1++x2++x3++x4++x5++x6++"}"
+
 instance ToJSON (CollectionArticle Headline) where
   toJSON c = merge (toJSON $ cArticle c) o
     where 
@@ -43,3 +47,6 @@ instance ToJSON (CollectionArticle Headline) where
         , "customcondition" .= customcondition c
         , "condition"       .= show (condition c)
         ]
+
+instance VarContainer CollectionArticle where
+  vars = vars . condition
