@@ -5,7 +5,9 @@
 */
 PaperArticle = Backbone.View.extend({
   initialize: function(){
-  //this.model.on('change', this.update, this);
+    //Binding event listeners:
+    this.model.on('change:headline',    this.update, this);
+    this.model.on('change:resultState', this.showResultState, this);
     //Taking care that the paperArticle can be found:
     var aid = this.model.get('id');
     window.App.views.discussionArticles[aid] = this;
@@ -77,6 +79,19 @@ PaperArticle = Backbone.View.extend({
       this.glow.remove();
       this.glow = null;
     } return this;
+  }
+, showResultState: function(){
+    switch(this.model.get('resultState')){
+      case 'In':
+        return this.showAccepted();
+      break;
+      case 'Out':
+        return this.showRejected();
+      break;
+      case 'Udec':
+      default:
+        return this.showUnknown();
+    }
   }
 , showAccepted: function(){this.back.attr({fill: '#0f0'}); return this;}
 , showRejected: function(){this.back.attr({fill: '#f00'}); return this;}

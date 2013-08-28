@@ -2,6 +2,7 @@ Article = Item.extend({
   urlRoot: 'article/'
 , defaults: {}
 , initialize: function(){
+    var t = this;
     this.paperArticle = null;
   }
 , create: function(){

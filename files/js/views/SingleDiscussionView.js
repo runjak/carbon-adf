@@ -1,6 +1,7 @@
 SingleDiscussionView = Hideable.extend({
   initialize: function(){
     this.HideTarget = this.$el.parent();
+    this.resultsTab = this.$('#SingleDiscussionViewResultsTab');
     this.discussionArticleView = new DiscussionArticleView({
       el: this.$('#SingleDiscussionViewArticles'), model: null});
     this.discussionCollectedView = new DiscussionCollectedView({
@@ -9,6 +10,8 @@ SingleDiscussionView = Hideable.extend({
     });
     this.discussionGraphView = new DiscussionGraphView({
       el: this.$('#SingleDiscussionViewGraph'), model: null});
+    this.discussionResultView = new DiscussionResultView({
+      el: this.$('#SingleDiscussionResultView'), model: null});
     this.discussionParticipantView = new DiscussionParticipantView({
       el: this.$('#SingleDiscussionViewParticipants'), model: null});
     this.relationCreationModal = new RelationCreationModal({
@@ -17,11 +20,27 @@ SingleDiscussionView = Hideable.extend({
       el: this.$('#ArticleConditionModal'), model: null});
     this.discussionDlFileView = new DiscussionDlFileView({
       el: this.$('#SingleDiscussionViewFiles'), model: null}); 
+    this.subViews = ['discussionArticleView'    , 'discussionCollectedView'
+                    ,'discussionGraphView'      , 'discussionResultView'
+                    ,'discussionParticipantView', 'relationCreationModal'
+                    ,'articleConditionModal'    , 'discussionDlFileView'];
     var view = this;
     window.App.router.on('route:singleDiscussionView', function(did){
       view.setDiscussionId(did).always(function(){
         window.App.hideManager.render(view);
       });
+    });
+    window.App.router.on('route:singleDiscussionViewTab', function(did, tab){
+      view.setDiscussionId(did).always(function(){
+        window.App.hideManager.render(view);
+        var tid = window.setTimeout(function(){
+          view.setTab(tab);
+          window.clearTimeout(tid);
+        }, 200);
+      });
+    });
+    this.$('#SingleDiscussionViewTabs a').click(function(e){
+      view.tabClicked($(this).parent().data('tabname'));
     });
   }
 , render: function(){
@@ -35,10 +54,14 @@ SingleDiscussionView = Hideable.extend({
       deadline = deadline ? ('Deadline: ' + deadline) : '';
       this.$('.deadline').html(deadline);
       this.$('summary').html(this.model.get('description'));
+      this.model.results.hasResults() ? this.resultsTab.show()
+                                      : this.resultsTab.hide();
     }else{
       this.$('h1').html('Discussion not found!');
       this.$('.creation, .deletion, .deadline').html('');
       this.$('summary').html('The requested discussion was not found on the server.');
+      this.$('#SingleDiscussionViewResultsTab').hide();
+      this.resultsTab.hide();
     }
   }
 , setDiscussion: function(d){
@@ -53,13 +76,10 @@ SingleDiscussionView = Hideable.extend({
       this.model.on('change:deadline',     this.render, this);
       this.model.on('change:description',  this.render, this);
     }
-    this.discussionArticleView.setModel(d);
-    this.discussionCollectedView.setDiscussion(d);
-    this.discussionGraphView.setModel(d);
-    this.discussionParticipantView.setModel(d);
-    this.discussionDlFileView.setModel(d);
-    this.relationCreationModal.setModel(d);
-    this.articleConditionModal.setModel(d);
+    var view = this;
+    _.each(this.subViews, function(v){
+      view[v].setModel(d);
+    });
   }
 , setDiscussionId: function(did){
     var view = this;
@@ -80,5 +100,14 @@ SingleDiscussionView = Hideable.extend({
       p.reject(f);
     });
     return p;
+  }
+, setTab: function(tab){
+  //this.$('#SingleDiscussionViewTabs li[data-tabname="'+tab+'"] a').tab('show');
+    this.$('#SingleDiscussionViewTabs li[data-tabname="'+tab+'"] a').trigger('click');
+  }
+, tabClicked: function(tab){
+    if(!this.model) return;
+    did = this.model.get('id');
+    window.App.router.navigate('discussion/'+did+'/'+tab);
   }
 });

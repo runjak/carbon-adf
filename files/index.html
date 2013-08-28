@@ -131,11 +131,24 @@
           <div class="deletion"></div>
           <summary></summary>
           <ul id="SingleDiscussionViewTabs" class="nav nav-tabs">
-            <li class="active"><a href="#SingleDiscussionViewArticles" data-toggle="tab">Current articles</a></li>
-            <li><a href="#SingleDiscussionViewCollected" data-toggle="tab">Collected articles</a></li>
-            <li><a href="#SingleDiscussionViewGraph" data-toggle="tab">Graph view</a></li>
-            <li><a href="#SingleDiscussionViewParticipants" data-toggle="tab">Participants</a></li>
-            <li><a href="#SingleDiscussionViewFiles" data-toggle="tab">.dl files</a></li>
+            <li data-tabname="articles" class="active">
+              <a href="#SingleDiscussionViewArticles" data-toggle="tab">Current articles</a>
+            </li>
+            <li data-tabname="collected">
+              <a href="#SingleDiscussionViewCollected" data-toggle="tab">Collected articles</a>
+            </li>
+            <li data-tabname="graph">
+              <a href="#SingleDiscussionViewGraph" data-toggle="tab">Graph view</a>
+            </li>
+            <li id="SingleDiscussionViewResultsTab" class="hide" data-tabname="results">
+              <a href="#SingleDiscussionViewResults" data-toggle="tab">Results</a>
+            </li>
+            <li data-tabname="participants">
+              <a href="#SingleDiscussionViewParticipants" data-toggle="tab">Participants</a>
+            </li>
+            <li data-tabname="files">
+              <a href="#SingleDiscussionViewFiles" data-toggle="tab">.dl files</a>
+            </li>
           </ul>
           <div id="SingleDiscussionViewTabContent" class="tab-content">
             <div id="SingleDiscussionViewArticles" class="tab-pane fade in active">
@@ -207,8 +220,31 @@
                   title="Hide/Display above page parts. (h)">
                   <i class="icon-arrow-up icon-white"></i>
                 </button>
+                <div id="SingleDiscussionViewGraphResults" class="hide">
+                  <label>
+                    Result sets:
+                    <select id="ResultSets"></select>
+                  </label>
+                  <label>
+                    Current Result:
+                    <select id="ResultSet"></select>
+                  </label>
+                  <button type="button" class="btn btn-info"
+                    id="DiscussionGraphResultViewPrev"
+                    title="Display the previous result. (R)">
+                    <i class="icon-step-backward"></i>
+                  </button>
+                  <button type="button" class="btn btn-info"
+                    id="DiscussionGraphResultViewNext"
+                    title="Display the next result. (r)">
+                    <i class="icon-step-forward"></i>
+                  </button>
+                </div>
               </form>
               <div class="paper"></div>
+            </div>
+            <div id="SingleDiscussionViewResults" class="tab-pane fade">
+              The Kraken lives, and Alfred Lord Tennyson knows…
             </div>
             <div id="SingleDiscussionViewParticipants" class="tab-pane fade">
               <form class="form-horizontal">
@@ -425,7 +461,9 @@
     <script src="files/js/views/PaperArticle.js"></script>
     <script src="files/js/views/PaperRelation.js"></script>
     <script src="files/js/views/PaperView.js"></script>
+    <script src="files/js/views/DiscussionGraphResultView.js"></script>
     <script src="files/js/views/DiscussionGraphView.js"></script>
+    <script src="files/js/views/DiscussionResultView.js"></script>
     <script src="files/js/views/DiscussionParticipantView.js"></script>
     <script src="files/js/views/DiscussionDlFileView.js"></script>
     <script src="files/js/views/RelationCreationModal.js"></script>

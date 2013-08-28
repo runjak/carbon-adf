@@ -1,6 +1,7 @@
 DiscussionGraphView = PaperView.extend({
   initialize: function(){
-    this.dummyArticleFactory = new DummyArticleFactory();
+    this.dummyArticleFactory       = new DummyArticleFactory();
+    this.discussionGraphResultView = new DiscussionGraphResultView({el: this.$('#SingleDiscussionViewGraphResults')});
     this.setModel(this.model);
     var view = this;
     $(window).resize(function(){
@@ -102,6 +103,7 @@ DiscussionGraphView = PaperView.extend({
     this.paperRelations = pRs;
   }
 , setModel: function(m){
+    this.discussionGraphResultView.setModel(m);
     if(this.model){
       this.model.off(null, null, this);
       this.model.articles.off(null, null, this);
@@ -167,6 +169,10 @@ DiscussionGraphView = PaperView.extend({
       break;
       case 72: // H
         this.hideRest();
+      break;
+      case 82: // R
+        e.shiftKey ? this.discussionGraphResultView.prev()
+                   : this.discussionGraphResultView.next();
       break;
       default:
       //console.log('Uncought keycode: '+e.keyCode);

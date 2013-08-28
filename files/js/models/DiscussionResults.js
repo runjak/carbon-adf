@@ -18,5 +18,19 @@ DiscussionResults = Backbone.Model.extend({
     _.each(this.ResultTypes, function(rType){
       results[rType].set(buckets[rType]);
     });
+    return this;
+  }
+, hasResults: function(){
+    var results = this;
+    return _.some(this.ResultTypes, function(rType){
+      return results[rType].length > 0;
+    });
+  }
+, each: function(f, c){
+    var t = this;
+    _.each(this.ResultTypes, function(rType){
+      _.each(t[rtype], f, c);
+    });
+    return this;
   }
 });

@@ -1,15 +1,18 @@
 Discussion = Item.extend({
   urlRoot: 'discussion/'
-, defaults: {}
+, defaults: {
+    currentResult: null // Used to store a result selected by the user
+  }
 , initialize: function(){
     this.articles     = new  ArticleCollection();
     this.participants = new     UserCollection();
     this.relations    = new RelationCollection();
     this.results      = new  DiscussionResults();
-    this.on('change:articles',     this.updateArticles,     this);
-    this.on('change:participants', this.updateParticipants, this);
-    this.on('change:relations',    this.updateRelations,    this);
-    this.on('change:results',      this.updateResults,      this);
+    this.on('change:articles',      this.updateArticles,     this);
+    this.on('change:participants',  this.updateParticipants, this);
+    this.on('change:relations',     this.updateRelations,    this);
+    this.on('change:results',       this.updateResults,      this);
+    this.on('change:currentResult', this.propagateResult,    this);
   }
 , updateArticles: function(){
     var cid = {collectionId : this.get('collectionId')};
@@ -48,6 +51,12 @@ Discussion = Item.extend({
   }
 , updateResults: function(){
     this.results.setResults(this.get('results'));
+  }
+, propagateResult: function(){
+    var r = this.get('currentResult');
+    this.articles.each(function(a){
+      a.set({resultState: r.stateFor(a.get('id'))});
+    });
   }
 , create: function(){
     var q = {

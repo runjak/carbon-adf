@@ -1,16 +1,22 @@
 TopMenuView = Backbone.View.extend({
   initialize: function(){
     var t = this;
-    window.App.router.on('route:createArticleView',    function(){t.activate('.article');});
-    window.App.router.on('route:singleArticleView',    function(){t.activate('.article');});
-    window.App.router.on('route:articleView',          function(){t.activate('.article');});
-    window.App.router.on('route:createDiscussionView', function(){t.activate('.discussion');});
-    window.App.router.on('route:singleDiscussionView', function(){t.activate('.discussion');});
-    window.App.router.on('route:discussionView',       function(){t.activate('.discussion');});
-    window.App.router.on('route:loginView',            function(){t.activate();});
-    window.App.router.on('route:singleUserView',       function(){t.activate('.user');});
-    window.App.router.on('route:userView',             function(){t.activate('.user');});
-    window.App.router.on('route:defaultRoute',         function(){t.activate();});
+    var activations = {
+      'route:createArticleView':       '.article'
+    , 'route:singleArticleView':       '.article'
+    , 'route:articleView':             '.article'
+    , 'route:createDiscussionView':    '.discussion'
+    , 'route:singleDiscussionView':    '.discussion'
+    , 'route:singleDiscussionViewTab': '.discussion'
+    , 'route:discussionView':          '.discussion'
+    , 'route:loginView':               null
+    , 'route:singleUserView':          '.user'
+    , 'route:userView':                '.user'
+    , 'route:defaultRoute':            null
+    };
+    _.each(activations, function(c, route){
+      window.App.router.on(route, function(){t.activate(c);});
+    });
   }
 , activate: function(c){
     this.$('li.active').removeClass('active');

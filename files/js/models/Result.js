@@ -8,7 +8,15 @@ Result = Backbone.Model.extend({
     });
     return ret;
   }
-, getIn:   function(){return filterArticles("In");}
-, getUdec: function(){return filterArticles("Udec");}
-, getOut:  function(){return filterArticles("Out");}
+, getIn:   function(){return this.filterArticles("In");}
+, getUdec: function(){return this.filterArticles("Udec");}
+, getOut:  function(){return this.filterArticles("Out");}
+, stateFor: function(aid){
+    var state = _.find(this.get('articles'), function(a){
+      return a[1] == aid;
+    });
+    if(typeof(state) === 'undefined')
+      return 'Udec';
+    return state[0];
+  }
 });

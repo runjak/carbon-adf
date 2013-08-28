@@ -49,4 +49,7 @@ DiscussionCollectedView = Backbone.View.extend({
     this.render();
     this.discussion.articles.on('reset add remove', this.render, this);
   }
+// Note that this is an alias to comply with SingleDiscussionView,
+// While this View has a different model.
+, setModel: function(m){this.setDiscussion(m);}
 });
