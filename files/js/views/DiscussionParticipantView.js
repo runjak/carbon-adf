@@ -10,8 +10,7 @@ DiscussionParticipantView = Backbone.View.extend({
     if(!this.model) return;
     //Buttons to change if user is a participant:
     if(window.App.login.get('loggedIn')){
-      var uid = window.App.login.get('id');
-      if(this.model.participants.elemById(uid)){
+      if(window.App.login.findInDiscussion(this.model)){
         this.$('#LeaveDiscussion').show();
         this.$('#JoinDiscussion').hide();
       }else{

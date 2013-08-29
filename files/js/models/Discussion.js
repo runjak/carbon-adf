@@ -126,4 +126,12 @@ Discussion = Item.extend({
     this.set({'newRelationEnd': target});
     return true;
   }
+, vote: function(rids){
+    var query = {choices: JSON.stringify(rids)}
+      , url   = this.urlRoot + this.get('id') + '/vote'
+      , disc  = this;
+    return $.post(url, query).done(function(data){
+      disc.set(data);
+    });
+  }
 });

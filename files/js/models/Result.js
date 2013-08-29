@@ -1,5 +1,6 @@
 Result = Backbone.Model.extend({
-  filterArticles: function(label){
+  defaults: {like: false}
+, filterArticles: function(label){
     var as  = this.get('articles');
     var ret = [];
     _.each(this.get('articles'), function(a){
@@ -18,5 +19,20 @@ Result = Backbone.Model.extend({
     if(typeof(state) === 'undefined')
       return 'Udec';
     return state[0];
+  }
+, getSubsets: function(articles){
+    var subsets = {
+      ins:   this.getIn()
+    , udecs: this.getUdec()
+    , outs:  this.getOut()
+    };
+    _.each(subsets, function(subset, key){
+      subsets[key] = articles.elems(function(a){
+        return _.some(subset, function(id){
+          return id === a.get('id');
+        });
+      });
+    });
+    return subsets;
   }
 });

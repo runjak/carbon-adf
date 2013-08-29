@@ -11,7 +11,7 @@ SingleDiscussionView = Hideable.extend({
     this.discussionGraphView = new DiscussionGraphView({
       el: this.$('#SingleDiscussionViewGraph'), model: null});
     this.discussionResultView = new DiscussionResultView({
-      el: this.$('#SingleDiscussionResultView'), model: null});
+      el: this.$('#SingleDiscussionViewResults'), model: null});
     this.discussionParticipantView = new DiscussionParticipantView({
       el: this.$('#SingleDiscussionViewParticipants'), model: null});
     this.relationCreationModal = new RelationCreationModal({

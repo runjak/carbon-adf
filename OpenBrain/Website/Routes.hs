@@ -52,6 +52,7 @@ route = msum [
         ]
       , dir "acs" . crudRead $ Discussion.acs did
       , dir "evaluate" . crudRead $ Discussion.evaluate did
+      , dir "vote" . crudCreate $ Discussion.vote did
       , crudRead $ Discussion.readDiscussion did
       ]
     , crudCreate Discussion.createDiscussion
@@ -72,10 +73,7 @@ route = msum [
       ]
     ]
   , dir "result" $ msum [
-      path $ \rid -> msum [
-        dir "vote" . crudCreate $ Result.vote rid
-      , crudRead $ Result.readResult rid
-      ]
+      path $ \rid -> crudRead $ Result.readResult rid
     , crudRead Result.pageResults
     ]
   , dir "user" $ msum [

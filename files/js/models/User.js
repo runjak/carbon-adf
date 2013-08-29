@@ -39,4 +39,8 @@ User = Item.extend({
     });
     return promise;
   }
+, findInDiscussion: function(discussion){
+    var uid = this.get('id');
+    return discussion.participants.elemById(uid);
+  }
 });

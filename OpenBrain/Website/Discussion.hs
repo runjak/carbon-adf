@@ -1,6 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 module OpenBrain.Website.Discussion where
 
+import qualified Data.Aeson     as Aeson
+import qualified Data.Set       as Set
+import qualified Data.String    as String
 import qualified System.Process as Process
 
 import OpenBrain.Website.Common
@@ -86,6 +89,27 @@ fitInstance did = Session.chkSession' $ \uid -> do
     withError :: String -> OBW Response
     withError = respBadRequest . toResponse
 
+vote :: DiscussionId -> OBW Response
+vote did = plusm badReq $ do
+  liftIO $ putStrLn "OpenBrain.Website.Discussion:vote"
+  uid <- Session.chkSession
+  chs <- liftM Set.fromList getChoices
+  d   <- liftB $ GetDiscussion did
+  -- Check if voting is allowed
+  let alreadyVoted = head . (++ [True]) . map snd . filter ((==) uid . fst) $ participants d
+  plusm cantVote $ do
+    guard $ not alreadyVoted
+    -- Filter valid ResultIds from chs
+    let valids = Set.fromList . map resultId $ results d
+        votes  = Set.toList $ Set.intersection chs valids
+    -- Perform vote
+    liftB $ mapM_ (Vote `flip` uid) votes
+    -- Answer with discussion
+    readDiscussion did
+  where
+    badReq = respBadRequest $ responseJSON'' "A user must be loggedin to vote."
+    cantVote = respForbidden $ responseJSON'' "The user either already voted or is no participant."
+
 -- | Parameters…
 getDeadline :: OBW (Maybe Timestamp)
 getDeadline = msum [liftM Just $ lookRead "deadline", return Nothing]
@@ -94,3 +118,9 @@ getFile :: OBW String
 getFile = do
   (tmpName, _, _) <- lookFile "file"
   liftIO $ readFile tmpName
+
+getChoices :: OBW [ResultId]
+getChoices = do
+  cs <- lookRead "choices"
+  let mRids = Aeson.decode $ String.fromString cs
+  maybe mzero return mRids
