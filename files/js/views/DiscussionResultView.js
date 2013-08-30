@@ -9,6 +9,7 @@ DiscussionResultView = Backbone.View.extend({
   }
 , events: {'click #SingleDiscussionViewResultsVote': 'vote'}
 , render: function(){
+    console.log('DiscussionResultView.render();');
     if(this.model && this.model.results.hasResults()){
       var canVote = false;
       if(u = window.App.login.findInDiscussion(this.model)){
@@ -49,13 +50,15 @@ DiscussionResultView = Backbone.View.extend({
         });
         row.articles = '<ul class="articleSet">' + lis + '</ul>';
         //Filling the votes progress:
-        var ratio = result.get('votes') / this.model.results.MaxVotes * 100
-          , state = 'progress-success';
-        if(ratio <= 0) ratio = 1;
-        if(ratio < 75) state =    'progress-info';
-        if(ratio < 50) state = 'progress-warning';
-        if(ratio < 25) state =  'progress-danger';
-        row.votes = '<div class="progress ' + state + '">'
+        var votes = result.get('votes')
+        var ratio = votes / this.model.results.MaxVotes * 100
+          , state = 'progress-success'
+          , title = ' title="' + ratio + '% (' + votes + ')"';
+        if(ratio <=  0) ratio = 1;
+        if(ratio <= 75) state =    'progress-info';
+        if(ratio <= 50) state = 'progress-warning';
+        if(ratio <= 25) state =  'progress-danger';
+        row.votes = '<div class="votebar progress ' + state + '"' + title + '>'
                   + '<div class="bar" style="width: ' + ratio + '%"></div>'
                   + '</div>';
         //Setting the choice:
@@ -95,10 +98,16 @@ DiscussionResultView = Backbone.View.extend({
     this.render();
   }
 , vote: function(){
-    var rids = [];
+    var rids = [], view = this;
     this.$('tbody input[type="checkbox"]:checked').each(function(){
       rids.push($(this).data('rid'));
     });
-    this.model.vote(rids);
+    this.model.vote(rids).done(function(){
+      alert('The vote has been registered! :)');
+    }).fail(function(error){
+      alert('There was a problem casting the vote, the server replied:\n' + JSON.stringify(error));
+    }).always(function(){
+      view.render();
+    });
   }
 });

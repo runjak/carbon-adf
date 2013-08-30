@@ -19,6 +19,7 @@ DiscussionResults = Backbone.Model.extend({
       if(r.votes > MaxVotes)
         MaxVotes = r.votes;
     });
+    this.MaxVotes = MaxVotes;
     _.each(this.ResultTypes, function(rType){
       results[rType].set(buckets[rType]);
     });

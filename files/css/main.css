@@ -46,3 +46,4 @@ body {padding-top: 60px;}
 }
 ul.articleSet {list-style: none; padding: 0px;}
 .articleSet li {display: inline; margin-right: 5px;}
+.votebar {min-width: 100px;}
