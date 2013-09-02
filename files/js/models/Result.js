@@ -1,5 +1,10 @@
 Result = Backbone.Model.extend({
   defaults: {like: false}
+, initialize: function(){
+    this.on('change:id',   this.loadLike, this);
+    this.on('change:like', this.safeLike, this);
+    this.loadLike();
+  }
 , filterArticles: function(label){
     var as  = this.get('articles');
     var ret = [];
@@ -34,5 +39,16 @@ Result = Backbone.Model.extend({
       });
     });
     return subsets;
+  }
+/* Tries to read the like status from html local storage. */
+, loadLike: function(){
+    var id = this.get('id');
+    if(localStorage['result_like_' + id])
+      this.set({like: true});
+  }
+/* Saves the like status to html local storage. */
+, safeLike: function(){
+    var id = this.get('id');
+    localStorage['result_like_' + id] = this.get('like');
   }
 });
