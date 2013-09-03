@@ -175,41 +175,43 @@
             </div>
             <div id="SingleDiscussionViewGraph" class="tab-pane fade">
               <form class="form-inline">
-                <button type="button" class="btn btn-info"
-                  id="DiscussionGraphViewCenter"
-                  title="Center. (z)">
-                  <i class="icon-screenshot"></i>
-                </button>
-                <button type="button" class="btn btn-info"
-                  id="DiscussionGraphViewZoomIn"
-                  title="Zoom in. (q)">
-                  <i class="icon-zoom-in"></i>
-                </button>
-                <button type="button" class="btn btn-info"
-                  id="DiscussionGraphViewZoomOut"
-                  title="Zoom out. (e)">
-                  <i class="icon-zoom-out"></i>
-                </button>
-                <button type="button" class="btn btn-info"
-                  id="DiscussionGraphViewMoveLeft"
-                  title="Scroll left. (a)">
-                  <i class="icon-chevron-left"></i>
-                </button>
-                <button type="button" class="btn btn-info"
-                  id="DiscussionGraphViewMoveRight"
-                  title="Scroll right. (d)">
-                  <i class="icon-chevron-right"></i>
-                </button>
-                <button type="button" class="btn btn-info"
-                  id="DiscussionGraphViewMoveUp"
-                  title="Scroll up. (w)">
-                  <i class="icon-chevron-up"></i>
-                </button>
-                <button type="button" class="btn btn-info"
-                  id="DiscussionGraphViewMoveDown"
-                  title="Scroll down. (s)">
-                  <i class="icon-chevron-down"></i>
-                </button>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-info"
+                    id="DiscussionGraphViewCenter"
+                    title="Center. (z)">
+                    <i class="icon-screenshot"></i>
+                  </button>
+                  <button type="button" class="btn btn-info"
+                    id="DiscussionGraphViewZoomIn"
+                    title="Zoom in. (q)">
+                    <i class="icon-zoom-in"></i>
+                  </button>
+                  <button type="button" class="btn btn-info"
+                    id="DiscussionGraphViewZoomOut"
+                    title="Zoom out. (e)">
+                    <i class="icon-zoom-out"></i>
+                  </button>
+                  <button type="button" class="btn btn-info"
+                    id="DiscussionGraphViewMoveLeft"
+                    title="Scroll left. (a)">
+                    <i class="icon-chevron-left"></i>
+                  </button>
+                  <button type="button" class="btn btn-info"
+                    id="DiscussionGraphViewMoveRight"
+                    title="Scroll right. (d)">
+                    <i class="icon-chevron-right"></i>
+                  </button>
+                  <button type="button" class="btn btn-info"
+                    id="DiscussionGraphViewMoveUp"
+                    title="Scroll up. (w)">
+                    <i class="icon-chevron-up"></i>
+                  </button>
+                  <button type="button" class="btn btn-info"
+                    id="DiscussionGraphViewMoveDown"
+                    title="Scroll down. (s)">
+                    <i class="icon-chevron-down"></i>
+                  </button>
+                </div>
                 <button type="button" class="btn btn-success"
                   id="DiscussionGraphViewAddNode"
                   title="Add a dummy node to the graph. (n)">
@@ -229,16 +231,22 @@
                     Current Result:
                     <select id="ResultSet"></select>
                   </label>
-                  <button type="button" class="btn btn-info"
-                    id="DiscussionGraphResultViewPrev"
-                    title="Display the previous result. (R)">
-                    <i class="icon-step-backward"></i>
-                  </button>
-                  <button type="button" class="btn btn-info"
-                    id="DiscussionGraphResultViewNext"
-                    title="Display the next result. (r)">
-                    <i class="icon-step-forward"></i>
-                  </button>
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-info"
+                      id="DiscussionGraphResultViewPrev"
+                      title="Display the previous result. (R)">
+                      <i class="icon-step-backward"></i>
+                    <button type="button" class="btn btn-danger"
+                      id="DiscussionGraphresultViewLike">
+                      <i class="icon-star"></i>
+                    </button>
+                    </button>
+                    <button type="button" class="btn btn-info"
+                      id="DiscussionGraphResultViewNext"
+                      title="Display the next result. (r)">
+                      <i class="icon-step-forward"></i>
+                    </button>
+                  </div>
                 </div>
               </form>
               <div class="paper"></div>

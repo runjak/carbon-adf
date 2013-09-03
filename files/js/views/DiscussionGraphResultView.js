@@ -15,6 +15,7 @@ DiscussionGraphResultView = Backbone.View.extend({
 , events: {
     'click #DiscussionGraphResultViewPrev': 'prev'
   , 'click #DiscussionGraphResultViewNext': 'next'
+  , 'click #DiscussionGraphresultViewLike': 'likeButtonClicked'
   }
 , render: function(){
     if(this.model && this.model.results.hasResults()){
@@ -68,13 +69,19 @@ DiscussionGraphResultView = Backbone.View.extend({
     this.resultSelected();
   }
 , resultSelected: function(){
+    var result = this.model.get('currentResult');
+    if(result) result.off(null, null, this);
     var rType  = this.$('#ResultSets > option:selected').attr('data-ResultType');
     var rIx    = this.$('#ResultSet option:selected').attr('data-index');
-    var result = this.model.results[rType].models[rIx];
+        result = this.model.results[rType].models[rIx];
     this.model.set({currentResult: result});
+    result.on('change:like', this.updateLikeButton, this);
+    this.updateLikeButton();
   }
 , setModel: function(m){
     if(this.model){
+      var result = this.model.get('currentResult');
+      if(result)  result.off(null, null, this);
       this.model.results.off(null, null, this);
     }
     this.model = m;
@@ -87,7 +94,6 @@ DiscussionGraphResultView = Backbone.View.extend({
     this.render();
   }
 , next: function(){
-    console.log('DiscussionGraphResultView.next();');
     var rIx = this.$('#ResultSet option:selected').next();
     if(rIx.length > 0){
       this.$('#ResultSet').val(rIx.val());
@@ -104,7 +110,6 @@ DiscussionGraphResultView = Backbone.View.extend({
     }
   }
 , prev: function(){
-    console.log('DiscussionGraphResultView.prev();');
     var rIx = this.$('#ResultSet option:selected').prev();
     if(rIx.length > 0){
       this.$('#ResultSet').val(rIx.val());
@@ -119,5 +124,21 @@ DiscussionGraphResultView = Backbone.View.extend({
       this.$('#ResultSets').val(rType.val());
       this.renderResults();
     }
+  }
+, updateLikeButton: function(){
+    var result = this.model.get('currentResult');
+    if(!result) return;
+    var button = this.$('#DiscussionGraphresultViewLike')
+      , like   = result.get('like')
+      , title  = like ? 'Do not vote for this result.' : 'Remember to vote for this result.'
+      , addCl  = like ? 'btn-danger'                   : 'btn-success'
+      , remCl  = like ? 'btn-success'                  : 'btn-danger'
+      , icon   = like ? 'icon-star'                    : 'icon-star-empty';
+    button.attr('title', title).removeClass(remCl).addClass(addCl).find('i').attr('class', icon);
+  }
+, likeButtonClicked: function(){
+    var result = this.model.get('currentResult');
+    if(!result) return;
+    result.set({like: !result.get('like')});
   }
 });
