@@ -3,7 +3,8 @@
 */
 DiscussionResultView = Backbone.View.extend({
   initialize: function(){
-    this.tbody = this.$('tbody');
+    this.results = {};
+    this.tbody   = this.$('tbody');
     if(this.model)
       this.setModel(this.model);
   }
@@ -80,6 +81,21 @@ DiscussionResultView = Backbone.View.extend({
       this.tbody.html(tRows);
       if(canVote) this.$('#SingleDiscussionViewResultsVoteArea').show();
       else        this.$('#SingleDiscussionViewResultsVoteArea').hide();
+      //Eventlisteners for Results:
+      _.each(this.results, function(r){
+        r.off(null, null, this);
+      }, this);
+      this.results = {};
+      this.model.results.each(function(r){
+        r.on('change:like', this.changeLike, this);
+        this.results[r.get('id')] = r;
+      },this);
+      var results = this.results;
+      this.$('tbody input[type="checkbox"]').change(function(){
+        var rid = $(this).data('rid')
+          , l   = $(this).is(':checked');
+        results[rid].set({like: l});
+      });
     }else{
       this.tbody.html('<tr><td colspan="5">Sorry, there are currently no results to display.</td></tr>');
       this.$('#SingleDiscussionViewResultsVoteArea').hide();
@@ -109,5 +125,11 @@ DiscussionResultView = Backbone.View.extend({
     }).always(function(){
       view.render();
     });
+  }
+, changeLike: function(result){
+    var rid  = result.get('id')
+      , like = result.get('like')
+      , sel  = 'tbody input[data-rid="'+rid+'"]';
+    this.$(sel).prop('checked', like);
   }
 });
