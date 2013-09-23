@@ -81,15 +81,24 @@ instance Monad BackendDSL where
   return = Nop
 
 {-|
-  A BackendProcessor, which must be supplied by OpenBrain.Backend.Load from the Config file.
-  This procedure makes sure, that the rest of the Application only uses the BackendDSL to communicate
-  with the Backend and the BackendProcessor stays exchangable as long as the interpretation
-  of the DSL doesn't change between Processors.
+  The BackendProcessor is build by the module OpenBrain.Backend.Load from a given Config file.
+  It ensures, that the rest of the application will only use the BackendDSL to communicate with the Backend.
+  Because a BackendDSL statement can only be executed by the process function using a BackendProcessor,
+  the Backend can be exchanged nicely.
 |-}
 class BackendProcessor b where
   process :: b -> BackendDSL r -> IO r
 
-{-| A Container for BackendProcessors: |-}
+{-|
+  CBackendProcessor is a simple Container for everything that is a BackendProcessor.
+  This makes it possible to pass BackendProcessors around without having to deal
+  with it's specific type, because that is hidden in the Container.
+  Of course the CBackendProcessor is itself a BackendProcessor and
+  thereby allowes us to process BackendDSL statements directly and we don't need
+  a method to extract the original BackendProcessor.
+  Also note, that it would be possible to easily inject a BackendProcessor
+  for debugging purposes.
+|-}
 data CBackendProcessor = forall b . BackendProcessor b => CBackendProcessor b
 instance BackendProcessor CBackendProcessor where
   process (CBackendProcessor b) = process b
