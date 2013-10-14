@@ -14,6 +14,7 @@ addArticle ndid content conn = do
 
 clone :: ArticleId -> Author -> Query ArticleId
 clone aid uid conn = do
+  putStrLn "OpenBrain.Backend.PostgreSQL.Article:clone"
   -- | Copy Article and Description to new rows:
   a <- getArticle aid conn
   let d = aDescription a
@@ -25,10 +26,10 @@ clone aid uid conn = do
   -- | Add as child to original:
   quickQuery' conn "INSERT INTO children (parent, child) VALUES (?, ?)" [toSql $ toId aid, toSql $ toId aid']
   -- | Copy relations:
-  let copyTarget = "INSERT INTO relations (descriptionid, source, target, type) "
-                ++ "SELECT descriptionid, source, ?, type FROM relations WHERE target = ?"
-      copySource = "INSERT INTO relations (descriptionid, source, target, type) "
-                ++ "SELECT descriptionid, ?, target, type FROM relations WHERE source = ?"
+  let copyTarget = "INSERT INTO relations (descriptionid, discussionid, source, target) "
+                ++ "SELECT descriptionid, discussionid, source, ? FROM relations WHERE target = ?"
+      copySource = "INSERT INTO relations (descriptionid, discussionid, source, target) "
+                ++ "SELECT descriptionid, discussionid, ?, target FROM relations WHERE source = ?"
       copies     = "SELECT relationid FROM relations WHERE target = ? OR source = ?"
   mapM_ (\q -> quickQuery' conn q [toSql $ toId aid', toSql $ toId aid]) [copyTarget, copySource]
   rids <- quickQuery' conn copies [toSql $ toId aid', toSql $ toId aid']

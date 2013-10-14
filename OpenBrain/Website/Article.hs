@@ -23,6 +23,7 @@ readArticle = respOk . responseJSON' <=< liftB . GetArticle
 
 updateArticle :: ArticleId -> OBW Response
 updateArticle aid = Session.chkSession' $ \author -> plusm updateFail $ do
+  liftIO $ putStrLn "OpenBrain.Website.Article:updateArticle"
   actions <- liftM concat $ sequence updates
   guard . not $ null actions
   aid' <- liftB $ do
