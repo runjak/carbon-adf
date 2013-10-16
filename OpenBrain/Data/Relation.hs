@@ -13,7 +13,7 @@ data Relation = Relation {
 , source       :: ArticleId
 , target       :: ArticleId
 , rDescription :: Description
-} deriving (Show) 
+} deriving (Show)
 
 instance Eq Relation where
   (==) = (==) `on` relationId
