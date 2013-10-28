@@ -23,7 +23,6 @@ main = do
     "--help":_  -> help
     "-help":_   -> help
     "help":_    -> help
-    "info":_    -> putStrLn Reflection.info
     "nullConfig":path:_ -> do
       putStrLn $ "Creating a nullConfig in '" ++ path ++ "'."
       writeConfig path nullConfig
@@ -35,7 +34,7 @@ main = do
 
 help :: IO ()
 help = mapM_ putStrLn [
-    "openBrain Version " ++ Reflection.version
+    "openBrain Version " ++ Reflection.version ++ " complete build: " ++ Reflection.date
   , "----------------------------------------------------------------------"
   , "Simple start:      $ openBrain <configFile::Filepath>"
   , "Create nullConfig: $ openBrain nullConfig <location::Filepath>"
