@@ -1,3 +1,2 @@
 #!/bin/sh
-cd /home/mushu/dev/openBrain/diamond/diamond/
-./diamond.py --transform_pform --all $1
+diamond --transform_pform -cf -m -sm -g -c -a $1

@@ -24,9 +24,9 @@ data DiamondResult a = DiamondResult {
 data ResultType = ConflictFree
                 | TwoValued
                 | Stable
-                | Grounded
-                | Complete
                 | Admissible
+                | Complete
+                | Grounded
                 deriving (Show, Eq, Enum, Bounded, Ord)
 
 newtype Results a = Results [(ResultType, [DiamondResult a])]
