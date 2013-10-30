@@ -1,5 +1,6 @@
 SingleDiscussionView = Hideable.extend({
-  initialize: function(){
+  events: {'click #SingleDiscussionViewEvaluate': 'discussionEvaluate'}
+, initialize: function(){
     this.HideTarget = this.$el.parent();
     this.resultsTab = this.$('#SingleDiscussionViewResultsTab');
     this.discussionArticleView = new DiscussionArticleView({
@@ -109,5 +110,16 @@ SingleDiscussionView = Hideable.extend({
     if(!this.model) return;
     did = this.model.get('id');
     window.App.router.navigate('discussion/'+did+'/'+tab);
+  }
+, discussionEvaluate: function(){
+    alert('Evaluating the discussion…');
+    $.get(this.model.url()+'/evaluate');
+    var t = this, tid = window.setTimeout(function(){
+      window.clearTimeout(tid);
+      t.model.fetch().always(function(){
+        t.setDiscussion(t.model);
+      });
+      alert('Evaluation should now be complete…');
+    }, 1000);
   }
 });
