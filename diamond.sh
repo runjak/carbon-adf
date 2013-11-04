@@ -1,2 +1,2 @@
 #!/bin/sh
-diamond --transform_pform -cf -m -sm -g -c -a $1
+diamond --transform_pform -m -sm -g -c -a $1

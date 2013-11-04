@@ -69,7 +69,7 @@ rPart rType = choice [found, dropLine, finished]
       in choice [eof, models] >> return (rType, []) 
 
 parseDiamond :: DRParser (Results String)
-parseDiamond = liftM Results $ mapM rPart [minBound..]
+parseDiamond = liftM Results $ mapM rPart [TwoValued, Stable, Admissible, Complete, Grounded]
 
 test :: IO ()
 test = do
