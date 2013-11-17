@@ -8,6 +8,7 @@ Discussion = Item.extend({
     this.participants = new     UserCollection();
     this.relations    = new RelationCollection();
     this.results      = new  DiscussionResults();
+    this.graph        = new      Springy.Graph();
     this.on('change:articles',      this.updateArticles,     this);
     this.on('change:participants',  this.updateParticipants, this);
     this.on('change:relations',     this.updateRelations,    this);
@@ -21,6 +22,19 @@ Discussion = Item.extend({
       return a.set(cid);
     });
     this.articles.set(as);
+    // Updating the graph:
+    var cAids = this.articles.pluck('id') // Current article Ids
+      , gAids = _.map(this.graph.nodes, function(n){return n.get('id');}) // Ids in the graph
+      , rAids = _.difference(gAids, cAids) // Ids to remove
+      , aAids = _.difference(cAids, gAids); // Ids to add
+    _.each(this.graph.nodes, function(n){ // Removing old nodes
+      if(_.contains(rAids, n.get('id')))
+        this.removeNode(n);
+    }, this.graph);
+    this.articles.each(function(n){ // Adding new nodes
+      if(_.contains(aAids, n.get('id')))
+        this.addNode(n);
+    }, this.graph);
     /*
       Sadly I've got to call updateRelations here,
       because the existence of Articles determines the
@@ -48,6 +62,19 @@ Discussion = Item.extend({
       return stack;
     }, []);
     this.relations.set(rs);
+    //Updating the graph, just like articles, but with the RelationId instead.
+    var cRids = this.relations.pluck('id') // Ids of current Relations
+      , gRids = _.map(this.graph.edges, function(e){return e.data.get('id');}) // Ids of Relations in the Graph
+      , rRids = _.difference(gRids, cRids) // Relations to remove
+      , aRids = _.difference(cRids, gRids); // Relations to add
+    _.each(this.graph.edges, function(e){ // Removing old edges
+      if(_.contains(rRids, e.data.get('id')))
+        this.removeEdge(e);
+    }, this.graph);
+    this.relations.each(function(r){ // Adding new edges
+      if(_.contains(aRids, r.get('id')))
+        this.newEdge(r.source, r.target, r);
+    }, this.graph);
   }
 , updateResults: function(){
     this.results.setResults(this.get('results'));

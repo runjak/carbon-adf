@@ -7,3 +7,5 @@
    - I'll want to keep my algorithm to integrate an user upload
  - Maybe I can even translate the new design into the app
  - I'll want to check, if diamond can output JSON, which would greatly simplify parsing and make it more robust
+ - Build a way to compose the index.html on request,
+   so that it can be edited in single, smaller parts.

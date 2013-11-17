@@ -33,32 +33,32 @@ DiscussionGraphView = PaperView.extend({
     var p = this.paper;
     var w = p.width;
     var h = p.height;
-    //Cleaning:
-    if(this.paperArticles)
-      _.each(this.paperArticles, function(pa){pa.remove();});
-    this.paperArticles = [];
-    if(this.paperRelations)
-      _.each(this.paperRelations, function(pr){pr.remove();});
-    this.paperRelations = [];
-    p.clear();
-    //Drawing:
-    this.drawGrid();
-    if(this.model !== null && typeof(this.model) !== 'undefined'){
-      //Placing Articles:
-      var discussion = this.model;
-      this.model.articles.each(function(a){
-        var pa = new PaperArticle({model: a, el: p});
-        view.paperArticles.push(pa.setDiscussion(discussion));
-      });
-      //Placing Relations:
-      this.model.relations.each(function(r){
-        view.paperRelations.push(new PaperRelation({model: r, el: p}));
-      });
-      //FIXME implement
-    }
-    //Fixes:
-    p.renderfix();
-    p.safari();
+//  //Cleaning:
+//  if(this.paperArticles)
+//    _.each(this.paperArticles, function(pa){pa.remove();});
+//  this.paperArticles = [];
+//  if(this.paperRelations)
+//    _.each(this.paperRelations, function(pr){pr.remove();});
+//  this.paperRelations = [];
+//  p.clear();
+//  //Drawing:
+//  this.drawGrid();
+//  if(this.model !== null && typeof(this.model) !== 'undefined'){
+//    //Placing Articles:
+//    var discussion = this.model;
+//    this.model.articles.each(function(a){
+//      var pa = new PaperArticle({model: a, el: p});
+//      view.paperArticles.push(pa.setDiscussion(discussion));
+//    });
+//    //Placing Relations:
+//    this.model.relations.each(function(r){
+//      view.paperRelations.push(new PaperRelation({model: r, el: p}));
+//    });
+//    //FIXME implement
+//  }
+//  //Fixes:
+//  p.renderfix();
+//  p.safari();
   }
 , resize: function(){
     if(this.model){
