@@ -1,0 +1,9 @@
+ - Get a nice Graph by using springy.js
+   - Maybe with sprigy I no longer need to store positions
+ - Figure out how to redesign current datatypes
+   - They should support proof standards, aswell as custom conditions
+   - The logic program for them must become generated
+   - I'll have three kinds of relations: attack, defense, and automatically generated for a custom condition
+   - I'll want to keep my algorithm to integrate an user upload
+ - Maybe I can even translate the new design into the app
+ - I'll want to check, if diamond can output JSON, which would greatly simplify parsing and make it more robust
