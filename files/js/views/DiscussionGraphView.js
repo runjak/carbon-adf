@@ -1,6 +1,14 @@
 DiscussionGraphView = PaperView.extend({
-  initialize: function(){
-    this.dummyArticleFactory       = new DummyArticleFactory();
+  defaults: {
+    stiffness: 640
+  , repulsion: 480
+  , damping:   0.5
+  }
+, springyLayout: function(graph){
+    return new Springy.Layout.ForceDirected(graph, this.defaults.stiffness, this.defaults.repulsion, this.defaults.damping);
+  }
+, initialize: function(){
+    this.dummyArticleFactory = new DummyArticleFactory();
     this.discussionGraphResultView = new DiscussionGraphResultView({el: this.$('#SingleDiscussionViewGraphResults')});
     this.setModel(this.model);
     var view = this;
@@ -19,7 +27,7 @@ DiscussionGraphView = PaperView.extend({
     if(!this.paper) this.mkPaper(this.$('.paper').get(0));
     //Setting up the Springy.js graph rendering for our paper:
     var paper  = this.paper
-      , layout = new Springy.Layout.ForceDirected(new Springy.Graph(), paper.width, paper.height, 0.5)
+      , layout = this.springyLayout(new Springy.Graph())
       , currentBB = layout.getBoundingBox()
       , targetBB  = {bottomleft: new Springy.Vector(-2, -2), topright: new Springy.Vector(2, 2)};
     // auto adjusting bounding box
@@ -35,8 +43,7 @@ DiscussionGraphView = PaperView.extend({
       //Keeps the wheels turning
       Springy.requestAnimationFrame(adjust);
     });
-
-    // convert to/from screen coordinates
+    // Convert to/from screen coordinates
     toScreen = function(p) {
       var size = currentBB.topright.subtract(currentBB.bottomleft);
       var sx = p.subtract(currentBB.bottomleft).divide(size.x).x * paper.width;
@@ -46,17 +53,9 @@ DiscussionGraphView = PaperView.extend({
       sy = _.max([sy,-sy]);
       return new Springy.Vector(sx, sy);
     };
-
-    var drawNth = 5;
+    //Building the renderer
     this.renderer = new Springy.Renderer(layout, function clear(){},
       function drawEdge(edge, p1, p2){
-        //nTh logic:
-        if(!edge.current) edge.current = 0;
-        edge.current++;
-        if(edge.current == drawNth){
-          edge.current = 0; return;
-        }
-        //nTh logic above
         if(!edge.connection){
           if(!edge.source.shape || !edge.target.shape)
             return;
@@ -74,7 +73,6 @@ DiscussionGraphView = PaperView.extend({
         var s = toScreen(p);
         paper.moveSet(node.shape, Math.floor(s.x), Math.floor(s.y));
       });
-    window.renderer = this.renderer;
   }
 , events: {
     "click #DiscussionGraphViewCenter":    "resetPanZoom"
@@ -151,7 +149,7 @@ DiscussionGraphView = PaperView.extend({
       this.model.articles.on('reset add remove', this.render, this);
       this.model.relations.on('reset add remove', this.render, this);
       this.dummyArticleFactory.reset(this.model.articles);
-      this.renderer.layout = new Springy.Layout.ForceDirected(this.model.graph, this.paper.width, this.paper.height, 0.5);
+      this.renderer.layout = layout = this.springyLayout(this.model.graph);
     }
     this.resize();
   }
