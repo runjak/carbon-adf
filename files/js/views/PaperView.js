@@ -9,6 +9,7 @@ PaperView = Backbone.View.extend({
     this.paper = null;
   }
 , mkPaper: function(p){
+  //this.paper = ButtonSetFactory(Raphael(p, 800, 800));
     this.paper = ButtonSetFactory(Raphael(p));
   }
 //Data:
