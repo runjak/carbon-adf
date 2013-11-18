@@ -9,7 +9,6 @@ PaperView = Backbone.View.extend({
     this.paper = null;
   }
 , mkPaper: function(p){
-  //this.paper = Calculator(ButtonSetFactory(Raphael(p, 1000, 1000)));
     this.paper = ButtonSetFactory(Raphael(p));
   }
 //Data:
@@ -33,35 +32,35 @@ PaperView = Backbone.View.extend({
   }
 //Perspective:
 , pan: function(dx, dy){
-//  var vb = this.getViewBox();
-//  var x  = vb.x + dx;
-//  var y  = vb.y + dy;
-//  var c  = this.getContainerSize();
-//  x = _.max([0, _.min([vb.w - c.w, x])]);
-//  y = _.max([0, _.min([vb.h - c.h, y])]);
-//  this.paper.setViewBox(x, y, vb.w, vb.h);
+    var vb = this.getViewBox();
+    var x  = vb.x + dx;
+    var y  = vb.y + dy;
+    var c  = this.getContainerSize();
+    x = _.max([0, _.min([vb.w - c.w, x])]);
+    y = _.max([0, _.min([vb.h - c.h, y])]);
+    this.paper.setViewBox(x, y, vb.w, vb.h);
     return this;
   }
 , setZoom: function(z){
-//  var w  = this.paper.width  * z;
-//  var h  = this.paper.height * z;
-//  var vb = this.getViewBox();
-//  this.paper.setViewBox(vb.x, vb.y, w, h);
+    var w  = this.paper.width  * z;
+    var h  = this.paper.height * z;
+    var vb = this.getViewBox();
+    this.paper.setViewBox(vb.x, vb.y, w, h);
     return this;
   }
 , deltaZoom: function(dz){
-//  var z = this.getViewBox().z;
-//      z = _.min([2,_.max([.1, z + dz])]);
-//  this.setZoom(z);
+    var z = this.getViewBox().z;
+        z = _.min([2,_.max([.1, z + dz])]);
+    this.setZoom(z);
     return this;
   }
 , resetPanZoom: function(){
-//  var c  = this.getContainerSize();
-//  var pw = this.paper.width;
-//  var ph = this.paper.height;
-//  var x  = (pw - c.w)/2;
-//  var y  = (ph - c.h)/2;
-//  this.paper.setViewBox(x, y, pw, ph);
+    var c  = this.getContainerSize();
+    var pw = this.paper.width;
+    var ph = this.paper.height;
+    var x  = (pw - c.w)/2;
+    var y  = (ph - c.h)/2;
+    this.paper.setViewBox(x, y, pw, ph);
     return this;
   }
 , mouseToPaper: function(p){
