@@ -15,28 +15,13 @@ DiscussionGraphView = PaperView.extend({
     this.$('.paper').click(function(e){
       view.mouse(e);
     });
-  }
-, events: {
-    "click #DiscussionGraphViewCenter":    "resetPanZoom"
-  , "click #DiscussionGraphViewZoomIn":    "zoomIn"
-  , "click #DiscussionGraphViewZoomOut":   "zoomOut"
-  , "click #DiscussionGraphViewMoveLeft":  "moveLeft"
-  , "click #DiscussionGraphViewMoveRight": "moveRight"
-  , "click #DiscussionGraphViewMoveUp":    "moveUp"
-  , "click #DiscussionGraphViewMoveDown":  "moveDown"
-  , "click #DiscussionGraphViewAddNode":   "addNode"
-  , "click #DiscussionGraphViewHideRest":  "hideRest"
-  }
-, render: function(){
-    //Setup:
-    var view   = this
-      , paper  = this.paper
-      , layout = new Springy.Layout.ForceDirected(this.model.graph, paper.width, paper.height, 0.5);
-    window.spLayout = layout;
-
-    // calculate bounding box of graph layout.. with ease-in
-    var currentBB = layout.getBoundingBox();
-    var targetBB = {bottomleft: new Springy.Vector(-2, -2), topright: new Springy.Vector(2, 2)};
+    //Making sure we've got a paper:
+    if(!this.paper) this.mkPaper(this.$('.paper').get(0));
+    //Setting up the Springy.js graph rendering for our paper:
+    var paper  = this.paper
+      , layout = new Springy.Layout.ForceDirected(new Springy.Graph(), paper.width, paper.height, 0.5)
+      , currentBB = layout.getBoundingBox()
+      , targetBB  = {bottomleft: new Springy.Vector(-2, -2), topright: new Springy.Vector(2, 2)};
     // auto adjusting bounding box
     Springy.requestAnimationFrame(function adjust() {
       targetBB = layout.getBoundingBox();
@@ -62,14 +47,24 @@ DiscussionGraphView = PaperView.extend({
       return new Springy.Vector(sx, sy);
     };
 
-    var renderer = new Springy.Renderer(layout, function clear(){},
+    var drawNth = 5;
+    this.renderer = new Springy.Renderer(layout, function clear(){},
       function drawEdge(edge, p1, p2){
+        //nTh logic:
+        if(!edge.current) edge.current = 0;
+        edge.current++;
+        if(edge.current == drawNth){
+          edge.current = 0; return;
+        }
+        //nTh logic above
         if(!edge.connection){
           if(!edge.source.shape || !edge.target.shape)
             return;
           var s = edge.source.shape, t = edge.target.shape;
-          edge.connection = paper.connection(s, t, {stroke: Raphael.getColor(), directed: true});
-        }else edge.connection.draw();
+          edge.connection = paper.connection(s, t, {stroke: Raphael.getColor()});
+        }else{
+          edge.connection.draw();
+        }
       }, function drawNode(node, p){
         if(!node.shape){
           paper.setStart();
@@ -79,34 +74,21 @@ DiscussionGraphView = PaperView.extend({
         var s = toScreen(p);
         paper.moveSet(node.shape, Math.floor(s.x), Math.floor(s.y));
       });
-    renderer.start();
-    window.renderer = renderer;
-//  //Cleaning:
-//  if(this.paperArticles)
-//    _.each(this.paperArticles, function(pa){pa.remove();});
-//  this.paperArticles = [];
-//  if(this.paperRelations)
-//    _.each(this.paperRelations, function(pr){pr.remove();});
-//  this.paperRelations = [];
-//  p.clear();
-//  //Drawing:
-//  this.drawGrid();
-//  if(this.model !== null && typeof(this.model) !== 'undefined'){
-//    //Placing Articles:
-//    var discussion = this.model;
-//    this.model.articles.each(function(a){
-//      var pa = new PaperArticle({model: a, el: p});
-//      view.paperArticles.push(pa.setDiscussion(discussion));
-//    });
-//    //Placing Relations:
-//    this.model.relations.each(function(r){
-//      view.paperRelations.push(new PaperRelation({model: r, el: p}));
-//    });
-//    //FIXME implement
-//  }
-//  //Fixes:
-//  p.renderfix();
-//  p.safari();
+    window.renderer = this.renderer;
+  }
+, events: {
+    "click #DiscussionGraphViewCenter":    "resetPanZoom"
+  , "click #DiscussionGraphViewZoomIn":    "zoomIn"
+  , "click #DiscussionGraphViewZoomOut":   "zoomOut"
+  , "click #DiscussionGraphViewMoveLeft":  "moveLeft"
+  , "click #DiscussionGraphViewMoveRight": "moveRight"
+  , "click #DiscussionGraphViewMoveUp":    "moveUp"
+  , "click #DiscussionGraphViewMoveDown":  "moveDown"
+  , "click #DiscussionGraphViewAddNode":   "addNode"
+  , "click #DiscussionGraphViewHideRest":  "hideRest"
+  }
+, render: function(){
+    this.renderer.start();
   }
 , resize: function(){
     if(this.model){
@@ -156,6 +138,7 @@ DiscussionGraphView = PaperView.extend({
       this.model.off(null, null, this);
       this.model.articles.off(null, null, this);
       this.model.relations.off(null, null, this);
+      this.renderer.stop();
     }
     if(m === null || typeof(m) === 'undefined'){
       this.model = null;
@@ -165,13 +148,10 @@ DiscussionGraphView = PaperView.extend({
       this.model = m;
       this.model.on('change:paperWidth',  this.resize, this)
                 .on('change:paperHeight', this.resize, this);
-      this.model.articles.on('reset',  this.render,         this)
-                         .on('add',    this.articleAdded,   this)
-                         .on('remove', this.articleRemoved, this);
-      this.model.relations.on('reset',  this.render,          this)
-                          .on('add',    this.relationAdded,   this)
-                          .on('remove', this.relationRemoved, this);
+      this.model.articles.on('reset add remove', this.render, this);
+      this.model.relations.on('reset add remove', this.render, this);
       this.dummyArticleFactory.reset(this.model.articles);
+      this.renderer.layout = new Springy.Layout.ForceDirected(this.model.graph, this.paper.width, this.paper.height, 0.5);
     }
     this.resize();
   }
