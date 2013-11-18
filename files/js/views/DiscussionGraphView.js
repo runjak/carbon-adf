@@ -67,13 +67,10 @@ DiscussionGraphView = PaperView.extend({
           edge.connection.draw();
         }
       }, function drawNode(node, p){
-        if(!node.shape){
-          paper.setStart();
-          paper.rect(0,0,60,30,5).attr({fill: Raphael.getColor()}).setOffset();
-          node.shape = paper.setFinish();
+        if(!node.shape){ // Making sure we build the shape once only
+          node.shape = node.data.paperArticle.shape(paper);
         }
-        var s = toScreen(p);
-        paper.moveSet(node.shape, Math.floor(s.x), Math.floor(s.y));
+        node.data.paperArticle.setPosition(toScreen(p));
       });
   }
 , events: {

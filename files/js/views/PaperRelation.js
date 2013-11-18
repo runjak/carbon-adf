@@ -9,10 +9,9 @@ PaperRelation = Backbone.View.extend({
                      .on('change:posY', this.render, this);
     this.model.target.on('change:posX', this.render, this)
                      .on('change:posY', this.render, this);
-    this.arrow = null; // Elements on the paper.
-    this.render();
   }
 , render: function(){
+    return; // FIXME update code
     //Cleaning:
     this.removeArrow();
     //Setup:

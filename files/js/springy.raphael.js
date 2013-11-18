@@ -59,16 +59,47 @@ Raphael.fn.connection = function(obj1, obj2, style){
   return edge;
 };
 
-Raphael.el.setOffset = function() {
-  this.offsetx = this.attr('x');
-  this.offsety = this.attr('y');
-}
+/***/
+Raphael.el.place = function(v){
+  this.transform(Raphael.format("T{0},{1}", v.x, v.y));
+  return this.updateTVec();
+};
 
-Raphael.fn.moveSet = function(set, x, y){
-  set.forEach(function(item){
-    item.attr({
-      x: x + item.offsetx
-    , y: y + item.offsety
-    })
+/**
+  Shift an element by a Springy.Vector.
+*/
+Raphael.el.shift = function(v){
+  console.log('shift!');
+  var t = this.tVec || new Springy.Vector(0,0)
+    , p = t.add(v);
+  this.transform(Raphael.format("t{0},{1}", p.x, p.y));
+  return this.updateTVec();
+};
+
+/**
+  Updates the TVec of an element.
+*/
+Raphael.el.updateTVec = function(){
+  var bbox  = this.getBBox();
+  this.tVec = new Springy.Vector(bbox.x, bbox.y);
+  return this;
+};
+
+/***/
+Raphael.el.showHover = function(){
+  var t = this, glow = null, fill = null;
+  return t.mouseover(function(){
+    glow = t.glow();
+    fill = t.attr('fill');
+    t.attr('fill', '#4DB3D1');
+  }).mouseout(function(){
+    if(glow){
+      glow.remove();
+      glow = null;
+    }
+    if(fill){
+      t.attr('fill', fill);
+      fill = null;
+    }
   });
-}
+};

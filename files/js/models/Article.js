@@ -3,7 +3,7 @@ Article = Item.extend({
 , defaults: {}
 , initialize: function(){
     var t = this;
-    this.paperArticle = new PaperArticle(this);
+    this.paperArticle = new PaperArticle({model: this});
   }
 , create: function(){
     var article = this;
