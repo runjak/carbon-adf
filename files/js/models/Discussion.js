@@ -28,12 +28,15 @@ Discussion = Item.extend({
       , rAids = _.difference(gAids, cAids) // Ids to remove
       , aAids = _.difference(cAids, gAids); // Ids to add
     _.each(this.graph.nodes, function(n){ // Removing old nodes
-      if(_.contains(rAids, n.get('id')))
+      if(_.contains(rAids, n.id))
         this.removeNode(n);
     }, this.graph);
     this.articles.each(function(n){ // Adding new nodes
-      if(_.contains(aAids, n.get('id')))
-        this.addNode(n);
+      var nId = n.get('id');
+      if(!n.springyNode)
+        n.springyNode = new Springy.Node(nId, n);
+      if(_.contains(aAids, nId))
+        this.addNode(n.springyNode);
     }, this.graph);
     /*
       Sadly I've got to call updateRelations here,
@@ -72,8 +75,10 @@ Discussion = Item.extend({
         this.removeEdge(e);
     }, this.graph);
     this.relations.each(function(r){ // Adding new edges
-      if(_.contains(aRids, r.get('id')))
-        this.newEdge(r.source, r.target, r);
+      if(_.contains(aRids, r.get('id'))){
+        var s = r.source.springyNode, t = r.target.springyNode;
+        this.newEdge(s, t, r);
+      }
     }, this.graph);
   }
 , updateResults: function(){

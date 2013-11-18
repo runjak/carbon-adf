@@ -29,10 +29,58 @@ DiscussionGraphView = PaperView.extend({
   }
 , render: function(){
     //Setup:
-    var view = this;
-    var p = this.paper;
-    var w = p.width;
-    var h = p.height;
+    var view   = this
+      , paper  = this.paper
+      , layout = new Springy.Layout.ForceDirected(this.model.graph, paper.width, paper.height, 0.5);
+    window.spLayout = layout;
+
+    // calculate bounding box of graph layout.. with ease-in
+    var currentBB = layout.getBoundingBox();
+    var targetBB = {bottomleft: new Springy.Vector(-2, -2), topright: new Springy.Vector(2, 2)};
+    // auto adjusting bounding box
+    Springy.requestAnimationFrame(function adjust() {
+      targetBB = layout.getBoundingBox();
+      // current gets 20% closer to target every iteration
+      currentBB = {
+        bottomleft: currentBB.bottomleft.add( targetBB.bottomleft.subtract(currentBB.bottomleft)
+          .divide(10)),
+        topright: currentBB.topright.add( targetBB.topright.subtract(currentBB.topright)
+          .divide(10))
+      };
+      //Keeps the wheels turning
+      Springy.requestAnimationFrame(adjust);
+    });
+
+    // convert to/from screen coordinates
+    toScreen = function(p) {
+      var size = currentBB.topright.subtract(currentBB.bottomleft);
+      var sx = p.subtract(currentBB.bottomleft).divide(size.x).x * paper.width;
+      var sy = p.subtract(currentBB.bottomleft).divide(size.y).y * paper.height;
+      //Keeping things positive:
+      sx = _.max([sx,-sx]);
+      sy = _.max([sy,-sy]);
+      return new Springy.Vector(sx, sy);
+    };
+
+    var renderer = new Springy.Renderer(layout, function clear(){},
+      function drawEdge(edge, p1, p2){
+        if(!edge.connection){
+          if(!edge.source.shape || !edge.target.shape)
+            return;
+          var s = edge.source.shape, t = edge.target.shape;
+          edge.connection = paper.connection(s, t, {stroke: Raphael.getColor(), directed: true});
+        }else edge.connection.draw();
+      }, function drawNode(node, p){
+        if(!node.shape){
+          paper.setStart();
+          paper.rect(0,0,60,30,5).attr({fill: Raphael.getColor()}).setOffset();
+          node.shape = paper.setFinish();
+        }
+        var s = toScreen(p);
+        paper.moveSet(node.shape, Math.floor(s.x), Math.floor(s.y));
+      });
+    renderer.start();
+    window.renderer = renderer;
 //  //Cleaning:
 //  if(this.paperArticles)
 //    _.each(this.paperArticles, function(pa){pa.remove();});
