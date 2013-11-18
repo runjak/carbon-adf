@@ -90,7 +90,6 @@ Raphael.fn.connection = function (obj1, obj2, style) {
         , x4.toFixed(3), y4.toFixed(3));
       /* arrow */
       if(style && style.directed){
-        console.log('directed!');
         /* magnitude, length of the last path vector */
         var mag = Math.sqrt((y4 - y3) * (y4 - y3) + (x4 - x3) * (x4 - x3));
         /* vector normalisation to specified length  */
