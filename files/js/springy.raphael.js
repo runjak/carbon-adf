@@ -30,17 +30,20 @@ Raphael.fn.connection = function(obj1, obj2, style){
       var bb1 = obj1.getBBox()
         , bb2 = obj2.getBBox()
         , e  = Springy.Vector.lineBoxToBox(bb1,bb2)
-        , s  = e.p1, t = e.p2
         , st = e.p2.subtract(e.p1)
-        , o  = st.orth().normalise()
-        , l  = st.magnitude();
+        , o  = st.orth().normalise(), o10 = o.multiply(10);
+      //We want to build a path over 4 stations, a b c d, where cd gets an arrow added.
+      var a = e.p1, b = a.add(st.divide(5).add(o10))
+        , d = e.p2, c = d.add(st.divide(-5).add(o10));
       //Calculating the path…
-      var p = Raphael.format("M{0} {1}L{2} {3}", s.x, s.y, t.x, t.y);
-      st = e.p1.add(st.multiply((l-10)/l));
-      _.each([o, o.multiply(-1)], function(r){
-        var s = st.add(r.multiply(5));
-        p += Raphael.format("M{0} {1}L{2} {3}", s.x, s.y, t.x, t.y);
-      });
+      var p = Raphael.format("M{0} {1}L{2} {3}L{4} {5}L{6} {7}", a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y);
+      //Adding the arrow tip
+      var cd   = d.subtract(c)
+        , part = cd.normalise().multiply(-5)
+        , o1   = part.orth(), o2 = o1.multiply(-1)
+        , end  = d.add(part)
+        , p1   = end.add(o1), p2 = end.add(o2);
+      p += Raphael.format("M{0} {1}L{2} {3}L{4} {5}Z", p1.x, p1.y, d.x, d.y, p2.x, p2.y);
       //Drawing:
       if(this.path){
         this.path.attr('path', p);
