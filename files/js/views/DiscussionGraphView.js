@@ -35,10 +35,12 @@ DiscussionGraphView = PaperView.extend({
       targetBB = layout.getBoundingBox();
       // current gets 20% closer to target every iteration
       currentBB = {
-        bottomleft: currentBB.bottomleft.add( targetBB.bottomleft.subtract(currentBB.bottomleft)
-          .divide(10)),
-        topright: currentBB.topright.add( targetBB.topright.subtract(currentBB.topright)
-          .divide(10))
+        bottomleft: currentBB.bottomleft.add(
+          targetBB.bottomleft.subtract(currentBB.bottomleft).divide(10)
+        )
+      , topright: currentBB.topright.add(
+          targetBB.topright.subtract(currentBB.topright).divide(10)
+        )
       };
       //Keeps the wheels turning
       Springy.requestAnimationFrame(adjust);

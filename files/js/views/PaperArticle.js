@@ -1,7 +1,6 @@
 /**
   Renders a single Article on a paper.
   model: Article
-  el:    Paper
 */
 PaperArticle = Backbone.View.extend({
   initialize: function(){

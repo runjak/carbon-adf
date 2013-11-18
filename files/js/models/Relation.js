@@ -1,7 +1,9 @@
 Relation = Item.extend({
   urlRoot: 'relation/'
 , defaults: {}
-, initialize: function(){}
+, initialize: function(){
+    this.paperRelation = new PaperRelation(this);
+  }
 , setDiscussion: function(d){
     this.discussion = d;
     var sid = this.get('source');
