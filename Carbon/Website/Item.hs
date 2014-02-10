@@ -13,6 +13,7 @@ import Carbon.Website.Common
 import qualified Carbon.Backend.Logic as BLogic
 import qualified Carbon.Backend.Item as BItem
 import qualified Carbon.Data.Logic as Logic
+import qualified Carbon.Data.Logic.Evaluation as Evaluation
 import qualified Carbon.Website.Session as Session
 
 createItem :: OBW Response
@@ -204,4 +205,16 @@ acs = respOk . responseJSON' <=< liftB . BLogic.diamondInput
   which will then be evaluated.
 |-}
 evaluate :: ItemId -> OBW Response
-evaluate iid = undefined
+evaluate iid = do
+  liftIO $ putStrLn "Carbon.Website.Item:evaluate"
+  (input, _) <- liftB $ BLogic.diamondInput iid
+  config <- gets config
+  let path = diamondDlDir config ++ show iid ++ ".dl"
+  results <- liftIO $ Evaluation.run config path input
+  let rSet = fromResults $ fmap read results
+  eEI <- liftB $ do
+    (Right i) <- GetItem iid
+    SetItem $ i <+ rSet
+  case eEI of
+    (Right i) -> displayItem i
+    (Left  e) -> respInternalServerError $ toResponse e

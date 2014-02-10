@@ -71,7 +71,7 @@ instance Insertable (Discussion l) (Set l) where
   d <+ args = d{arguments = Left args}
 
 instance Ord l => Insertable (Discussion l) [l] where
-  d <+ args = d <+ (Set.fromList args)
+  d <+ args = d <+ Set.fromList args
 
 instance Monoid (Discussion i) where
   mempty = Discussion {

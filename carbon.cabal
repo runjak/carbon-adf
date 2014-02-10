@@ -24,6 +24,7 @@ Build-Depends:  aeson
               , regex-compat
               , SHA2
               , stm
+              , strict-io
               , syb
               , template-haskell
               , text

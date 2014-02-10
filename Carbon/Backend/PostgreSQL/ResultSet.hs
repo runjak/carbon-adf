@@ -54,8 +54,19 @@ setResultSet conn i
   | otherwise = do -- Update resultSet
     let r = getR i
     r' <- liftM Maybe.fromJust $ getResultSet (toSql $ resultSetId r) conn
-    let boring = return $ Right i
-        changed = setResultSet conn $ i <+ r <+ (mempty :: Id)
+    let boring  = return $ Right i
+        changed = do
+          let rid' = toSql $ resultSetId r
+          -- Updating voters:
+          setVoters conn rid' $ voters r
+          -- Setting results:
+          results <- mapM (setResult conn) $ results r
+          setResults conn rid' $ Maybe.mapMaybe resultId results
+          -- Fetching the current ResultSet:
+          mRSet <- getResultSet rid' conn
+          let err = Left $ "Could not fetch updated ResultSet for " ++ show r
+              ok  = Right . (i <+)
+          return $ maybe err ok mRSet
     (r == r') ? (boring, changed)
   where
     getR = Maybe.fromJust . resultSet

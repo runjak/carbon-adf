@@ -75,18 +75,18 @@ instance Monoid Result where
     }
 
 instance FromJSON ResultState where
-  parseJSON (String "In") = return In
+  parseJSON (String "In")   = return In
   parseJSON (String "Udec") = return Udec
-  parseJSON (String "Out") = return Out
+  parseJSON (String "Out")  = return Out
   parseJSON _ = mzero 
 
 instance FromJSON ResultType where
-  parseJSON (String "ConflictFree") = return ConflictFree
-  parseJSON (String "TwoValued") = return TwoValued
-  parseJSON (String "Stable") = return Stable
+  parseJSON (String "TwoValued")  = return TwoValued
+  parseJSON (String "Stable")     = return Stable
+  parseJSON (String "Grounded")   = return Grounded
+  parseJSON (String "Complete")   = return Complete
   parseJSON (String "Admissible") = return Admissible
-  parseJSON (String "Complete") = return Complete
-  parseJSON (String "Grounded") = return Grounded
+  parseJSON (String "Preferred")  = return Preferred
   parseJSON _ = mzero 
 
 instance ToJSON Result where

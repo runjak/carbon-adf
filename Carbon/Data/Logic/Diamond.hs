@@ -3,6 +3,7 @@ module Carbon.Data.Logic.Diamond(
 , ResultType(..)
 , Results(..)
 , isEmpty
+, implications
 )where
 
 import Control.Arrow (second)
@@ -21,18 +22,27 @@ data DiamondResult a = DiamondResult {
   , outSet  :: [a]
   }
 
-data ResultType = ConflictFree
-                | TwoValued
+data ResultType = TwoValued
                 | Stable
-                | Admissible
-                | Complete
                 | Grounded
+                | Complete
+                | Admissible
+                | Preferred
                 deriving (Show, Read, Eq, Enum, Bounded, Ord)
 
 newtype Results a = Results [(ResultType, [DiamondResult a])]
 
 isEmpty :: Results a -> Bool
 isEmpty (Results r) = null r
+
+-- | admissible >= complete >= (grounded, pref >= stable >= two-valued)
+implications :: ResultType -> [ResultType]
+implications Admissible = [Admissible]
+implications Complete   = Complete  : implications Admissible
+implications Grounded   = Grounded  : implications Complete
+implications Preferred  = Preferred : implications Complete
+implications Stable     = Stable    : implications Preferred
+implications TwoValued  = TwoValued : implications Stable
 
 {-| Instance declarations: |-}
 instance Eq a => Eq (DiamondResult a) where
@@ -65,14 +75,14 @@ instance Show a => Show (DiamondResult a) where
 instance Show a => Show (Results a) where
   show (Results r) = unlines $ concatMap go r
     where
-      go (t, drs)       = tell t ++ answers drs ++ end
-      answers           = zipWith (\n d -> show n ++ ":\t" ++ show d) [1..]
-      tell ConflictFree = "conflict free sets:":end
-      tell TwoValued    = "two-valued models:" :end
-      tell Stable       = "stable models:"     :end
-      tell Grounded     = "grounded models:"   :end
-      tell Complete     = "complete models:"   :end
-      tell Admissible   = "admissible models:" :end
+      go (t, drs)     = tell t ++ answers drs ++ end
+      answers         = zipWith (\n d -> show n ++ ":\t" ++ show d) [1..]
+      tell TwoValued  = "two-valued models:":end
+      tell Stable     = "stable models:":end
+      tell Grounded   = "grounded models:":end
+      tell Complete   = "complete models:":end
+      tell Admissible = "admissible model:":end
+      tell Preferred  = "preferred models:":end
       end = ["=============================="]
 
 instance StartState (DiamondResult a) where

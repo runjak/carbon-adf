@@ -6,10 +6,12 @@ import Control.Monad
 import Data.Aeson ((.=), ToJSON(..), object, FromJSON(..), Value(..), (.:))
 import Data.Function (on)
 import Data.Monoid (Monoid(..))
+import qualified Data.Set as Set
 
 import Carbon.Data.Alias
 import Carbon.Data.Common
 import Carbon.Data.Id
+import Carbon.Data.Logic.Diamond
 import Carbon.Data.Result
 
 data ResultSet = ResultSet {
@@ -18,6 +20,20 @@ data ResultSet = ResultSet {
 , results     :: [Result]
 , voters      :: [(UserId, Voted)]
 } deriving (Show, Read, Eq, Ord)
+
+fromResults :: Results ItemId -> ResultSet
+fromResults (Results rs) = mempty <+ concatMap go rs
+  where
+    go :: (ResultType, [DiamondResult ItemId]) -> [Result]
+    go (rType, dRes) = map (go2 $ implications rType) dRes
+
+    go2 :: [ResultType] -> DiamondResult ItemId -> Result
+    go2 rTypes dRes =
+      let ins   = zip (repeat   In) $ inSet   dRes
+          udecs = zip (repeat Udec) $ udecSet dRes
+          outs  = zip (repeat  Out) $ outSet  dRes
+          iSet  = Set.fromList $ ins ++ udecs ++ outs
+      in (mempty <+ rTypes) <+ iSet
 
 -- Instances:
 instance FromJSON ResultSet where

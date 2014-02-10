@@ -74,12 +74,12 @@ mkFormula itemProofStandard incomming getProofStandard =
   {- Of the incomming relations, only these with >= ProofStandard are interesting. -}
   let incomming' = filter ((itemProofStandard <=) . getProofStandard . source) incomming
   {- incomming' is devided into attacks and supports: -}
-      rFilter = \r -> filter $ (r ==) . relationType
+      rFilter r = filter $ (r ==) . relationType
       attacks = rFilter RelationAttack incomming'
       supports = rFilter RelationSupport incomming'
   {- We view attacks and supports only in sets respective to the same ProofStandard: -}
       asPairs = do -- :: [(Set Relation, Set Relation)]
-        let hasP = \p -> filter $ (p ==) . getProofStandard . source
+        let hasP p = filter $ (p ==) . getProofStandard . source
         p <- [PSScintillaOfEvidence ..]
         let as = hasP p attacks
             ss = hasP p supports
@@ -98,17 +98,14 @@ mkFormula itemProofStandard incomming getProofStandard =
         -- There'll have to be attacks!
         guard . not $ Set.null attackSet'
         let canDefend = Set.size attackSet' < Set.size supportSet
-        case canDefend of
-          False -> return . and' $ nBody attackSet'
-          True -> do
-            -- We consider all sets capable of defending:
-            supportSet' <- powerset' supportSet
-            guard $ Set.size supportSet' >= Set.size attackSet'
-            -- We need a negative body to make sure, that we don't get more attacks:
-            let notAttack = Set.difference attackSet attackSet'
-            return . and' $ body attackSet' ++ body supportSet' ++ nBody notAttack
+        if canDefend then
+          (do supportSet' <- powerset' supportSet
+              guard $ Set.size supportSet' >= Set.size attackSet'
+              let notAttack = Set.difference attackSet attackSet'
+              return . and' $ body attackSet' ++ body supportSet' ++ nBody notAttack)
+          else return . and' $ nBody attackSet'
   {- We accept if at least one condition yields true: -}
-  in (null conditions) ? (Const True, simplify $ or' conditions)
+  in null conditions ? (Const True, simplify $ or' conditions)
 
 {-|
   Generates the content of a diamond input file from a DiscussionId.

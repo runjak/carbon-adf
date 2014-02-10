@@ -68,10 +68,10 @@ rPart rType = choice [found, dropLine, finished]
       let models = void $ string "Models" >> many (noneOf "\r\n") >> eol
       in choice [eof, models] >> return (rType, []) 
 
-parseDiamond :: DRParser (Results String)
-parseDiamond = liftM Results $ mapM rPart [TwoValued, Stable, Admissible, Complete, Grounded]
+parseDiamond :: ResultType -> DRParser (Results String)
+parseDiamond rType = liftM (Results . return) $ rPart rType
 
 test :: IO ()
 test = do
   foo <- readFile "/tmp/foo"
-  either putStrLn print $ execParser parseDiamond "/tmp/foo" foo
+  either putStrLn print $ execParser (parseDiamond minBound) "/tmp/foo" foo
