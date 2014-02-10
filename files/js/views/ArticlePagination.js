@@ -1,13 +1,13 @@
 ArticlePagination = Pagination.extend({
   createCollection: function(){
-    return new ArticleCollection();
+    return new ItemCollection();
   }
 , itemsFromIds: function(aids){
     return _.map(aids, function(aid){
-      return new Article({id: aid});
+      return new Item({id: aid});
     });
   }
 , createPager: function(){
-    return new Pager({target: 'article/'});
+    return new ItemPager({isArticle: true});
   }
 });

@@ -1,4 +1,8 @@
+/**
+  The central routing of the application :)
+*/
 Router = Backbone.Router.extend({
+  /** How routes look, and what their names are: */
   routes: {
     "article/create":      "createArticleView"
   , "article/:id":         "singleArticleView"
@@ -12,6 +16,10 @@ Router = Backbone.Router.extend({
   , "user/:id":            "singleUserView"
   , "*actions":            "defaultRoute"
   }
+/**
+  Takes a jQuery object, and starts watching that for click events.
+  On click, it navigates the router with the objects href attr, triggering events.
+*/
 , watchClick: function(target){
     var router = this;
     var href   = target.attr('href');

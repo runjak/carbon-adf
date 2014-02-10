@@ -1,0 +1,59 @@
+<div id="SingleDiscussionViewGraph" class="tab-pane fade">
+  <form class="form-inline">
+    <button type="button" class="btn btn-inverse"
+      id="DiscussionGraphViewHideRest"
+      title="Hide/Display above page parts. (h)">
+      <i class="icon-arrow-up icon-white"></i>
+    </button>
+    <button type="button" class="btn btn-warning"
+      id="DiscussionGraphViewToggleEngine"
+      title="Toggle automatic renderer. (r)">
+      <i class="icon-picture"></i>
+    </button>
+    <div class="btn-group">
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" title="Add/Remove a node"><i class="icon-asterisk"></i><span class="caret"></span></a>
+      <ul class="dropdown-menu">
+        <li><a id="DiscussionGraphViewAddNode"><i class="icon-plus"></i> Add a node (n)</a></li>
+        <li><a id="DiscussionGraphViewRemoveNode"><i class="icon-minus"></i> Remove a node (x)</a></li>
+      </ul>
+    </div>
+    <div class="btn-group">
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" title="Add a relation"><i class="icon-arrow-right"></i><span class="caret"></span></a>
+      <ul class="dropdown-menu">
+        <li><a id="AddRelationAttack">Attack (a)</a></li>
+        <li><a id="AddRelationDefend">Defend (d)</a></li>
+      </ul>
+    </div>
+    <div id="SingleDiscussionViewGraphResults" class="hide">
+      <label>
+        Result sets:
+        <select id="ResultSets"></select>
+      </label>
+      <label>
+        Current Result:
+        <select id="ResultSet"></select>
+      </label>
+      <div class="btn-group">
+        <button type="button" class="btn btn-info"
+          id="DiscussionGraphResultViewPrev"
+          title="Display the previous result. (R)">
+          <i class="icon-step-backward"></i>
+        <button type="button" class="btn btn-danger"
+          id="DiscussionGraphresultViewLike">
+          <i class="icon-star"></i>
+        </button>
+        </button>
+        <button type="button" class="btn btn-info"
+          id="DiscussionGraphResultViewNext"
+          title="Display the next result. (r)">
+          <i class="icon-step-forward"></i>
+        </button>
+      </div>
+    </div>
+    <span id="DiscussionGraphClickAction" class="pull-right">
+      <span class="message"></span>
+      <a id="DiscussionGraphViewClearClick" class="hide" title="Cancel current click action. (ESC)"><i class="icon-remove-circle"></i></a>
+    </span>
+  </form>
+  <canvas id="graphCanvas" class="well span11"/>
+</div>

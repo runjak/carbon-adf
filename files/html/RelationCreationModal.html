@@ -1,0 +1,31 @@
+<div id="RelationCreationModal" class="modal hide fade">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h3>Create a new Relation:</h3>
+  </div>
+  <div class="modal-body">
+    <form class="form-horizontal">
+      <div class="control-group">
+        <label class="control-label" for="RelationCreationHeadline">Name:</label>
+        <div class="controls">
+          <input type="text" required
+            id="RelationCreationHeadline"
+            placeholder="Name the Relation.">
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for=RelationCreationDescription"">Description:</label>
+        <div class="controls">
+          <textarea id="RelationCreationDescription" required
+            placeholder="A short description"></textarea>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <a id="RelationCreationRemove" class="btn btn-inverse hide"><i
+      class="icon-white icon-trash"></i>Remove</a>
+    <a id="RelationCreationSave" class="btn btn-primary hide">Save</a>
+    <a id="RelationCreationCreate" class="btn btn-primary hide">Create</a>
+  </div>
+</div>

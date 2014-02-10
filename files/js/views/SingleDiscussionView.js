@@ -3,28 +3,26 @@ SingleDiscussionView = Hideable.extend({
 , initialize: function(){
     this.HideTarget = this.$el.parent();
     this.resultsTab = this.$('#SingleDiscussionViewResultsTab');
-    this.discussionArticleView = new DiscussionArticleView({
-      el: this.$('#SingleDiscussionViewArticles'), model: null});
+    this.discussionArticleView = new DiscussionArticleView({el: this.$('#SingleDiscussionViewArticles')});
     this.discussionCollectedView = new DiscussionCollectedView({
       el:    this.$('#SingleDiscussionViewCollected')
     , model: window.App.collectedArticles
     });
+    this.discussionParticipantView = new DiscussionParticipantView({el: this.$('#SingleDiscussionViewParticipants')});
     this.discussionGraphView = new DiscussionGraphView({
       el: this.$('#SingleDiscussionViewGraph'), model: null});
-    this.discussionResultView = new DiscussionResultView({
-      el: this.$('#SingleDiscussionViewResults'), model: null});
-    this.discussionParticipantView = new DiscussionParticipantView({
-      el: this.$('#SingleDiscussionViewParticipants'), model: null});
-    this.relationCreationModal = new RelationCreationModal({
-      el: this.$('#RelationCreationModal'), model: null});
-    this.articleConditionModal = new ArticleConditionModal({
-      el: this.$('#ArticleConditionModal'), model: null});
-    this.discussionDlFileView = new DiscussionDlFileView({
-      el: this.$('#SingleDiscussionViewFiles'), model: null}); 
-    this.subViews = ['discussionArticleView'    , 'discussionCollectedView'
-                    ,'discussionGraphView'      , 'discussionResultView'
-                    ,'discussionParticipantView', 'relationCreationModal'
-                    ,'articleConditionModal'    , 'discussionDlFileView'];
+//  this.discussionResultView = new DiscussionResultView({
+//    el: this.$('#SingleDiscussionViewResults'), model: null});
+//  this.relationCreationModal = new RelationCreationModal({
+//    el: this.$('#RelationCreationModal'), model: null});
+//  this.articleConditionModal = new ArticleConditionModal({
+//    el: this.$('#ArticleConditionModal'), model: null});
+    this.discussionDlFileView = new DiscussionDlFileView({el: this.$('#SingleDiscussionViewFiles')}); 
+    this.subViews = ['discussionArticleView','discussionCollectedView','discussionGraphView','discussionParticipantView','discussionDlFileView'];
+//  this.subViews = ['discussionArticleView'    , 'discussionCollectedView'
+//                  ,'discussionGraphView'      , 'discussionResultView'
+//                  ,'discussionParticipantView', 'relationCreationModal'
+//                  ,'articleConditionModal'    , 'discussionDlFileView'];
     var view = this;
     window.App.router.on('route:singleDiscussionView', function(did){
       view.setDiscussionId(did).always(function(){
@@ -46,17 +44,21 @@ SingleDiscussionView = Hideable.extend({
   }
 , render: function(){
     if(this.model){
-      this.$('h1').html(this.model.get('headline'));
-      this.$('.creation').html('Creation: '+this.model.get('creationTime'));
-      var deletion = this.model.get('deletionTime');
-      deletion = deletion ? ('Deletion: ' + deletion) : '';
+      var desc = $.extend({headline: '', summary: ''}, this.model.get('description'))
+        , disc = $.extend({deadline: null}, this.model.get('discussion'))
+        , creation = this.model.get('creation')
+        , deletion = this.model.get('deletion')
+        , formatTime = this.model.stripFractionFromTime;
+      deletion = deletion ? ('Deletion: ' + formatTime(deletion)) : '';
+      disc.deadline = disc.deadline ? ('Deadline: ' + disc.deadline) : '';
+      this.$('h1').html(desc.headline);
+      this.$('.creation').html('Creation: ' + formatTime(creation));
       this.$('.deletion').html(deletion);
-      var deadline = this.model.get('deadline');
-      deadline = deadline ? ('Deadline: ' + deadline) : '';
-      this.$('.deadline').html(deadline);
-      this.$('summary').html(this.model.get('description'));
-      this.model.results.hasResults() ? this.resultsTab.show()
-                                      : this.resultsTab.hide();
+      this.$('.deadline').html(disc.deadline);
+      this.$('summary').html(desc.summary);
+//FIXME debug
+//    this.model.results.hasResults() ? this.resultsTab.show()
+//                                    : this.resultsTab.hide();
     }else{
       this.$('h1').html('Discussion not found!');
       this.$('.creation, .deletion, .deadline').html('');
@@ -84,7 +86,7 @@ SingleDiscussionView = Hideable.extend({
   }
 , setDiscussionId: function(did){
     var view = this;
-    var d = new Discussion({id: did});
+    var d = new Item({id: did});
     var p = $.Deferred();
     if(this.model){
       if(did === this.model.get('id')){
@@ -103,7 +105,6 @@ SingleDiscussionView = Hideable.extend({
     return p;
   }
 , setTab: function(tab){
-  //this.$('#SingleDiscussionViewTabs li[data-tabname="'+tab+'"] a').tab('show');
     this.$('#SingleDiscussionViewTabs li[data-tabname="'+tab+'"] a').trigger('click');
   }
 , tabClicked: function(tab){

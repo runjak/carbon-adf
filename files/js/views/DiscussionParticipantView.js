@@ -10,7 +10,7 @@ DiscussionParticipantView = Backbone.View.extend({
     if(!this.model) return;
     //Buttons to change if user is a participant:
     if(window.App.login.get('loggedIn')){
-      if(window.App.login.findInDiscussion(this.model)){
+      if(this.model.isDiscussionParticipant(window.App.login)){
         this.$('#LeaveDiscussion').show();
         this.$('#JoinDiscussion').hide();
       }else{
@@ -20,7 +20,7 @@ DiscussionParticipantView = Backbone.View.extend({
     }else this.$('form > label').hide();
     //List of current participants:
     var el = this.$('tbody').empty();
-    this.model.participants.map(function(p){
+    this.model.discussion.participants.map(function(p){
       var id = p.get('id');
       var un = p.get('username');
       el.append('<tr><td><a href="#/user/'+id+'">'+un+'</a></td></tr>');
@@ -28,20 +28,20 @@ DiscussionParticipantView = Backbone.View.extend({
   }
 , setModel: function(d){
     if(this.model){
-      this.model.participants.off(null, null, this);
+      this.model.discussion.participants.off(null, null, this);
     }
     this.model = d;
     if(d){
-      this.model.participants.on('reset add remove', this.render, this);
+      this.model.discussion.participants.on('reset add remove', this.render, this);
     }
     this.render();
   }
 , joinDiscussion: function(e){
     e.preventDefault();
-    this.model.setParticipant(true);
+    this.model.set({canCommit: true}).discussion.participants.toggleElem(window.App.login);
   }
 , leaveDiscussion: function(e){
     e.preventDefault();
-    this.model.setParticipant(false);
+    this.model.set({canCommit: true}).discussion.participants.toggleElem(window.App.login);
   }
 });

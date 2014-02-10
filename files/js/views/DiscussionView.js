@@ -16,13 +16,14 @@ DiscussionView = Hideable.extend({
     var rows = '';
     this.model.map(function(d){
       var did  = d.get('id');
-      var head = d.get('headline');
-      var desc = d.get('description');
-      var crea = d.get('creationTime');
+      var desc = $.extend({headline: '', summary: ''}, d.get('description'));
+      var head = desc.headline;
+      var summ = desc.summary;
+      var crea = d.get('creation');
       rows += '<tr>'
             + '<td>'+did+'</td>'
             + '<td><a href="#/discussion/'+did+'">'+head+'</a></td>'
-            + '<td>'+desc+'</td>'
+            + '<td>'+summ+'</td>'
             + '<td>'+crea+'</td>'
             + '</tr>';
     });

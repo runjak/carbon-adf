@@ -1,4 +1,4 @@
-User = Item.extend({
+User = DateObject.extend({
   urlRoot: 'user/'
 , defaults: {}
 , initialize: function(){}
@@ -39,8 +39,11 @@ User = Item.extend({
     });
     return promise;
   }
+//FIXME this will need to be reimplemented.
+/*
 , findInDiscussion: function(discussion){
     var uid = this.get('id');
     return discussion.participants.elemById(uid);
   }
+*/
 });

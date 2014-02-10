@@ -18,16 +18,17 @@ ArticleView = Hideable.extend({
 , render: function(){
     var rows = '';
     this.model.map(function(a){
-      var aid  = a.get('id');
-      var head = a.get('headline');
-      var desc = a.get('description');
-      var crea = a.get('creationTime');
-      var collected = window.App.collectedArticles.elemById(aid);
+      var aid  = a.get('id')
+        , desc = $.extend({headline: 'No headline.', summary: ''}, a.get('description'))
+        , head = desc.headline
+        , summ = desc.summary
+        , crea = a.get('creation')
+        , collected = window.App.collectedArticles.elemById(aid);
       collected = (typeof(collected) === 'undefined') ? '' : ' class="success"';
       rows += '<tr'+collected+'>'
             + '<td>'+aid+'</td>'
             + '<td><a href="#/article/'+aid+'">'+head+'</a></td>'
-            + '<td>'+desc+'</td>'
+            + '<td>'+summ+'</td>'
             + '<td>'+crea+'</td>'
             + '</tr>';
     });

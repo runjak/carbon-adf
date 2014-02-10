@@ -1,0 +1,17 @@
+To generate diamond input,
+I'll have to get an acceptance condition
+for every Item in a Discussion.
+
+If an Item has a custom condition, we can use that.
+ - But we must fit it to the Discussion, if not all
+   mentioned arguments are included.
+
+If an Item has a Proof Standard,
+we'll need to perform some magic depending on the other
+Items that relate to this one.
+ - We can discard Attacks from Items with a lower Proof Standard.
+ - Remaining Items can be grouped by PS, and for each such Group a Condition will arise
+   - The Condition for such a Group will be something like 'we need as many defenders as attackers' as a logical formula
+   - There will be several formulas per group
+   - We'll want to build a conjunction over the formulas of a group and over the groups.
+   - This can have quite some cases, but that'll be ok.

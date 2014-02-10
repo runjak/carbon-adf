@@ -1,13 +1,13 @@
 DiscussionPagination = Pagination.extend({
   createCollection: function(){
-    return new DiscussionCollection();
+    return new ItemCollection();
   }
 , itemsFromIds: function(dids){
     return _.map(dids, function(did){
-      return new Discussion({id: did});
+      return new Item({id: did});
     });
   }
 , createPager: function(){
-    return new Pager({target: 'discussion/'});
+    return new ItemPager({isDiscussion: true});
   }
 });

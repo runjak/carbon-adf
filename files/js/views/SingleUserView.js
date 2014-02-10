@@ -12,7 +12,7 @@ SingleUserView = Hideable.extend({
 , render: function(){
     var model = this.model;
     var view  = this;
-    if(model === null){
+    if(!model){
       this.$el.html('<h2>Could not load requested user.</h2>Sorry…');
     }else{
       //Displaying the content:
@@ -85,7 +85,7 @@ SingleUserView = Hideable.extend({
   }
 , setUserId: function(uid){
     //Unbinding events from the old model:
-    if(this.model !== null)
+    if(this.model)
       this.model.off(null, null, this);
     var p = $.Deferred();
     var t = this;

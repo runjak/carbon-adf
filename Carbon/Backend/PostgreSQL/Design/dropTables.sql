@@ -1,0 +1,16 @@
+DROP TABLE IF EXISTS users                   CASCADE;
+DROP TABLE IF EXISTS descriptions            CASCADE;
+DROP TABLE IF EXISTS articles                CASCADE;
+DROP TABLE IF EXISTS acceptanceconditions    CASCADE;
+DROP TABLE IF EXISTS relations               CASCADE;
+DROP TABLE IF EXISTS discussions             CASCADE;
+DROP TABLE IF EXISTS discussion_arguments    CASCADE;
+DROP TABLE IF EXISTS discussion_participants CASCADE;
+DROP TABLE IF EXISTS resultsets              CASCADE;
+DROP TABLE IF EXISTS results                 CASCADE;
+DROP TABLE IF EXISTS results_items           CASCADE;
+DROP TABLE IF EXISTS resultset_results       CASCADE;
+DROP TABLE IF EXISTS resultset_voters        CASCADE;
+DROP TABLE IF EXISTS items                   CASCADE;
+DROP TABLE IF EXISTS item_relations          CASCADE;
+DROP TABLE IF EXISTS item_family             CASCADE;

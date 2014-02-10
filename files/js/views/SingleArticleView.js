@@ -31,15 +31,17 @@ SingleArticleView = ArticleRender.extend({
       p.resolve(this.model);
     }else{
       var m = this.actions.checkArticleId(aid);
-      if(!m) m = new Article({id: aid});
+      if(!m) m = new Item({id: aid});
       m.fetch().done(function(){
         view.setModel(m);
         view.history.setModel(m);
         p.resolve(m);
       }).fail(function(f){
         m.set({
-          headline: 'Article not found'
-        , description: ('There was no article found by the requested id of ' + aid)
+          description: {
+            headline: 'Article not found'
+          , summary: ('There was no article found by the requested id of ' + aid)}
+        , article: {content: ''}
         });
         console.log('SingleArticleView:setArticleId('+aid+'):'+JSON.stringify(f));
         view.setModel(m);

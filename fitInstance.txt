@@ -1,0 +1,12 @@
+When a Discussion is fitted to an Instance,
+every statement from the instance must be represented as an Item.
+
+Uploaded Instances will identify Items by their Headlines, rather than their Id.
+So first a mapping of Headline -> Either ItemId Headline will be performed by looking up headlines in the db,
+and than a mapping of Either ItemId Headline -> ItemId will take place, by creating new Items for each Headline.
+
+For every ac, the Item that resembles the head will get new Relations:
+ - All current incomming Relations will be dropped
+ - New incomming Relations will be drawn of type RelationCustom,
+   because from the condition alone we can't infer if it's an attack or a defense
+ - New Relations will be drawn to an Item from every Item mentioned in it's ac.

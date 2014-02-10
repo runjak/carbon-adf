@@ -48,7 +48,7 @@ SingleArticleActionView = Backbone.View.extend({
 , checkArticleId: function(aid){
     if(typeof(aid) === 'undefined'){
       aid = this.aid;
-    }else if(aid instanceof Article){
+    }else if(aid instanceof Item){
       aid = aid.get('id');
     }else this.aid = aid;
     var match = this.model.findWhere({id: aid});

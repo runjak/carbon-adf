@@ -11,53 +11,36 @@ $(function(){
   });
   //The singleton:
   window.App = {
-    collectedArticles: new CollectedArticles()
+    collectedArticles: new CollectedItems()
+  , dummyItemFactory: new DummyItemFactory()
   , hideManager: new HideManager()
-  , login:  new Login()
+  , login: new Login()
   , router: new Router()
   , views:  {}
-  }
+  };
   //Setting the views:
-  var views = window.App.views;
-  views.articleView = new ArticleView({
-    el: $('#ArticleView')
+  window.App.views.loginState = new LoginState({
+    model: window.App.login
+  , el: $('#LoginState')
   });
-  views.singleArticleView = new SingleArticleView({
-    el: $('#SingleArticleView')
-  , model: null
+  window.App.views.loginView = new LoginView({
+    model: window.App.login
+  , el: $('#LoginRegisterForm')
   });
-  views.collectedArticlesView = new CollectedArticlesView({
+  window.App.views.singleUserView = new SingleUserView({el: $('#SingleUserView')});
+  window.App.views.userView = new UserView({el: $('#UserView')});
+  window.App.views.articleView = new ArticleView({el: $('#ArticleView')});
+  window.App.views.collectedArticlesView = new CollectedArticlesView({
     el: $('.CollectedArticlesView')
   , model: window.App.collectedArticles
   });
-  views.createArticleView = new CreateArticleView({
-    el: $('#CreateArticleView')
-  });
-  views.discussionView = new DiscussionView({
-    el: $('#DiscussionView')
-  });
-  views.singleDiscussionView = new SingleDiscussionView({
-    model: null
-  , el: $('#SingleDiscussionView')
-  });
-  views.createDiscussionView = new CreateDiscussionView({
-    el: $('#CreateDiscussionView')
-  });
-  views.discussionArticles = {};
-  views.loginView = new LoginView({
-    el: $('#LoginRegisterForm')
-  , model: window.App.login
-  });
-  views.loginState = new LoginState({
-    el: $('#LoginState')
-  , model: window.App.login
-  });
-  views.userView = new UserView({el: $('#UserView')});
-  views.singleUserView = new SingleUserView({
-    el: $('#SingleUserView')
-  , model: null
-  });
-  views.topMenuView = new TopMenuView({el: $('#TopMenu')});
+  window.App.views.singleArticleView = new SingleArticleView({el: $('#SingleArticleView')});
+  window.App.views.createArticleView = new CreateArticleView({el: $('#CreateArticleView')});
+  window.App.views.topMenuView = new TopMenuView({el: $('#TopMenu')});
+  window.App.views.discussionView = new DiscussionView({el: $('#DiscussionView')});
+  window.App.views.createDiscussionView = new CreateDiscussionView({el: $('#CreateDiscussionView')});
+  window.App.views.singleDiscussionView = new SingleDiscussionView({el: $('#SingleDiscussionView')});
+  //FIXME implement!
   //Starting the routing:
   Backbone.history.start();
   window.App.router.on('defaultRoute', function(actions){

@@ -1,11 +1,151 @@
- - Get a nice Graph by using springy.js
-   - Maybe with sprigy I no longer need to store positions
- - Figure out how to redesign current datatypes
-   - They should support proof standards, aswell as custom conditions
-   - The logic program for them must become generated
-   - I'll have three kinds of relations: attack, defense, and automatically generated for a custom condition
-   - I'll want to keep my algorithm to integrate an user upload
- - Maybe I can even translate the new design into the app
- - I'll want to check, if diamond can output JSON, which would greatly simplify parsing and make it more robust
- - Build a way to compose the index.html on request,
-   so that it can be edited in single, smaller parts.
+------------------------
+|      2014-01-27      |
+------------------------
+- Carbon.Website.Item:readItem now executes autoCondition on all Items.
+  This makes sure, that every change on an Item is reflected on it's formula at once.
+  I know, that Carbon.Website.Item is not the ideam place to perform this task,
+  because it very likly will cause multiple calculations for the same Item,
+  but it's the place, where such a thing is implemented easiest.
+- Next step should now be evaluation of a Discussion.
+
+------------------------
+|      2014-01-25      |
+------------------------
+- Remember to hlint the source at once
+- Implemented Carbon.Backend.Logic:mkFormula
+  - It supports autoCondition.
+  - It's a way more sophisticated version of mkExp.
+  - It appears I was capable to fix autoCondition with it.
+  - It shall be applied whenever an Item is modified.
+
+------------------------
+|      2014-01-24      |
+------------------------
+- Fixed a bug in Carbon.Backend.Logic:autoCondition.
+  - In case 2, the sourceGroups where calculated from rels instead of from incomming,
+    which made it possible to break Map.!
+- Judging from the output, it appears that autoCondition does some wrong calculations after all.
+- DiscussionGraphView now displays formulas.
+
+------------------------
+|      2014-01-23      |
+------------------------
+- Fixed a bug with SpringyRenderer:render()
+- Reimplemented and thereby fixed an issue of DiscussionGraphView:discussionToArguments()
+- Bug with GraphView: adding a dummy Node appears to be deleting relations in unnecessary ways.
+  - Made Item:gatherRelations() and DiscussionGraphView:updateEdges()
+    more sophisticated, but for some reason, the bug still appears.
+- Made addDummyNode and removeNode a dropdown menu like with the relations
+- Added button and keybinding to remove nodes
+  - Removing nodes works, but just like addDummyNode it likes to break the graph.
+- Added DiscussionGraphView:{setClick, clearClick}()
+  - setClick registers a function to perform when clicking on a node, together with a message.
+    It also delivers a way to cancel the action.
+  - clearClick cancels the currently registered function for nodes.
+- Added buttons to add relations between nodes.
+  - Adding Relations in general works, or should,
+    but it appears to be breaking acs.
+
+------------------------
+|      2014-01-22      |
+------------------------
+- Extended update{Nodes,Edges}, they now take care of outdated {Node,Edge}s
+- Sourced out some parts of DiscussionGraphView.js into SpringyRenderer.js;
+  DiscussionGraphView now extends SpringyRenderer.
+- DiscussionGraphView:setModel now cleans up the graph correctly.
+- Now updating the URL when adding a DummyNode.
+  - However this appears to still like adding redundant stuff to the graph.
+- Implemented basic node coloring.
+- Basic edge coloring should work.
+- use update{Edges,Nodes} to also change color/stuff of existing nodes/edges .)
+
+------------------------
+|      2014-01-21      |
+------------------------
+- A DummyItemFactory is build, and DiscussionGraphView already uses it correctly.
+  - This means, that dummy nodes can be inserted into discussions.
+- A simple way to render discussion contents exists
+  - However, it'll need to display more detail
+  - and also, a way to remove nodes/edges appears to be necessary.
+- Editing of relations in DiscussionGraphView is still missing.
+
+------------------------
+|      2014-01-20      |
+------------------------
+- Replaced arbor.js with springy.js
+  - arbor.js has a bug when using webworkers that prevents the particlesystem form stopping,
+    but this is just a feature that I want
+  - In springy.js this is done quite easily, and I can happily report that I'm back with it again.
+
+------------------------
+|      2014-01-17      |
+------------------------
+- Trying to switch springy.js to arbor.js
+  arbor.js appears to be more robust with it's rendering,
+  and I'll try to get it working for me.
+
+------------------------
+|      2014-01-15      |
+------------------------
+- OpenBrain.Backend.Logic:{diamondInput,autoCondition} fixed
+  - Had to adjust DSL for this, MondifyAcceptanceCondition is introduced.
+  - Note that I want to write about this problem .)
+  - Maybe I can use the fix of mapping formulas from parents on a GetItem basis, or something thelike?
+- Renamed OpenBrain -> CARBON
+
+------------------------
+|      2014-01-14      |
+------------------------
+- Email zu neuem Projektnamen gesendet,
+  bei positivem Feedback umbenennung zu CARBON (Collaborative ARgumentation Brought ONline)
+  Feedback positiv, renaming OpenBrain -> CARBON kommt nach den nächsten fixes :D
+
+------------------------
+|      2013-12-13      |
+------------------------
+- Neuen Projektnamen diskutieren
+  - Projekte mit gleichem Namen suchen!
+  - Mail dazu schreiben
+- Geändertes Datenbanklayout (Grafiken?)
+  - Unterschiede zwischen den Tabellen
+  - Alles ist ein Item
+    - commits
+  - Angepasste DSL
+  - Angepasste API
+- Monaden, Monoide?
+- Automatisches initialisieren von Nutern
+  - admin:admin und Nobody:*
+- Composition
+- Groben Zeitplan (Januar, Februar, März), Vorschlag:
+  - Ende Januar mit Code fertig sein
+  - Bis Ende Februar wesentliche paper gelesen haben
+  - Bis Ende Februar/Mitte März BA größtenteils fertig
+  - März(Anfang|Mitte)-April Korrekturen, Ausbesserungen
+  - Anfang April drucken
+  - Abgabe im April, spätestens 15.
+- Bugs in der Testversion auf dem Server:
+  - Userverwaltung: Erstellen von Nutzern erscheint fehlerhaft ?!
+    'Server error: <stdout>: commitBuffer: hardware fault (Input/output error)'
+- In Springy.js:
+  - Manuelles Anordnen von Knoten, unter der option, das automatische Anordnen abzustellen.
+
+------------------------
+|      2013-11-20      |
+------------------------
+- Hübscheren Graph mit Springy.js und canvas element bauen
+  - Einfärben von foo und bar
+- Neue Datentypen einführen/umsetzen
+  - Inklusionen der ResultSets beachten!
+    admissible >= complete >= (grounded, pref >= stable >= two-valued)
+  - Proof standards als templates, formeln automatisch.
+    Formeln können vom User angepasst werden,
+    template informationen werden dann verworfen.
+- Information ordering mit Raphael.js für Result sets in Discussion
+  - Siehe paper von Stefan (Poster über ~emmlauthaler)
+- Parser für Diamond stabiler machen
+  - Transform-Pform auslagern
+  - Einzelne Aufrufe für unterschiedliche Sets
+  - Preffered Extension fehlt?!
+- Masterarbeit von Stefan E. laden/lesen
+- Can we remove entwurf.html already?
+  - Will be done, when carbon supports evaluation of discussions again.

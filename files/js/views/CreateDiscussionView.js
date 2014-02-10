@@ -1,7 +1,7 @@
 CreateDiscussionView = Hideable.extend({
   initialize: function(){
     this.$('textarea').autoResize();
-    this.setModel(new Discussion());
+    this.setModel(new Item());
     var view = this;
     this.datepicker = this.$('#CreateDiscussionViewDate').datepicker({
       format: 'yyyy-mm-dd'
@@ -24,7 +24,6 @@ CreateDiscussionView = Hideable.extend({
   , "keyup #CreateDiscussionViewHeadline":      "syncHeadline"
   , "keyup #CreateDiscussionViewDate":          "syncDeadline"
   , "keyup #CreateDiscussionViewTime":          "syncDeadline"
-  , "input #CreateDiscussionViewTime":          "syncDeadline"
   , "keyup #CreateDiscussionViewDescription":   "syncDescription"
   , "click #CreateDiscussionViewShowGraphView": "openGraphView"
   }
@@ -40,8 +39,8 @@ CreateDiscussionView = Hideable.extend({
       target.html('<li class="nav-header">Select articles to include them in the discussion:</li>');
       elems.reiterate(function(a){
         var aid = a.get('id');
-        var headline = a.get('headline');
-        var creation = a.stripFractionFromTime(a.get('creationTime'));
+        var headline = a.get('description') ? a.get('description').headline : '';
+        var creation = a.stripFractionFromTime(a.get('creation'));
         var item = '<li>'
                  + '<form class="form-inline">'
                  + '<label class="checkbox" title="'+creation+'">'
@@ -61,7 +60,7 @@ CreateDiscussionView = Hideable.extend({
           window.App.collectedArticles.remove(a);
         });
         target.find('li:last input[type="checkbox"]').click(function(){
-          view.model.get('articles').toggleElem(a);
+          view.model.discussion.arguments.toggleElem(a);
         });
       });
     }
@@ -73,13 +72,15 @@ CreateDiscussionView = Hideable.extend({
 , create: function(e){
     e.preventDefault();
     var view = this;
-    this.model.create().done(function(d){
+    this.model.discussionToAttributes().mySave().done(function(d){
+      view.model.set(d);
       console.log("Discussion created!");
       console.log(d);
       var finish = function(){};
+      // FIXME debug file uploads, they've changed some.
       var file = view.$('#CreateDiscussionViewInstanceFile').val();
       if(file !== ''){
-        view.$('form').attr('action', 'discussion/'+d.id+'/fitinstance');
+        view.$('form').attr('action', 'item/'+d.id+'/fitinstance');
         var upload = view.$('#CreateDiscussionViewInstanceFileUpload').load(function(){
           upload.unbind('load');
           var result = upload.contents().text();
@@ -95,28 +96,38 @@ CreateDiscussionView = Hideable.extend({
 , finishCreation: function(){
     var route = '#/discussion/' + this.model.get('id');
     window.App.router.navigate(route, {trigger: true});
-    this.setModel(new Discussion());
+    this.setModel(new Item());
   }
 , clearDeadline: function(){
     this.$('#CreateDiscussionViewDate').val('');
     this.$('#CreateDiscussionViewTime').val('');
     this.model.set({deadline: null});
   }
-, syncHeadline: function(){this.model.set({headline: this.$('#CreateDiscussionViewHeadline').val()});}
-, syncDescription: function(){this.model.set({description: this.$('#CreateDiscussionViewDescription').val()});}
+, syncHeadline: function(){
+    var d = {headline: this.$('#CreateDiscussionViewHeadline').val()};
+    this.model.modify('description', d);
+  }
+, syncDescription: function(){
+    var d = {summary: this.$('#CreateDiscussionViewDescription').val()};
+    this.model.modify('description', d);
+  }
 , syncDeadline: function(){
     var date = this.$('#CreateDiscussionViewDate').val();
     var time = this.$('#CreateDiscussionViewTime').val(); // http://dev.w3.org/html5/markup/input.time.html
     if(time === '' || date === '') return;
-    this.model.set({deadline: date+' '+time+':00'});
+    var d = {deadline: date+' '+time+':00'};
+    this.model.modify('discussion', d);
   }
 , setModel: function(m){
     this.model = m;
-    this.$('#CreateDiscussionViewHeadline').val(m.get('headline'));
-    this.$('#CreateDiscussionViewDeadline').val(m.get('deadline'));
-    this.$('#CreateDiscussionViewDescription').val(m.get('description'));
+    var description = $.extend({headline: '', summary: ''}, m.get('description'))
+      , discussion  = $.extend({deadline: ''}, m.get('discussion'));
+    this.$('#CreateDiscussionViewHeadline').val(description.headline);
+    this.$('#CreateDiscussionViewDeadline').val(discussion.deadline);
+    this.$('#CreateDiscussionViewDescription').val(description.summary);
+    m.modify('discussion', {id: -1, participants: [window.App.login.get('id')]});
   }
-, openGraphView: function(){
+, openGraphView: function(){ // FIXME this should be changed, possibly.
     window.App.views.discussionGraphView.setModel(this.model);
   }
 });

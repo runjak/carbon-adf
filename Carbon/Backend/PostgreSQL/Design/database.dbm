@@ -1,0 +1,581 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+CAUTION: Do not modify this file unless you know what you are doing.
+         Unexpected results may occur if the code is changed deliberately.
+-->
+<dbmodel>
+<role name="mushu"
+      superuser="true"
+      password="md548d007e755bb51a3d8d6f5df4feaa33a">
+</role>
+
+<schema name="public" protected="true" rect-visible="true" fill-color="#e1e1e1" sql-disabled="true">
+</schema>
+
+<database name="openbrain" encoding="UTF8" lc-collate="en_US" lc-ctype="en_US">
+	<role name="mushu"/>
+	<tablespace name="pg_default"/>
+</database>
+
+<sequence name="users_userid_seq"
+	 start="1" increment="1"
+	 min-value="1" max-value="9223372036854775807"
+	 cache="1" cycle="false">
+	<schema name="public"/>
+	<role name="mushu"/>
+</sequence>
+
+<table name="users" oids="true">
+	<schema name="public"/>
+	<role name="mushu"/>
+	<position x="50" y="50"/>
+	<column name="userid" not-null="true" default-value="nextval('users_userid_seq'::regclass)">
+		<type name="integer"/>
+	</column>
+	<column name="username" not-null="true">
+		<type name="character varying" length="255"/>
+	</column>
+	<column name="hash" not-null="true">
+		<type name="character varying" length="128"/>
+	</column>
+	<column name="salt" not-null="true">
+		<type name="character varying" length="255"/>
+	</column>
+	<column name="creationtime" not-null="true" default-value="now()">
+		<type name="timestamp"/>
+	</column>
+	<column name="lastlogin" not-null="true" default-value="now()">
+		<type name="timestamp"/>
+	</column>
+	<column name="isadmin" not-null="true" default-value="false">
+		<type name="boolean"/>
+	</column>
+	<column name="profile">
+		<type name="integer"/>
+	</column>
+	<column name="sessionkey">
+		<type name="character varying" length="255"/>
+	</column>
+	<constraint name="users_primarykey" type="pk-constr" factor="100" table="public.users">
+		<columns names="userid" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="users_username_unique" type="uq-constr" factor="100" table="public.users">
+		<columns names="username" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<sequence name="descriptions_descriptionid_seq"
+	 start="1" increment="1"
+	 min-value="1" max-value="9223372036854775807"
+	 cache="1" cycle="false">
+	<schema name="public"/>
+	<role name="mushu"/>
+</sequence>
+
+<table name="descriptions">
+	<schema name="public"/>
+	<role name="mushu"/>
+	<comment><![CDATA[Table for OpenBrain.Data.Description]]></comment>
+	<position x="406.375" y="50"/>
+	<column name="descriptionid" not-null="true" default-value="nextval('descriptions_descriptionid_seq'::regclass)">
+		<type name="integer"/>
+	</column>
+	<column name="headline" not-null="true">
+		<type name="character varying" length="255"/>
+	</column>
+	<column name="summary" not-null="true">
+		<type name="character varying" length="255"/>
+	</column>
+	<constraint name="description_descriptionid" type="pk-constr" factor="100" table="public.descriptions">
+		<columns names="descriptionid" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<sequence name="articles_articleid_seq"
+	 start="1" increment="1"
+	 min-value="1" max-value="9223372036854775807"
+	 cache="1" cycle="false">
+	<schema name="public"/>
+	<role name="mushu"/>
+</sequence>
+
+<table name="articles">
+	<schema name="public"/>
+	<role name="mushu"/>
+	<comment><![CDATA[Table for OpenBrain.Data.Article]]></comment>
+	<position x="817.931" y="50"/>
+	<column name="articleid" not-null="true" default-value="nextval('articles_articleid_seq'::regclass)">
+		<type name="integer"/>
+	</column>
+	<column name="content" not-null="true">
+		<type name="text"/>
+	</column>
+	<constraint name="articles_articleid" type="pk-constr" factor="100" table="public.articles">
+		<columns names="articleid" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<sequence name="acceptanceconditions_acceptanceconditionid_seq"
+	 start="1" increment="1"
+	 min-value="1" max-value="9223372036854775807"
+	 cache="1" cycle="false">
+	<schema name="public"/>
+	<role name="mushu"/>
+</sequence>
+
+<table name="acceptanceconditions">
+	<schema name="public"/>
+	<role name="mushu"/>
+	<comment><![CDATA[Table for OpenBrain.Data.AcceptanceCondition]]></comment>
+	<position x="722.113" y="134.444"/>
+	<column name="acceptanceconditionid" not-null="true" default-value="nextval('acceptanceconditions_acceptanceconditionid_seq'::regclass)">
+		<type name="integer"/>
+	</column>
+	<column name="proofstandard">
+		<type name="smallint"/>
+	</column>
+	<column name="formula" not-null="true">
+		<type name="text"/>
+	</column>
+	<constraint name="acceptanceconditions_acceptanceconditionid" type="pk-constr" factor="100" table="public.acceptanceconditions">
+		<columns names="acceptanceconditionid" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<sequence name="relations_relationid_seq"
+	 start="1" increment="1"
+	 min-value="1" max-value="9223372036854775807"
+	 cache="1" cycle="false">
+	<schema name="public"/>
+	<role name="mushu"/>
+</sequence>
+
+<table name="relations">
+	<schema name="public"/>
+	<role name="mushu"/>
+	<comment><![CDATA[Table for OpenBrain.Data.Relation]]></comment>
+	<position x="425.111" y="507.778"/>
+	<column name="relationid" not-null="true" default-value="nextval('relations_relationid_seq'::regclass)">
+		<type name="integer"/>
+	</column>
+	<column name="source" not-null="true">
+		<type name="integer"/>
+	</column>
+	<column name="target" not-null="true">
+		<type name="integer"/>
+	</column>
+	<column name="relationtype" not-null="true">
+		<type name="smallint"/>
+	</column>
+	<constraint name="relation_relationid" type="pk-constr" factor="100" table="public.relations">
+		<columns names="relationid" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<sequence name="discussions_discussionid_seq"
+	 start="1" increment="1"
+	 min-value="1" max-value="9223372036854775807"
+	 cache="1" cycle="false">
+	<schema name="public"/>
+	<role name="mushu"/>
+</sequence>
+
+<table name="discussions">
+	<schema name="public"/>
+	<role name="mushu"/>
+	<comment><![CDATA[Table for OpenBrain.Data.Discussion]]></comment>
+	<position x="50" y="259.4"/>
+	<column name="discussionid" not-null="true" default-value="nextval('discussions_discussionid_seq'::regclass)">
+		<type name="integer"/>
+	</column>
+	<column name="deadline">
+		<type name="timestamp"/>
+	</column>
+	<column name="evaluation" not-null="true">
+		<type name="smallint"/>
+	</column>
+	<constraint name="discussion_discussionid" type="pk-constr" factor="100" table="public.discussions">
+		<columns names="discussionid" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="discussion_arguments">
+	<schema name="public"/>
+	<role name="mushu"/>
+	<comment><![CDATA[Field arguments for OpenBrain.Data.Discussion]]></comment>
+	<position x="337.359" y="259.4"/>
+	<column name="discussionid" not-null="true">
+		<type name="integer"/>
+	</column>
+	<column name="itemid" not-null="true">
+		<type name="integer"/>
+	</column>
+</table>
+
+<table name="discussion_participants">
+	<schema name="public"/>
+	<role name="mushu"/>
+	<comment><![CDATA[participants field for OpenBrain.Data.Discussion]]></comment>
+	<position x="582.6" y="259.4"/>
+	<column name="discussionid" not-null="true">
+		<type name="integer"/>
+	</column>
+	<column name="userid" not-null="true">
+		<type name="integer"/>
+	</column>
+</table>
+
+<sequence name="resultsets_resultsetid_seq"
+	 start="1" increment="1"
+	 min-value="1" max-value="9223372036854775807"
+	 cache="1" cycle="false">
+	<schema name="public"/>
+	<role name="mushu"/>
+</sequence>
+
+<table name="resultsets">
+	<schema name="public"/>
+	<role name="mushu"/>
+	<comment><![CDATA[Table for OpenBrain.Data.ResultSet]]></comment>
+	<position x="791.974" y="470.511"/>
+	<column name="resultsetid" not-null="true" default-value="nextval('resultsets_resultsetid_seq'::regclass)">
+		<type name="integer"/>
+	</column>
+	<column name="setcreation" not-null="true" default-value="now()">
+		<type name="timestamp"/>
+	</column>
+	<constraint name="resultset_resultsetid" type="pk-constr" factor="100" table="public.resultsets">
+		<columns names="resultsetid" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<sequence name="results_resultid_seq"
+	 start="1" increment="1"
+	 min-value="1" max-value="9223372036854775807"
+	 cache="1" cycle="false">
+	<schema name="public"/>
+	<role name="mushu"/>
+</sequence>
+
+<table name="results">
+	<schema name="public"/>
+	<role name="mushu"/>
+	<comment><![CDATA[Table for OpenBrain.Data.Result]]></comment>
+	<position x="264.811" y="381.622"/>
+	<column name="resultid" not-null="true" default-value="nextval('results_resultid_seq'::regclass)">
+		<type name="integer"/>
+	</column>
+	<column name="resulttype" not-null="true" default-value="'[]'::character varying">
+		<type name="character varying" length="255"/>
+	</column>
+	<column name="votes" not-null="true" default-value="0">
+		<type name="integer"/>
+	</column>
+	<constraint name="result_resultid" type="pk-constr" factor="100" table="public.results">
+		<columns names="resultid" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="results_items">
+	<schema name="public"/>
+	<role name="mushu"/>
+	<comment><![CDATA[Field items of OpenBrain.Data.Result]]></comment>
+	<position x="50" y="378.8"/>
+	<column name="resultid" not-null="true">
+		<type name="integer"/>
+	</column>
+	<column name="resultstate" not-null="true">
+		<type name="smallint"/>
+	</column>
+	<column name="itemid" not-null="true">
+		<type name="integer"/>
+	</column>
+</table>
+
+<table name="resultset_results">
+	<schema name="public"/>
+	<role name="mushu"/>
+	<position x="584.434" y="381.022"/>
+	<column name="resultsetid" not-null="true">
+		<type name="integer"/>
+	</column>
+	<column name="resultid" not-null="true">
+		<type name="integer"/>
+	</column>
+</table>
+
+<table name="resultset_voters">
+	<schema name="public"/>
+	<role name="mushu"/>
+	<position x="835.662" y="229.911"/>
+	<column name="resultsetid" not-null="true">
+		<type name="integer"/>
+	</column>
+	<column name="userid" not-null="true">
+		<type name="integer"/>
+	</column>
+	<column name="voted" not-null="true" default-value="false">
+		<type name="boolean"/>
+	</column>
+</table>
+
+<sequence name="items_itemid_seq"
+	 start="1" increment="1"
+	 min-value="1" max-value="9223372036854775807"
+	 cache="1" cycle="false">
+	<schema name="public"/>
+	<role name="mushu"/>
+</sequence>
+
+<table name="items">
+	<schema name="public"/>
+	<role name="mushu"/>
+	<comment><![CDATA[Table for OpenBrain.Data.Item]]></comment>
+	<position x="42.4442" y="505.467"/>
+	<column name="itemid" not-null="true" default-value="nextval('items_itemid_seq'::regclass)">
+		<type name="integer"/>
+	</column>
+	<column name="descriptionid">
+		<type name="integer"/>
+	</column>
+	<column name="articleid">
+		<type name="integer"/>
+	</column>
+	<column name="acceptanceconditionid">
+		<type name="integer"/>
+	</column>
+	<column name="relationid">
+		<type name="integer"/>
+	</column>
+	<column name="discussionid">
+		<type name="integer"/>
+	</column>
+	<column name="resultsetid">
+		<type name="integer"/>
+	</column>
+	<column name="creation" not-null="true" default-value="now()">
+		<type name="timestamp"/>
+	</column>
+	<column name="deletion">
+		<type name="timestamp"/>
+	</column>
+	<column name="commitmessage" not-null="true">
+		<type name="character varying" length="255"/>
+	</column>
+	<column name="commitauthor" not-null="true">
+		<type name="integer"/>
+	</column>
+	<constraint name="items_itemid" type="pk-constr" factor="100" table="public.items">
+		<columns names="itemid" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="item_family">
+	<schema name="public"/>
+	<role name="mushu"/>
+	<comment><![CDATA[Fields parents and children of OpenBrain.Data.Item]]></comment>
+	<position x="431.475" y="632.133"/>
+	<column name="parent" not-null="true">
+		<type name="integer"/>
+	</column>
+	<column name="child" not-null="true">
+		<type name="integer"/>
+	</column>
+</table>
+
+<constraint name="relation_source" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.items" table="public.relations">
+	<columns names="source" ref-type="src-columns"/>
+	<columns names="itemid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="relation_target" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.items" table="public.relations">
+	<columns names="target" ref-type="src-columns"/>
+	<columns names="itemid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="discussion_arguments_discussion" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.discussions" table="public.discussion_arguments">
+	<columns names="discussionid" ref-type="src-columns"/>
+	<columns names="discussionid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="discussion_arguments_item" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.items" table="public.discussion_arguments">
+	<columns names="itemid" ref-type="src-columns"/>
+	<columns names="itemid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="discussion_participants_discussion" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.discussions" table="public.discussion_participants">
+	<columns names="discussionid" ref-type="src-columns"/>
+	<columns names="discussionid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="discussion_participants_participant" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.users" table="public.discussion_participants">
+	<columns names="userid" ref-type="src-columns"/>
+	<columns names="userid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="results_items_result" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.results" table="public.results_items">
+	<columns names="resultid" ref-type="src-columns"/>
+	<columns names="resultid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="results_items_item" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.items" table="public.results_items">
+	<columns names="itemid" ref-type="src-columns"/>
+	<columns names="itemid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="resuletset_results_resultset" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.resultsets" table="public.resultset_results">
+	<columns names="resultsetid" ref-type="src-columns"/>
+	<columns names="resultsetid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="resultset_results_result" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.results" table="public.resultset_results">
+	<columns names="resultid" ref-type="src-columns"/>
+	<columns names="resultid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="resultset_voters_resultset" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.resultsets" table="public.resultset_voters">
+	<columns names="resultsetid" ref-type="src-columns"/>
+	<columns names="resultsetid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="resultset_voters_voter" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.users" table="public.resultset_voters">
+	<columns names="userid" ref-type="src-columns"/>
+	<columns names="userid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="items_commitauthor" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.users" table="public.items">
+	<columns names="commitauthor" ref-type="src-columns"/>
+	<columns names="userid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="items_descriptionid" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.descriptions" table="public.items">
+	<columns names="descriptionid" ref-type="src-columns"/>
+	<columns names="descriptionid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="items_articleid" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.articles" table="public.items">
+	<columns names="articleid" ref-type="src-columns"/>
+	<columns names="articleid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="items_acceptancecondition" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.acceptanceconditions" table="public.items">
+	<columns names="acceptanceconditionid" ref-type="src-columns"/>
+	<columns names="acceptanceconditionid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="items_relation" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.relations" table="public.items">
+	<columns names="relationid" ref-type="src-columns"/>
+	<columns names="relationid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="item_discussion" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.discussions" table="public.items">
+	<columns names="discussionid" ref-type="src-columns"/>
+	<columns names="discussionid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="item_resultset" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.resultsets" table="public.items">
+	<columns names="resultsetid" ref-type="src-columns"/>
+	<columns names="resultsetid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="item_parent" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.items" table="public.item_family">
+	<columns names="parent" ref-type="src-columns"/>
+	<columns names="itemid" ref-type="dst-columns"/>
+</constraint>
+<constraint name="item_child" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="NO ACTION" ref-table="public.items" table="public.item_family">
+	<columns names="child" ref-type="src-columns"/>
+	<columns names="itemid" ref-type="dst-columns"/>
+</constraint>
+<relationship name="rel_relations_items" type="relfk"
+	 src-table="public.relations"
+	 dst-table="public.items"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_discussion_arguments_discussions" type="relfk"
+	 src-table="public.discussion_arguments"
+	 dst-table="public.discussions"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_discussion_arguments_items" type="relfk"
+	 src-table="public.discussion_arguments"
+	 dst-table="public.items"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_discussion_participants_discussions" type="relfk"
+	 src-table="public.discussion_participants"
+	 dst-table="public.discussions"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_discussion_participants_users" type="relfk"
+	 src-table="public.discussion_participants"
+	 dst-table="public.users"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_results_items_results" type="relfk"
+	 src-table="public.results_items"
+	 dst-table="public.results"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_results_items_items" type="relfk"
+	 src-table="public.results_items"
+	 dst-table="public.items"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_resultset_results_resultsets" type="relfk"
+	 src-table="public.resultset_results"
+	 dst-table="public.resultsets"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_resultset_results_results" type="relfk"
+	 src-table="public.resultset_results"
+	 dst-table="public.results"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_resultset_voters_resultsets" type="relfk"
+	 src-table="public.resultset_voters"
+	 dst-table="public.resultsets"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_resultset_voters_users" type="relfk"
+	 src-table="public.resultset_voters"
+	 dst-table="public.users"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_items_users" type="relfk"
+	 src-table="public.items"
+	 dst-table="public.users"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_items_descriptions" type="relfk"
+	 src-table="public.items"
+	 dst-table="public.descriptions"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_items_articles" type="relfk"
+	 src-table="public.items"
+	 dst-table="public.articles"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_items_acceptanceconditions" type="relfk"
+	 src-table="public.items"
+	 dst-table="public.acceptanceconditions"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_items_discussions" type="relfk"
+	 src-table="public.items"
+	 dst-table="public.discussions"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_items_resultsets" type="relfk"
+	 src-table="public.items"
+	 dst-table="public.resultsets"
+	 src-required="true" dst-required="true"/>
+
+<relationship name="rel_item_family_items" type="relfk"
+	 src-table="public.item_family"
+	 dst-table="public.items"
+	 src-required="true" dst-required="true"/>
+
+</dbmodel>

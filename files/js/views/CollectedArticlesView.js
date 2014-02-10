@@ -6,7 +6,7 @@ CollectedArticlesView = Hideable.extend({
     this.$el.html('<li class="nav-header">Collected articles</li>');
     var mkItem = function(a){
       var aid = a.get('id');
-      var headline = a.get('headline');
+      var headline = a.get('description').headline;
       var creation = a.stripFractionFromTime(a.get('creationTime'));
       return '<li>'
            + '<a href="#/article/'+aid+'">'

@@ -36,22 +36,20 @@ DiscussionDlFileView = Backbone.View.extend({
     if(!this.model) return;
     var id = this.model.get('id');
     var t = this;
-    $.get('discussion/'+id+'/acs').done(function(acs){
+    $.get('item/'+id+'/acs').done(function(acs){
       t.render(acs[acs.length - 1]);
     });
   }
 , setModel: function(m){
     if(this.model){
-      this.model.articles.off( null, null, this);
-      this.model.relations.off(null, null, this);
+      this.model.discussion.arguments.off(null, null, this);
+      this.model.discussion.relations.off(null, null, this);
     }
     this.model = m;
     if(m){
-      this.model.articles.on( "change", this.fetchAcs, this);
-      this.model.relations.on("change", this.fetchAcs, this);
-      var id = m.get('id');
-      this.$('form').attr('action',
-        'discussion/'+id+'/fitinstance');
+      this.model.discussion.arguments.on("change", this.fetchAcs, this);
+      this.model.discussion.relations.on("change", this.fetchAcs, this);
+      this.$('form').attr('action', 'item/'+m.get('id')+'/fitinstance');
       this.fetchAcs();
     }
     this.render();
