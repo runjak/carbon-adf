@@ -7,7 +7,7 @@ module Carbon.Data.Logic.Evaluation(
   Evaluation is performed as followes:
   1.: The Content is written into a temporary file
   2.: Diamond is called on the file for each ResultType concurrently
-  3.: Each of the concurrent threads parses it's diamond outpu
+  3.: Each of the concurrent threads parses it's diamond output
   4.: The concurrent outputs are gathered and returned.
 -}
 import Control.Concurrent
