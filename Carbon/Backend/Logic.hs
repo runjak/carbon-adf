@@ -68,6 +68,9 @@ autoCondition item
   This is how we calculate the Formula for an Item in case where
   the Item has a ProofStandard, and no custom formula.
   The Formula is calculated by herpaDerpDingDong.
+  FIXME check if the  conditions generated in the canDefend block must be checked against
+    arguments with larger proofStandards.
+    Because this way, it may be possible, that the whole condition is kinde broken.
 -}
 mkFormula :: ProofStandard -> [Relation] -> (ItemId -> ProofStandard) -> Exp ItemId
 mkFormula itemProofStandard incomming getProofStandard =
