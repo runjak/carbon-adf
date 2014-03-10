@@ -1,3 +1,4 @@
+{-# LANGUAGE DoAndIfThenElse #-}
 module Carbon.Backend.Logic where
 
 import Control.Arrow ((&&&), second)
@@ -114,23 +115,22 @@ mkFormula itemProofStandard incomming getProofStandard =
         -- There'll have to be attacks!
         guard . not $ Set.null attackSet'
         let canDefend = Set.size attackSet' < Set.size supportSet
-        if canDefend then
-          (do supportSet' <- powerset' supportSet
-              guard $ Set.size supportSet' >= Set.size attackSet'
-              let notAttack = Set.difference attackSet attackSet'
-              if null breakList
-              then return . and' $ body attackSet' ++ body supportSet' ++ nBody notAttack
-              else (do
-                -- In this case a single breaker is enough to break the condition:
-                breaker <- breakList
-                return . and' $ body attackSet' ++ body supportSet' ++ nBody notAttack ++ [breaker])
-              )
+        if canDefend
+          then do
+            supportSet' <- powerset' supportSet
+            guard $ Set.size supportSet' >= Set.size attackSet'
+            let notAttack = Set.difference attackSet attackSet'
+            if null breakList
+            then return . and' $ body attackSet' ++ body supportSet' ++ nBody notAttack
+            else do
+              -- In this case a single breaker is enough to break the condition:
+              breaker <- breakList
+              return . and' $ body attackSet' ++ body supportSet' ++ nBody notAttack ++ [breaker]
           else if null breakList
             then return . and' $ nBody attackSet'
-            else (do
+            else do
               breaker <- breakList
               return . and' $ nBody attackSet' ++ [breaker]
-            )
   {- We accept if at least one condition yields true: -}
   in null conditions ? (Const True, simplify $ or' conditions)
 
