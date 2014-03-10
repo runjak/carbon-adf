@@ -3,14 +3,15 @@ module Carbon.Backend.Logic where
 import Control.Arrow ((&&&), second)
 import Control.Monad
 import Data.Function (on)
-import Data.List (groupBy, nub, nubBy, partition)
+--import Data.List (groupBy, nub, nubBy, partition)
 import Data.Map (Map, (!))
 import Data.Monoid (Monoid(..))
 import Data.Set (Set, (\\))
 import qualified Data.Either as Either
-import qualified Data.Map   as Map
-import qualified Data.Maybe as Maybe
-import qualified Data.Set   as Set
+import qualified Data.List   as List
+import qualified Data.Map    as Map
+import qualified Data.Maybe  as Maybe
+import qualified Data.Set    as Set
 
 import Carbon.Backend.DSL
 import Carbon.Common
@@ -67,10 +68,18 @@ autoCondition item
 {-
   This is how we calculate the Formula for an Item in case where
   the Item has a ProofStandard, and no custom formula.
-  The Formula is calculated by herpaDerpDingDong.
-  FIXME check if the  conditions generated in the canDefend block must be checked against
-    arguments with larger proofStandards.
-    Because this way, it may be possible, that the whole condition is kinde broken.
+  The Formula is calculated by the following steps:
+  - We build a list of all incomming relations with a bigger proofstandard.
+  - We split all incomming relations in attacking and supporting ones
+  - attacking and supporting relations are grouped based on their proofstandard
+  - For each proofstandard all attacks from more important proofstandards cannot be defended.
+    We call these ones breakers and theiy're gathered in the breakList.
+  - We build a list of conditions where a single condition being true is enough
+    for the item to be acceptable. Therefore these conditions are joined as a disjunction.
+    - Each condition is a conjunction of some attackers, some supporters, attackers that we don't want, and a single breaker, if one exists.
+    - Supportersets and attackers are choosen from their powerset.
+    - In some cases it is obvious that the number of supporters doesn't outweight that of the attackers.
+      In that case we don't care for the supporters and the condition becomes just, that no attacker is allowed.
 -}
 mkFormula :: ProofStandard -> [Relation] -> (ItemId -> ProofStandard) -> Exp ItemId
 mkFormula itemProofStandard incomming getProofStandard =
@@ -78,12 +87,12 @@ mkFormula itemProofStandard incomming getProofStandard =
   let incomming' = filter ((itemProofStandard <=) . getProofStandard . source) incomming
   {- incomming' is devided into attacks and supports: -}
       rFilter r = filter $ (r ==) . relationType
-      attacks = rFilter RelationAttack incomming'
+      attacks = rFilter RelationAttack incomming' -- FIXME increase preformance by using partition.
       supports = rFilter RelationSupport incomming'
   {- We view attacks and supports only in sets respective to the same ProofStandard: -}
       asPairs = do -- :: [(Set Relation, Set Relation)]
         let hasP p = filter $ (p ==) . getProofStandard . source
-        p <- [PSScintillaOfEvidence ..]
+        p <- [minBound ..] :: [ProofStandard]
         let as = hasP p attacks
             ss = hasP p supports
         return (Set.fromList as, Set.fromList ss)
@@ -93,7 +102,11 @@ mkFormula itemProofStandard incomming getProofStandard =
         let body = map (Var . source) . Set.toList
             nBody = map Neg . body
         -- Groups we consider:
-        (attackSet, supportSet) <- asPairs
+        -- Note, that due to the trick of List.init . List.tails breakers
+        -- is a List of all tuples off attack and support sets that can break
+        -- the condition that is constructed.
+        (attackSet, supportSet):breakers <- List.init $ List.tails asPairs
+        let breakList = map (Neg . Var . source) . Set.toList . Set.unions $ map fst breakers
         -- It's no use if attacks and supports are empty:
         guard . not $ Set.null attackSet && Set.null supportSet
         -- For each set of attacks we consider it's powerset!
@@ -105,8 +118,19 @@ mkFormula itemProofStandard incomming getProofStandard =
           (do supportSet' <- powerset' supportSet
               guard $ Set.size supportSet' >= Set.size attackSet'
               let notAttack = Set.difference attackSet attackSet'
-              return . and' $ body attackSet' ++ body supportSet' ++ nBody notAttack)
-          else return . and' $ nBody attackSet'
+              if null breakList
+              then return . and' $ body attackSet' ++ body supportSet' ++ nBody notAttack
+              else (do
+                -- In this case a single breaker is enough to break the condition:
+                breaker <- breakList
+                return . and' $ body attackSet' ++ body supportSet' ++ nBody notAttack ++ [breaker])
+              )
+          else if null breakList
+            then return . and' $ nBody attackSet'
+            else (do
+              breaker <- breakList
+              return . and' $ nBody attackSet' ++ [breaker]
+            )
   {- We accept if at least one condition yields true: -}
   in null conditions ? (Const True, simplify $ or' conditions)
 
@@ -169,7 +193,7 @@ diamondInput iId = do
 addResults :: Item Id -> Results String -> Item Id
 addResults item rs =
   -- How we merge:
-  let merge x y = nub $ x ++ y
+  let merge x y = List.nub $ x ++ y
   -- What's currently in the item:
       rSet = getRS item :: ResultSet
       rsPairs = map (items &&& resultType) :: [Result] -> [(Set (ResultState, Id), [ResultType])]
@@ -221,7 +245,7 @@ fitInstance uid item i = do
   -- Adding missing nodes:
   added <- addMissingNodes uid args i
   -- Building a list of all nodes, aswell as a set of current relations:
-  let nodes = nubBy ((==) `on` itemId) $ args ++ added :: [Item Id]
+  let nodes = List.nubBy ((==) `on` itemId) $ args ++ added :: [Item Id]
       cRels' = Maybe.mapMaybe relation nodes :: [Relation]
       currentRels = Set.fromList $ map (source &&& target) cRels' :: Set (ItemId, ItemId)
   -- Establishing a mapping for Headline -> ItemId
@@ -287,7 +311,7 @@ fitInstance uid item i = do
           i' = fmap (hToId Map.!) i :: Instance Id
           idToExp = Map.fromList . map (aHead &&& aCondition) $ conditions i' :: Map Id (Exp Id)
           changeSet = Set.fromList $ Map.keys idToExp :: Set Id
-          (change, keep) = partition (flip Set.member changeSet . itemId) items
+          (change, keep) = List.partition (flip Set.member changeSet . itemId) items
           toChange = Maybe.mapMaybe (setFormula uid idToExp) change :: [Item Id]
       (errs, changed) <- liftM Either.partitionEithers $ mapM SetItem toChange
       LogString $ "Transformation is from " ++ show change
