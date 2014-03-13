@@ -58,7 +58,6 @@ Item = DateObject.extend({
 */
 , modify: function(attr, obj, silent){
     silent = silent || false;
-    console.log([attr,obj,silent]);
     this.set(attr, $.extend(this.get(attr), obj));
     if(silent === false){
       this.trigger('change', this.attributes);
