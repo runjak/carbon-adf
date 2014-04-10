@@ -30,9 +30,9 @@ answer = do
       name <- many1 $ noneOf ")"
       modifyState   $ update name
 
-    parseIn   = parsePiece "in"   $ \s dr -> dr{inSet   = s:inSet   dr}
-    parseUdec = parsePiece "udec" $ \s dr -> dr{udecSet = s:udecSet dr}
-    parseOut  = parsePiece "out"  $ \s dr -> dr{outSet  = s:outSet  dr}
+    parseIn   = parsePiece "t" $ \s dr -> dr{inSet   = s:inSet   dr}
+    parseUdec = parsePiece "u" $ \s dr -> dr{udecSet = s:udecSet dr}
+    parseOut  = parsePiece "f" $ \s dr -> dr{outSet  = s:outSet  dr}
 
     pieces = choice [parseIn, parseUdec, parseOut]
 
