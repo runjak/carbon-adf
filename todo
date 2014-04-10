@@ -1,12 +1,11 @@
 ------------------------
-|      2014-03-27      |
+|      2014-04-10      |
 ------------------------
-- Rename ProofStandards to levels of certainty
+- Get the basics of CARBON working in a stable manner asap!
 
 ------------------------
 |      2014-02-12      |
 ------------------------
-- Read about PostgreSQL VACUUM
 - Since evaluation is now working, the next thing todo would be
   to integrate it together with ResultPresentation and Voting into the App.
   - However, paging of Discussions appears to be broken currently,
