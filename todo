@@ -1,7 +1,12 @@
 ------------------------
 |      2014-04-10      |
 ------------------------
-- Get the basics of CARBON working in a stable manner asap!
+- Fix parsing of DIAMOND output
+- Fix current graph visualisation bugs
+- Think about disabling hotkeys for graph changes
+- Test evaluation of discussions
+- Test visualisations of evaluations
+- Implement voting feature including set view
 
 ------------------------
 |      2014-02-12      |
