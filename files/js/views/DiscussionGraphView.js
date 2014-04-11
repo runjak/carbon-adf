@@ -9,6 +9,7 @@ DiscussionGraphView = SpringyRenderer.extend({
   , "click #DiscussionGraphViewClearClick": "clearClick"
   }
 , initialize: function(){
+    window.foo = this; // FIXME DEBUG, remove later
     var view = this;
     //Listining to keyboard events:
     this.useKeyboard = true;
@@ -92,6 +93,10 @@ DiscussionGraphView = SpringyRenderer.extend({
     this.setClick(function(n){
       var item = n.data.item;
       var id = item.get('id');
+      if(item.get('description') === null){
+        console.log('Maderschaden!');
+        console.log(item);
+      }
       var h = item.get('description').headline;
       console.log('removeNode('+id+') with headline = '+h);
       t.model.removeArgument(item).done(function(){
@@ -180,6 +185,7 @@ DiscussionGraphView = SpringyRenderer.extend({
   }
 //Listening for keybord inputs:
 , keyboard:  function(e){
+    return;//FIXME keyboard disabled for debugging reasons.
     if(!this.$el.is(':visible')) return;
     if(!this.useKeyboard) return;
     switch(e.keyCode){
@@ -223,15 +229,15 @@ DiscussionGraphView = SpringyRenderer.extend({
 , updateNodes: function(){
     var t = this
       , args = this.model.discussion.arguments
-      , currentNodes = {};
+      , currentNodes = {}; // Map ItemId Bool
     //Building new nodes
     args.each(function(i){
+      var iid = i.get('id');
       if(i.node){ // Noting nodes that are kept:
-        currentNodes[i.node.id] = true;
+        currentNodes[iid] = true;
         return;
       }
       //Building the node options:
-      //FIXME include formula here!
       var o = {
         item: i
       , label: i.get('description').headline
@@ -250,14 +256,15 @@ DiscussionGraphView = SpringyRenderer.extend({
       }
       //Adding a new node:
       i.node = t.graph.newNode(o);
-      t.idNodeSet[i.get('id')] = i.node;
-      currentNodes[i.node.id] = true;
+      t.idNodeSet[iid]  = i.node;
+      currentNodes[iid] = true;
     });
     //Delete outdated nodes:
     _.each(t.graph.nodes, function(n){
-      if(!currentNodes[n.id]){
+      var iid = n.data.item.get('id');
+      if(!currentNodes[iid]){
         this.removeNode(n);
-        delete t.idNodeSet[n.data.item.get('id')];
+        delete t.idNodeSet[iid];
       }
     }, t.graph);
     return this;
@@ -271,12 +278,11 @@ DiscussionGraphView = SpringyRenderer.extend({
     //The 'usual' threeset approach, except with two sets .)
     var add = {}, keep = {};
     _.each(this.graph.edges, function(e){
-      var id = e.item.get('id');
-      if(rs[id]){ // The keep case is only to add the right ones.
-        e.item = rs[id];
-        keep[id] = e;
+      var iid = e.data.item.get('id');
+      if(rs[iid]){ // The keep case is only to add the right ones.
+        keep[iid] = e;
       }else{ // The remove set requires no case.
-        e.item = undefined;
+        e.data.item = undefined;
         this.graph.removeEdge(e);
       }
     }, this);
@@ -291,12 +297,11 @@ DiscussionGraphView = SpringyRenderer.extend({
         , target = this.idNodeSet[t];
       if(!source || !target) return;
       //Adding the edge:
-      r.edge = this.graph.newEdge(source, target);
-      r.edge.item = r;
+      r.edge = this.graph.newEdge(source, target, {item: r});
     }, this);
     //Updating options for edges:
     _.each(this.graph.edges, function(e){
-      var r = e.item, o = {};
+      var r = e.data.item, o = {};
       if(rt = r.get('relation').relationType){
         o.color = this.colors[rt];
       }

@@ -38,7 +38,7 @@ parseAc = between (string "ac(") (string ").") $ do
   addCondition $ AC n e
 
 parseSt :: InstanceParser (Statement String)
-parseSt = between (string "statement(") (string ").") $
+parseSt = between (string "s(") (string ").") $
   addStatement =<< (liftM Statement . many1 $ noneOf ")")
 
 parseComment :: InstanceParser String

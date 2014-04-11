@@ -80,13 +80,13 @@ SpringyRenderer = Backbone.View.extend({
 }
 // Executes a custom render cycle in case the renderer is stopped.
 , render: function(){
-  if(this.layout._started)
-    return this;
-  var t = this;
-  t.clear();
-  t.layout.eachEdge(function(edge, spring){
-      t.drawEdge(edge, spring.point1.p, spring.point2.p);
-      });
+    if(this.layout._started)
+      return this;
+    var t = this;
+    t.clear();
+    t.layout.eachEdge(function(edge, spring){
+        t.drawEdge(edge, spring.point1.p, spring.point2.p);
+    });
     t.layout.eachNode(function(node, point){
       t.drawNode(node, point.p);
     });

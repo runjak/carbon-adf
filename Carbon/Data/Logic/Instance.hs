@@ -72,10 +72,10 @@ instance Show (ACondition String) where
   show (AC n e) = "ac(" ++ n ++ "," ++ show e ++ ")."
 
 instance Show (Statement String) where
-  show (Statement s) = "statement(" ++ s ++ ")."
+  show (Statement s) = "s(" ++ s ++ ")."
 
 instance Show (Instance String) where
-  show (Instance cs ss) = unlines $ map show cs ++ map show ss
+  show (Instance cs ss) = unlines $ map show ss ++ map show cs
 
 instance StartState (Instance String) where
   startState = Instance [] []

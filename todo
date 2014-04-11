@@ -1,6 +1,11 @@
 ------------------------
 |      2014-04-10      |
 ------------------------
+- Add iff,imp and xor operators to instance parser.
+
+------------------------
+|      2014-04-10      |
+------------------------
 - Fix parsing of DIAMOND output
 - Fix current graph visualisation bugs
 - Think about disabling hotkeys for graph changes

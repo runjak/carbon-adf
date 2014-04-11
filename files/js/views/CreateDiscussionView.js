@@ -76,15 +76,15 @@ CreateDiscussionView = Hideable.extend({
       view.model.set(d);
       console.log("Discussion created!");
       console.log(d);
-      var finish = function(){};
-      // FIXME debug file uploads, they've changed some.
       var file = view.$('#CreateDiscussionViewInstanceFile').val();
       if(file !== ''){
         view.$('form').attr('action', 'item/'+d.id+'/fitinstance');
         var upload = view.$('#CreateDiscussionViewInstanceFileUpload').load(function(){
           upload.unbind('load');
-          var result = upload.contents().text();
-          console.log('Upload result was:\n'+result)
+          var result = $.parseJSON(upload.contents().text());
+          console.log('Upload result was:');
+          console.log(result);
+          view.model.set(result);
           view.finishCreation();
         });
         view.$('form').submit();

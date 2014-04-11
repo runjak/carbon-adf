@@ -40,7 +40,6 @@ $(function(){
   window.App.views.discussionView = new DiscussionView({el: $('#DiscussionView')});
   window.App.views.createDiscussionView = new CreateDiscussionView({el: $('#CreateDiscussionView')});
   window.App.views.singleDiscussionView = new SingleDiscussionView({el: $('#SingleDiscussionView')});
-  //FIXME implement!
   //Starting the routing:
   Backbone.history.start();
   window.App.router.on('defaultRoute', function(actions){

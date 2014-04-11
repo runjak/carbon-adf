@@ -165,7 +165,9 @@ Item = DateObject.extend({
     //Setting custom fields to attributes:
     var discussion = {
       'arguments': {}
-    , participants: this.discussion.participants.map(function(p){return p.get('id');})
+    , participants: this.discussion.participants
+                    .map(function(p){return p.get('id');})
+                    .filter(function(x){return $.isNumeric(x);})
     };
     //Setting the Arguments:
     discussion.arguments[o.args] = this.discussion.arguments.map(function(a){
