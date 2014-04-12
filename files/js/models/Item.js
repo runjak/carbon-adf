@@ -98,64 +98,67 @@ Item = DateObject.extend({
       this.discussion.arguments.reset();
       this.discussion.participants.reset();
     }else{
-      /**
-        Updating the arguments:
-        - First all arguments are gathered,
-        - than 3 sets are build from them,
-        - afterwards they are fetched and put in the collection.
-        - finally gatherRelations is called.
-      */
+      //Updating arguments:
       if(d.arguments){
-        //Gathering update information:
-        var a = this.discussion.arguments
-          , t = this
-          , items = {}
-          , fetch = false;
-        //Two cases where arguments come from:
+        //Building a set of current arguments:
+        var a = this.discussion.arguments, current = {};
+        a.each(function(x){current[x.get('id')] = x;});
+        //The evil thing about arguments is,
+        //that they come in two flavors, Left and Right,
+        //where the Right case needs more attention.
+        var fetch = false, add = {}, keep = {};
         if(d.arguments.Left){
           _.each(d.arguments.Left, function(i){
-            items[i.id] = new Item(i);
+            if(i.id in current){
+              keep[i.id] = current[i.id];
+            }else{
+              add[i.id] = new Item(i);
+            }
           });
         }else if(d.arguments.Right){
-          _.each(d.arguments.Right, function(i){
-            items[i] = new Item({id: i});
-          });
           fetch = true;
+          _.each(d.arguments.Right, function(i){
+            if(i in current){
+              keep[i] = current[i];
+            }else{
+              add[i] = new Item({id: i});
+            }
+          });
         }
-        //Now we'll have to build three sets:
-        var add = {}, keep = {}, remove = {};
-        a.each(function(i){
-          var id = i.get('id');
-          if(items[id]){ // Keep this, and update attributes
-            i.set(items[id].attributes);
-            keep[id] = i;
-          }else{ // Remove this
-            remove[id] = i;
-          }
-        });
-        _.each(_.keys(items), function(id){
-          if(!keep[id])
-            add[id] = items[id];
-        });
-        //Performing the update:
-        var update = function(){
+        //Now for finishing our update:
+        var t = this, update = function(){
           a.reset(_.flatten([_.values(keep),_.values(add)]));
           t.gatherRelations();
         };
         if(fetch){
-          a.fetchAll(_.values(add)).done(function(){update();});
-        } else update();
+          a.fetchAll(_.values(add)).done(update);
+        }else update();
       }
       //Updating participants:
-      var p  = this.discussion.participants
-        , ps = _.map(d.participants, function(p){
-        return new User({id: p});
-      });
-      p.fetchAll(ps).done(function(){p.set(ps);});
+      if(d.participants){
+        // We want to keep current representations, so we do a 'clever' update.
+        var p = this.discussion.participants
+          , current = {};
+        p.each(function(x){current[x.get('id')] = x;});
+        var add = {}, keep = {};
+        _.each(d.participants, function(uid){
+          if(uid in current){
+            keep[uid] = current[uid];
+          }else{
+            add[uid] = new User({id: uid});
+          }
+        });
+        p.fetchAll(_.values(add)).done(function(){
+          p.set(_.flatten([_.values(add),_.values(keep)]));
+        });
+      }
     }
-    return this;
   }
 , discussionToAttributes: function(o, setOptions){
+    //FIXME DEBUG
+    console.log('Item.discussionToAttributes('
+                +JSON.stringify(o)+','
+                +JSON.stringify(setOptions)+')');
     //Taking care of options:
     o = (typeof(o) === 'object') ? o : {};
     o.args = (o.args === 'Left') ? o.args : 'Right';
@@ -234,7 +237,7 @@ Item = DateObject.extend({
     var add = {}, keep = {}, remove = {};
     this.discussion.relations.each(function(r){
       var id = r.get('id');
-      if(rs[id]){ // A relation to keep:
+      if(id in rs){ // A relation to keep:
         r.set(rs[id].attributes);
         keep[id] = r;
       }else{ // A relation to remove:
@@ -242,7 +245,7 @@ Item = DateObject.extend({
       }
     });
     _.each(_.keys(rs), function(id){
-      if(!keep[id])
+      if(!(id in keep))
         add[id] = rs[id];
     });
     //Performing the update:

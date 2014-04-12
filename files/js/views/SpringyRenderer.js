@@ -77,6 +77,8 @@ SpringyRenderer = Backbone.View.extend({
         , function(node, p){return view.drawNode(node, p);});
     Springy.requestAnimationFrame(function (){return view.adjustBoundingBox();});
     this.renderer.start();
+    //Changes in the graph only trigger a single custom render cycle:
+    this.renderer.graphChanged = function(){view.render();};
 }
 // Executes a custom render cycle in case the renderer is stopped.
 , render: function(){

@@ -16,6 +16,7 @@ DiscussionGraphView = SpringyRenderer.extend({
     $(window).keyup(function(e){view.keyboard(e);});
     //Springy setup:
     this.idNodeSet = {};
+    this.idEdgeSet = {};
     this.springySetup();
   }
 , setModel: function(m){
@@ -233,7 +234,7 @@ DiscussionGraphView = SpringyRenderer.extend({
     //Building new nodes
     args.each(function(i){
       var iid = i.get('id');
-      if(i.node){ // Noting nodes that are kept:
+      if(iid in t.idNodeSet){ // Noting nodes that are kept:
         currentNodes[iid] = true;
         return;
       }
@@ -255,49 +256,48 @@ DiscussionGraphView = SpringyRenderer.extend({
         o.formula = condition.formula;
       }
       //Adding a new node:
-      i.node = t.graph.newNode(o);
-      t.idNodeSet[iid]  = i.node;
+      var node = t.idNodeSet[iid] = new Springy.Node(iid, o);
       currentNodes[iid] = true;
+      t.graph.addNode(node);
     });
     //Delete outdated nodes:
     _.each(t.graph.nodes, function(n){
-      var iid = n.data.item.get('id');
-      if(!currentNodes[iid]){
-        this.removeNode(n);
-        delete t.idNodeSet[iid];
-      }
+      if(n.id in currentNodes)
+        return;
+      this.removeNode(n);
+      delete t.idNodeSet[n.id];
     }, t.graph);
     return this;
   }
 //Syncs the models edges to the graph, returns the view.
 , updateEdges: function(){
-    var rs = {};
-    this.model.discussion.relations.each(function(r){
-      rs[r.get('id')] = r;
-    });
-    //The 'usual' threeset approach, except with two sets .)
-    var add = {}, keep = {};
-    _.each(this.graph.edges, function(e){
-      var iid = e.data.item.get('id');
-      if(rs[iid]){ // The keep case is only to add the right ones.
-        keep[iid] = e;
-      }else{ // The remove set requires no case.
-        e.data.item = undefined;
-        this.graph.removeEdge(e);
-      }
-    }, this);
+    var rels = this.model.discussion.relations
+      , currentEdges = {}; // Map ItemId Bool
     //Adding new edges:
-    _.each(_.keys(rs), function(id){
-      if(keep[id]) return;
-      var r = rs[id]
-        , d = r.get('relation')
+    rels.each(function(r){
+      var rid = r.get('id');
+      currentEdges[rid] = r;
+      if(rid in this.idEdgeSet)
+        return;
+      var d = r.get('relation')
         , s = d.source
         , t = d.target
         , source = this.idNodeSet[s]
         , target = this.idNodeSet[t];
-      if(!source || !target) return;
+      if(!source || !target)
+        return;
       //Adding the edge:
-      r.edge = this.graph.newEdge(source, target, {item: r});
+      console.log('Creating edge: '+rid);
+      var edge = this.idEdgeSet[rid] = new Springy.Edge(rid, source, target, {item: r});
+      this.graph.addEdge(edge);
+    }, this);
+    //Removing old edges:
+    _.each(this.graph.edges, function(e){
+      if(e.id in currentEdges)
+        return;
+      console.log('Removing edge: '+e.id);
+      delete this.idEdgeSet[e.id];
+      this.graph.removeEdge(e);
     }, this);
     //Updating options for edges:
     _.each(this.graph.edges, function(e){
