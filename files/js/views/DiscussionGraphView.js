@@ -219,12 +219,12 @@ DiscussionGraphView = SpringyRenderer.extend({
     }
   }
 , resize: function(){
-    var w = this.$canvas.width()
-      , h = this.$canvas.height()
-      , p = this.$canvas.position()
+    var c  = this.canvas
+      , p  = this.$canvas.position()
+      , ww = $(window).width()
       , wh = $(window).height();
-    this.canvas.width = w; this.canvas.height = wh - p.top - 80;
-    this.render();
+    c.width  = ww - 2 * p.left;
+    c.height = wh - p.top - 80;
   }
 //Syncs the models nodes to the graph, returns the view.
 , updateNodes: function(){
@@ -287,7 +287,6 @@ DiscussionGraphView = SpringyRenderer.extend({
       if(!source || !target)
         return;
       //Adding the edge:
-      console.log('Creating edge: '+rid);
       var edge = this.idEdgeSet[rid] = new Springy.Edge(rid, source, target, {item: r});
       this.graph.addEdge(edge);
     }, this);
@@ -295,7 +294,6 @@ DiscussionGraphView = SpringyRenderer.extend({
     _.each(this.graph.edges, function(e){
       if(e.id in currentEdges)
         return;
-      console.log('Removing edge: '+e.id);
       delete this.idEdgeSet[e.id];
       this.graph.removeEdge(e);
     }, this);

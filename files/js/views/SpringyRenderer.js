@@ -15,19 +15,19 @@ SpringyRenderer = Backbone.View.extend({
   , RelationCustom: '#000000'
   }
 , springySetup: function(){
-    var view = this;
-    this.$canvas = this.$('#graphCanvas');
-    this.canvas = this.$canvas.get(0);
-    this.ctx = this.canvas.getContext("2d");
-    this.graph = new Springy.Graph();
-    this.nodeFont = "16px Verdana, sans-serif";
-    this.edgeFont = "8px Verdana, sans-serif";
+    var view          = this;
+    this.$canvas      = this.$('#graphCanvas');
+    this.canvas       = this.$canvas.get(0);
+    this.ctx          = this.canvas.getContext("2d");
+    this.graph        = new Springy.Graph();
+    this.nodeFont     = "16px Verdana, sans-serif";
+    this.edgeFont     = "8px Verdana, sans-serif";
     this.nodeSelected = null;
-    this.selected = null;
-    this.nearest = null;
-    this.dragged = null;
-    this.layout = new Springy.Layout.ForceDirected(this.graph, 400.0, 400.0, 0.5);
-    this.currentBB = this.layout.getBoundingBox();
+    this.selected     = null;
+    this.nearest      = null;
+    this.dragged      = null;
+    this.layout       = new Springy.Layout.ForceDirected(this.graph, 400.0, 400.0, 0.5);
+    this.currentBB    = this.layout.getBoundingBox();
     //Drag&Drop with Springy:
     jQuery(this.canvas).mousemove(function(e){
       view.mousemove(e, this);

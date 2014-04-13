@@ -37,7 +37,7 @@
 ------------------------
 - Carbon.Website.Item:readItem now executes autoCondition on all Items.
   This makes sure, that every change on an Item is reflected on it's formula at once.
-  I know, that Carbon.Website.Item is not the ideam place to perform this task,
+  I know, that Carbon.Website.Item is not the ideal place to perform this task,
   because it very likly will cause multiple calculations for the same Item,
   but it's the place, where such a thing is implemented easiest.
 - Next step should now be evaluation of a Discussion.
