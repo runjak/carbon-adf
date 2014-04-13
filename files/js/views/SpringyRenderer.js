@@ -196,7 +196,7 @@ SpringyRenderer = Backbone.View.extend({
     var s = this.toScreen(p);
     ctx.save();
     //Node size:
-    var boxWidth = node.getWidth();
+    var boxWidth  = node.getWidth();
     var boxHeight = node.getHeight();
     //Clear background
     ctx.clearRect(s.x - boxWidth/2, s.y - boxHeight/2, boxWidth, boxHeight);
@@ -211,6 +211,9 @@ SpringyRenderer = Backbone.View.extend({
       ctx.fillStyle = "#FFFFFF";
     }
     ctx.fillRect(s.x - boxWidth/2, s.y - boxHeight/2, boxWidth, boxHeight);
+    //Stroking the border:
+    ctx.strokeStyle = "#000000";
+    ctx.strokeRect(s.x - boxWidth/2, s.y - boxHeight/2, boxWidth, boxHeight);
     //Drawing text:
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
