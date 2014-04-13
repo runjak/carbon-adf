@@ -28,7 +28,6 @@ main = do
     "nullConfig":path:_ -> do
       putStrLn $ "Creating a nullConfig in '" ++ path ++ "'."
       writeConfig path nullConfig
---  "diamond":path:did:rename:_ -> diamond path did $ read rename
     "parse":method:[]             -> parse method Nothing
     "parse":"diamond":conf:[]     -> parseD conf Nothing
     "parse":"diamond":conf:file:_ -> parseD conf $ Just file
@@ -46,7 +45,6 @@ help = mapM_ putStrLn [
   , "                           <discussionId::Int> <rename::Bool>"
   , "Parsing stuff:     $ carbon parse {ac, exp, instance} [file::Filepath]"
   , "                     carbon parse diamond <configFile::Filepath> [file::Filepath]"
-  , "Misc information:  $ openrain info"
   , "Get this message:  $ carbon {--help,-help,help}"
   ]
 
@@ -57,19 +55,6 @@ withConfig path go = do
   case mConf of
     (Just c) -> go c
     Nothing  -> putStrLn $ "Could not load config from '" ++ path ++ "'."
-
-{-|
-  Function to generate input for diamond for test purposes.
-  The given String is expected to belong to a discussionId.
-  Input for diamond will be printed to console.
-|-}
---diamond :: FilePath -> String -> Bool -> IO ()
---diamond path did' rename = do
---  executor <- tryBackend path
---  let did = fromId . wrap $ read did'
---  input <- executor $ BLogic.diamondInput rename did
---  putStrLn $ "Carbon.Backend.Logic:diamondInput " ++ show did
---  putStrLn input
 
 {-|
   Function to test parsing capabilities.

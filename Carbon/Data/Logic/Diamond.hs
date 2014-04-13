@@ -67,9 +67,9 @@ instance Functor Results where
 
 instance Show a => Show (DiamondResult a) where
   show d =
-    let i = map (\e -> "in("   ++ show e ++ ")") $ inSet   d
-        u = map (\e -> "udec(" ++ show e ++ ")") $ udecSet d
-        o = map (\e -> "out("  ++ show e ++ ")") $ outSet  d
+    let i = map (\e -> "t(" ++ show e ++ ")") $ inSet   d
+        u = map (\e -> "u(" ++ show e ++ ")") $ udecSet d
+        o = map (\e -> "f(" ++ show e ++ ")") $ outSet  d
     in unwords $ concat [i,u,o]
 
 instance Show a => Show (Results a) where

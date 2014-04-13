@@ -63,7 +63,7 @@ runSingle conf state path rType = void . forkIO $ do
       parm = diamondParams conf Map.! rType ++ [path]
       proc = Process.proc call parm
   dOutput <- Process.readProcess call parm ""
-  either (onError tId) (onResult tId) $ Logic.execParser (Logic.parseDiamond rType) path dOutput
+  either (onError tId) (onResult tId rType) $ Logic.execParser Logic.answers path dOutput
   where
     onError :: ThreadId -> String -> IO ()
     onError tId e = do
@@ -72,13 +72,14 @@ runSingle conf state path rType = void . forkIO $ do
         modifyTVar (tCount state) $ subtract 1
       mapM_ putStrLn ["Could not parse diamond output for discussion \""++path++"\":",e]
 
-    onResult :: ThreadId -> Results String -> IO ()
-    onResult tId r = atomically $ do
+    onResult :: ThreadId -> ResultType -> [Logic.Answer] -> IO ()
+    onResult tId rType answers = atomically $ do
+      let r = Results [(rType, answers)]
       modifyTVar (threads state) $ filter (tId /=)
       modifyTVar (tCount  state) $ subtract 1
       modifyTVar (results state) (r :)
 
--- | The shated state for all threads:
+-- | The shared state for all threads:
 data State = State {
     threads :: TVar [ThreadId]
   , tCount  :: TVar Int

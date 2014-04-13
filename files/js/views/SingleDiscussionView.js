@@ -73,11 +73,12 @@ SingleDiscussionView = Hideable.extend({
     }
     this.model = d;
     if(d){
-      this.model.on('change:headline',     this.render, this);
-      this.model.on('change:creationTime', this.render, this);
-      this.model.on('change:deletionTime', this.render, this);
-      this.model.on('change:deadline',     this.render, this);
-      this.model.on('change:description',  this.render, this);
+      this.model.on('change:id',           this.updateRoute, this);
+      this.model.on('change:headline',     this.render,      this);
+      this.model.on('change:creationTime', this.render,      this);
+      this.model.on('change:deletionTime', this.render,      this);
+      this.model.on('change:deadline',     this.render,      this);
+      this.model.on('change:description',  this.render,      this);
     }
     var view = this;
     _.each(this.subViews, function(v){
@@ -114,13 +115,31 @@ SingleDiscussionView = Hideable.extend({
   }
 , discussionEvaluate: function(){
     alert('Evaluating the discussion…');
-    $.get(this.model.url()+'/evaluate');
-    var t = this, tid = window.setTimeout(function(){
-      window.clearTimeout(tid);
-      t.model.fetch().always(function(){
-        t.setDiscussion(t.model);
+    var t = this
+      , tid = null
+      , req = $.get(this.model.url()+'/evaluate').done(function(i){
+        t.model.set(i);
+        console.log(i);
+        alert('Evaluation successful!');
+      }).fail(function(e){
+        console.log(e);
+        alert('Evaluation failed. Sorry.');
+      }).always(function(){
+        window.clearTimeout(tid)
       });
-      alert('Evaluation should now be complete…');
-    }, 1000);
+    // We install a watchdog to resolve the evaluation request:
+    // The timeout is 11 seconds, which is one more than the servers watchdog for this case.
+    tid = window.setTimeout(function(){
+      req.abort("Local watchdog decided we've got a timeout.");
+    }, 11000);
+    return req;
   }
-});
+, updateRoute: function(){
+    if(!this.visible()) return;
+    var oldId     = this.model._previousAttributes.id
+      , currentId = this.model.get('id')
+      , oldRoute  = Backbone.history.fragment
+      , target    = oldRoute.replace(oldId, currentId);
+    window.App.router.navigate(target, {trigger: false});
+  }
+}) ;

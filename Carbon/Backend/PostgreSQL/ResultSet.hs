@@ -49,6 +49,8 @@ setResultSet conn i
     let r = getR i
         q = "INSERT INTO resultsets (setcreation) VALUES (now()) RETURNING resultsetid"
     [[rid]] <- quickQuery' conn q []
+    stmt <- prepare conn "UPDATE items SET resultsetid = ? WHERE itemid = ?"
+    execute stmt [rid, toSql $ itemId i]
     let rid' = fromSql rid :: ResultSetId
     setResultSet conn $ i <+ r <+ rid'
   | otherwise = do -- Update resultSet

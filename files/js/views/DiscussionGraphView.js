@@ -28,8 +28,8 @@ DiscussionGraphView = SpringyRenderer.extend({
       this.renderer.stop();
       window.App.dummyItemFactory.reset(null);
       //Cleaning old Nodes, Edges fall automatically:
-      _.each(this.graph.edges, function(e){
-        this.removeNode(e);
+      _.each(this.graph.nodes, function(n){
+        this.removeNode(n);
       }, this.graph);
     }
     if(m === null || typeof(m) === 'undefined'){
@@ -77,11 +77,7 @@ DiscussionGraphView = SpringyRenderer.extend({
       alert(msg);
       return p;
     }
-    var p = this.model.addArgument(node), m = this.model;
-    return p.done(function(){
-      var target = "discussion/" + m.get('id') + "/graph";
-      window.App.router.navigate(target, {trigger: false});
-    });
+    return this.model.addArgument(node);
   }
 //Removing a node:
 , removeNode: function(){
@@ -121,7 +117,7 @@ DiscussionGraphView = SpringyRenderer.extend({
       console.log('DiscussionGraphView:addRelation() requires a login.');
       return;
     }
-    var t = this, source = null;
+    var t = this, source = null, src = null; // src so that we can overwrite source with null later on.
     var valid = function(i){
       var ret = i.isProofStandardCustom();
       if(ret){
@@ -135,33 +131,33 @@ DiscussionGraphView = SpringyRenderer.extend({
     this.setClick(function(n){
       if(source === null){
         var s = n.data.item;
-        if(valid(s))
-          source = s;
+        if(valid(s)){
+          src = source = s;
+        }
       }else{
-        var t = n.data.item;
-        if(valid(t)){
-          var target = n.data.item
-            , sh = source.get('description').headline
-            , th = target.get('description').headline;
+        var tgt = n.data.item;
+        if(valid(tgt)){
+          var sh = src.get('description').headline
+            , th = tgt.get('description').headline;
           console.log('Adding relation: '+sh+" -"+type+"-> "+th);
           var relation = new Item({
             commitAuthor: window.App.login.get('id')
           , commitMessage: 'Relation added by user via GraphView.'
           , relation: {
-              source: source.get('id')
-            , target: target.get('id')
+              source:       src.get('id')
+            , target:       tgt.get('id')
             , relationType: type
             }
           , description: {
               headline: 'Generic relation'
-            , summary: 'Nothing much to say about generic relations.'
+            , summary:  'Nothing much to say about generic relations.'
             }
           });
           relation.mySave().done(function(d){
-            source.fetch();
-            target.fetch();
+            src.fetch();
+            tgt.fetch();
             relation.set(d);
-            t.model.relations.add(relation);
+            t.model.discussion.relations.add(relation);
           }).fail(function(msg){
             console.log('Failed with DiscussionGraphView:addRelation(): ' + msg);
           });

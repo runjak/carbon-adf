@@ -5,27 +5,27 @@ Item = DateObject.extend({
   urlRoot: 'item/'
 // This is mainly to have a handy list of what we expect:
 , defaults: {
-    id: null
-  , description: null
-  , article: null
-  , condition: null
-  , relation: null
-  , relations: null
-  , discussion: null
-  , resultSet: null
-  , creation: null
-  , deletion: null
-  , parents: null
-  , children: null
+    id:            null
+  , description:   null
+  , article:       null
+  , condition:     null
+  , relation:      null
+  , relations:     null
+  , discussion:    null
+  , resultSet:     null
+  , creation:      null
+  , deletion:      null
+  , parents:       null
+  , children:      null
   , commitMessage: null
-  , commitAuthor: null
+  , commitAuthor:  null
   //Local only:
   , canCommit: false // Needs to be set to true, to enable saving the Item via commit.
   }
 , initialize: function(){
     this.discussion = {
-      'arguments': new ItemCollection()
-    , relations: new ItemCollection()
+      'arguments':  new ItemCollection()
+    , relations:    new ItemCollection()
     , participants: new UserCollection()
     };
     this.discussion.arguments.on('reset add remove', this.gatherRelations, this);
@@ -155,10 +155,6 @@ Item = DateObject.extend({
     }
   }
 , discussionToAttributes: function(o, setOptions){
-    //FIXME DEBUG
-    console.log('Item.discussionToAttributes('
-                +JSON.stringify(o)+','
-                +JSON.stringify(setOptions)+')');
     //Taking care of options:
     o = (typeof(o) === 'object') ? o : {};
     o.args = (o.args === 'Left') ? o.args : 'Right';

@@ -30,21 +30,21 @@ data Config = Config {
 } deriving (Eq, Read, Show)
 
 nullConfig = Config {
-    fileStorage    = "files/"
-  , allowBrowsing  = True
-  , port           = 8000  -- | Happstack std.
---, backendType    = PostgreSQLBackend {pgOptions = "dbname=carbon host=127.0.0.1 user=mushu"}
-  , backendType    = PostgreSQLBackend {pgOptions = "dbname=openbrain host=127.0.0.1 user=mushu password=1234"}
-  , diamondCall    = "diamond"
-  , diamondDlDir   = "/tmp/"
-  , diamondParams  = Map.fromList [(TwoValued,  ["-pf","-m"])
-                                  ,(Stable,    ["-pf","-sm"])
-                                  ,(Grounded,   ["-pf","-g"])
-                                  ,(Complete,   ["-pf","-c"])
-                                  ,(Admissible, ["-pf","-a"])
-                                  ,(Preferred,  ["-pf","-p"])]
-  , diamondEval    = [TwoValued, Stable, Grounded, Complete, Admissible, Preferred]
-  , composition    = defaultComposition
+    fileStorage   = "files/"
+  , allowBrowsing = True
+  , port          = 8000  -- | Happstack std.
+--, backendType   = PostgreSQLBackend {pgOptions = "dbname=carbon host=127.0.0.1 user=mushu"}
+  , backendType   = PostgreSQLBackend {pgOptions = "dbname=openbrain host=127.0.0.1 user=mushu password=1234"}
+  , diamondCall   = "diamond"
+  , diamondDlDir  = "/tmp/"
+  , diamondParams = Map.fromList [(TwoValued,  ["-pf","-v0","--model"])
+                                 ,(Stable,     ["-pf","-v0","--stablemodel"])
+                                 ,(Grounded,   ["-pf","-v0","--grounded"])
+                                 ,(Complete,   ["-pf","-v0","--complete"])
+                                 ,(Admissible, ["-pf","-v0","--admissible"])
+                                 ,(Preferred,  ["-pf","-v0","--preferred"])]
+  , diamondEval   = [TwoValued, Stable, Grounded, Complete, Admissible, Preferred]
+  , composition   = defaultComposition
 }
 
 readConfig :: FilePath -> IO (Maybe Config)
