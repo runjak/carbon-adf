@@ -9,6 +9,7 @@ TopMenuView = Backbone.View.extend({
     , 'route:singleDiscussionView':    '.discussion'
     , 'route:singleDiscussionViewTab': '.discussion'
     , 'route:discussionView':          '.discussion'
+    , 'route:resultView':              '.result'
     , 'route:loginView':               null
     , 'route:singleUserView':          '.user'
     , 'route:userView':                '.user'

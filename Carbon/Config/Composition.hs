@@ -66,6 +66,25 @@ defaultComposition = Composition {
     , ("[[CreateDiscussionView]]", Composition {
         baseFile = "files/html/CreateDiscussionView.html"
       , replacements = []})
+    , ("[[ResultView]]", Composition {
+        baseFile = "files/html/ResultView.html"
+      , replacements = []})
+    , ("[[SingleResultView]]", Composition {
+        baseFile = "files/html/SingleResultView.html"
+      , replacements = [
+          ("[[SingleResultViewTabs]]", Composition {
+            baseFile = "files/html/SingleResultViewTabs.html"
+          , replacements = []})
+        , ("[[SingleResultViewGraph]]", Composition {
+            baseFile = "files/html/SingleResultViewGraph.html"
+          , replacements = []})
+        , ("[[SingleResultViewVote]]", Composition {
+            baseFile = "files/html/SingleResultViewVote.html"
+          , replacements = []})
+        , ("[[SingleResultViewVoters]]", Composition {
+            baseFile = "files/html/SingleResultViewVoters.html"
+          , replacements = []})
+      ]})
     , ("[[UserView]]", Composition {
         baseFile = "files/html/UserView.html"
       , replacements = []})

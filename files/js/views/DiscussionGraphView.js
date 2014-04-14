@@ -9,7 +9,6 @@ DiscussionGraphView = SpringyRenderer.extend({
   , "click #DiscussionGraphViewClearClick": "clearClick"
   }
 , initialize: function(){
-    window.foo = this; // FIXME DEBUG, remove later
     var view = this;
     //Listining to keyboard events:
     this.useKeyboard = true;

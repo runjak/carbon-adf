@@ -11,9 +11,10 @@ module Carbon.Data.Logic.Evaluation(
   4.: The concurrent outputs are gathered and returned.
 -}
 import Control.Concurrent
-import Control.Concurrent.STM
+import Control.Concurrent.STM (TVar)
 import Control.Monad
 import Data.Map (Map)
+import qualified Control.Concurrent.STM as STM
 import qualified Data.Map as Map
 import qualified System.Process as Process
 
@@ -42,23 +43,23 @@ run conf path content = do
     watchDog state = void . forkIO $ do
       let second = 1000000
       threadDelay $ 10 * second
-      ts <- atomically $ do
-        writeTVar (tCount state) 0
-        readTVar (threads state)
+      ts <- STM.atomically $ do
+        STM.writeTVar (tCount state) 0
+        STM.readTVar (threads state)
       mapM_ killThread ts
 
     -- | Waits till tCount is 0 and returns all results.
     awaitFinish :: State -> IO [Results String]
-    awaitFinish state = atomically $ do
-      tc <- readTVar $ tCount state
-      check $ tc <= 0
-      readTVar $ results state
+    awaitFinish state = STM.atomically $ do
+      tc <- STM.readTVar $ tCount state
+      STM.check $ tc <= 0
+      STM.readTVar $ results state
 
 -- | Running a single evaluation:
 runSingle :: Config -> State -> FilePath -> ResultType -> IO ()
 runSingle conf state path rType = void . forkIO $ do
   tId <- myThreadId
-  atomically $ modifyTVar (threads state) (tId:)
+  STM.atomically $ STM.modifyTVar (threads state) (tId:)
   let call = diamondCall conf
       parm = diamondParams conf Map.! rType ++ [path]
       proc = Process.proc call parm
@@ -67,17 +68,17 @@ runSingle conf state path rType = void . forkIO $ do
   where
     onError :: ThreadId -> String -> IO ()
     onError tId e = do
-      atomically $ do
-        modifyTVar (threads state) (filter (tId /=))
-        modifyTVar (tCount state) $ subtract 1
+      STM.atomically $ do
+        STM.modifyTVar (threads state) (filter (tId /=))
+        STM.modifyTVar (tCount state) $ subtract 1
       mapM_ putStrLn ["Could not parse diamond output for discussion \""++path++"\":",e]
 
     onResult :: ThreadId -> ResultType -> [Logic.Answer] -> IO ()
-    onResult tId rType answers = atomically $ do
+    onResult tId rType answers = STM.atomically $ do
       let r = Results [(rType, answers)]
-      modifyTVar (threads state) $ filter (tId /=)
-      modifyTVar (tCount  state) $ subtract 1
-      modifyTVar (results state) (r :)
+      STM.modifyTVar (threads state) $ filter (tId /=)
+      STM.modifyTVar (tCount  state) $ subtract 1
+      STM.modifyTVar (results state) (r :)
 
 -- | The shared state for all threads:
 data State = State {
@@ -88,10 +89,10 @@ data State = State {
 
 -- | Initialising the shared state:
 mkState :: Int -> IO State
-mkState i = atomically $ do
-  ts <- newTVar []
-  tc <- newTVar i
-  rs <- newTVar []
+mkState i = STM.atomically $ do
+  ts <- STM.newTVar []
+  tc <- STM.newTVar i
+  rs <- STM.newTVar []
   return State {
       threads = ts
     , tCount  = tc

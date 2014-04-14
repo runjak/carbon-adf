@@ -1,0 +1,7 @@
+# Necessary packages:
+aptitude install haskell-platform libpq-dev postgresql
+# Setup for postgresql:
+su postgres
+psql
+> CREATE ROLE runge LOGIN password 'secret';
+> CREATE DATABASE openBrain ENCODING 'UTF8' OWNER runge;

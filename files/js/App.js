@@ -40,6 +40,8 @@ $(function(){
   window.App.views.discussionView = new DiscussionView({el: $('#DiscussionView')});
   window.App.views.createDiscussionView = new CreateDiscussionView({el: $('#CreateDiscussionView')});
   window.App.views.singleDiscussionView = new SingleDiscussionView({el: $('#SingleDiscussionView')});
+  window.App.views.resultView = new ResultView({el: $('#ResultView')});
+  window.App.views.singleResultVlew = new SingleResultView({el: $('#SingleResultView')});
   //Starting the routing:
   Backbone.history.start();
   window.App.router.on('defaultRoute', function(actions){
