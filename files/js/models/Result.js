@@ -44,7 +44,7 @@ Result = Backbone.Model.extend({
 // Adding r as a child to this
 , addChild: function(r){
     this.children[r.get('id')] = r;
-    r.parents[this.get('id')] = this;
+    r.parents[this.get('id')]  = this;
   }
 , showSet: function(){
     var atoms = _.keys(this.inSet);

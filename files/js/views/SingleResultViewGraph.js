@@ -1,12 +1,16 @@
 SingleResultViewGraph = Backbone.View.extend({
   initialize: function(){
-    window.foo = this; // FIXME DEBUG
+    window.foo   = this; // FIXME DEBUG
     this.setTree = {};
-    this.paper = Raphael(this.$('.paper').get(0), 400, 400);
-    this.style = {
+    this.$canvas = this.$('canvas');
+    this.canvas  = this.$canvas.get(0);
+    this.ctx     = this.canvas.getContext("2d");
+    this.style   = {
       start: {x: 10, y: 10}
-    , space: {x: 10, y: 10}
+    , space: {x: 10, y: 26}
+    , font:  "16px Verdana, sans-serif"
     };
+    this.ctx.font = "16px Verdana, sans-serif";
   }
 , setResult: function(r){
     if(this.model){
@@ -20,61 +24,71 @@ SingleResultViewGraph = Backbone.View.extend({
   }
 , render: function(){
     console.log('SingleResultViewGraph.render()');
-    this.paper.clear();
+    //We reuse DiscussionGraphView.resize for our own canvas:
+    window.App.views.singleDiscussionView.discussionGraphView.resize.call(this);
+    //Cleaning the canvas:
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    //Don't draw if there's no model:
     if(!this.model) return;
-    //Finding the roots of the result tree:
-    var roots = {};
-    this.model.results.each(function(r){
-      if(r.parentCount() === 0)
-        roots[r.get('id')] = r;
-    });
-    //Drawing the tree:
-    var levels = [] // Elements on one level in the graph
-      , nodes  = {} // rId -> Element
-      , style  = this.style
-      , pos    = _.clone(style.start)
-      , maxX   = 0, maxY = 0;
-    while(_.keys(roots).length > 0){
-      var newRoots = {}
-        , level    = [];
-      //Building current level:
-      _.each(_.values(roots), function(r){
-        var text = r.showSet()
-          , el   = this.paper.text(pos.x, pos.y, text).attr({
-          fill: '#000000'
-        , 'font-size': 16
-        , 'stroke-width': 1
-        });
-        console.log(text+' at: '+JSON.stringify(pos));
-        //Adding element to level and nodes:
-        level.push(el);
-        nodes[r.get('id')] = el;
-        //Updating position:
-        var width = 8*text.length;
-        //var width = el.node.getSubStringLength(0, text.length);
-        console.log('Width: ' + width);
-        pos.x += width + style.space.x;
-        if(pos.x > maxX) maxX = pos.x;
-        //Adding children to newRoots:
-        _.map(_.values(r.children), function(c){
-          newRoots[c.get('id')] = c;
-        });
+    var levels  = this.model.levels
+      , lWidths = []
+      , style   = this.style;
+    //Creating lWidth objects:
+    _.each(levels, function(level){
+      lWidths.push(_.map(level, function(r){
+        var t = r.showSet()
+          , w = this.ctx.measureText(t).width;
+        return {text: t, width: w, result: r};
+      }, this));
+    }, this);
+    //Calculating lWidthSums:
+    var lWidthSums = {}; // Index -> WidthSum
+    for(var i = 0; i < lWidths.length; i++){
+      var ws    = lWidths[i]
+        , space = (ws.length - 1) * style.space.x;
+      lWidthSums[i] = _.reduce(_.pluck(ws, 'width'), function(sum, width){
+        return sum + width;
+      }, space);
+    }
+    //Finding the maximum width:
+    var maxWidth = _.max(_.values(lWidthSums));
+    //Drawing the levels:
+    var pos    = _.clone(style.start)
+      , rBoxes = {}; // ResultId -> BBox
+    for(var i = 0; i < lWidths.length; i++){
+      //Setup for the level:
+      var ws    = lWidths[i]
+        , space = style.space.x + (maxWidth - lWidthSums[i])/(ws.length - 1);
+      //Drawing the ws:
+      _.each(ws, function(w){
+        this.ctx.fillText(w.text, pos.x, pos.y);
+        rBoxes[w.result.get('id')] = {
+          x:      pos.x
+        , y:      pos.y
+        , width:  w.width
+        , height: 16
+        , x2:     pos.x + w.width
+        , y2:     pos.y - 8};
+        pos.x += space + w.width;
       }, this);
-      //Setting position for next level:
+      //End of the line:
       pos.x  = style.start.x;
       pos.y += style.space.y;
-      if(pos.y > maxY) maxY = pos.y;
-      //Updating levels and roots:
-      levels.push(level);
-      roots = newRoots;
     }
-    console.log(levels);
-    //Adjusting size of the paper:
-    console.log('Setting paperSize: '+JSON.stringify({width: maxX, height: maxY}));
-    this.paper.setSize(maxX, maxY);
-    this.paper.renderfix();
-    this.paper.safari();
-    //Spacing the nodes per layer:
-    //Connecting nodes by lines:
+    //Drawing parent/child relations:
+    this.ctx.beginPath();
+    var t = this;
+    this.model.results.each(function(p){
+      var pId  = p.get('id')
+        , pBox = rBoxes[pId]
+        , pX   = pBox.x + 0.5 * pBox.width;
+      _.each(_.keys(p.children), function(cId){
+        var cBox = rBoxes[cId];
+        t.ctx.moveTo(pX, pBox.y + 3);
+        t.ctx.lineTo(cBox.x + 0.5 * cBox.width, cBox.y2 - 3);
+      });
+    });
+    this.ctx.stroke();
+    //FIXME maybe use rBoxes for click events!
   }
 });

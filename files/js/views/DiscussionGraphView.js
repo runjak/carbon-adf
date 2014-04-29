@@ -213,6 +213,10 @@ DiscussionGraphView = SpringyRenderer.extend({
       //console.log('Uncought keycode: '+e.keyCode);
     }
   }
+/*
+  Not only does the resize function fix the canvas size,
+  but it is also reused by the SingleResultViewGraph.
+*/
 , resize: function(){
     var c  = this.canvas
       , p  = this.$canvas.position()
