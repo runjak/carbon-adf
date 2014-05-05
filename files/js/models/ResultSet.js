@@ -8,6 +8,7 @@ ResultSet = Discussion.extend({
                , Admissible: 0}
 , resultSubsets: {} // Maps from most specific ResultType -> [Result]
 , levels: [] // [[Result]], sorted top -> bottom
+, maxResultVotes: 0
   // Returns the most specific resultType.
 , topResultType: function(result){
     var rTypes = result.get('resultType')
@@ -28,6 +29,10 @@ ResultSet = Discussion.extend({
     this.results = new ResultCollection(); 
     this.on('change:resultSet', this.updateResults, this);
     this.updateResults();
+    this.voteMap = {}; // UserId -> Voted(Bool)
+    this.voters  = new UserCollection();
+    this.on('change:resultSet', this.updateVoters, this);
+    this.updateVoters();
   }
 , updateResults: function(){
     var rSet = this.get('resultSet');
@@ -35,9 +40,13 @@ ResultSet = Discussion.extend({
       this.results.reset();
       return;
     }
+    this.maxResultVotes = 0;
     var results = _.map(rSet.results, function(r){
+      if(r.votes > this.maxResultVotes){
+        this.maxResultVotes = r.votes;
+      }
       return new Result(r);
-    });
+    }, this);
     //Filling resultSubsets:
     _.each(_.keys(this.resultTypes), function(r){
       this.resultSubsets[r] = [];
@@ -67,5 +76,24 @@ ResultSet = Discussion.extend({
     }, this);
     //Saving results to the collection:
     this.results.reset(results);
+  }
+, updateVoters: function(){
+    this.voteMap = {};
+    var rSet  = this.get('resultSet'), t = this;
+    if(!rSet){
+      this.voters.reset();
+      return;
+    }
+    var users = _.map(rSet.voters, function(xs){
+      var uid = xs[0], vtd = xs[1];
+      this.voteMap[uid] = vtd;
+      return new User({id: uid});
+    }, this);
+    this.voters.fetchAll(users).done(function(){
+      t.voters.set(users);
+    }).fail(function(){
+      console.log("Failed to fetch users in ResultSet:updateVoters.");
+      console.log("… ResultSet was: " + JSON.stringify(rSet));
+    });
   }
 });

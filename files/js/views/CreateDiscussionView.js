@@ -113,7 +113,8 @@ CreateDiscussionView = Hideable.extend({
   }
 , syncDeadline: function(){
     var date = this.$('#CreateDiscussionViewDate').val();
-    var time = this.$('#CreateDiscussionViewTime').val(); // http://dev.w3.org/html5/markup/input.time.html
+    // http://dev.w3.org/html5/markup/input.time.html
+    var time = this.$('#CreateDiscussionViewTime').val();
     if(time === '' || date === '') return;
     var d = {deadline: date+' '+time+':00'};
     this.model.modify('discussion', d);

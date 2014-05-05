@@ -22,7 +22,7 @@ import Carbon.Config
 import Carbon.Data.Logic.Diamond
 import qualified Carbon.Data.Logic as Logic
 
--- | TODO decide if we need to delete the file.
+-- FIXME introduce a config setting to decide if the file should be deleted afterwards.
 run :: Config -> FilePath -> String -> IO (Results String)
 run conf path content = do
   let rTypes = diamondEval conf

@@ -189,7 +189,7 @@ instance Show (Item String) where
     , show (deletion i)
     , ", parents = "
     , show (parents i)
-    , ", children  = "
+    , ", children = "
     , show (children i)
     , ", commitMessage = "
     , show (commitMessage i)
@@ -224,3 +224,21 @@ instance VarContainer Item where
     where
       go  Nothing = Set.empty
       go (Just a) = vars a
+
+-- A little debug help:
+sanityTable :: Item String -> IO ()
+sanityTable i = do
+  putStrLn "Carbon.Data.Item:sanityTable:"
+  putStrLn "-----------------------------"
+  let stats = [("Description: ", itemIsDescription i)
+              ,("Article:     ", itemIsArticle     i)
+              ,("Condition:   ", itemIsCondition   i)
+              ,("Relation:    ", itemIsRelation    i)
+              ,("Discussion:  ", itemIsDiscussion  i)
+              ,("Result:      ", itemIsResult      i)
+              ,("Sane:        ", itemIsSane        i)
+              ]
+  forM_ stats $ \(x,y) -> putStr x >> print y
+  putStrLn "-----------------------------"
+  putStrLn "Item contents:"
+  print i

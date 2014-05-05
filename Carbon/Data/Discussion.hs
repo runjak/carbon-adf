@@ -7,13 +7,16 @@ import Data.Aeson ((.=), ToJSON(..), object, FromJSON(..), Value(..), (.:))
 import Data.Function (on)
 import Data.Monoid (Monoid(..))
 import Data.Set (Set)
-import qualified Data.Set as Set
+import qualified Data.Aeson        as Aeson
+import qualified Data.HashMap.Lazy as HashMap
+import qualified Data.Set          as Set
 
 import Carbon.Data.Alias
 import Carbon.Data.Common
 import Carbon.Data.Id
 import Carbon.Data.ResultSet
 import Carbon.Data.User
+import qualified Carbon.Data.Discussion.Strings as Strings
 
 {-|
   I want a Discussion to have arguments that can be extended to items.
@@ -44,23 +47,23 @@ mapItems f d = d{arguments = mapLeft f $ arguments d}
 -- Instances:
 instance FromJSON EvaluationState where
   parseJSON (String "NotEvaluated") = return NotEvaluated
-  parseJSON (String "Evaluating") = return Evaluating
+  parseJSON (String "Evaluating")   = return Evaluating
   parseJSON _ = mzero
 
 instance (FromJSON i, Ord i) => FromJSON (Discussion i) where
   parseJSON (Object v) = do
-    let setI d i = d{discussionId=i}
-        setA d a = d{arguments=a}
-        setD d l = d{deadline = Just l}
-        setP d p = d{participants=p}
-        setE d e = d{evaluation=e}
-        parseI d = msum [liftM (setI d) (v .: "id"), return d]
-        parseA d = msum [liftM (setA d) (v .: "arguments"), return d]
-        parseD d = msum [liftM (setD d) (v .: "deadline"), return d]
-        parseP d = msum [liftM (setP d) (v .: "participants"), return d]
-        parseE d = msum [liftM (setE d) (v .: "evaluation"), return d]
+    let setI d i = d{discussionId =      i}
+        setA d a = d{arguments    =      a}
+        setD d l = d{deadline     = Just l}
+        setP d p = d{participants =      p}
+        setE d e = d{evaluation   =      e}
+        parseI d = msum [liftM (setI d) (v .: Strings.id),           return d]
+        parseA d = msum [liftM (setA d) (v .: Strings.arguments),    return d]
+        parseD d = msum [liftM (setD d) (v .: Strings.deadline),     return d]
+        parseP d = msum [liftM (setP d) (v .: Strings.participants), return d]
+        parseE d = msum [liftM (setE d) (v .: Strings.evaluation),   return d]
     d <- parseE =<< parseP =<< parseD =<< parseA =<< parseI mempty
-    guard $ d /= mempty
+    guard $ any (HashMap.member `flip` v) Strings.fields
     return d
   parseJSON _ = mzero
 
@@ -95,9 +98,9 @@ instance ToJSON EvaluationState where
 
 instance ToJSON i => ToJSON (Discussion i) where
   toJSON d = object [
-      "id"           .= discussionId d
-    , "arguments"    .= arguments d
-    , "deadline"     .= deadline d
-    , "participants" .= participants d
-    , "evaluation"   .= evaluation d
+      Strings.id           .= discussionId d
+    , Strings.arguments    .= arguments d
+    , Strings.deadline     .= deadline d
+    , Strings.participants .= participants d
+    , Strings.evaluation   .= evaluation d
     ]

@@ -80,9 +80,11 @@ Discussion = DateObject.extend({
     }
   }
 , discussionToAttributes: function(o, setOptions){
+    console.log('discussionToAttributes:');
+    console.log(this.attributes);
     //Taking care of options:
     o = (typeof(o) === 'object') ? o : {};
-    o.args = (o.args === 'Left') ? o.args : 'Right';
+    o.args  = (o.args === 'Left') ? o.args : 'Right';
     o.other = (o.args === 'Left') ? 'Right' : 'Left';
     o.msg = o.msg || 'General modification of the discussion.';
     setOptions = (typeof(setOptions) === 'object') ? setOptions : {silent: true};
@@ -102,6 +104,8 @@ Discussion = DateObject.extend({
     var d = $.extend(this.get('discussion'), discussion);
     delete d.arguments[o.other];
     this.set({discussion: discussion, commitMessage: o.msg}, setOptions);
+    console.log(this.attributes);
+    console.log('Done!');
     return this;
   }
 , isDiscussionParticipant: function(user){

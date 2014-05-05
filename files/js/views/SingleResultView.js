@@ -8,7 +8,9 @@ SingleResultView = Hideable.extend({
       });
     });
     this.views = {
-      graph: new SingleResultViewGraph({el: this.$('#SingleResultViewGraph')})
+      graph:  new SingleResultViewGraph({el: this.$('#SingleResultViewGraph')})
+    , votes:  new SingleResultViewVotes({el: this.$('#SingleResultViewVotes')})
+    , voters: new SingleResultViewVoters({el: this.$('#SingleResultViewVoters')})
     };
   }
 , setResultId: function(rId){

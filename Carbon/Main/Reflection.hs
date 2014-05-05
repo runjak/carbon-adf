@@ -7,6 +7,6 @@ module Carbon.Main.Reflection (version, date) where
 
 import qualified Carbon.Main.CompileTime as CTime
 
-version = tail . snd . break (==':') $ filter (not . flip elem " \t") $( CTime.version )
+version = tail . dropWhile (/=':') $ filter (not . flip elem " \t") $( CTime.version )
 
 date = $( CTime.date )

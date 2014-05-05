@@ -4,17 +4,17 @@ module Carbon.Website.Item where
 import Data.Function (on)
 import Data.Monoid (Monoid(..))
 import qualified Data.Aeson as Aeson
-import qualified Data.List as List
+import qualified Data.List  as List
 import qualified Data.Maybe as Maybe
-import qualified Data.Set as Set
+import qualified Data.Set   as Set
 
 import Carbon.Backend.Item (hToId, idToH)
 import Carbon.Website.Common
-import qualified Carbon.Backend.Logic as BLogic
-import qualified Carbon.Backend.Item as BItem
-import qualified Carbon.Data.Logic as Logic
+import qualified Carbon.Backend.Logic         as BLogic
+import qualified Carbon.Backend.Item          as BItem
+import qualified Carbon.Data.Logic            as Logic
 import qualified Carbon.Data.Logic.Evaluation as Evaluation
-import qualified Carbon.Website.Session as Session
+import qualified Carbon.Website.Session       as Session
 
 createItem :: OBW Response
 createItem = withItem $ \i -> msum [sane i, setItem i]
@@ -122,43 +122,41 @@ displayItem i = do
   i' <- liftB $ idToH i
   respOk $ responseJSON' i'
 
-sane :: Item a -> OBW Response
+-- sane :: Item a -> OBW Response
+sane :: Item String -> OBW Response
 sane i
   | itemIsSane i = mzero
-  | otherwise = respBadRequest "Sorry, but the given Item is not considered sane by the server."
+  | otherwise = do
+      liftIO $ putStrLn "Insane Item found:" >> sanityTable i
+      respBadRequest "Sorry, but the given Item is not considered sane by the server."
 
 -- Reading get parameters:
-{-
-  FIXME A check will be necessary to see if Item is not mempty.
-    This requires Conversion to Id, first.
-  FIXME We should also check that Item doesn't contain fields we don't want it to
--}
 getItem :: UserId -> OBW (Either Error (Item String))
 getItem author = do
   -- Reading parts:
   mDescription <- getFromJSON "description"
-  mArticle <- getFromJSON "article"
-  mCondition <- getFromJSON "condition"
-  mRelation <- getFromJSON "relation"
-  mDiscussion <- getFromJSON "discussion"
+  mArticle     <- getFromJSON "article"
+  mCondition   <- getFromJSON "condition"
+  mRelation    <- getFromJSON "relation"
+  mDiscussion  <- getFromJSON "discussion"
   plusm (return $ Left "Got no commit Message") $ do
     cMsg <- look "commitMessage"
     -- Constructing Item:
     let i = Item{
-        itemId = mempty
-      , description = mDescription
-      , article = mArticle
-      , condition = mCondition
-      , relation = mRelation
-      , relations = []
-      , discussion = mDiscussion
-      , resultSet = Nothing
-      , creation = mempty
-      , deletion = mempty
-      , parents = mempty
-      , children = mempty
+        itemId        = mempty
+      , description   = mDescription
+      , article       = mArticle
+      , condition     = mCondition
+      , relation      = mRelation
+      , relations     = []
+      , discussion    = mDiscussion
+      , resultSet     = Nothing
+      , creation      = mempty
+      , deletion      = mempty
+      , parents       = mempty
+      , children      = mempty
       , commitMessage = cMsg
-      , commitAuthor = author
+      , commitAuthor  = author
       }
     return $ Right i
   where
@@ -214,7 +212,14 @@ evaluate iid = do
   let rSet = fromResults $ fmap read results
   eEI <- liftB $ do
     (Right i) <- GetItem iid
-    SetItem $ i <+ rSet
+    SetItem . addVoters $ i <+ rSet
   case eEI of
     (Right i) -> displayItem i
     (Left  e) -> respInternalServerError $ toResponse e
+  where
+    -- only works when: itemIsDiscussion i, itemIsResult i
+    addVoters :: Item Id -> Item Id
+    addVoters i = let ps  = participants . Maybe.fromJust $ discussion i
+                      ps' = zip (Set.toList ps) $ repeat False
+                      rs  = Maybe.fromJust $ resultSet i
+                  in i <+ rs{voters = ps'}

@@ -34,15 +34,15 @@ nullConfig = Config {
   , allowBrowsing = True
   , port          = 8000  -- | Happstack std.
 --, backendType   = PostgreSQLBackend {pgOptions = "dbname=carbon host=127.0.0.1 user=mushu"}
-  , backendType   = PostgreSQLBackend {pgOptions = "dbname=openbrain host=127.0.0.1 user=mushu password=1234"}
-  , diamondCall   = "diamond"
+  , backendType   = PostgreSQLBackend {pgOptions = "dbname=carbon host=127.0.0.1 user=mushu password=1234"}
+  , diamondCall   = "python3"
   , diamondDlDir  = "/tmp/"
-  , diamondParams = Map.fromList [(TwoValued,  ["-pf","-v0","--model"])
-                                 ,(Stable,     ["-pf","-v0","--stablemodel"])
-                                 ,(Grounded,   ["-pf","-v0","--grounded"])
-                                 ,(Complete,   ["-pf","-v0","--complete"])
-                                 ,(Admissible, ["-pf","-v0","--admissible"])
-                                 ,(Preferred,  ["-pf","-v0","--preferred"])]
+  , diamondParams = Map.fromList [(TwoValued,  ["../extern/diamond-adf-code/diamond.py","-pf","-v0","--model"])
+                                 ,(Stable,     ["../extern/diamond-adf-code/diamond.py","-pf","-v0","--stablemodel"])
+                                 ,(Grounded,   ["../extern/diamond-adf-code/diamond.py","-pf","-v0","--grounded"])
+                                 ,(Complete,   ["../extern/diamond-adf-code/diamond.py","-pf","-v0","--complete"])
+                                 ,(Admissible, ["../extern/diamond-adf-code/diamond.py","-pf","-v0","--admissible"])
+                                 ,(Preferred,  ["../extern/diamond-adf-code/diamond.py","-pf","-v0","--preferred"])]
   , diamondEval   = [TwoValued, Stable, Grounded, Complete, Admissible, Preferred]
   , composition   = defaultComposition
 }

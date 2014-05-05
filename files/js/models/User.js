@@ -20,8 +20,8 @@ User = DateObject.extend({
     var url = this.urlRoot + this.get('id');
     var promise = $.Deferred();
     $.put(url, {isAdmin: isA}).done(function(d){
-     t.set(d);
-     promise.resolve(d);
+      t.set(d);
+      promise.resolve(d);
     }).fail(function(f){
       promise.reject(f);
     });
@@ -39,11 +39,4 @@ User = DateObject.extend({
     });
     return promise;
   }
-//FIXME this will need to be reimplemented.
-/*
-, findInDiscussion: function(discussion){
-    var uid = this.get('id');
-    return discussion.participants.elemById(uid);
-  }
-*/
 });

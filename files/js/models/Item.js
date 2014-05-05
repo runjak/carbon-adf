@@ -70,6 +70,13 @@ Item = ResultSet.extend({
 , mySave: function(){
     //Saving the item:
     var req = {}, url = this.urlRoot;
+    //Making sure commitAuthor is set:
+    if(this.get('commitAuthor') === null){
+      if(window.App.login.get('loggedIn')){
+        this.set({commitAuthor: window.App.login.get('id')}, {silent: true});
+      }
+    }
+    //Serialize to req:
     _.each(this.attributes, function(v, k){
       if(k === 'canCommit') return;
       if(typeof(v) === 'object')
