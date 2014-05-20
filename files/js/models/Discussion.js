@@ -176,4 +176,21 @@ Discussion = DateObject.extend({
     //Performing the update:
     this.discussion.relations.reset(_.flatten([_.values(add),_.values(keep)]));
   }
+/*
+  @return lookup :: ResultId -> Name
+  This function returns a function that allows to lookup resultIds and retrieve
+  the names of results accordingly.
+  Iff the resultId is not found in the discussion, '#'+id is returned.
+*/
+, getResultIdNameLookup: function(){
+    //Building the map:
+    var idNameMap = {};
+    this.discussion.arguments.each(function(a){
+      idNameMap[a.get('id')] = a.get('description').headline;
+    });
+    //Returning the function:
+    return function(rId){
+      return idNameMap[rId] || '#'+rId;
+    };
+  }
 });

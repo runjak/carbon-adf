@@ -46,13 +46,18 @@ Result = Backbone.Model.extend({
     this.children[r.get('id')] = r;
     r.parents[this.get('id')]  = this;
   }
-, showSet: function(){
-    var atoms = _.keys(this.inSet);
-    atoms.push.apply(atoms, _.map(_.keys(this.outSet), function(o){return "¬"+o;}));
-    var ret = _.reduce(atoms, function(m, x){
-      if(m === "") return x;
-      return m+","+x;
-    }, "", this);
+/*
+  @param ridLookup :: ResultId -> String
+  showSet can take a function that converts resultId to a string,
+  in case the resulting string shall contain something
+  more entertaining than plain resultIds.
+*/
+, showSet: function(ridLookup){
+    var lookup  = ridLookup || _.identity
+      , _lookup = function(x){return "¬"+lookup(x)}
+      , atoms   = _.map(_.keys(this.inSet), lookup);
+    atoms.push.apply(atoms, _.map(_.keys(this.outSet), _lookup));
+    var ret = atoms.join(',');
     if(ret === "")
       return "∅";
     return "{"+ret+"}";

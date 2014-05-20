@@ -12,11 +12,11 @@ $(function(){
   //The singleton:
   window.App = {
     collectedArticles: new CollectedItems()
-  , dummyItemFactory: new DummyItemFactory()
-  , hideManager: new HideManager()
-  , login: new Login()
-  , router: new Router()
-  , views:  {}
+  , dummyItemFactory:  new DummyItemFactory()
+  , hideManager:       new HideManager()
+  , login:             new Login()
+  , router:            new Router()
+  , views: {}
   };
   //Setting the views:
   window.App.views.loginState = new LoginState({

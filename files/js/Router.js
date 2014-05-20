@@ -14,6 +14,7 @@ Router = Backbone.Router.extend({
   , "login":               "loginView"
   , "result":              "resultView"
   , "result/:id":          "singleResultView"
+  , "result/:id/:tab":     "singleResultViewTab"
   , "user":                "userView"
   , "user/:id":            "singleUserView"
   , "*actions":            "defaultRoute"

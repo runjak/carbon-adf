@@ -1,20 +1,14 @@
 ------------------------
-|      2014-05-05      |
+|      2014-05-20      |
 ------------------------
-- Creating Discussions appears to be problematic,
-  I should check how this happens.
+- Next step shall be adding interaction to resultView.
+  - Later on I should bring back modals to discussions.
+- Try adding to the speed of CARBON by using Text instead of String where possible.
 
 ------------------------
 |      2014-04-14      |
 ------------------------
-- It appears that participants are currently not added as voters.
-  https://127.0.0.1/item/512 has an empty array for voters.
-  This needs to be fixed asap.
 - Think about reenabling some hotkeys for graph changes
-- Build result representation
-  - Paging
-  - Voting
-  - Set view
 - Let evaluation of discussions forward to result representation
 - I think Carbon.Backend.Logic:mkFormula might need a bugfix
   - Supports from the same proof standard must be considered correctly
