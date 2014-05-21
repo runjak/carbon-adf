@@ -14,6 +14,7 @@ import qualified Carbon.Backend.Logic         as BLogic
 import qualified Carbon.Backend.Item          as BItem
 import qualified Carbon.Data.Logic            as Logic
 import qualified Carbon.Data.Logic.Evaluation as Evaluation
+import qualified Carbon.Data.ResultSet        as ResultSet
 import qualified Carbon.Website.Session       as Session
 
 createItem :: OBW Response
@@ -36,55 +37,27 @@ updateItem iid = withItem $ \i -> do
       case eEU of
         (Left e) -> respBadRequest . toResponse $ unlines ["Cannot find commitAuthor on the server.",e]
         (Right u) -> do
-          let okDisc = (okDiscussions u `on` discussion) old new
-              okResS = (okResultSet u `on` resultSet) old new
+          let okDisc = (okDDelta u `on` discussion) old new
+              okResS = (ResultSet.okRDelta u `on` resultSet) old new
           when (okDisc && okResS) mzero
-          let repDisc = okDisc ? (["Changes to the Discussion were accepted."],["Changes on Discussion were not accepted."])
-              repResS = okResS ? (["Changes to the ResultSet were accepted."],["Changes on ResultSet were not accepted."])
+          let repDisc = okDisc ? (["Changes to the Discussion were accepted."],["Changes on the Discussion were not accepted."])
+              repResS = okResS ? (["Changes to the ResultSet were accepted."],["Changes on the ResultSet were not accepted."])
+          liftIO $ (ResultSet.rDeltaTable u `on` resultSet) old new
           respBadRequest . toResponse . unlines $ repDisc++repResS
 
-    okDiscussions :: User -> Maybe (Discussion (Item String)) -> Maybe (Discussion (Item String)) -> Bool
-    okDiscussions _ Nothing _ = True
-    okDiscussions _ (Just _) Nothing = False
+    okDDelta :: User -> Maybe (Discussion (Item String)) -> Maybe (Discussion (Item String)) -> Bool
+    okDDelta _ Nothing _        = True
+    okDDelta _ (Just _) Nothing = False
     {- If the user is an admin, we request that discussionId and evaluation stay the same.
       Otherwise deadline must be the same and participants may only differ by the current user. -}
-    okDiscussions u (Just old) (Just new)
+    okDDelta u (Just old) (Just new)
       | isAdmin u = sameId old new && sameEvaluation old new
       | otherwise = and [sameId old new, sameEvaluation old new, sameDeadline old new, saneParticipants u old new]
       where
-        sameId = (==) `on` discussionId
-        sameEvaluation = (==) `on` evaluation
-        sameDeadline = (==) `on` deadline
+        sameId             = (==) `on` discussionId
+        sameEvaluation     = (==) `on` evaluation
+        sameDeadline       = (==) `on` deadline
         saneParticipants u = (==) `on` (Set.delete (userId u) . participants)
-
-    okResultSet :: User -> Maybe ResultSet -> Maybe ResultSet -> Bool
-    okResultSet _ Nothing Nothing = True
-    okResultSet _ Nothing (Just _) = False
-    okResultSet _ (Just _) Nothing = False
-    {- Voted for the user may only move from False -> True or stay True.
-      Only if the user just voted may the votes of results be larger by one.
-      The rest must remain unchanged. -}
-    okResultSet u (Just old) (Just new) = 
-      let voted = justVoted u old new
-      in and [sameId old new, sameCreation old new, sameVoters old new, voted, okResults voted old new]
-      where
-        sameId = (==) `on` resultSetId
-        sameCreation = (==) `on` setCreation
-        sameVoters = (==) `on` (Set.fromList . map fst . voters)
-        justVoted u = let fromList l = null l ? (True, snd $ head l) -- Not being a voter equals already having voted.
-                      in (<) `on` (fromList . filter ((==) (userId u) . fst) . voters)
-        okResults voted = chkResults voted `on` (List.sortBy (compare `on` resultId) . results)
-        chkResults _ [] [] = True
-        chkResults _ [] (_:_) = False
-        chkResults _ (_:_) [] = False
-        chkResults voted (o:os) (n:ns) =
-          let justId = Maybe.isJust $ resultId o
-              sameId = (==) `on` resultId
-              sameTypes = (==) `on` (List.sort . List.nub . resultType)
-              sameItems = (==) `on` items
-              sameVotes = (==) `on` votes
-              okVotes = (\x y -> abs (x-y) == 1) `on` votes
-          in and [justId, sameId o n, sameItems o n, sameVotes o n || (voted && okVotes o n), chkResults voted os ns]
 
 readItem :: ItemId -> OBW Response
 readItem iid = do
@@ -139,6 +112,7 @@ getItem author = do
   mCondition   <- getFromJSON "condition"
   mRelation    <- getFromJSON "relation"
   mDiscussion  <- getFromJSON "discussion"
+  mResultSet   <- getFromJSON "resultSet"
   plusm (return $ Left "Got no commit Message") $ do
     cMsg <- look "commitMessage"
     -- Constructing Item:
@@ -150,7 +124,7 @@ getItem author = do
       , relation      = mRelation
       , relations     = []
       , discussion    = mDiscussion
-      , resultSet     = Nothing
+      , resultSet     = mResultSet
       , creation      = mempty
       , deletion      = mempty
       , parents       = mempty

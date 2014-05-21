@@ -23,7 +23,9 @@ crudUpdate = decode $ method PUT
 crudDelete = decode $ method DELETE
 
 decode :: OBW () -> OBW a -> OBW a
-decode check = (>>) $ check >> decodeBody (defaultBodyPolicy "/tmp/" 1000 1000 1000)
+-- Original size that appeared too small, maybe I should have a config option for this. FIXME
+--decode check = (>>) $ check >> decodeBody (defaultBodyPolicy "/tmp/" 1000 1000 1000)
+decode check = (>>) $ check >> decodeBody (defaultBodyPolicy "/tmp/" 100000 100000 100000)
 
 {-
 200: OK

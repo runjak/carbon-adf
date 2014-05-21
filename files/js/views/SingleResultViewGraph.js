@@ -32,11 +32,12 @@ SingleResultViewGraph = Backbone.View.extend({
     if(!this.model) return;
     var levels  = this.model.levels
       , lWidths = []
-      , style   = this.style;
+      , style   = this.style
+      , lookup  = this.model.getResultIdNameLookup();
     //Creating lWidth objects:
     _.each(levels, function(level){
       lWidths.push(_.map(level, function(r){
-        var t = r.showSet()
+        var t = r.showSet(lookup)
           , w = this.ctx.measureText(t).width;
         return {text: t, width: w, result: r};
       }, this));

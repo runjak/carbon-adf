@@ -31,5 +31,6 @@ Build-Depends:  aeson
               , transformers
               , unordered-containers
               , utf8-string
+              , vector
 Executable:     carbon
 Main-is:        Carbon/Main.hs

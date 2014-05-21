@@ -1,11 +1,25 @@
 <div id="SingleResultViewVote" class="tab-pane fade">
   <table class="table table-bordered">
     <thead>
-      <th>Set</th>
-      <th>Extensions</th>
-      <th>Score</th>
-      <th>Vote:</th>
+      <tr>
+        <th>Set</th>
+        <th>Extensions</th>
+        <th>Score</th>
+        <th>Vote:</th>
+      </tr>
     </thead>
     <tbody></tbody>
+    <tfoot class="hide">
+      <tr>
+        <td colspan="4">
+          <form class="pull-right form-inline">
+            <label>
+              Cast your vote:
+              <a id="SingleResultViewVoteSubmit" class="btn btn-primary">submit</a>
+            </label>
+          </form>
+        </td>
+      </tr>
+    </tfoot>
   </table>
 </div>

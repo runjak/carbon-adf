@@ -96,4 +96,24 @@ ResultSet = Discussion.extend({
       console.log("… ResultSet was: " + JSON.stringify(rSet));
     });
   }
+/*
+  This method syncs the results and voters models back into the ResultSets attributes,
+  and calls mySave from Item.js to sync it to the server.
+  The resulting Promise is returned by this function.
+*/
+, saveResultSet: function(){
+    var rSet = this.get('resultSet');
+    //Syncing the results back to attributes:
+    rSet.results = this.results.map(function(r){
+      return r.attributes;
+    });
+    //Syncing the voters back to attributes:
+    rSet.voters = _.map(this.voteMap, function(voted, uId){
+      return [uId, voted];
+    }, this);
+    //Setting stuff:
+    this.set({resultSet: rSet});
+    //Saving stuff:
+    return this.mySave();
+  }
 });
