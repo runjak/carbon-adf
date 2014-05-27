@@ -2,16 +2,20 @@
 module Carbon.Data.ResultSet where
 
 import Control.Applicative
+import Control.Arrow (second)
 import Control.Monad
 import Data.Aeson ((.=), ToJSON(..), object, FromJSON(..), Value(..), (.:))
 import Data.Aeson.Types (Parser)
 import Data.Function (on)
+import Data.Map (Map)
 import Data.Monoid (Monoid(..))
+import Data.Set (Set)
 import Data.Vector (Vector, (!?))
 import qualified Data.Aeson          as Aeson
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.List           as List
 import qualified Data.Maybe          as Maybe
+import qualified Data.Map            as Map
 import qualified Data.Set            as Set
 import qualified Data.Text           as Text
 import qualified Data.Vector         as Vector
@@ -33,18 +37,28 @@ data ResultSet = ResultSet {
 } deriving (Show, Read, Eq, Ord)
 
 fromResults :: Results ItemId -> ResultSet
-fromResults (Results rs) = mempty <+ concatMap go rs
+fromResults (Results rs) =
+  let go = map (uncurry mkResult) . Map.toList . mkMap . expand . swap :: [(ResultType, [DiamondResult ItemId])] -> [Result]
+  in mempty <+ go rs
   where
-    go :: (ResultType, [DiamondResult ItemId]) -> [Result]
-    go (rType, dRes) = map (go2 $ implications rType) dRes
+    swap :: [(a, b)] -> [(b, a)]
+    swap = map (\(a,b) -> (b,a))
 
-    go2 :: [ResultType] -> DiamondResult ItemId -> Result
-    go2 rTypes dRes =
+    expand :: [([a], b)] -> [(a, b)]
+    expand = concatMap (\(as, b) -> zip as $ repeat b)
+
+    mkMap :: (Ord k, Ord v) => [(k, v)] -> Map k (Set v)
+    mkMap = Map.fromListWith Set.union . map (second $ Set.fromList . return)
+
+    mkResult :: DiamondResult ItemId -> Set ResultType -> Result
+    mkResult dRes rTypes = (mempty <+ fromDR dRes) <+ Set.toList rTypes
+
+    fromDR :: DiamondResult ItemId -> Set (ResultState, ItemId)
+    fromDR dRes =
       let ins   = zip (repeat   In) $ inSet   dRes
           udecs = zip (repeat Udec) $ udecSet dRes
           outs  = zip (repeat  Out) $ outSet  dRes
-          iSet  = Set.fromList $ ins ++ udecs ++ outs
-      in (mempty <+ rTypes) <+ iSet
+      in Set.fromList $ ins ++ udecs ++ outs
 
 -- Instances:
 instance FromJSON ResultSet where

@@ -7,6 +7,7 @@ module Carbon.Data.Logic.Diamond(
 )where
 
 import Control.Arrow (second)
+import Data.Function (on)
 import Data.List (nub)
 
 import Carbon.Common
@@ -54,6 +55,14 @@ instance Eq a => Eq (DiamondResult a) where
 
 instance Eq a => Eq (Results a) where
   (Results r1) == (Results r2) = r1 == r2
+
+instance Ord a => Ord (DiamondResult a) where
+  compare d1 d2 =
+    let ci  = compare `on` inSet
+        cu  = compare `on` udecSet
+        co  = compare `on` outSet
+        cs  = [ci d1 d2, co d1 d2, cu d1 d2]
+    in head $ filter (/= EQ) cs ++ [EQ]  
 
 instance Functor DiamondResult where
   fmap f d =

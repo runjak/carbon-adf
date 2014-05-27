@@ -55,25 +55,54 @@ ResultSet = Discussion.extend({
       var rType = this.topResultType(r);
       this.resultSubsets[rType].push(r);
     }, this);
+    //Sorting the ResultTree:
+    var roots = {};
+    _.each(results, function(result){
+      var foundParent = false;
+      _.each(roots, function(root, rootId){
+        if(root.isParent(result)){
+          root.pushChild(result);
+          foundParent = true;
+        }else if(root.isChild(result)){
+          result.pushChild(root);
+          delete roots[root.get('id')];
+        }
+      }, this);
+      if(!foundParent){
+        roots[result.get('id')] = result;
+      }
+    }, this);
     //Building the levels:
-    var rS = this.resultSubsets;
-    this.levels = [
-        rS['TwoValued']
-      , rS['Stable']
-      , rS['Preferred']
-      , rS['Grounded'].concat(rS['Complete'])
-      , rS['Admissible']]
-    //Checking parent/child relations for layered resultTypes:
-    var pcPairs = _.initial(_.zip(this.levels, _.tail(this.levels)));
-    _.each(pcPairs, function(pair){
-      var ps = pair[0], cs = pair[1];
-      _.each(ps, function(p){
-        _.each(cs, function(c){
-          if(p.isChild(c))
-            p.addChild(c);
+    this.levels = [];
+    roots = _.values(roots);
+    while(roots.length > 0){
+      this.levels.push(roots);
+      var cs = {};
+      _.each(roots, function(r){
+        _.each(r.children, function(c){
+          cs[c.get('id')] = c;
         }, this);
       }, this);
-    }, this);
+      roots = _.values(cs);
+    }
+//  var rS = this.resultSubsets;
+//  this.levels = [
+//      rS['TwoValued']
+//    , rS['Stable']
+//    , rS['Preferred']
+//    , rS['Grounded'].concat(rS['Complete'])
+//    , rS['Admissible']]
+//  //Checking parent/child relations for layered resultTypes:
+//  var pcPairs = _.initial(_.zip(this.levels, _.tail(this.levels)));
+//  _.each(pcPairs, function(pair){
+//    var ps = pair[0], cs = pair[1];
+//    _.each(ps, function(p){
+//      _.each(cs, function(c){
+//        if(p.isChild(c))
+//          p.addChild(c);
+//      }, this);
+//    }, this);
+//  }, this);
     //Saving results to the collection:
     this.results.reset(results);
   }

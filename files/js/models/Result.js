@@ -27,24 +27,52 @@ Result = Backbone.Model.extend({
 , childCount: function(){
     return _.keys(this.children).length;
   }
-// Testing if r is a child of this with respect to set inclusion
-, isChild: function(r){
-    if(r.get('id') === this.get('id'))
+// Testing if this is a child of p
+, isChild: function(p){
+    if(p.get('id') === this.get('id'))
       return false;
-    var ins  = _.keys(r.inSet)
-      , outs = _.keys(r.outSet);
+    var ins  = _.keys(this.inSet)
+      , outs = _.keys(this.outSet);
     for(var i = 0; i < ins.length; i++)
-      if(!(ins[i] in this.inSet))
+      if(!(ins[i] in p.inSet))
         return false;
     for(var i = 0; i < outs.length; i++)
-      if(!(outs[i] in this.inSet))
+      if(!(outs[i] in p.outSet))
         return false;
     return true;
   }
-// Adding r as a child to this
-, addChild: function(r){
-    this.children[r.get('id')] = r;
-    r.parents[this.get('id')]  = this;
+// Testing if this is a parent of c
+, isParent: function(c){
+    return c.isChild(this);
+  }
+// Adding c as a child to this
+, addChild: function(c){
+    this.children[c.get('id')] = c;
+    c.parents[this.get('id')]  = this;
+  }
+// Injecting c as child at deepest places:
+, pushChild: function(c){
+    var subChild = false;
+    _.each(this.children, function(x){
+      if(x.isParent(c)){
+        x.pushChild(c);
+        subChild = true;
+      }
+    }, this);
+    if(!subChild){
+      _.each(this.children, function(x){
+        if(x.isChild(c)){
+          this.removeChild(x);
+          c.pushChild(x);
+        }
+      }, this);
+      this.addChild(c);
+    }
+  }
+// Removing r as a child on this
+, removeChild: function(c){
+    delete this.children[c.get('id')];
+    delete c.parents[this.get('id')];
   }
 /*
   @param ridLookup :: ResultId -> String
@@ -61,5 +89,19 @@ Result = Backbone.Model.extend({
     if(ret === "")
       return "∅";
     return "{"+ret+"}";
+  }
+, showSetTree: function(lookup){
+    var set = this.get('id')+'@'+this.showSet(lookup);
+    var cSets = _.map(_.values(this.children), function(c){
+      return c.showSetTree(lookup);
+    }, this);
+    if(cSets.length === 0)
+      return set;
+    return '('+set+'|'+cSets.join(', ')+')';
+  }
+, showChildren: function(){
+    var p = this.get('id');
+    var cs = _.keys(this.children).join(', ')
+    console.log(p+' -> '+cs);
   }
 });

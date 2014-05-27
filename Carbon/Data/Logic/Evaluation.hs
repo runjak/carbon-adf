@@ -14,6 +14,7 @@ import Control.Concurrent
 import Control.Concurrent.STM (TVar)
 import Control.Monad
 import Data.Map (Map)
+import System.Directory (removeFile)
 import qualified Control.Concurrent.STM as STM
 import qualified Data.Map as Map
 import qualified System.Process as Process
@@ -22,7 +23,6 @@ import Carbon.Config
 import Carbon.Data.Logic.Diamond
 import qualified Carbon.Data.Logic as Logic
 
--- FIXME introduce a config setting to decide if the file should be deleted afterwards.
 run :: Config -> FilePath -> String -> IO (Results String)
 run conf path content = do
   let rTypes = diamondEval conf
@@ -30,7 +30,9 @@ run conf path content = do
   state <- mkState $ length rTypes
   watchDog state
   mapM_ (runSingle conf state path) rTypes
-  liftM merge $ awaitFinish state
+  results <- liftM merge $ awaitFinish state
+  when (deleteAfterEval conf) $ removeFile path
+  return results
   where
     merge :: [Results String] -> Results String
     merge = Results . Map.toList . foldl go Map.empty

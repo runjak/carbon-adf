@@ -24,6 +24,25 @@ SingleResultViewGraph = Backbone.View.extend({
   }
 , render: function(){
     console.log('SingleResultViewGraph.render()');
+    //FIXME DEBUG BELOW:
+    var dbg  = '';
+    var herp = this.model.getResultIdNameLookup();
+    _.each(this.model.levels, function(lvl){
+      var row = _.map(lvl, function(r){
+        return r.showSet(herp);
+      }, this);
+      dbg += row.join(', ')+'\n';
+    }, this);
+    console.log(dbg);
+    this.model.results.each(function(r){
+      console.log(r.showSet(herp)+' '+r.showSet()+' '+r.get('id'));
+    });
+    this.model.results.each(function(r){
+      r.showChildren();
+    });
+    console.log('debugEnd');
+    //return this;
+    //FIXME DEBUG ABOVE!
     //We reuse DiscussionGraphView.resize for our own canvas:
     window.App.views.singleDiscussionView.discussionGraphView.resize.call(this);
     //Cleaning the canvas:

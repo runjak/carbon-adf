@@ -13,6 +13,7 @@ Build-Depends:  aeson
               , bytestring
               , containers
               , convertible
+              , directory
               , happstack-server
               , HDBC, HDBC-postgresql
               , hinotify

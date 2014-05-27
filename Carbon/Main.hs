@@ -15,6 +15,7 @@ import Carbon.Data.Id
 --import qualified Carbon.Backend.Logic   as BLogic
 import qualified Carbon.Data.Logic as Logic
 import qualified Carbon.Data.Logic.Evaluation as Evaluation
+import qualified Carbon.Data.ResultSet as ResultSet
 import qualified Carbon.Main.Reflection as Reflection
 import qualified Carbon.Website as Web (serve)
 
@@ -78,6 +79,9 @@ parseD c input = withConfig c $ \conf -> do
   results <- Evaluation.run conf fName fData
   putStrLn "Results obtained from Evaluation.run:"
   print results
+  putStrLn "Converted Results:"
+  let rSet = ResultSet.fromResults $ fmap read results
+  mapM_ print $ ResultSet.results rSet
 
 {-|
   Normal running webservice
