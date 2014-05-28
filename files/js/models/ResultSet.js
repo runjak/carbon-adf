@@ -56,53 +56,34 @@ ResultSet = Discussion.extend({
       this.resultSubsets[rType].push(r);
     }, this);
     //Sorting the ResultTree:
-    var roots = {};
-    _.each(results, function(result){
-      var foundParent = false;
-      _.each(roots, function(root, rootId){
-        if(root.isParent(result)){
-          root.pushChild(result);
-          foundParent = true;
-        }else if(root.isChild(result)){
-          result.pushChild(root);
-          delete roots[root.get('id')];
+    _.each(results, function(x){
+      _.each(results, function(y){
+        if(x.isParent(y)){
+          x.pushChild(y);
         }
       }, this);
-      if(!foundParent){
-        roots[result.get('id')] = result;
+    }, this);
+    //Finding the roots:
+    var roots = [];
+    //We start with results without children:
+    _.each(results, function(r){
+      if(_.keys(r.children).length === 0){
+        roots.push(r);
       }
     }, this);
     //Building the levels:
     this.levels = [];
-    roots = _.values(roots);
     while(roots.length > 0){
       this.levels.push(roots);
-      var cs = {};
+      var ps = {};
       _.each(roots, function(r){
-        _.each(r.children, function(c){
-          cs[c.get('id')] = c;
+        _.each(r.parents, function(p){
+          ps[p.get('id')] = p;
         }, this);
       }, this);
-      roots = _.values(cs);
+      roots = _.values(ps);
     }
-//  var rS = this.resultSubsets;
-//  this.levels = [
-//      rS['TwoValued']
-//    , rS['Stable']
-//    , rS['Preferred']
-//    , rS['Grounded'].concat(rS['Complete'])
-//    , rS['Admissible']]
-//  //Checking parent/child relations for layered resultTypes:
-//  var pcPairs = _.initial(_.zip(this.levels, _.tail(this.levels)));
-//  _.each(pcPairs, function(pair){
-//    var ps = pair[0], cs = pair[1];
-//    _.each(ps, function(p){
-//      _.each(cs, function(c){
-//        if(p.isChild(c))
-//          p.addChild(c);
-//      }, this);
-//    }, this);
-//  }, this);
+    this.levels.reverse();
     //Saving results to the collection:
     this.results.reset(results);
   }

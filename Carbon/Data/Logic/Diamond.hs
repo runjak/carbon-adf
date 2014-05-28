@@ -8,7 +8,7 @@ module Carbon.Data.Logic.Diamond(
 
 import Control.Arrow (second)
 import Data.Function (on)
-import Data.List (nub)
+import qualified Data.List as List
 
 import Carbon.Common
 import Carbon.Data.Id
@@ -46,14 +46,13 @@ implications Stable     = Stable    : implications Preferred
 implications TwoValued  = TwoValued : implications Stable
 
 {-| Instance declarations: |-}
-instance Eq a => Eq (DiamondResult a) where
-  d1 == d2 =
-    let i  = inSet   d1 == inSet   d2
-        u  = udecSet d1 == udecSet d2
-        o  = outSet  d1 == outSet  d2
-    in (i && u && o)
+instance Ord a => Eq (DiamondResult a) where
+  d1 == d2 = let c  = (==) `on` List.sort
+                 cI = c `on` inSet
+                 cO = c `on` outSet
+             in (cI d1 d2 && cO d1 d2)
 
-instance Eq a => Eq (Results a) where
+instance Ord a => Eq (Results a) where
   (Results r1) == (Results r2) = r1 == r2
 
 instance Ord a => Ord (DiamondResult a) where

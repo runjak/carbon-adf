@@ -2,7 +2,7 @@
 module Carbon.Data.ResultSet where
 
 import Control.Applicative
-import Control.Arrow (second)
+import Control.Arrow (first, second)
 import Control.Monad
 import Data.Aeson ((.=), ToJSON(..), object, FromJSON(..), Value(..), (.:))
 import Data.Aeson.Types (Parser)
@@ -36,18 +36,26 @@ data ResultSet = ResultSet {
 , voters      :: [(UserId, Voted)]
 } deriving (Show, Read, Eq, Ord)
 
+type ThreeSet = (Set ItemId, Set ItemId, Set ItemId)
 fromResults :: Results ItemId -> ResultSet
 fromResults (Results rs) =
-  let go = map (uncurry mkResult) . Map.toList . mkMap . expand . swap :: [(ResultType, [DiamondResult ItemId])] -> [Result]
-  in mempty <+ go rs
+  let drMap = mkMap . map (first drToSets) $ swapExpand rs :: Map ThreeSet (Set ResultType)
+      go    = map (uncurry mkResult . first setsToDr) . Map.toList :: Map ThreeSet (Set ResultType) -> [Result]
+  in mempty <+ go drMap
   where
-    swap :: [(a, b)] -> [(b, a)]
-    swap = map (\(a,b) -> (b,a))
+    swapExpand :: [(ResultType, [DiamondResult ItemId])] -> [(DiamondResult ItemId, ResultType)]
+    swapExpand = concatMap (\(b, as) -> zip as $ repeat b)
 
-    expand :: [([a], b)] -> [(a, b)]
-    expand = concatMap (\(as, b) -> zip as $ repeat b)
+    drToSets :: DiamondResult ItemId -> ThreeSet
+    drToSets dr = let is = Set.fromList $ inSet   dr
+                      us = Set.fromList $ udecSet dr
+                      os = Set.fromList $ outSet  dr
+                  in (is, us, os)
 
-    mkMap :: (Ord k, Ord v) => [(k, v)] -> Map k (Set v)
+    setsToDr :: ThreeSet -> DiamondResult ItemId
+    setsToDr (is, us, os) = DiamondResult (Set.toList is) (Set.toList us) $ Set.toList os
+
+    mkMap :: [(ThreeSet, ResultType)] -> Map ThreeSet (Set ResultType)
     mkMap = Map.fromListWith Set.union . map (second $ Set.fromList . return)
 
     mkResult :: DiamondResult ItemId -> Set ResultType -> Result
