@@ -250,6 +250,12 @@ DiscussionGraphView = SpringyRenderer.extend({
     args.each(function(i){
       var iid = i.get('id');
       if(iid in t.idNodeSet){ // Noting nodes that are kept:
+        if(c = i.get('condition')){ // Updating existing node:
+          var data = t.graph.nodeSet[iid].data;
+          data.formula = c.formula;
+          if(ps = c.proofStandard)
+            data.color = t.colors[ps];
+        }
         currentNodes[iid] = true;
         return;
       }
