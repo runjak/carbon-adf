@@ -128,7 +128,7 @@ CreateDiscussionView = Hideable.extend({
     this.$('#CreateDiscussionViewDescription').val(description.summary);
     m.modify('discussion', {id: -1, participants: [window.App.login.get('id')]});
   }
-, openGraphView: function(){ // FIXME this should be changed, possibly.
+, openGraphView: function(){
     window.App.views.discussionGraphView.setModel(this.model);
   }
 });

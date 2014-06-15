@@ -63,28 +63,6 @@ ResultSet = Discussion.extend({
         }
       }, this);
     }, this);
-    //Finding the roots:
-    var roots = [];
-    //We start with results without children:
-    _.each(results, function(r){
-      if(_.keys(r.children).length === 0){
-        roots.push(r);
-      }
-    }, this);
-    //Building the levels:
-    this.levels = [];
-    while(roots.length > 0){
-      this.levels.push(roots);
-      var ps = {};
-      _.each(roots, function(r){
-        _.each(r.parents, function(p){
-          ps[p.get('id')] = p;
-        }, this);
-      }, this);
-      roots = _.values(ps);
-    }
-    this.levels.reverse();
-    //Saving results to the collection:
     this.results.reset(results);
   }
 , updateVoters: function(){

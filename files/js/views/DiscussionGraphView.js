@@ -90,7 +90,7 @@ DiscussionGraphView = SpringyRenderer.extend({
       var item = n.data.item;
       var id = item.get('id');
       if(item.get('description') === null){
-        console.log('Maderschaden!');
+        console.log('Found an item with an empty description in DiscussionGraphView.removeNode()!');
         console.log(item);
       }
       var h = item.get('description').headline;
