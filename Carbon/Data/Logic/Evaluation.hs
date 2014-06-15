@@ -11,7 +11,7 @@ module Carbon.Data.Logic.Evaluation(
   4.: The concurrent outputs are gathered and returned.
 -}
 import Control.Concurrent
-import Control.Concurrent.STM (TVar)
+import Control.Concurrent.STM (TVar, STM)
 import Control.Monad
 import Data.Map (Map)
 import System.Directory (removeFile)
@@ -22,6 +22,9 @@ import qualified System.Process as Process
 import Carbon.Config
 import Carbon.Data.Logic.Diamond
 import qualified Carbon.Data.Logic as Logic
+
+modifyTVar :: TVar a -> (a -> a) -> STM ()
+modifyTVar t f = STM.writeTVar t =<< liftM f (STM.readTVar t)
 
 run :: Config -> FilePath -> String -> IO (Results String)
 run conf path content = do
@@ -61,7 +64,7 @@ run conf path content = do
 runSingle :: Config -> State -> FilePath -> ResultType -> IO ()
 runSingle conf state path rType = void . forkIO $ do
   tId <- myThreadId
-  STM.atomically $ STM.modifyTVar (threads state) (tId:)
+  STM.atomically $ modifyTVar (threads state) (tId:)
   let call = diamondCall conf
       parm = diamondParams conf Map.! rType ++ [path]
       proc = Process.proc call parm
@@ -71,16 +74,16 @@ runSingle conf state path rType = void . forkIO $ do
     onError :: ThreadId -> String -> IO ()
     onError tId e = do
       STM.atomically $ do
-        STM.modifyTVar (threads state) (filter (tId /=))
-        STM.modifyTVar (tCount state) $ subtract 1
+        modifyTVar (threads state) (filter (tId /=))
+        modifyTVar (tCount state) $ subtract 1
       mapM_ putStrLn ["Could not parse diamond output for discussion \""++path++"\":",e]
 
     onResult :: ThreadId -> ResultType -> [Logic.Answer] -> IO ()
     onResult tId rType answers = STM.atomically $ do
       let r = Results [(rType, answers)]
-      STM.modifyTVar (threads state) $ filter (tId /=)
-      STM.modifyTVar (tCount  state) $ subtract 1
-      STM.modifyTVar (results state) (r :)
+      modifyTVar (threads state) $ filter (tId /=)
+      modifyTVar (tCount  state) $ subtract 1
+      modifyTVar (results state) (r :)
 
 -- | The shared state for all threads:
 data State = State {
