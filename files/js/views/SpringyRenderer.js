@@ -40,7 +40,7 @@ SpringyRenderer = Backbone.View.extend({
       view.dragged = null;
     });
     //Extending Springy.Node:
-    Springy.Node.prototype.getWidth = function() {
+    Springy.Node.prototype._getWidth = function() {
       var ctx = view.ctx;
       //Finding the longest text; we don't care that id might be longer than label.
       var text = _.max([this.data.label, this.id, this.data.formula], function(t){
@@ -64,7 +64,7 @@ SpringyRenderer = Backbone.View.extend({
       //Finished.
       return width;
     };
-    Springy.Node.prototype.getHeight = function() {
+    Springy.Node.prototype._getHeight = function() {
       if(this.data.formula)
         return 40;
       return 20;
@@ -128,8 +128,8 @@ SpringyRenderer = Backbone.View.extend({
     var s1 = this.toScreen(p1).add(offset);
     var s2 = this.toScreen(p2).add(offset);
 
-    var boxWidth = edge.target.getWidth();
-    var boxHeight = edge.target.getHeight();
+    var boxWidth = edge.target._getWidth();
+    var boxHeight = edge.target._getHeight();
 
     var intersection = this.intersect_line_box(s1, s2, {x: x2-boxWidth/2.0, y: y2-boxHeight/2.0}, boxWidth, boxHeight);
     if(!intersection){
@@ -196,12 +196,21 @@ SpringyRenderer = Backbone.View.extend({
     var s = this.toScreen(p);
     ctx.save();
     //Node size:
-    var boxWidth  = node.getWidth();
-    var boxHeight = node.getHeight();
+    var boxWidth  = node._getWidth();
+    var boxHeight = node._getHeight();
     //Clear background
     ctx.clearRect(s.x - boxWidth/2, s.y - boxHeight/2, boxWidth, boxHeight);
     //Filling Background:
-    if(node.data.color){
+    if(node.data.item.resultLabel !== null){
+      var label = node.data.item.resultLabel;
+      if(label === 'in'){
+        ctx.fillStyle = this.colors.accepted;
+      }else if(label === 'out'){
+        ctx.fillStyle = this.colors.rejected;
+      }else if(label === 'udec'){
+        ctx.fillStyle = this.colors.undecided;
+      }
+    }else if(node.data.color){
       ctx.fillStyle = node.data.color;
     }else if(selected !== null && selected.node !== null && selected.node.id === node.id){
       ctx.fillStyle = "#FFFFE0";

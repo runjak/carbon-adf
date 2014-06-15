@@ -1,12 +1,12 @@
 DiscussionGraphView = SpringyRenderer.extend({
   events: {
-    "click #DiscussionGraphViewHideRest": "hideRest"
+    "click #DiscussionGraphViewHideRest":     "hideRest"
   , "click #DiscussionGraphViewToggleEngine": "toggleEngine"
-  , "click #DiscussionGraphViewAddNode": "addDummyNode"
-  , "click #DiscussionGraphViewRemoveNode": "removeNode"
-  , "click #AddRelationAttack": "addRelationAttack"
-  , "click #AddRelationDefend": "addRelationDefend"
-  , "click #DiscussionGraphViewClearClick": "clearClick"
+  , "click #DiscussionGraphViewAddNode":      "addDummyNode"
+  , "click #DiscussionGraphViewRemoveNode":   "removeNode"
+  , "click #AddRelationAttack":               "addRelationAttack"
+  , "click #AddRelationDefend":               "addRelationDefend"
+  , "click #DiscussionGraphViewClearClick":   "clearClick"
   }
 , initialize: function(){
     var view = this;
@@ -17,10 +17,13 @@ DiscussionGraphView = SpringyRenderer.extend({
     this.idNodeSet = {};
     this.idEdgeSet = {};
     this.springySetup();
+    //subview:
+    this.discussionGraphResultView = new DiscussionGraphResultView({
+      model: this.model, el: this.$('#SingleDiscussionViewGraphResults')
+    });
   }
 , setModel: function(m){
-    //FIXME uncomment this when it's time again.
-    //this.discussionGraphResultView.setModel(m);
+    this.discussionGraphResultView.setModel(m);
     if(this.model){
       this.model.discussion.arguments.off(null, null, this);
       this.model.discussion.relations.off(null, null, this);
@@ -39,6 +42,13 @@ DiscussionGraphView = SpringyRenderer.extend({
       this.model.discussion.relations.on('reset add remove', this.updateEdges, this);
       this.updateNodes().updateEdges().renderer.start();
       window.App.dummyItemFactory.reset(m);
+      //Handling possible evaluation:
+      var menu = this.$('form .graphmenu');
+      if(this.model.isEvaluated()){
+        menu.hide();
+      }else{
+        menu.show();
+      }
     }
     // Initially setting the size whenever we get a new model
     this.resize();
@@ -181,7 +191,6 @@ DiscussionGraphView = SpringyRenderer.extend({
   }
 //Listening for keybord inputs:
 , keyboard:  function(e){
-    return;//FIXME keyboard disabled for debugging reasons.
     if(!this.$el.is(':visible')) return;
     if(!this.useKeyboard) return;
     switch(e.keyCode){
@@ -189,12 +198,15 @@ DiscussionGraphView = SpringyRenderer.extend({
         this.clearClick();
       break;
       case 65: // A
+        if(this.model.isEvaluated()) return;
         this.addRelationAttack();
       break;
       case 68: // D
+        if(this.model.isEvaluated()) return;
         this.addRelationDefend();
       break;
       case 78: // N
+        if(this.model.isEvaluated()) return;
         this.addDummyNode();
       break;
       case 72: // H
@@ -202,11 +214,15 @@ DiscussionGraphView = SpringyRenderer.extend({
       break;
       case 82: // R
         this.toggleEngine();
-// FIXME commented because of reasons.
-//      e.shiftKey ? this.discussionGraphResultView.prev()
-//                 : this.discussionGraphResultView.next();
+      break;
+      case 188: // <
+        this.discussionGraphResultView.prev();
+      break;
+      case 190: // >
+        this.discussionGraphResultView.next();
       break;
       case 88: // X
+        if(this.model.isEvaluated()) return;
         this.removeNode();
       break;
       default:

@@ -5,10 +5,12 @@ DiscussionArticleView = Backbone.View.extend({
 , render: function(){
     var el = this.$('tbody').empty();
     if(this.model){
-      var as = this.model.discussion.arguments;
+      var as   = this.model.discussion.arguments
+        , eval = this.model.isEvaluated();
       if(as.length === 0){
         el.append('<tr><td colspan="4">There are currently no articles in this Discussion.</td></tr>');
       }else{
+        var disabled = eval ? ' disabled="disabled"' : '';
         as.map(function(a){
           var id          = a.get('id');
           var description = $.extend({headline: '', summary: ''}, a.get('description'));
@@ -17,7 +19,7 @@ DiscussionArticleView = Backbone.View.extend({
           el.append('<tr><td>'+id+'</td>'
                    +'<td><a href="#/article/'+id+'">'+headline+'</a></td>'
                    +'<td>'+summary+'</td>'
-                   +'<td><button class="removeFromDiscussion" data-id="'+id+'">'
+                   +'<td><button class="removeFromDiscussion" data-id="'+id+'"'+disabled+'>'
                      +'<i class="icon-trash"></i>Remove from Discussion'
                    +'</button></td></tr>');
         });

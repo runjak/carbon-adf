@@ -20,7 +20,8 @@ DiscussionView = Hideable.extend({
       var head = desc.headline;
       var summ = desc.summary;
       var crea = d.get('creation');
-      rows += '<tr>'
+      var eval = d.isEvaluated() ? 'success' : 'error';
+      rows += '<tr class="'+eval+'">'
             + '<td>'+did+'</td>'
             + '<td><a href="#/discussion/'+did+'">'+head+'</a></td>'
             + '<td>'+summ+'</td>'

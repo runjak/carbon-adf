@@ -47,9 +47,6 @@ defaultComposition = Composition {
         , ("[[SingleDiscussionViewGraph]]", Composition {
             baseFile = "files/html/SingleDiscussionViewGraph.html"
           , replacements = []})
-        , ("[[SingleDiscussionViewResults]]", Composition {
-            baseFile = "files/html/SingleDiscussionViewResults.html"
-          , replacements = []})
         , ("[[SingleDiscussionViewParticipants]]", Composition {
             baseFile = "files/html/SingleDiscussionViewParticipants.html"
           , replacements = []})

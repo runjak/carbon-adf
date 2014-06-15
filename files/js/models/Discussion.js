@@ -193,4 +193,8 @@ Discussion = DateObject.extend({
       return idNameMap[rId] || '#'+rId;
     };
   }
+, isEvaluated: function(){
+    var rSet = this.get('resultSet');
+    return (rSet !== null && typeof(rSet) !== 'undefined');
+  }
 });

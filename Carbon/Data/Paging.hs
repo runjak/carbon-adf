@@ -5,40 +5,43 @@ import Control.Applicative
 import Control.Monad
 import Data.Aeson ((.=), ToJSON(..), object, FromJSON(..), Value(..), (.:))
 import qualified Data.Aeson as Aeson
+import qualified Data.Maybe as Maybe
 
+import Carbon.Common
 import Carbon.Data.Alias
 import Carbon.Data.Json (merge)
 
 data Paging = Paging {
-  isArticle    :: Bool
-, isDeleted    :: Bool
-, isDiscussion :: Bool
-, isRelation   :: Bool
-, isResult     :: Bool
+  isArticle    :: Maybe Bool
+, isDeleted    :: Maybe Bool
+, isDiscussion :: Maybe Bool
+, isRelation   :: Maybe Bool
+, isResult     :: Maybe Bool
 , limit        :: Count
 , offset       :: Count
 } deriving (Show, Read, Eq, Ord)
 
 defaultPaging = Paging {
-  isArticle    = False
-, isDeleted    = False
-, isDiscussion = False
-, isRelation   = False
-, isResult     = False
+  isArticle    = Just False
+, isDeleted    = Just False
+, isDiscussion = Just False
+, isRelation   = Just False
+, isResult     = Just False
 , limit        = 30
 , offset       = 0
 }
 
 instance ToJSON Paging where
-  toJSON p = object [
-      "isArticle"    .= isArticle p
-    , "isDeleted"    .= isDeleted p
-    , "isDiscussion" .= isDiscussion p
-    , "isRelation"   .= isRelation p
-    , "isResult"     .= isResult p
-    , "limit"        .= limit p
-    , "offset"       .= offset p
-    ]
+  toJSON p = let mkPair k v = Maybe.isJust v ? ([k .= Maybe.fromJust v],[])
+                 article    = mkPair "isArticle"    $ isArticle    p
+                 deleted    = mkPair "isDeleted"    $ isDeleted    p
+                 discussion = mkPair "isDiscussion" $ isDiscussion p
+                 relation   = mkPair "isRelation"   $ isRelation   p
+                 result     = mkPair "isResult"     $ isResult     p
+             in object $ [
+                  "limit"  .= limit  p
+                , "offset" .= offset p
+                ] ++ concat [article, deleted, discussion, relation, result]
 
 instance FromJSON Paging where
   parseJSON o'@(Object _) = let (Object o) = merge o' $ toJSON defaultPaging

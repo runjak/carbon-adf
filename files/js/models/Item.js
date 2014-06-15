@@ -23,6 +23,8 @@ Item = ResultSet.extend({
   , canCommit: false // Needs to be set to true, to enable saving the Item via commit.
   }
 , initialize: function(){
+    //Label for Result:applyTo:
+    this.resultLabel = null;
     //Calling the super constructor:
     ResultSet.prototype.initialize.apply(this, arguments);
   }

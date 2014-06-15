@@ -1,9 +1,4 @@
 ------------------------
-|      2014-05-28      |
-------------------------
-- The JavaScript rendering appears to still have a possible bug.
-
-------------------------
 |      2014-05-27      |
 ------------------------
 - Maybe discuss the STM issue on Stackoverflow
@@ -13,7 +8,6 @@
 ------------------------
 - Next step shall be adding interaction to resultView.
   - Later on I should bring back modals to discussions.
-- Try adding to the speed of CARBON by using Text instead of String where possible.
 
 ------------------------
 |      2014-04-14      |
@@ -46,9 +40,3 @@
   to integrate it together with ResultPresentation and Voting into the App.
   - Also Carbon.Website.Item:evaluation should add the current participants as voters of the resultSet
     before saving it.
-
-------------------------
-|      2013-11-20      |
-------------------------
-- Information ordering mit Raphael.js für Result sets in Discussion
-  - Siehe paper von Stefan (Poster über ~emmlauthaler)

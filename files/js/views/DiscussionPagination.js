@@ -8,6 +8,6 @@ DiscussionPagination = Pagination.extend({
     });
   }
 , createPager: function(){
-    return new ItemPager({isDiscussion: true});
+    return new ItemPager({isDiscussion: true, isResult: null});
   }
 });

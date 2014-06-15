@@ -1,41 +1,40 @@
 {-# LANGUAGE RankNTypes #-}
 module Carbon.Backend.PostgreSQL.Paging where
 
+import qualified Data.List  as List
+import qualified Data.Maybe as Maybe
+
 import Carbon.Backend.PostgreSQL.Common
 import Carbon.Backend.PostgreSQL.Conversion
 
 itemCount :: Paging -> Query Count
 itemCount p conn = do
-  let q = "SELECT COUNT(itemid) FROM items "
-        ++"WHERE (articleid IS NOT NULL) = ? "
-        ++"AND (deletion IS NOT NULL) = ? "
-        ++"AND (discussionid IS NOT NULL) = ? "
-        ++"AND (relationid IS NOT NULL) = ? "
-        ++"AND (resultsetid IS NOT NULL) = ?"
-  [[c]] <- quickQuery' conn q [ toSql $ isArticle p
-                              , toSql $ isDeleted p
-                              , toSql $ isDiscussion p
-                              , toSql $ isRelation p
-                              , toSql $ isResult p]
+  let (whr, vals) = mkWhere p
+      q           = "SELECT COUNT(itemid) FROM items " ++ whr
+  [[c]] <- quickQuery' conn q vals
   return $ fromSql c
 
 pageItems :: Paging -> Query [ItemId]
-pageItems p conn = do
-  let q = "SELECT itemid FROM items "
-        ++"WHERE (articleid IS NOT NULL) = ? "
-        ++"AND (deletion IS NOT NULL) = ? "
-        ++"AND (discussionid IS NOT NULL) = ? "
-        ++"AND (relationid IS NOT NULL) = ? "
-        ++"AND (resultsetid IS NOT NULL) = ? "
-        ++"ORDER BY creation DESC LIMIT ? OFFSET ?"
-  is <- quickQuery' conn q [ toSql $ isArticle p
-                           , toSql $ isDeleted p
-                           , toSql $ isDiscussion p
-                           , toSql $ isRelation p
-                           , toSql $ isResult p
-                           , toSql $ limit p
-                           , toSql $ offset p]
+pageItems p conn  = do
+  let (whr, vals) = mkWhere p
+      vals'       = vals++[toSql $ limit p, toSql $ offset p]
+      q           = "SELECT itemid FROM items " ++ whr
+                  ++"ORDER BY creation DESC LIMIT ? OFFSET ?"
+  is <- quickQuery' conn q vals'
   return $ map (fromSql . head) is
+
+mkWhere :: Paging -> (String, [SqlValue])
+mkWhere p = let chk s v    = Maybe.isJust v ? (Just s, Nothing)
+                article    = chk "(articleid IS NOT NULL) = ? "    $ isArticle    p
+                deletion   = chk "(deletion IS NOT NULL) = ? "     $ isDeleted    p
+                discussion = chk "(discussionid IS NOT NULL) = ? " $ isDiscussion p
+                relation   = chk "(relationid IS NOT NULL) = ? "   $ isRelation   p
+                result     = chk "(resultsetid IS NOT NULL) = ? "  $ isResult     p
+                preds      = [article, deletion, discussion, relation, result]
+                preds'     = List.intercalate " AND " $ Maybe.catMaybes preds
+                preds''    = null preds' ? ("", "WHERE "++preds'++" ")
+                vals       = map toSql $ Maybe.mapMaybe ($ p) [isArticle, isDeleted, isDiscussion, isRelation, isResult]
+            in (preds'', vals)
 
 userCount :: Query Count
 userCount conn = do

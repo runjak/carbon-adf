@@ -1,6 +1,5 @@
 SingleResultViewGraph = Backbone.View.extend({
   initialize: function(){
-    window.foo   = this; // FIXME DEBUG
     this.graph   = new Springy.Graph();
     this.$canvas = this.$('canvas');
     this.canvas  = this.$canvas.get(0);

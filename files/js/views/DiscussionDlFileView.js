@@ -27,6 +27,11 @@ DiscussionDlFileView = Backbone.View.extend({
     if(acs){
       this.div.show();
       this.code.html(acs);
+      if(this.model && this.model.isEvaluated()){
+        this.$('form').hide();
+      }else{
+        this.$('form').show();
+      }
     }else{
       this.div.hide();
       this.code.html('');

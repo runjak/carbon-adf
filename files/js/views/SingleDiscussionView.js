@@ -2,7 +2,8 @@ SingleDiscussionView = Hideable.extend({
   events: {'click #SingleDiscussionViewEvaluate': 'discussionEvaluate'}
 , initialize: function(){
     this.HideTarget = this.$el.parent();
-    this.resultsTab = this.$('#SingleDiscussionViewResultsTab');
+    this.evalButton = this.$('#SingleDiscussionViewEvaluate');
+    this.hideTabs   = this.$('#SingleDiscussionViewTabs').find('[data-tabname="collected"], [data-tabname="participants"]');
     this.discussionArticleView = new DiscussionArticleView({el: this.$('#SingleDiscussionViewArticles')});
     this.discussionCollectedView = new DiscussionCollectedView({
       el:    this.$('#SingleDiscussionViewCollected')
@@ -56,9 +57,20 @@ SingleDiscussionView = Hideable.extend({
       this.$('.deletion').html(deletion);
       this.$('.deadline').html(disc.deadline);
       this.$('summary').html(desc.summary);
-//FIXME debug
-//    this.model.results.hasResults() ? this.resultsTab.show()
-//                                    : this.resultsTab.hide();
+      //Show/hide depending on evaluation:
+      if(this.model.isEvaluated()){
+        this.evalButton.text('Discussion already evaluated')
+                       .addClass('btn-danger')
+                       .removeClass('btn-success')
+                       .attr('disabled', 'disabled');
+        this.hideTabs.hide();
+      }else{
+        this.evalButton.text('Evaluate Discussion')
+                       .addClass('btn-success')
+                       .removeClass('btn-danger')
+                       .removeAttr('disabled');
+        this.hideTabs.show();
+      }
     }else{
       this.$('h1').html('Discussion not found!');
       this.$('.creation, .deletion, .deadline').html('');
@@ -114,6 +126,7 @@ SingleDiscussionView = Hideable.extend({
     window.App.router.navigate('discussion/'+did+'/'+tab);
   }
 , discussionEvaluate: function(){
+    if(this.model.isEvaluated()) return;
     alert('Evaluating the discussion…');
     var t = this
       , tid = null

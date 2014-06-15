@@ -139,4 +139,19 @@ Result = Backbone.Model.extend({
 , removeParent: function(p){
     p.removeChild(this);
   }
+// the applyTo function marks all articles in a given discussion according to the result:
+, applyTo: function(d){  
+    var result = this;
+    d.discussion.arguments.each(function(a){
+      var aId = a.get('id');
+      if(aId in result.inSet){
+        a.resultLabel = 'in';
+      }else if(aId in result.outSet){
+        a.resultLabel = 'out';
+      }else if(aId in result.udecSet){
+        a.resultLabel = 'udec';
+      }
+    });
+    App.views.singleDiscussionView.discussionGraphView.render();
+  }
 });

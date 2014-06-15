@@ -10,14 +10,14 @@
       title="Toggle automatic renderer. (r)">
       <i class="icon-picture"></i>
     </button>
-    <div class="btn-group">
+    <div class="btn-group graphmenu">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" title="Add/Remove a node"><i class="icon-asterisk"></i><span class="caret"></span></a>
       <ul class="dropdown-menu">
         <li><a id="DiscussionGraphViewAddNode"><i class="icon-plus"></i> Add a node (n)</a></li>
         <li><a id="DiscussionGraphViewRemoveNode"><i class="icon-minus"></i> Remove a node (x)</a></li>
       </ul>
     </div>
-    <div class="btn-group">
+    <div class="btn-group graphmenu">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" title="Add a relation"><i class="icon-arrow-right"></i><span class="caret"></span></a>
       <ul class="dropdown-menu">
         <li><a id="AddRelationAttack">Attack (a)</a></li>
@@ -29,23 +29,15 @@
         Result sets:
         <select id="ResultSets"></select>
       </label>
-      <label>
-        Current Result:
-        <select id="ResultSet"></select>
-      </label>
       <div class="btn-group">
         <button type="button" class="btn btn-info"
           id="DiscussionGraphResultViewPrev"
-          title="Display the previous result. (R)">
+          title="Display the previous result. (<)">
           <i class="icon-step-backward"></i>
-        <button type="button" class="btn btn-danger"
-          id="DiscussionGraphresultViewLike">
-          <i class="icon-star"></i>
-        </button>
         </button>
         <button type="button" class="btn btn-info"
           id="DiscussionGraphResultViewNext"
-          title="Display the next result. (r)">
+          title="Display the next result. (>)">
           <i class="icon-step-forward"></i>
         </button>
       </div>
