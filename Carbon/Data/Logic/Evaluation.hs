@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 module Carbon.Data.Logic.Evaluation(
   run
 )where
@@ -23,8 +24,12 @@ import Carbon.Config
 import Carbon.Data.Logic.Diamond
 import qualified Carbon.Data.Logic as Logic
 
+#if MIN_VERSION_stm(2, 3, 0)
+modifyTVar = STM.modifyTVar
+#else
 modifyTVar :: TVar a -> (a -> a) -> STM ()
 modifyTVar t f = STM.writeTVar t =<< liftM f (STM.readTVar t)
+#endif
 
 run :: Config -> FilePath -> String -> IO (Results String)
 run conf path content = do
