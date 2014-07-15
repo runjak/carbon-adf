@@ -38,7 +38,7 @@ Item = ResultSet.extend({
     return this.modify('condition', {'proofStandard': ps, formula: null});
   }
 , setFormula: function(f){
-    return this.modify('condition', {'proofStandard': null, 'formula': f});
+    return this.modify('condition', {'proofStandard': '', 'formula': f});
   }
 , setRelation: function(source, target, rType){
     return this.modify('relation', {'source': source, 'target': target, 'relationType': rType});
@@ -47,6 +47,7 @@ Item = ResultSet.extend({
   @param attr String
   @param obj Object
   @param [silent = false] Bool
+  @return this Item Item is returned to enable chaining.
   Inspired from the Haskell State Monad,
   this function gets an attribute,
   extends it with a given object,

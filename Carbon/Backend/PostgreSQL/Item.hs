@@ -171,7 +171,7 @@ setItem i conn = do
                 , ResultSet.setResultSet
                 ]
       perform (Right i) a = a conn i
-      perform l _ = return l
+      perform l _         = return l
   foldM perform (Right i) actions
   where
     -- Makes sure we've got an Id, and that the basic attributes of Item are stored.

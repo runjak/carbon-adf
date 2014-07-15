@@ -34,12 +34,12 @@ instance Eq l => Eq (AcceptanceCondition l) where
 
 instance FromJSON (AcceptanceCondition String) where
   parseJSON (Object v) = do
-    let setI ac i = ac{acceptanceConditionId = Just i}
+    let setI ac i  = ac{acceptanceConditionId = Just i}
         setPS ac p = ac{proofStandard = Just p}
-        setF ac f = ac{formula = f}
-        parseI ac = msum [liftM (setI ac) (v .: "id"), return ac]
+        setF ac f  = ac{formula = f}
+        parseI ac  = msum [liftM (setI ac)  (v .: "id"),            return ac]
         parsePS ac = msum [liftM (setPS ac) (v .: "proofStandard"), return ac]
-        parseF ac = msum [liftM (setF ac) (v .: "formula"), return ac]
+        parseF ac  = msum [liftM (setF ac)  (v .: "formula"),       return ac]
     ac <- parseF =<< parsePS =<< parseI mempty
     guard $ ac /= mempty
     return ac
@@ -53,9 +53,9 @@ instance FromJSON (Exp String) where
   parseJSON _ = mzero
 
 instance FromJSON ProofStandard where
-  parseJSON (String "PSScintillaOfEvidence") = return PSScintillaOfEvidence
+  parseJSON (String "PSScintillaOfEvidence")     = return PSScintillaOfEvidence
   parseJSON (String "PSPreponderanceOfEvidence") = return PSPreponderanceOfEvidence
-  parseJSON (String "PSBeyondResonableDoubt") = return PSBeyondResonableDoubt
+  parseJSON (String "PSBeyondResonableDoubt")    = return PSBeyondResonableDoubt
   parseJSON _ = mzero
 
 instance Functor AcceptanceCondition where

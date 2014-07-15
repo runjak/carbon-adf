@@ -37,11 +37,25 @@ setCondition conn i
         q = "SELECT COUNT(*) > 0 FROM acceptanceconditions WHERE "
           ++"acceptanceconditionid = ? AND proofstandard = ? AND formula = ?"
     [[t]] <- quickQuery' conn q [toSql $ acceptanceConditionId c, toSql $ proofStandard c, toSql $ formula c]
-    let boring = return $ Right i
-        changed = setCondition conn $ i <+ c <+ (mempty :: Id)
+    let boring  = return $ Right i
+        changed = fixParent conn i >> setCondition conn (i <+ c <+ (mempty :: Id))
     fromSql t ? (boring, changed)
   where
     getC = Maybe.fromJust . condition
+
+    {-
+      In case we update an acceptance condition, we replace it's parent in discussions, should a parent exist.
+    -}
+    fixParent :: IConnection conn => conn -> Item Id -> IO ()
+    fixParent conn i = do
+      let iid  = toSql $ itemId i
+          getP = "SELECT MAX(parent) FROM item_family WHERE child = ?"
+      pData <- quickQuery' conn getP [iid]
+      let hasParents = not $ null pData
+      when hasParents $ do
+        let parent = toSql . head $ head pData
+            update = "UPDATE discussion_arguments SET itemid = ? WHERE itemid = ?"
+        void $ quickQuery' conn update [iid, parent]
 
 setCondition' :: Item Id -> Query () 
 setCondition' i conn = void $ setCondition conn i

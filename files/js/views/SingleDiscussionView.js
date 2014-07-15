@@ -12,18 +12,10 @@ SingleDiscussionView = Hideable.extend({
     this.discussionParticipantView = new DiscussionParticipantView({el: this.$('#SingleDiscussionViewParticipants')});
     this.discussionGraphView = new DiscussionGraphView({
       el: this.$('#SingleDiscussionViewGraph'), model: null});
-//  this.discussionResultView = new DiscussionResultView({
-//    el: this.$('#SingleDiscussionViewResults'), model: null});
-//  this.relationCreationModal = new RelationCreationModal({
-//    el: this.$('#RelationCreationModal'), model: null});
-//  this.articleConditionModal = new ArticleConditionModal({
-//    el: this.$('#ArticleConditionModal'), model: null});
+    this.articleConditionModal = new ArticleConditionModal({
+      el: this.$('#ArticleConditionModal'), model: null});
     this.discussionDlFileView = new DiscussionDlFileView({el: this.$('#SingleDiscussionViewFiles')}); 
-    this.subViews = ['discussionArticleView','discussionCollectedView','discussionGraphView','discussionParticipantView','discussionDlFileView'];
-//  this.subViews = ['discussionArticleView'    , 'discussionCollectedView'
-//                  ,'discussionGraphView'      , 'discussionResultView'
-//                  ,'discussionParticipantView', 'relationCreationModal'
-//                  ,'articleConditionModal'    , 'discussionDlFileView'];
+    this.subViews = ['discussionArticleView','discussionCollectedView','discussionGraphView','discussionParticipantView','articleConditionModal','discussionDlFileView'];
     var view = this;
     window.App.router.on('route:singleDiscussionView', function(did){
       view.setDiscussionId(did).always(function(){

@@ -1,9 +1,4 @@
 ------------------------
-|      2014-05-27      |
-------------------------
-- Maybe discuss the STM issue on Stackoverflow
-
-------------------------
 |      2014-05-20      |
 ------------------------
 - Next step shall be adding interaction to resultView.
@@ -24,19 +19,6 @@
   - A copy that is compiled on my machine works on the server, which is my current workaround.
 
 ------------------------
-|      2014-04-13      |
-------------------------
-- I'd like to read up on postgreSQL OIDs
-
-------------------------
 |      2014-04-10      |
 ------------------------
 - Add iff, imp and xor operators to instance parser.
-
-------------------------
-|      2014-02-12      |
-------------------------
-- Since evaluation is now working, the next thing todo would be
-  to integrate it together with ResultPresentation and Voting into the App.
-  - Also Carbon.Website.Item:evaluation should add the current participants as voters of the resultSet
-    before saving it.

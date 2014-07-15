@@ -1,12 +1,13 @@
 DiscussionGraphView = SpringyRenderer.extend({
   events: {
-    "click #DiscussionGraphViewHideRest":     "hideRest"
-  , "click #DiscussionGraphViewToggleEngine": "toggleEngine"
-  , "click #DiscussionGraphViewAddNode":      "addDummyNode"
-  , "click #DiscussionGraphViewRemoveNode":   "removeNode"
-  , "click #AddRelationAttack":               "addRelationAttack"
-  , "click #AddRelationDefend":               "addRelationDefend"
-  , "click #DiscussionGraphViewClearClick":   "clearClick"
+    "click #DiscussionGraphViewHideRest":      "hideRest"
+  , "click #DiscussionGraphViewToggleEngine":  "toggleEngine"
+  , "click #DiscussionGraphViewAddNode":       "addDummyNode"
+  , "click #DiscussionGraphViewRemoveNode":    "removeNode"
+  , "click #AddRelationAttack":                "addRelationAttack"
+  , "click #AddRelationDefend":                "addRelationDefend"
+  , "click #DiscussionGraphViewEditCondition": "editCondition"
+  , "click #DiscussionGraphViewClearClick":    "clearClick"
   }
 , initialize: function(){
     var view = this;
@@ -175,6 +176,14 @@ DiscussionGraphView = SpringyRenderer.extend({
       }
     }, msg);
   }
+, editCondition: function(){
+    var view = this, msg = "Click on a node to edit it's acceptance condition manually.";
+    this.setClick(function(n){
+      var article = n.data.item;
+      window.App.views.singleDiscussionView.articleConditionModal.display(article);
+      view.clearClick();
+    }, msg);
+  }
 //Setting a click handler for nodes
 , setClick: function(f, msg){
     this.nodeSelected = f;
@@ -251,7 +260,16 @@ DiscussionGraphView = SpringyRenderer.extend({
       var iid = i.get('id');
       if(iid in t.idNodeSet){ // Noting nodes that are kept:
         if(c = i.get('condition')){ // Updating existing node:
-          var data = t.graph.nodeSet[iid].data;
+          var node = t.graph.nodeSet[iid];
+          if(!node){ // TODO this code to find a node is kinda broken
+            var ps = i.get('parents');
+            for(var x = 0; x < ps.length; x++){
+              node = t.graph.nodeSet[x];
+              if(node) break;
+            }
+            if(!node) return;
+          }
+          var data = node.data;
           data.formula = c.formula;
           if(ps = c.proofStandard)
             data.color = t.colors[ps];
@@ -261,7 +279,7 @@ DiscussionGraphView = SpringyRenderer.extend({
       }
       //Building the node options:
       var o = {
-        item: i
+        item:  i
       , label: i.get('description').headline
       }
       //Figuring out the nodes color:
