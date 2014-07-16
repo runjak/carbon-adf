@@ -22,6 +22,7 @@ LoginView = Hideable.extend({
     var model = this.model;
     var formD = this.formData();
     model.create(formD.username, formD.password).done(function(d){
+      if(d.Right) d = d.Right;
       model.set($.extend({loggedIn: true}, d));
     }).fail(function(f){
       console.log(f);
