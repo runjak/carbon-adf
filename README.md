@@ -1,3 +1,10 @@
+About CARBON:
+===
+CARBON is short for 'Collaborative ARgumentation Brought ONline'.
+It builds on top of DIAMOND to provide a JavaScript heavy web application that enables clients to use abstract dialectical frameworks in a collaborative context.
+CARBON was initially published at [sourceforge](http://sourceforge.net/projects/carbon-adf/), but since I like my projects to be on github as well, I decided to put it here, too.
+CARBON was the topic of my Bsc. Thesis, which can be found at [lips.informatik.uni-leipzig.de](http://lips.informatik.uni-leipzig.de/pub/2014-1).
+
 How to compile and run carbon:
 ===
 
