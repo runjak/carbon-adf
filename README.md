@@ -38,9 +38,12 @@ Now it's necessary to configure the PostgreSQL server:
 
 1. Make sure a login and a database for carbon to use are available by executing the following steps:
 
-    su postgres
-    psql
+    $ su postgres
+
+    $ psql
+    
     > CREATE ROLE exampleUser LOGIN password 'examplePassword';
+
     > CREATE DATABASE carbon ENCODING 'UTF8' OWNER exampleUser;
 
 Remember to replace example{User,Password} with custom values.
